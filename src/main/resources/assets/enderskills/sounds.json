@@ -1,0 +1,404 @@
+{
+  "page_turn": {
+    "sounds": [
+      "enderskills:page_turn"
+    ],
+    "subtitle": "enderskills.subtitle.page_turn"
+  },
+  "spark": {
+    "sounds": [
+      "enderskills:spark"
+    ],
+    "subtitle": "enderskills.subtitle.spark"
+  },
+  "portal_place": {
+    "sounds": [
+      "enderskills:portal_place"
+    ],
+    "subtitle": "enderskills.subtitle.portal_place"
+  },
+  "portal_active": {
+    "sounds": [
+      "enderskills:portal_active"
+    ],
+    "subtitle": "enderskills.subtitle.portal_active"
+  },
+  "portal_closed_active": {
+    "sounds": [
+      "enderskills:portal_closed_active"
+    ],
+    "subtitle": "enderskills.subtitle.portal_closed_active"
+  },
+  "portal_open": {
+    "sounds": [
+      "enderskills:portal_open"
+    ],
+    "subtitle": "enderskills.subtitle.portal_open"
+  },
+  "teleport": {
+    "sounds": [
+      "enderskills:teleport"
+    ],
+    "subtitle": "enderskills.subtitle.teleport"
+  },
+  "unstable_portal": {
+    "sounds": [
+      "enderskills:unstable_portal"
+    ],
+    "subtitle": "enderskills.subtitle.unstable_portal"
+  },
+  "warp": {
+    "sounds": [
+      "enderskills:warp"
+    ],
+    "subtitle": "enderskills.subtitle.warp"
+  },
+  "invisibility": {
+    "sounds": [
+      "enderskills:invisibility"
+    ],
+    "subtitle": "enderskills.subtitle.invisibility"
+  },
+  "hover": {
+    "sounds": [
+      "enderskills:hover"
+    ],
+    "subtitle": "enderskills.subtitle.hover"
+  },
+  "smash_hit": {
+    "sounds": [
+      "enderskills:smash_hit"
+    ],
+    "subtitle": "enderskills.subtitle.smash_hit"
+  },
+  "smash_start": {
+    "sounds": [
+      "enderskills:smash_start"
+    ],
+    "subtitle": "enderskills.subtitle.smash_start"
+  },
+  "dash": {
+    "sounds": [
+      "enderskills:dash"
+    ],
+    "subtitle": "enderskills.subtitle.dash"
+  },
+  "speed": {
+    "sounds": [
+      "enderskills:speed"
+    ],
+    "subtitle": "enderskills.subtitle.speed"
+  },
+  "fog": {
+    "sounds": [
+      "enderskills:fog"
+    ],
+    "subtitle": "enderskills.subtitle.fog"
+  },
+  "hasten": {
+    "sounds": [
+      "enderskills:hasten"
+    ],
+    "subtitle": "enderskills.subtitle.hasten"
+  },
+  "jump": {
+    "sounds": [
+      "enderskills:jump"
+    ],
+    "subtitle": "enderskills.subtitle.jump"
+  },
+  "pull": {
+    "sounds": [
+      "enderskills:pull"
+    ],
+    "subtitle": "enderskills.subtitle.pull"
+  },
+  "push": {
+    "sounds": [
+      "enderskills:push"
+    ],
+    "subtitle": "enderskills.subtitle.push"
+  },
+  "slash": {
+    "sounds": [
+      "enderskills:slash"
+    ],
+    "subtitle": "enderskills.subtitle.slash"
+  },
+  "updraft": {
+    "sounds": [
+      "enderskills:updraft"
+    ],
+    "subtitle": "enderskills.subtitle.updraft"
+  },
+  "wind_on_hit": {
+    "sounds": [
+      "enderskills:wind_on_hit"
+    ],
+    "subtitle": "enderskills.subtitle.wind_on_hit"
+  },
+  "suffocate": {
+    "sounds": [
+      "enderskills:suffocate"
+    ],
+    "subtitle": "enderskills.subtitle.suffocate"
+  },
+  "suffocate_active": {
+    "sounds": [
+      "enderskills:suffocate_active"
+    ],
+    "subtitle": "enderskills.subtitle.suffocate_active"
+  },
+  "crush": {
+    "sounds": [
+      "enderskills:crush"
+    ],
+    "subtitle": "enderskills.subtitle.crush"
+  },
+  "taunt": {
+    "sounds": [
+      "enderskills:taunt"
+    ],
+    "subtitle": "enderskills.subtitle.taunt"
+  },
+  "thorns": {
+    "sounds": [
+      "enderskills:thorns"
+    ],
+    "subtitle": "enderskills.subtitle.thorns"
+  },
+  "wall_down": {
+    "sounds": [
+      "enderskills:wall_down"
+    ],
+    "subtitle": "enderskills.subtitle.wall_down"
+  },
+  "wall_up": {
+    "sounds": [
+      "enderskills:wall_up"
+    ],
+    "subtitle": "enderskills.subtitle.wall_up"
+  },
+  "animated_stone": {
+    "sounds": [
+      "enderskills:animated_stone"
+    ],
+    "subtitle": "enderskills.subtitle.animated_stone"
+  },
+  "dome_down": {
+    "sounds": [
+      "enderskills:dome_down"
+    ],
+    "subtitle": "enderskills.subtitle.dome_down"
+  },
+  "dome_up": {
+    "sounds": [
+      "enderskills:dome_up"
+    ],
+    "subtitle": "enderskills.subtitle.dome_up"
+  },
+  "earth_hit": {
+    "sounds": [
+        "enderskills:earth_hit"
+    ],
+    "subtitle": "enderskills.subtitle.earth_hit"
+  },
+  "shockwave": {
+    "sounds": [
+      "enderskills:shockwave"
+    ],
+    "subtitle": "enderskills.subtitle.shockwave"
+  },
+  "contaminate": {
+    "sounds": [
+      "enderskills:contaminate"
+    ],
+    "subtitle": "enderskills.subtitle.contaminate"
+  },
+  "bloodpool_active": {
+    "sounds": [
+      "enderskills:bloodpool_active"
+    ],
+    "subtitle": "enderskills.subtitle.bloodpool_active"
+  },
+  "life_steal": {
+    "sounds": [
+      "enderskills:life_steal"
+    ],
+    "subtitle": "enderskills.subtitle.life_steal"
+  },
+  "life_steal_attack": {
+    "sounds": [
+      "enderskills:life_steal_attack"
+    ],
+    "subtitle": "enderskills.subtitle.life_steal_attack"
+  },
+  "sacrifice": {
+    "sounds": [
+      "enderskills:sacrifice"
+    ],
+    "subtitle": "enderskills.subtitle.sacrifice"
+  },
+  "sacrifice_active": {
+    "sounds": [
+      "enderskills:sacrifice_active"
+    ],
+    "subtitle": "enderskills.subtitle.sacrifice_active"
+  },
+  "syphon": {
+    "sounds": [
+      "enderskills:syphon"
+    ],
+    "subtitle": "enderskills.subtitle.syphon"
+  },
+  "bleed": {
+    "sounds": [
+      "enderskills:bleed"
+    ],
+    "subtitle": "enderskills.subtitle.bleed"
+  },
+  "bleed_active": {
+    "sounds": [
+      "enderskills:bleed_active"
+    ],
+    "subtitle": "enderskills.subtitle.bleed_active"
+  },
+  "bloodpool": {
+    "sounds": [
+      "enderskills:bloodpool"
+    ],
+    "subtitle": "enderskills.subtitle.bloodpool"
+  },
+  "gas_cloud_explode": {
+    "sounds": [
+      "enderskills:gas_cloud_explode"
+    ],
+    "subtitle": "enderskills.subtitle.gas_cloud_explode"
+  },
+  "gloom": {
+    "sounds": [
+      "enderskills:gloom"
+    ],
+    "subtitle": "enderskills.subtitle.gloom"
+  },
+  "grasp": {
+    "sounds": [
+      "enderskills:grasp"
+    ],
+    "subtitle": "enderskills.subtitle.grasp"
+  },
+  "grasp_active": {
+    "sounds": [
+      "enderskills:grasp_active"
+    ],
+    "subtitle": "enderskills.subtitle.grasp_active"
+  },
+  "void_hit": {
+    "sounds": [
+      "enderskills:void_hit"
+    ],
+    "subtitle": "enderskills.subtitle.void_hit"
+  },
+  "shadow": {
+    "sounds": [
+      "enderskills:shadow"
+    ],
+    "subtitle": "enderskills.subtitle.shadow"
+  },
+  "shadow_attack": {
+    "sounds": [
+      "enderskills:shadow_attack"
+    ],
+    "subtitle": "enderskills.subtitle.shadow_attack"
+  },
+  "shadowjab": {
+    "sounds": [
+      "enderskills:shadowjab"
+    ],
+    "subtitle": "enderskills.subtitle.shadowjab"
+  },
+  "blackhole": {
+    "sounds": [
+      "enderskills:blackhole"
+    ],
+    "subtitle": "enderskills.subtitle.blackhole"
+  },
+  "blackhole_active": {
+    "sounds": [
+      "enderskills:blackhole_active"
+    ],
+    "subtitle": "enderskills.subtitle.blackhole_active"
+  },
+  "gas_cloud": {
+    "sounds": [
+      "enderskills:gas_cloud"
+    ],
+    "subtitle": "enderskills.subtitle.gas_cloud"
+  },
+  "fire_hit": {
+    "sounds": [
+      "enderskills:fire_hit"
+    ],
+    "subtitle": "enderskills.subtitle.fire_hit"
+  },
+  "fire_spirit": {
+    "sounds": [
+      "enderskills:fire_spirit"
+    ],
+    "subtitle": "enderskills.subtitle.fire_spirit"
+  },
+  "fire_spirit_active": {
+    "sounds": [
+      "enderskills:fire_spirit_active"
+    ],
+    "subtitle": "enderskills.subtitle.fire_spirit_active"
+  },
+  "fire_spirit_active2": {
+    "sounds": [
+      "enderskills:fire_spirit_active2"
+    ],
+    "subtitle": "enderskills.subtitle.fire_spirit_active2"
+  },
+  "fireball": {
+    "sounds": [
+      "enderskills:fireball"
+    ],
+    "subtitle": "enderskills.subtitle.fireball"
+  },
+  "fireball_explode": {
+    "sounds": [
+      "enderskills:fireball_explode"
+    ],
+    "subtitle": "enderskills.subtitle.fireball_explode"
+  },
+  "flaming_rain": {
+    "sounds": [
+      "enderskills:flaming_rain"
+    ],
+    "subtitle": "enderskills.subtitle.flaming_rain"
+  },
+  "focus_flame": {
+    "sounds": [
+      "enderskills:focus_flame"
+    ],
+    "subtitle": "enderskills.subtitle.focus_flame"
+  },
+  "flaming_rain_active": {
+    "sounds": [
+      "enderskills:flaming_rain_active"
+    ],
+    "subtitle": "enderskills.subtitle.flaming_rain_active"
+  },
+  "explode": {
+    "sounds": [
+      "enderskills:explode"
+    ],
+    "subtitle": "enderskills.subtitle.explode"
+  },
+  "flaming_breath": {
+    "sounds": [
+      "enderskills:flaming_breath"
+    ],
+    "subtitle": "enderskills.subtitle.flaming_breath"
+  }
+}

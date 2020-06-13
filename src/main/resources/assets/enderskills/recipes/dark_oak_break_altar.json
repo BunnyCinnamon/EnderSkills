@@ -1,0 +1,27 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " B ",
+    "IEI",
+    "WWW"
+  ],
+  "key": {
+    "W": {
+      "item": "minecraft:planks",
+      "data": 5
+    },
+    "E": {
+      "type": "forge:ore_dict",
+      "ore": "enderpearl"
+    },
+    "I": {
+      "item": "minecraft:iron_ingot"
+    },
+    "B": {
+      "item": "minecraft:book"
+    }
+  },
+  "result": {
+    "item": "enderskills:dark_oak_break_altar"
+  }
+}

@@ -1,0 +1,5 @@
+{
+  "conditions": {
+	"enable_tech_recipes": "arekkuusu.enderskills.common.handler.EnableTechRecipes"
+  }
+}

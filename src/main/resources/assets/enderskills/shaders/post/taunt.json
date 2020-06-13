@@ -1,0 +1,34 @@
+{
+    "targets": [
+        "0",
+        "1"
+    ],
+    "passes": [
+        {
+            "name": "enderskills:taunt",
+            "intarget": "minecraft:main",
+            "outtarget": "0"
+        },
+        {
+            "name": "blit",
+            "intarget": "0",
+            "outtarget": "minecraft:main"
+        },
+        {
+            "name": "color_convolve",
+            "intarget": "minecraft:main",
+            "outtarget": "1",
+            "uniforms": [
+                {
+                    "name": "Saturation",
+                    "values": [ 0 ]
+                }
+            ]
+        },
+        {
+            "name": "blit",
+            "intarget": "1",
+            "outtarget": "minecraft:main"
+        }
+    ]
+}

@@ -1,0 +1,16 @@
+{
+  "type": "forge:ore_shaped",
+  "pattern": [
+    "##",
+    "##"
+  ],
+  "key": {
+    "#": {
+      "type": "forge:ore_dict",
+      "ore": "dustEnder"
+    }
+  },
+  "result": {
+    "item": "minecraft:ender_pearl"
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "type": "forge:ore_shaped",
+  "pattern": [
+    "GEG",
+    "IBI",
+    "GEG"
+  ],
+  "key": {
+    "G": {
+      "type": "forge:ore_dict",
+      "ore": "blockGlass"
+    },
+    "E": {
+      "type": "forge:ore_dict",
+      "ore": "enderpearl"
+    },
+    "I": {
+      "item": "minecraft:diamond"
+    },
+    "B": {
+      "type": "forge:ore_dict",
+      "ore": "blockRedstone"
+    }
+  },
+  "result": {
+    "item": "enderskills:crystal_matrix"
+  }
+}

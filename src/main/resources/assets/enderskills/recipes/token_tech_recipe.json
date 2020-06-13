@@ -1,0 +1,37 @@
+{
+  "conditions": [
+    {
+      "type": "enderskills:enable_tech_recipes",
+      "value": true
+    }
+  ],
+  "type": "forge:ore_shaped",
+  "pattern": [
+    "GRG",
+    "IEI",
+    "GDG"
+  ],
+  "key": {
+    "G": {
+      "type": "forge:ore_dict",
+      "ore": "blockGlass"
+    },
+    "E": {
+      "type": "forge:ore_dict",
+      "ore": "dustEnder"
+    },
+    "I": {
+      "type": "forge:ore_dict",
+      "ore": "dustGold"
+    },
+    "D": {
+      "item": "minecraft:diamond"
+    },
+    "R": {
+      "item": "minecraft:redstone"
+    }
+  },
+  "result": {
+    "item": "enderskills:token"
+  }
+}

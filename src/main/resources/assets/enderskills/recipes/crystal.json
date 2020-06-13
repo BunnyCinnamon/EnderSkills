@@ -1,0 +1,23 @@
+{
+  "type": "forge:ore_shaped",
+  "pattern": [
+    "IGI",
+    "GMG",
+    "IGI"
+  ],
+  "key": {
+    "G": {
+      "type": "forge:ore_dict",
+      "ore": "blockGlass"
+    },
+    "M": {
+      "item": "enderskills:token"
+    },
+    "I": {
+      "item": "minecraft:iron_ingot"
+    }
+  },
+  "result": {
+    "item": "enderskills:crystal"
+  }
+}

@@ -1,0 +1,52 @@
+{
+  "targets": [
+    "0",
+    "1"
+  ],
+  "passes": [
+    {
+      "name": "enderskills:taunt",
+      "intarget": "minecraft:main",
+      "outtarget": "0"
+    },
+    {
+      "name": "blit",
+      "intarget": "0",
+      "outtarget": "minecraft:main"
+    },
+    {
+      "name": "color_convolve",
+      "intarget": "minecraft:main",
+      "outtarget": "1",
+      "uniforms": [
+        {
+          "name": "RedMatrix",
+          "values": [ 1.0, 1.0, 1.0 ]
+        },
+        {
+          "name": "GreenMatrix",
+          "values": [ 0.4, 0.4, 0.4 ]
+        },
+        {
+          "name": "BlueMatrix",
+          "values": [ 0.6, 0.6, 0.6 ]
+        },
+        {
+          "name": "Saturation",
+          "values": [ 0.8 ]
+        }
+      ]
+    },
+    {
+      "name": "blit",
+      "intarget": "1",
+      "outtarget": "minecraft:main",
+      "uniforms": [
+        {
+          "name": "ColorModulate",
+          "values": [ 1.0, 0.8, 0.8, 1.0 ]
+        }
+      ]
+    }
+  ]
+}

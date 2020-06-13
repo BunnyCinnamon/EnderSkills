@@ -1,0 +1,20 @@
+[
+  {
+    "modid": "enderskills",
+    "name": "Ender Skills",
+    "description": "Skills from the end or something.",
+    "version": "${version}",
+    "mcversion": "${mcversion}",
+    "url": "",
+    "updateUrl": "",
+    "authorList": [
+      "cybercat5555",
+      "Arekkuusu",
+      "Pandize"
+    ],
+    "credits": "SilentChaos, MoriyaShiine",
+    "logoFile": "",
+    "screenshots": [],
+    "dependencies": []
+  }
+]

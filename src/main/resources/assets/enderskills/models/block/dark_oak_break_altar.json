@@ -1,0 +1,6 @@
+{
+    "parent": "enderskills:block/template_break_altar",
+    "textures": {
+        "particle": "enderskills:blocks/dark_oak_break_altar"
+    }
+}
