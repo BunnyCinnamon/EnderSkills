@@ -10,6 +10,7 @@ import arekkuusu.enderskills.client.util.helper.TextHelper;
 import arekkuusu.enderskills.common.CommonConfig;
 import arekkuusu.enderskills.common.lib.LibMod;
 import arekkuusu.enderskills.common.lib.LibNames;
+import arekkuusu.enderskills.common.skill.SkillHelper;
 import arekkuusu.enderskills.common.skill.attribute.AttributeInfo;
 import arekkuusu.enderskills.common.skill.attribute.BaseAttribute;
 import net.minecraft.client.Minecraft;
@@ -40,7 +41,7 @@ public class ArmorPenetration extends BaseAttribute implements ISkillAdvancement
 
     @SubscribeEvent(priority = EventPriority.LOW)
     public void onEntityDamage(LivingHurtEvent event) {
-        if (isClientWorld(event.getEntityLiving()) || event.getSource().getDamageType().equals("skill")) return;
+        if (isClientWorld(event.getEntityLiving()) || SkillHelper.isSkillDamage(event.getSource())) return;
         DamageSource source = event.getSource();
         if (source.getTrueSource() == null) return;
         EntityLivingBase target = event.getEntityLiving();
@@ -143,7 +144,7 @@ public class ArmorPenetration extends BaseAttribute implements ISkillAdvancement
         int level = info != null ? getLevel(info) + 1 : 0;
         int levelMax = getMaxLevel();
         double func = ExpressionHelper.getExpression(this, Configuration.getSyncValues().advancement.upgrade, level, levelMax);
-        return (int) (func * CommonConfig.getSyncValues().advancement.globalCostMultiplier);
+        return (int) (func * CommonConfig.getSyncValues().advancement.xp.globalCostMultiplier);
     }
     /*Advancement Section*/
 

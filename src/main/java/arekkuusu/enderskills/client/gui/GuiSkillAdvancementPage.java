@@ -105,14 +105,6 @@ public class GuiSkillAdvancementPage extends Gui {
         this.drawTexturedModalRect(x - 1, yOffset + 5 + 60, 140, 64, 7, 3);
         this.drawTexturedModalRect(x - 1, yOffset + 5 + 96, 140, 64, 7, 3);
         this.drawTexturedModalRect(x - 1, yOffset + height + 8, 140, 64, 7, 3);
-        /*for (int i = 0; i <= 8; i += 2) {
-            int yOffset = minY + scrollY + 5 + 18 * i;
-            this.drawTexturedModalRect(x + 1, yOffset, 150, 51, 3, 26);
-            this.drawTexturedModalRect(x - 1, yOffset, 140, 64, 7, 3);
-            if (i + 2 <= 6) {
-                this.drawTexturedModalRect(x + 1, yOffset + 25, 153, 52, 3, 13);
-            }
-        }*/
         //Draw Advancement
         if (advancements.size() > 0) {
             for (GuiSkillAdvancement advancement : advancements) {
@@ -148,15 +140,15 @@ public class GuiSkillAdvancementPage extends Gui {
             double progress = SkillAdvancementConditionAltar.ALTAR_JUICE;
             String text = "";
             if(progress < SkillAdvancementConditionAltar.LEVEL_0) {
-                text = "0/4 Altar Power";
+                text = TextHelper.translate("gui.altar_power_0");
             } else if(progress < SkillAdvancementConditionAltar.LEVEL_1) {
-                text = "1/4 Altar Power";
+                text = TextHelper.translate("gui.altar_power_1");
             } else if(progress < SkillAdvancementConditionAltar.LEVEL_2) {
-                text = "2/4 Altar Power";
+                text = TextHelper.translate("gui.altar_power_2");
             } else if(progress < SkillAdvancementConditionAltar.LEVEL_3) {
-                text = "3/4 Altar Power";
+                text = TextHelper.translate("gui.altar_power_3");
             } else {
-                text = "Full Altar Power";
+                text = TextHelper.translate("gui.altar_power_4");
             }
             this.gui.drawHoveringText(text, mouseX, mouseY);
         }

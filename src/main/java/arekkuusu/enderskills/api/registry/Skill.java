@@ -36,10 +36,6 @@ public class Skill extends IForgeRegistryEntry.Impl<Skill> {
         //For Rent
     }
 
-    public boolean isClientWorld(EntityLivingBase entity) {
-        return entity.getEntityWorld().isRemote;
-    }
-
     public void apply(EntityLivingBase entity, SkillData data) {
         Capabilities.get(entity).ifPresent(skills -> skills.activate(new SkillHolder(data))); //Add to entity Server Side
     }

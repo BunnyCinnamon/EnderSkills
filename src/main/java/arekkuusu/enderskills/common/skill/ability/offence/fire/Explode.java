@@ -34,7 +34,6 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.DamageSource;
 import net.minecraft.util.EntityDamageSource;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.Vec3d;
@@ -105,7 +104,7 @@ public class Explode extends BaseAbility implements IScanEntities, IExpand, IFin
         if (isClientWorld(entity)) return;
         Optional.ofNullable(NBTHelper.getEntity(EntityLivingBase.class, data.nbt, "user")).ifPresent(user -> {
             double damage = data.nbt.getDouble("damage");
-            EntityDamageSource source = new EntityDamageSource(BaseAbility.DAMAGE_TYPE, user);
+            EntityDamageSource source = new EntityDamageSource(BaseAbility.DAMAGE_HIT_TYPE, user);
             source.setExplosion();
             SkillDamageEvent event = new SkillDamageEvent(user, this, source, damage);
             MinecraftForge.EVENT_BUS.post(event);
@@ -119,7 +118,7 @@ public class Explode extends BaseAbility implements IScanEntities, IExpand, IFin
         Optional.ofNullable(NBTHelper.getEntity(EntityLivingBase.class, data.nbt, "user")).ifPresent(user -> {
             double damage = data.nbt.getDouble("dot");
             double time = data.nbt.getInteger("dotDuration");
-            EntityDamageSource source = new EntityDamageSource(BaseAbility.DAMAGE_TYPE, user);
+            EntityDamageSource source = new EntityDamageSource(BaseAbility.DAMAGE_DOT_TYPE, user);
             source.setFireDamage();
             SkillDamageEvent event = new SkillDamageEvent(user, this, source, damage);
             MinecraftForge.EVENT_BUS.post(event);
@@ -280,7 +279,7 @@ public class Explode extends BaseAbility implements IScanEntities, IExpand, IFin
         int level = info != null ? getLevel(info) + 1 : 0;
         int levelMax = getMaxLevel();
         double func = ExpressionHelper.getExpression(this, Configuration.getSyncValues().advancement.upgrade, level, levelMax);
-        return (int) (func * CommonConfig.getSyncValues().advancement.globalCostMultiplier);
+        return (int) (func * CommonConfig.getSyncValues().advancement.xp.globalCostMultiplier);
     }
     /*Advancement Section*/
 
@@ -371,7 +370,7 @@ public class Explode extends BaseAbility implements IScanEntities, IExpand, IFin
 
             public static class Advancement {
                 @Config.Comment("Function f(x)=? where 'x' is [Next Level] and 'y' is [Max Level], XP Cost is in units [NOT LEVELS]")
-                public String upgrade = "(22070 * (1 - (0 ^ (0 ^ x)))) + 5730 * x";
+                public String upgrade = "(22070 * (1 - (0 ^ (0 ^ x)))) + 3120 * x";
             }
         }
     }

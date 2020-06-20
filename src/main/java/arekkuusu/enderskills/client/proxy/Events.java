@@ -29,6 +29,7 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderLivingEvent;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
@@ -60,11 +61,13 @@ public class Events {
         Capabilities.get(player).ifPresent(capability -> {
             if (SkillKeyBounds.skillGroupRotateLeft.isPressed()) {
                 rotateSkillGroup(capability, true);
+                player.sendStatusMessage(TextHelper.getTextComponent("rotate_skill_group", skillGroup), true);
                 rotate = EnumFacing.AxisDirection.NEGATIVE;
                 return;
             }
             if (SkillKeyBounds.skillGroupRotateRight.isPressed()) {
                 rotateSkillGroup(capability, false);
+                player.sendStatusMessage(TextHelper.getTextComponent("rotate_skill_group", skillGroup), true);
                 rotate = EnumFacing.AxisDirection.POSITIVE;
                 return;
             }

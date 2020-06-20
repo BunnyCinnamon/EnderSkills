@@ -225,6 +225,8 @@ public final class PacketHandler {
             Capabilities.advancement(e).ifPresent(c -> {
                 c.skillUnlockOrder = new Skill[0];
                 c.resetCount++;
+                c.addExperienceToTotal((int) (c.experienceSpent * CommonConfig.getSyncValues().advancement.xp.retryXPReturn));
+                c.experienceSpent = 0;
             });
             if (e instanceof EntityPlayer) {
                 PacketHelper.sendAdvancementSync((EntityPlayerMP) e);

@@ -1,6 +1,7 @@
 package arekkuusu.enderskills.common.entity;
 
 import arekkuusu.enderskills.api.capability.Capabilities;
+import arekkuusu.enderskills.common.CommonConfig;
 import arekkuusu.enderskills.common.network.PacketHelper;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.Entity;
@@ -135,6 +136,9 @@ public class EntityTokenOrb extends Entity {
                             double exp = 1;
                             for (int j = 0; j < c.level; j++) {
                                 exp = exp * 2D;
+                            }
+                            if(exp > CommonConfig.getSyncValues().advancement.levels.tokenCostThreshold) {
+                                exp -= exp * CommonConfig.getSyncValues().advancement.levels.tokenDiminishableCost;
                             }
                             double xp = 2D / exp;
                             c.levelProgress += xp;

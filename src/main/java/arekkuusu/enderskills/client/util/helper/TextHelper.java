@@ -20,7 +20,11 @@ public class TextHelper {
     public static final Pattern PATTERN = Pattern.compile("(.+) \\S+");
 
     public static String translate(String key, Object... args) {
-        return new TextComponentTranslation("ui." + LibMod.MOD_ID + "." + key, args).getFormattedText();
+        return getTextComponent(key, args).getFormattedText();
+    }
+
+    public static TextComponentTranslation getTextComponent(String key, Object... args) {
+        return new TextComponentTranslation("ui." + LibMod.MOD_ID + "." + key, args);
     }
 
     public static String format2FloatPoint(double number) {

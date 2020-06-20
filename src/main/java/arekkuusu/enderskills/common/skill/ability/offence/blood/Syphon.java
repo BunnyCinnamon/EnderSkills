@@ -30,7 +30,6 @@ import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.DamageSource;
 import net.minecraft.util.EntityDamageSource;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.RayTraceResult;
@@ -89,7 +88,7 @@ public class Syphon extends BaseAbility implements IImpact, ISkillAdvancement {
                     //Calculate Heal
                     float healthBeforeDamage = target.getHealth();
                     float lifeTaken = healed;
-                    EntityDamageSource source = new EntityDamageSource(BaseAbility.DAMAGE_TYPE, user);
+                    EntityDamageSource source = new EntityDamageSource(BaseAbility.DAMAGE_HIT_TYPE, user);
                     source.setMagicDamage();
                     target.attackEntityFrom(source, lifeTaken);
                     float healthAfterDamage = target.getHealth();
@@ -253,7 +252,7 @@ public class Syphon extends BaseAbility implements IImpact, ISkillAdvancement {
         int level = info != null ? getLevel(info) + 1 : 0;
         int levelMax = getMaxLevel();
         double func = ExpressionHelper.getExpression(this, Configuration.getSyncValues().advancement.upgrade, level, levelMax);
-        return (int) (func * CommonConfig.getSyncValues().advancement.globalCostMultiplier);
+        return (int) (func * CommonConfig.getSyncValues().advancement.xp.globalCostMultiplier);
     }
     /*Advancement Section*/
 

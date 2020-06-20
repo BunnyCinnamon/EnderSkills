@@ -1,3 +1,4 @@
+#PARSE_ESCAPES
 #Creative tab
 itemGroup.enderskills.misc_tab=Ender Skills Items & Blocks
 #Objects
@@ -11,8 +12,8 @@ tile.altar_ultimate.name=Ultimate Altar
 tile.crystal.name=Crystal Block
 tile.ender_ore.name=Ender Ore
 #----------------------------------------------------------------------------------------------------------------------#
-item.token.name=Break Token
-item.crystal_matrix.name=Crystal Matrix
+item.token.name=Ender Token
+item.crystal_matrix.name=Ender Matrix
 item.ender_dust.name=Ender Dust
 #----------------------------------------------------------------------------------------------------------------------#
 death.attack.skill=%1$s has been squished
@@ -69,6 +70,30 @@ command.enderskills.config.reload.success=Success! Realoaded config files
 enderskills.potion_ability_power_effect=Ability Power Effect
 enderskills.potion_cooldown_effect=Cooldown Effect
 enderskills.potion_endurance_effect=Endurance Effect
+#----------------------------------------------------------------------------------------------------------------------#
+ui.enderskills.rotate_skill_group=Skill Group %d Selected
+#----------------------------------------------------------------------------------------------------------------------#
+ui.enderskills.gui.reset_unlocks=§4Reset Unlocks§r
+ui.enderskills.gui.store_xp=§lStore XP§r
+ui.enderskills.gui.take_xp=§lTake XP§r
+ui.enderskills.gui.xp=%s XP
+ui.enderskills.gui.xp_level=%s
+ui.enderskills.gui.levels=%s ender level(s)
+ui.enderskills.gui.reset_unlocks_title=Confirm Reset of all progress?
+ui.enderskills.gui.reset_unlocks_description=\n§4This action cannot be undone.§r
+ui.enderskills.gui.altar_power_0=0/4 Altar Power
+ui.enderskills.gui.altar_power_1=1/4 Altar Power
+ui.enderskills.gui.altar_power_2=2/4 Altar Power
+ui.enderskills.gui.altar_power_3=3/4 Altar Power
+ui.enderskills.gui.altar_power_4=Full Altar Power
+ui.enderskills.gui.advancement.or=OR
+ui.enderskills.gui.advancement.and=&&
+ui.enderskills.gui.advancement.confirm_upgrade=Confirm Upgrade?
+ui.enderskills.gui.advancement.confirm_unlock=Confirm Unlock?
+ui.enderskills.gui.advancement.requires=§lRequires:§r
+ui.enderskills.gui.advancement.requires_levels=\n- %s levels(s).
+ui.enderskills.gui.advancement.requires_xp=\n- %s XP."
+ui.enderskills.gui.advancement.undone_warning=\n\n§4This action cannot be undone.§r
 
 ui.enderskills.cooldown.timer=%1$ss
 ui.enderskills.endurance.title=Endurance
@@ -146,7 +171,7 @@ ui.enderskills.skill.swim_speed.title=Swim Speed
 ui.enderskills.skill.swim_speed.description=Increases swim velocity.
 
 ui.enderskills.skill.dash.title=Dash
-ui.enderskills.skill.dash.description=Allows the user to dash towards any horizontal direction, activate it by holding AUTO-RUN + Double tapping any WASD combination.
+ui.enderskills.skill.dash.description=Allows the user to dash towards any horizontal direction, activate it by holding any WASD combination + Double tapping AUTO-RUN.
 ui.enderskills.skill.extra_jump.title=Extra Jump
 ui.enderskills.skill.extra_jump.description=Allows the user to jump on air.
 ui.enderskills.skill.fog.title=Fog
@@ -159,7 +184,7 @@ ui.enderskills.skill.speed_boost.title=Speed Boost
 ui.enderskills.skill.speed_boost.description=Temporarily increases moving speed.
 
 ui.enderskills.skill.warp.title=Warp
-ui.enderskills.skill.warp.description=Allows the user to teleport towards any direction, activate it by holding AUTO-RUN + Double tapping any WASD combination.
+ui.enderskills.skill.warp.description=Allows the user to teleport towards any direction, activate it by holding any WASD combination + Double tapping AUTO-RUN.
 ui.enderskills.skill.invisibility.title=Invisibility
 ui.enderskills.skill.invisibility.description=Grants the user an invisible layer, deactivates when hit.
 ui.enderskills.skill.hover.title=Hover

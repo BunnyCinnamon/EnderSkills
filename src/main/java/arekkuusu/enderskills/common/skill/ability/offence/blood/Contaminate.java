@@ -29,7 +29,6 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.DamageSource;
 import net.minecraft.util.EntityDamageSource;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.RayTraceResult;
@@ -96,7 +95,7 @@ public class Contaminate extends BaseAbility implements IImpact, ISkillAdvanceme
         if (isClientWorld(entity)) return;
         Optional.ofNullable(NBTHelper.getEntity(EntityLivingBase.class, data.nbt, "user")).ifPresent(user -> {
             double damage = data.nbt.getDouble("damage");
-            EntityDamageSource source = new EntityDamageSource(BaseAbility.DAMAGE_TYPE, user);
+            EntityDamageSource source = new EntityDamageSource(BaseAbility.DAMAGE_HIT_TYPE, user);
             SkillDamageEvent event = new SkillDamageEvent(user, this, source, damage);
             MinecraftForge.EVENT_BUS.post(event);
             entity.attackEntityFrom(event.getSource(), event.toFloat());
@@ -109,7 +108,7 @@ public class Contaminate extends BaseAbility implements IImpact, ISkillAdvanceme
         Optional.ofNullable(NBTHelper.getEntity(EntityLivingBase.class, data.nbt, "user")).ifPresent(user -> {
             double damage = data.nbt.getDouble("dot");
             double time = data.nbt.getInteger("time");
-            EntityDamageSource source = new EntityDamageSource(BaseAbility.DAMAGE_TYPE, user);
+            EntityDamageSource source = new EntityDamageSource(BaseAbility.DAMAGE_DOT_TYPE, user);
             source.setMagicDamage();
             SkillDamageEvent event = new SkillDamageEvent(user, this, source, damage);
             MinecraftForge.EVENT_BUS.post(event);
@@ -273,7 +272,7 @@ public class Contaminate extends BaseAbility implements IImpact, ISkillAdvanceme
         int level = info != null ? getLevel(info) + 1 : 0;
         int levelMax = getMaxLevel();
         double func = ExpressionHelper.getExpression(this, Configuration.getSyncValues().advancement.upgrade, level, levelMax);
-        return (int) (func * CommonConfig.getSyncValues().advancement.globalCostMultiplier);
+        return (int) (func * CommonConfig.getSyncValues().advancement.xp.globalCostMultiplier);
     }
     /*Advancement Section*/
 

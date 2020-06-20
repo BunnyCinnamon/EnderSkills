@@ -4,14 +4,20 @@ import arekkuusu.enderskills.api.capability.Capabilities;
 import arekkuusu.enderskills.api.capability.data.SkillHolder;
 import arekkuusu.enderskills.api.helper.NBTHelper;
 import arekkuusu.enderskills.api.registry.Skill;
+import arekkuusu.enderskills.common.skill.ability.BaseAbility;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.util.DamageSource;
 
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
 public final class SkillHelper {
+
+    public static boolean isSkillDamage(DamageSource source) {
+        return source.getDamageType().matches(BaseAbility.DAMAGE_HIT_TYPE + "|" + BaseAbility.DAMAGE_DOT_TYPE);
+    }
 
     public static void getActiveOwner(Entity entity, Skill skill, Consumer<SkillHolder> consumer) {
         SkillHelper.getActive(entity, skill, holder -> {

@@ -110,7 +110,7 @@ public class Bleed extends BaseAbility implements ISkillAdvancement {
                 }
             } else {
                 double damage = data.nbt.getDouble("dot");
-                EntityDamageSource source = new EntityDamageSource(BaseAbility.DAMAGE_TYPE, user);
+                EntityDamageSource source = new EntityDamageSource(BaseAbility.DAMAGE_DOT_TYPE, user);
                 source.setMagicDamage();
                 SkillDamageEvent event = new SkillDamageEvent(user, this, source, damage);
                 MinecraftForge.EVENT_BUS.post(event);
@@ -298,7 +298,7 @@ public class Bleed extends BaseAbility implements ISkillAdvancement {
         int level = info != null ? getLevel(info) + 1 : 0;
         int levelMax = getMaxLevel();
         double func = ExpressionHelper.getExpression(this, Configuration.getSyncValues().advancement.upgrade, level, levelMax);
-        return (int) (func * CommonConfig.getSyncValues().advancement.globalCostMultiplier);
+        return (int) (func * CommonConfig.getSyncValues().advancement.xp.globalCostMultiplier);
     }
     /*Advancement Section*/
 

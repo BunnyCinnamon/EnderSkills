@@ -4,10 +4,12 @@ import arekkuusu.enderskills.api.capability.Capabilities;
 import arekkuusu.enderskills.common.entity.EntityTokenOrb;
 import arekkuusu.enderskills.common.lib.LibNames;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.SoundEvents;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.SoundCategory;
 import net.minecraft.world.World;
 
 public class ItemToken extends ItemBase {
@@ -35,6 +37,7 @@ public class ItemToken extends ItemBase {
                     worldIn.spawnEntity(orb);
                     stack.shrink(1);
                 }
+                worldIn.playSound(null, playerIn.posX, playerIn.posY, playerIn.posZ, SoundEvents.ENTITY_SPLASH_POTION_BREAK, SoundCategory.PLAYERS, 1.0F, (1.0F + (worldIn.rand.nextFloat() - worldIn.rand.nextFloat()) * 0.2F) * 0.7F);
             });
         }
         return new ActionResult<>(EnumActionResult.SUCCESS, playerIn.getHeldItem(handIn));

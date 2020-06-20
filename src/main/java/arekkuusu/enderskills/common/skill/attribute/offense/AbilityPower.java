@@ -11,6 +11,7 @@ import arekkuusu.enderskills.client.util.helper.TextHelper;
 import arekkuusu.enderskills.common.CommonConfig;
 import arekkuusu.enderskills.common.lib.LibMod;
 import arekkuusu.enderskills.common.lib.LibNames;
+import arekkuusu.enderskills.common.skill.SkillHelper;
 import arekkuusu.enderskills.common.skill.attribute.AttributeInfo;
 import arekkuusu.enderskills.common.skill.attribute.BaseAttribute;
 import net.minecraft.client.Minecraft;
@@ -38,7 +39,7 @@ public class AbilityPower extends BaseAttribute implements ISkillAdvancement {
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public void onSkillDamage(SkillDamageEvent event) {
         if(event.getEntityLiving() == null) return;
-        if (isClientWorld(event.getEntityLiving()) || !event.getSource().getDamageType().equals("skill")) return;
+        if (isClientWorld(event.getEntityLiving()) || !SkillHelper.isSkillDamage(event.getSource())) return;
         if (event.getAmount() <= 0) return;
         EntityLivingBase entity = event.getEntityLiving();
         Capabilities.get(entity).ifPresent(capability -> {
@@ -133,7 +134,7 @@ public class AbilityPower extends BaseAttribute implements ISkillAdvancement {
         int level = info != null ? getLevel(info) + 1 : 0;
         int levelMax = getMaxLevel();
         double func = ExpressionHelper.getExpression(this, Configuration.getSyncValues().advancement.upgrade, level, levelMax);
-        return (int) (func * CommonConfig.getSyncValues().advancement.globalCostMultiplier);
+        return (int) (func * CommonConfig.getSyncValues().advancement.xp.globalCostMultiplier);
     }
     /*Advancement Section*/
 
@@ -189,7 +190,7 @@ public class AbilityPower extends BaseAttribute implements ISkillAdvancement {
             public int maxLevel = Integer.MAX_VALUE;
 
             @Config.Comment("Modifier Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
-            public String modifier = "x * 1";
+            public String modifier = "(2 * x) + (x / 4)";
 
             @Config.Comment("Effectiveness Modifier")
             @Config.RangeDouble

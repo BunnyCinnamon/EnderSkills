@@ -45,9 +45,24 @@ public class GuiConfirmation extends Gui {
         this.height = scaledresolution.getScaledHeight();
         this.x = width / 2;
         this.y = height / 2;
+        int titleWidth = mc.fontRenderer.getStringWidth(title);
         List<String> descriptionLines = getDescriptionLines();
-        this.buttonYes = new GuiCustomButton(0, this.x - 15, this.y + 5 + descriptionLines.size() * this.mc.fontRenderer.FONT_HEIGHT, 12, 10, "", 0, 72, 12, 10, 0);
-        this.buttonNo = new GuiCustomButton(1, this.x + 3, this.y + 5 + descriptionLines.size() * this.mc.fontRenderer.FONT_HEIGHT, 11, 11, "", 12, 72, 11, 11, 0);
+        List<String> descriptionFormattedLines = new ArrayList<>();
+        for (String descriptionLine : descriptionLines) {
+            int s;
+            if (titleWidth < (s = this.mc.fontRenderer.getStringWidth(descriptionLine))) {
+                titleWidth = s;
+            }
+        }
+        for (String descriptionLine : descriptionLines) {
+            if (!descriptionLine.isEmpty()) {
+                descriptionFormattedLines.addAll(TextHelper.findOptimalLines(this.mc, descriptionLine, titleWidth));
+            } else {
+                descriptionFormattedLines.add("");
+            }
+        }
+        this.buttonYes = new GuiCustomButton(0, this.x - 25, this.y + 5 + descriptionFormattedLines.size() * this.mc.fontRenderer.FONT_HEIGHT, 12, 10, "", 0, 72, 12, 10, 0);
+        this.buttonNo = new GuiCustomButton(1, this.x + 13, this.y + 5 + descriptionFormattedLines.size() * this.mc.fontRenderer.FONT_HEIGHT, 11, 11, "", 12, 72, 11, 11, 0);
     }
 
     public void drawGui(int mouseX, int mouseY, float partialTicks) {
@@ -87,7 +102,7 @@ public class GuiConfirmation extends Gui {
             }
         }
 
-        int textureWidth = Math.max(titleWidth + 8, 40);
+        int textureWidth = Math.max(titleWidth + 8, 50);
         int xOffset = this.x - (textureWidth / 2);
         int yOffset = this.y - 26;
         //Render Button Background

@@ -32,7 +32,6 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.DamageSource;
 import net.minecraft.util.EntityDamageSource;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.world.WorldServer;
@@ -89,7 +88,7 @@ public class Slash extends BaseAbility implements IScanEntities, IExpand, IFindE
     public void onFound(Entity source, @Nullable EntityLivingBase owner, EntityLivingBase target, SkillData skillData) {
         Capabilities.get(owner).flatMap(c -> c.get(this)).ifPresent(skillInfo -> {
             AbilityInfo abilityInfo = (AbilityInfo) skillInfo;
-            EntityDamageSource damageSource = new EntityDamageSource(BaseAbility.DAMAGE_TYPE, owner);
+            EntityDamageSource damageSource = new EntityDamageSource(BaseAbility.DAMAGE_HIT_TYPE, owner);
             SkillDamageEvent event = new SkillDamageEvent(owner, this, damageSource, getDamage(abilityInfo));
             MinecraftForge.EVENT_BUS.post(event);
             target.attackEntityFrom(event.getSource(), event.toFloat());
@@ -246,7 +245,7 @@ public class Slash extends BaseAbility implements IScanEntities, IExpand, IFindE
         int level = info != null ? getLevel(info) + 1 : 0;
         int levelMax = getMaxLevel();
         double func = ExpressionHelper.getExpression(this, Configuration.getSyncValues().advancement.upgrade, level, levelMax);
-        return (int) (func * CommonConfig.getSyncValues().advancement.globalCostMultiplier);
+        return (int) (func * CommonConfig.getSyncValues().advancement.xp.globalCostMultiplier);
     }
     /*Advancement Section*/
 

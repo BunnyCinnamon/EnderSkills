@@ -20,6 +20,7 @@ import arekkuusu.enderskills.common.lib.LibMod;
 import arekkuusu.enderskills.common.lib.LibNames;
 import arekkuusu.enderskills.common.skill.ModAbilities;
 import arekkuusu.enderskills.common.skill.ModAttributes;
+import arekkuusu.enderskills.common.skill.SkillHelper;
 import arekkuusu.enderskills.common.skill.ability.AbilityInfo;
 import arekkuusu.enderskills.common.skill.ability.BaseAbility;
 import arekkuusu.enderskills.common.sound.ModSounds;
@@ -92,7 +93,7 @@ public class Sacrifice extends BaseAbility implements ISkillAdvancement {
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public void onEntityDamage(LivingHurtEvent event) {
-        if (isClientWorld(event.getEntityLiving()) || event.getSource().getDamageType().equals(BaseAbility.DAMAGE_TYPE)) return;
+        if (isClientWorld(event.getEntityLiving()) || SkillHelper.isSkillDamage(event.getSource())) return;
         DamageSource source = event.getSource();
         if (source.getTrueSource() == null || event.getAmount() <= 0) return;
         EntityLivingBase attacker = (EntityLivingBase) source.getTrueSource();
@@ -109,7 +110,7 @@ public class Sacrifice extends BaseAbility implements ISkillAdvancement {
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public void onSkillDamage(SkillDamageEvent event) {
-        if (isClientWorld(event.getEntityLiving()) || !event.getSource().getDamageType().equals(BaseAbility.DAMAGE_TYPE)) return;
+        if (isClientWorld(event.getEntityLiving()) || !SkillHelper.isSkillDamage(event.getSource())) return;
         EntityLivingBase entity = event.getEntityLiving();
         Capabilities.get(entity).ifPresent(capability -> {
             if (capability.owns(this) && capability.isActive(this)) {
@@ -272,7 +273,7 @@ public class Sacrifice extends BaseAbility implements ISkillAdvancement {
         int level = info != null ? getLevel(info) + 1 : 0;
         int levelMax = getMaxLevel();
         double func = ExpressionHelper.getExpression(this, Configuration.getSyncValues().advancement.upgrade, level, levelMax);
-        return (int) (func * CommonConfig.getSyncValues().advancement.globalCostMultiplier);
+        return (int) (func * CommonConfig.getSyncValues().advancement.xp.globalCostMultiplier);
     }
     /*Advancement Section*/
 

@@ -4,7 +4,6 @@ import arekkuusu.enderskills.api.capability.Capabilities;
 import arekkuusu.enderskills.api.capability.SkilledEntityCapability;
 import arekkuusu.enderskills.api.capability.data.IInfoUpgradeable;
 import arekkuusu.enderskills.api.capability.data.SkillInfo;
-import arekkuusu.enderskills.api.helper.XPHelper;
 import arekkuusu.enderskills.client.gui.GuiScreenSkillAdvancements;
 import arekkuusu.enderskills.client.gui.GuiSkillAdvancementPage;
 import arekkuusu.enderskills.client.gui.data.ISkillAdvancement;
@@ -13,7 +12,6 @@ import arekkuusu.enderskills.client.gui.data.SkillAdvancementInfo;
 import arekkuusu.enderskills.client.util.helper.RenderMisc;
 import arekkuusu.enderskills.client.util.helper.TextHelper;
 import com.google.common.collect.Lists;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.advancements.AdvancementState;
 import net.minecraft.client.renderer.GlStateManager;
@@ -78,7 +76,7 @@ public class GuiSkillAdvancementSimple extends GuiSkillAdvancement {
     @Override
     public void drawGuiForeground(int mouseX, int mouseY, float partialTicks) {
         this.drawSkillIcon();
-        if(isUnlocked() && !isHovered() && canUpgrade()) {
+        if (isUnlocked() && !isHovered() && canUpgrade()) {
             for (GuiButton guiButton : this.buttonList) {
                 int oldX = guiButton.x;
                 int oldY = guiButton.y;
@@ -100,8 +98,9 @@ public class GuiSkillAdvancementSimple extends GuiSkillAdvancement {
             if (skillInfo instanceof IInfoUpgradeable) {
                 int skillTier = ((IInfoUpgradeable) skillInfo).getLevel();
                 if (skillTier > 0) {
-                    if (skillTier > 9999) skillTier = 9999;
                     String tier = String.valueOf(skillTier);
+                    if (skillTier > 9999) tier = "9999+";
+                    if (skillTier >= advancement.info.skill.getMaxLevel()) tier = "MAX";
                     drawString(mc.fontRenderer, tier, this.xOffset + 18 + 10 - mc.fontRenderer.getStringWidth(tier),
                             this.yOffset + 18 + mc.fontRenderer.FONT_HEIGHT / 2, -1);
                 }
@@ -230,7 +229,7 @@ public class GuiSkillAdvancementSimple extends GuiSkillAdvancement {
             }
         }
 
-        if((isUnlockable() || isUnlocked()) && canUpgrade()) {
+        if ((isUnlockable() || isUnlocked()) && canUpgrade()) {
             for (GuiButton guiButton : this.buttonList) {
                 int oldX = guiButton.x;
                 int oldY = guiButton.y;
@@ -273,22 +272,24 @@ public class GuiSkillAdvancementSimple extends GuiSkillAdvancement {
             Capabilities.get(this.mc.player).ifPresent(c -> {
                 if (canUpgrade()) {
                     String description = "";
-                    String title = this.isUnlocked() ? "Confirm Upgrade?" : "Confirm Unlock?";
+                    String title = this.isUnlocked()
+                            ? TextHelper.translate("gui.advancement.confirm_upgrade")
+                            : TextHelper.translate("gui.advancement.confirm_unlock");
                     if (advancement.info.skill instanceof ISkillAdvancement) {
                         ISkillAdvancement.Requirement requirement = ((ISkillAdvancement) advancement.info.skill).getRequirement(this.mc.player);
                         int levels = requirement.getLevels();
                         int xp = requirement.getXp();
                         if (levels > 0 || (xp > 0)) {
-                            description = "\u00A7lRequires:\u00A7r";
+                            description = TextHelper.translate("gui.advancement.requires");
                         }
                         if (levels > 0) {
-                            description += "\n- " + levels + " levels(s).";
+                            description += TextHelper.translate("gui.advancement.requires_levels", levels);
                         }
                         if (xp > 0) {
-                            description += "\n- " + TextHelper.format2FloatPoint(xp) + " XP.";
+                            description += TextHelper.translate("gui.advancement.requires_xp", TextHelper.format2FloatPoint(xp));
                         }
                     }
-                    description += "\n\n\u00A74This action cannot be undone.\u00A7r";
+                    description += TextHelper.translate("gui.advancement.undone_warning");
                     GuiScreenSkillAdvancements.confirmation = new GuiConfirmation(this.mc, title, description, this.advancement::upgrade, true, true);
                     GuiScreenSkillAdvancements.confirmation.initGui();
                     button.playPressSound(this.mc.getSoundHandler());

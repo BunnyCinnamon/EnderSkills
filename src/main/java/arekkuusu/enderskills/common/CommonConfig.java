@@ -45,9 +45,12 @@ public final class CommonConfig {
         CommonConfig.getSyncValues().skill.globalEffectiveness = CommonConfig.getValues().skill.globalEffectiveness;
         CommonConfig.getSyncValues().skill.extra.globalEffectEffectiveness = CommonConfig.getValues().skill.extra.globalEffectEffectiveness;
         CommonConfig.getSyncValues().advancement.oneTreePerClass = CommonConfig.getValues().advancement.oneTreePerClass;
-        CommonConfig.getSyncValues().advancement.globalCostMultiplier = CommonConfig.getValues().advancement.globalCostMultiplier;
+        CommonConfig.getSyncValues().advancement.xp.globalCostMultiplier = CommonConfig.getValues().advancement.xp.globalCostMultiplier;
+        CommonConfig.getSyncValues().advancement.xp.retryXPReturn = CommonConfig.getValues().advancement.xp.retryXPReturn;
         CommonConfig.getSyncValues().advancement.maxRetries = CommonConfig.getValues().advancement.maxRetries;
-        CommonConfig.getSyncValues().advancement.defaultLevel = CommonConfig.getValues().advancement.defaultLevel;
+        CommonConfig.getSyncValues().advancement.levels.tokenDiminishableCost = CommonConfig.getValues().advancement.levels.tokenDiminishableCost;
+        CommonConfig.getSyncValues().advancement.levels.tokenCostThreshold = CommonConfig.getValues().advancement.levels.tokenCostThreshold;
+        CommonConfig.getSyncValues().advancement.levels.defaultLevel = CommonConfig.getValues().advancement.levels.defaultLevel;
         CommonConfig.getSyncValues().worldGen.enderOreQuantity = CommonConfig.getValues().worldGen.enderOreQuantity;
         CommonConfig.getSyncValues().worldGen.enderOreSpawnRate = CommonConfig.getValues().worldGen.enderOreSpawnRate;
         CommonConfig.getSyncValues().worldGen.enderOreSpawnHeightMax = CommonConfig.getValues().worldGen.enderOreSpawnHeightMax;
@@ -64,9 +67,12 @@ public final class CommonConfig {
     @Deprecated
     public static void writeSyncConfig(NBTTagCompound compound) {
         compound.setBoolean("advancement.oneTreePerClass", CommonConfig.getValues().advancement.oneTreePerClass);
-        compound.setDouble("advancement.globalCostMultiplier", CommonConfig.getValues().advancement.globalCostMultiplier);
+        compound.setDouble("advancement.xp.globalCostMultiplier", CommonConfig.getValues().advancement.xp.globalCostMultiplier);
+        compound.setDouble("advancement.xp.retryXPReturn", CommonConfig.getValues().advancement.xp.retryXPReturn);
         compound.setInteger("advancement.maxRetries", CommonConfig.getValues().advancement.maxRetries);
-        compound.setInteger("advancement.defaultLevel", CommonConfig.getValues().advancement.defaultLevel);
+        compound.setDouble("advancement.levels.tokenDiminishableCost", CommonConfig.getValues().advancement.levels.tokenDiminishableCost);
+        compound.setInteger("advancement.levels.tokenCostThreshold", CommonConfig.getValues().advancement.levels.tokenCostThreshold);
+        compound.setInteger("advancement.levels.defaultLevel", CommonConfig.getValues().advancement.levels.defaultLevel);
         compound.setBoolean("defaultHumanTeam", CommonConfig.getValues().skill.defaultHumanTeam);
         compound.setDouble("globalCooldown", CommonConfig.getValues().skill.globalCooldown);
         compound.setDouble("globalTime", CommonConfig.getValues().skill.globalTime);
@@ -79,10 +85,13 @@ public final class CommonConfig {
     @Deprecated
     @SideOnly(Side.CLIENT)
     public static void readSyncConfig(NBTTagCompound compound) {
-        CommonConfig.getSyncValues().advancement.oneTreePerClass = compound.getBoolean("advancement.oneTreePerClass");
-        CommonConfig.getSyncValues().advancement.globalCostMultiplier = compound.getDouble("advancement.globalCostMultiplier");
+        CommonConfig.getSyncValues().advancement.oneTreePerClass = compound.getBoolean("advancement.xp.oneTreePerClass");
+        CommonConfig.getSyncValues().advancement.xp.globalCostMultiplier = compound.getDouble("advancement.xp.globalCostMultiplier");
+        CommonConfig.getSyncValues().advancement.xp.retryXPReturn = compound.getDouble("advancement.xp.retryXPReturn");
         CommonConfig.getSyncValues().advancement.maxRetries = compound.getInteger("advancement.maxRetries");
-        CommonConfig.getSyncValues().advancement.defaultLevel = compound.getInteger("advancement.defaultLevel");
+        CommonConfig.getSyncValues().advancement.levels.tokenDiminishableCost = compound.getDouble("advancement.levels.tokenDiminishableCost");
+        CommonConfig.getSyncValues().advancement.levels.tokenCostThreshold = compound.getInteger("advancement.levels.tokenCostThreshold");
+        CommonConfig.getSyncValues().advancement.levels.defaultLevel = compound.getInteger("advancement.levels.defaultLevel");
         CommonConfig.getSyncValues().skill.defaultHumanTeam = compound.getBoolean("defaultHumanTeam");
         EnderSkillsAPI.defaultHumanTeam = CommonConfig.getSyncValues().skill.defaultHumanTeam;
         CommonConfig.getSyncValues().skill.globalCooldown = compound.getDouble("globalCooldown");
@@ -123,13 +132,23 @@ public final class CommonConfig {
 
         public static class SkillAdvancementConfig {
 
-            public boolean oneTreePerClass = true;
+            public final Experience xp = new Experience();
+            public final Levels levels = new Levels();
 
-            public double globalCostMultiplier = 1D;
+            public boolean oneTreePerClass = true;
 
             public int maxRetries = 2;
 
-            public int defaultLevel = 1;
+            public static class Experience {
+                public double globalCostMultiplier = 1D;
+                public double retryXPReturn = 0.8;
+            }
+
+            public static class Levels {
+                public double tokenDiminishableCost = 0.3;
+                public int tokenCostThreshold = 10;
+                public int defaultLevel = 1;
+            }
         }
 
         public static class WorldGen {

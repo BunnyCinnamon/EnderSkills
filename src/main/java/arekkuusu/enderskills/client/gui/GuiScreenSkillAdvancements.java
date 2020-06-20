@@ -96,11 +96,11 @@ public class GuiScreenSkillAdvancements extends GuiScreen {
             buttonList.add(new GuiCustomButton(102, (this.x) + 2, (this.y - 12) + this.guiHeight, 18, 10, "", 18, 52, 18, 10, 0));
             buttonList.add(new GuiCustomButton(103, (this.x - 20) + this.guiWidth, (this.y - 12) + this.guiHeight, 18, 10, "", 0, 52, 18, 10, 0));
         }
-        String respecTitle = "\u00A74Reset Unlocks\u00A7r";
+        String respecTitle = TextHelper.translate("gui.reset_unlocks");
         int respecWidth = this.mc.fontRenderer.getStringWidth(respecTitle) + 4;
-        String storeTitle = "Store XP";
+        String storeTitle = TextHelper.translate("gui.store_xp");
         int storeWidth = this.mc.fontRenderer.getStringWidth(storeTitle) + 4;
-        String takeTitle = "Take XP";
+        String takeTitle = TextHelper.translate("gui.take_xp");
         int takeWidth = this.mc.fontRenderer.getStringWidth(takeTitle) + 4;
         alternateButtonList.add(new GuiBaseButton(105, this.x + (this.guiWidth / 2) + (this.guiWidth / 4) - (respecWidth / 2), this.y + this.guiHeight - 50, respecWidth, 20, respecTitle));
         alternateButtonList.add(new GuiBaseButton(106, this.x + (this.guiWidth / 2) + (this.guiWidth / 4) - storeWidth - 2, this.y + this.guiHeight - 75, storeWidth, 20, storeTitle));
@@ -256,7 +256,7 @@ public class GuiScreenSkillAdvancements extends GuiScreen {
             GlStateManager.translate(this.x + 25 + 24 + 10 * 16, this.y - 12, 0);
             GlStateManager.scale(0.5F, 0.5F, 0.5F);
             GlStateManager.color(1F, 1F, 1F, 1F);
-            this.drawString(this.mc.fontRenderer, xpValue + " XP", 0, 0, -1);
+            this.drawString(this.mc.fontRenderer, TextHelper.translate("gui.xp", xpTotal), 0, 0, -1);
             GlStateManager.color(1F, 1F, 1F, 1F);
             GlStateManager.popMatrix();
 
@@ -269,11 +269,11 @@ public class GuiScreenSkillAdvancements extends GuiScreen {
             GlStateManager.translate(this.x + 25 + 24 + 10 * 16, this.y - 5, 0);
             GlStateManager.scale(0.5F, 0.5F, 0.5F);
             GlStateManager.color(1F, 1F, 1F, 1F);
-            this.drawString(this.mc.fontRenderer, unlocks + " ender level(s)", 0, 0, -1);
+            this.drawString(this.mc.fontRenderer, TextHelper.translate("gui.levels", unlocks), 0, 0, -1);
             GlStateManager.color(1F, 1F, 1F, 1F);
             GlStateManager.popMatrix();
             GlStateManager.pushMatrix();
-            String xpTotalString = String.valueOf(xpTotal);
+            String xpTotalString = TextHelper.translate("gui.xp_level", xpTotal);
             int lenght = fontRenderer.getStringWidth(xpTotalString);
             GlStateManager.translate(this.x + 25 + 24 - (lenght / 2D) + 10 * 8, this.y - 13, 0);
             GlStateManager.scale(0.7F, 0.7F, 0.7F);
@@ -492,7 +492,7 @@ public class GuiScreenSkillAdvancements extends GuiScreen {
             }
         } else {
             if (button.id == 105) {
-                GuiScreenSkillAdvancements.confirmation = new GuiConfirmation(this.mc, "Confirm Reset of all progress?", "\n\u00A74This action cannot be undone.\u00A7r", () -> {
+                GuiScreenSkillAdvancements.confirmation = new GuiConfirmation(this.mc, TextHelper.translate("gui.reset_unlocks_title"), TextHelper.translate("gui.reset_unlocks_description"), () -> {
                     PacketHelper.sendResetSkillsRequestPacket(this.mc.player);
                 }, true, true);
                 GuiScreenSkillAdvancements.confirmation.initGui();

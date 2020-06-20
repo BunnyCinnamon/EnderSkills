@@ -22,11 +22,9 @@ import arekkuusu.enderskills.common.skill.ModAttributes;
 import arekkuusu.enderskills.common.skill.ability.AbilityInfo;
 import arekkuusu.enderskills.common.skill.ability.BaseAbility;
 import arekkuusu.enderskills.common.sound.ModSounds;
-import com.google.common.collect.ImmutableList;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
@@ -37,7 +35,6 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Config;
-import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.InputEvent;
@@ -87,7 +84,7 @@ public class Dash extends BaseAbility implements ISkillAdvancement {
             ((WorldServer) user.world).playSound(null, user.posX, user.posY, user.posZ, ModSounds.DASH, SoundCategory.PLAYERS, 1.0F, (1.0F + (user.world.rand.nextFloat() - user.world.rand.nextFloat()) * 0.2F) * 0.7F);
         }
         if (isClientWorld(user) && !(user instanceof EntityPlayer)) return;
-        if(!user.onGround) {
+        if (!user.onGround) {
             Vec3d vector = NBTHelper.getVector(data.nbt, "vector");
             double distance = NBTHelper.getDouble(data.nbt, "distance");
             Vec3d from = user.getPositionVector();
@@ -135,6 +132,8 @@ public class Dash extends BaseAbility implements ISkillAdvancement {
 
     @SideOnly(Side.CLIENT)
     public static int ticksSinceLastTap;
+    @SideOnly(Side.CLIENT)
+    public static boolean keyWasPressed;
 
     @SideOnly(Side.CLIENT)
     @SubscribeEvent(priority = EventPriority.LOWEST)
@@ -147,7 +146,7 @@ public class Dash extends BaseAbility implements ISkillAdvancement {
             boolean tapped = Minecraft.getMinecraft().gameSettings.keyBindSprint.isPressed();
             if (tapped) {
                 //Pressed same combination within 7 ticks
-                if (ticksSinceLastTap <= 7) {
+                if (ticksSinceLastTap <= 7 && !keyWasPressed) {
                     Capabilities.endurance(player).ifPresent(endurance -> {
                         int amount = ModAttributes.ENDURANCE.getEnduranceDrain(this);
                         if (endurance.getEndurance() - amount >= 0) {
@@ -171,6 +170,7 @@ public class Dash extends BaseAbility implements ISkillAdvancement {
                             PacketHelper.sendDashUseRequestPacket(player, moveVec);
                         }
                     });
+                    keyWasPressed = true;
                 } else {
                     ticksSinceLastTap = 0;
                 }
@@ -190,6 +190,7 @@ public class Dash extends BaseAbility implements ISkillAdvancement {
     @SideOnly(Side.CLIENT)
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public void onKeyTapUpdate(TickEvent.ClientTickEvent event) {
+        if(Minecraft.getMinecraft().gameSettings.keyBindSprint.isKeyDown()) keyWasPressed = false;
         if (ticksSinceLastTap < 10) ticksSinceLastTap++;
     }
 
@@ -333,7 +334,7 @@ public class Dash extends BaseAbility implements ISkillAdvancement {
         int level = info != null ? getLevel(info) + 1 : 0;
         int levelMax = getMaxLevel();
         double func = ExpressionHelper.getExpression(this, Configuration.getSyncValues().advancement.upgrade, level, levelMax);
-        return (int) (func * CommonConfig.getSyncValues().advancement.globalCostMultiplier);
+        return (int) (func * CommonConfig.getSyncValues().advancement.xp.globalCostMultiplier);
     }
     /*Advancement Section*/
 

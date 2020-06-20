@@ -142,7 +142,7 @@ public class Shadow extends BaseAbility implements ISkillAdvancement {
     @SubscribeEvent(priority = EventPriority.HIGH)
     public void onSkillDamage(SkillDamageEvent event) {
         if (event.getEntityLiving() == null) return;
-        if (isClientWorld(event.getEntityLiving()) || !event.getSource().getDamageType().equals(BaseAbility.DAMAGE_TYPE)) return;
+        if (isClientWorld(event.getEntityLiving()) || !SkillHelper.isSkillDamage(event.getSource())) return;
         EntityLivingBase entity = event.getEntityLiving();
         Capabilities.get(entity).ifPresent(capability -> {
             if (capability.owns(this)) {
@@ -296,7 +296,7 @@ public class Shadow extends BaseAbility implements ISkillAdvancement {
         int level = info != null ? getLevel(info) + 1 : 0;
         int levelMax = getMaxLevel();
         double func = ExpressionHelper.getExpression(this, Configuration.getSyncValues().advancement.upgrade, level, levelMax);
-        return (int) (func * CommonConfig.getSyncValues().advancement.globalCostMultiplier);
+        return (int) (func * CommonConfig.getSyncValues().advancement.xp.globalCostMultiplier);
     }
     /*Advancement Section*/
 

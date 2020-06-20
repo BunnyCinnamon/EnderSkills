@@ -30,10 +30,11 @@ public class AdvancementCapability implements ICapabilitySerializable<NBTTagComp
 
     public Skill[] skillUnlockOrder = new Skill[0];
     public int resetCount;
+    public int experienceSpent;
     public int experienceLevel;
     public double experienceProgress;
     public double levelProgress;
-    public int level = CommonConfig.getSyncValues().advancement.defaultLevel;
+    public int level = CommonConfig.getSyncValues().advancement.levels.defaultLevel;
 
     public int getExperienceTotal(EntityLivingBase entity) {
         return XPHelper.getXPTotal(this.experienceLevel, this.experienceProgress)
@@ -58,8 +59,10 @@ public class AdvancementCapability implements ICapabilitySerializable<NBTTagComp
             } else {
                 takeXP(amount);
             }
+            experienceSpent += amount;
         } else if (totalStored >= amount) {
             takeXP(amount);
+            experienceSpent += amount;
         }
     }
 
@@ -99,7 +102,8 @@ public class AdvancementCapability implements ICapabilitySerializable<NBTTagComp
 
     //** NBT **//
     public static final String EXPERIENCE_NBT = "experience";
-    public static final String EXPERIENCE_PROGRES_NBT = "experience_progress";
+    public static final String EXPERIENCE_SPENT_NBT = "experience_spent";
+    public static final String EXPERIENCE_PROGRESS_NBT = "experience_progress";
     public static final String LEVEL_NBT = "level";
     public static final String LEVEL_PROGRESS_NBT = "level_progress";
     public static final String RESET_COUNT_NBT = "reset_count";
@@ -110,7 +114,8 @@ public class AdvancementCapability implements ICapabilitySerializable<NBTTagComp
     public NBTBase writeNBT(Capability<AdvancementCapability> capability, AdvancementCapability instance, EnumFacing side) {
         NBTTagCompound tag = new NBTTagCompound();
         tag.setInteger(EXPERIENCE_NBT, instance.experienceLevel);
-        tag.setDouble(EXPERIENCE_PROGRES_NBT, instance.experienceProgress);
+        tag.setInteger(EXPERIENCE_SPENT_NBT, instance.experienceSpent);
+        tag.setDouble(EXPERIENCE_PROGRESS_NBT, instance.experienceProgress);
         tag.setInteger(LEVEL_NBT, instance.level);
         tag.setDouble(LEVEL_PROGRESS_NBT, instance.levelProgress);
         tag.setInteger(RESET_COUNT_NBT, instance.resetCount);
@@ -128,7 +133,8 @@ public class AdvancementCapability implements ICapabilitySerializable<NBTTagComp
     public void readNBT(Capability<AdvancementCapability> capability, AdvancementCapability instance, EnumFacing side, NBTBase nbt) {
         NBTTagCompound tag = (NBTTagCompound) nbt;
         instance.experienceLevel = tag.getInteger(EXPERIENCE_NBT);
-        instance.experienceProgress = tag.getDouble(EXPERIENCE_PROGRES_NBT);
+        instance.experienceSpent = tag.getInteger(EXPERIENCE_SPENT_NBT);
+        instance.experienceProgress = tag.getDouble(EXPERIENCE_PROGRESS_NBT);
         instance.level = tag.getInteger(LEVEL_NBT);
         instance.levelProgress = tag.getDouble(LEVEL_PROGRESS_NBT);
         instance.resetCount = tag.getInteger(RESET_COUNT_NBT);

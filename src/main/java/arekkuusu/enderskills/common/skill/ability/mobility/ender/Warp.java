@@ -115,6 +115,8 @@ public class Warp extends BaseAbility implements ISkillAdvancement {
 
     @SideOnly(Side.CLIENT)
     public static int ticksSinceLastTap;
+    @SideOnly(Side.CLIENT)
+    public static boolean keyWasPressed;
 
     @SideOnly(Side.CLIENT)
     @SubscribeEvent(priority = EventPriority.LOWEST)
@@ -152,6 +154,7 @@ public class Warp extends BaseAbility implements ISkillAdvancement {
                             PacketHelper.sendWarpUseRequestPacket(player, moveVec);
                         }
                     });
+                    keyWasPressed = true;
                 } else {
                     ticksSinceLastTap = 0;
                 }
@@ -162,6 +165,7 @@ public class Warp extends BaseAbility implements ISkillAdvancement {
     @SideOnly(Side.CLIENT)
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public void onKeyTapUpdate(TickEvent.ClientTickEvent event) {
+        if(Minecraft.getMinecraft().gameSettings.keyBindSprint.isKeyDown()) keyWasPressed = false;
         if (ticksSinceLastTap < 10) ticksSinceLastTap++;
     }
 
@@ -305,7 +309,7 @@ public class Warp extends BaseAbility implements ISkillAdvancement {
         int level = info != null ? getLevel(info) + 1 : 0;
         int levelMax = getMaxLevel();
         double func = ExpressionHelper.getExpression(this, Configuration.getSyncValues().advancement.upgrade, level, levelMax);
-        return (int) (func * CommonConfig.getSyncValues().advancement.globalCostMultiplier);
+        return (int) (func * CommonConfig.getSyncValues().advancement.xp.globalCostMultiplier);
     }
     /*Advancement Section*/
 

@@ -4,6 +4,7 @@ import arekkuusu.enderskills.client.gui.GuiScreenSkillAdvancements;
 import arekkuusu.enderskills.client.gui.GuiSkillAdvancementPage;
 import arekkuusu.enderskills.client.gui.data.SkillAdvancementConditionSimple;
 import arekkuusu.enderskills.client.util.helper.RenderMisc;
+import arekkuusu.enderskills.client.util.helper.TextHelper;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.renderer.GlStateManager;
 
@@ -55,7 +56,10 @@ public class GuiSkillAdvancementOr extends GuiSkillAdvancement {
         drawHorizontalLine(this.right.xOffset + 3, this.right.xOffset - 3, this.right.yOffset + 13 - 1, 0x000000FF);
         drawHorizontalLine(this.right.xOffset + 3, this.right.xOffset - 3, this.right.yOffset + 13, 0xFFFFFFFF);
         drawHorizontalLine(this.right.xOffset + 3, this.right.xOffset - 3, this.right.yOffset + 13 + 1, 0x000000FF);
-        drawString(mc.fontRenderer, "OR", this.xOffset + this.xText, this.yOffset + this.yText, -1);
+        String text = !this.left.isUnlocked() || !this.right.isUnlocked()
+                ? TextHelper.translate("gui.advancement.or")
+                : TextHelper.translate("gui.advancement.and");
+        drawString(mc.fontRenderer, text, this.xOffset + this.xText, this.yOffset + this.yText, -1);
     }
 
     @Override

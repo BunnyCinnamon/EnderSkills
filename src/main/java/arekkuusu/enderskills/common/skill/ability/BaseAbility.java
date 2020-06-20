@@ -2,7 +2,6 @@ package arekkuusu.enderskills.common.skill.ability;
 
 import arekkuusu.enderskills.api.capability.Capabilities;
 import arekkuusu.enderskills.api.capability.data.SkillData;
-import arekkuusu.enderskills.api.capability.data.SkillHolder;
 import arekkuusu.enderskills.api.capability.data.SkillInfo;
 import arekkuusu.enderskills.api.event.SkillShouldUseEvent;
 import arekkuusu.enderskills.api.event.SkillUseEvent;
@@ -17,7 +16,8 @@ import javax.annotation.Nonnull;
 
 public abstract class BaseAbility extends Skill {
 
-    public static final String DAMAGE_TYPE = "skill";
+    public static final String DAMAGE_HIT_TYPE = "skill";
+    public static final String DAMAGE_DOT_TYPE = "skillIndirect";
     public static final int INDEFINITE = -1;
     public static final int INSTANT = 0;
 
@@ -43,6 +43,10 @@ public abstract class BaseAbility extends Skill {
 
     public void async(EntityLivingBase entity, SkillData data) {
         PacketHelper.sendSkillDataRemoveResponsePacket(entity, data); //Send to Client
+    }
+
+    public boolean isClientWorld(EntityLivingBase entity) {
+        return entity.getEntityWorld().isRemote;
     }
 
     public abstract int getCooldown(AbilityInfo info);
