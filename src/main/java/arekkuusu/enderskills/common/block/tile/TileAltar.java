@@ -207,7 +207,7 @@ public class TileAltar extends TileBase implements ITickable {
         if (world instanceof WorldServer) {
             ((WorldServer) world).playSound(null, pos.getX(), pos.getY(), pos.getZ(), SoundEvents.BLOCK_END_PORTAL_SPAWN, SoundCategory.BLOCKS, 1.0F, (1.0F + (world.rand.nextFloat() - world.rand.nextFloat()) * 0.2F) * 0.7F);
         }
-        if (getObsidian() >= 5) {
+        if (getObsidian() < 5) {
             this.world.playSound((EntityPlayer) null, getPos().getX() + 0.5D, getPos().getY() + 1.5D, getPos().getZ() + 0.5D, SoundEvents.ENTITY_GENERIC_EXPLODE, SoundCategory.BLOCKS, 10.0F, (1.0F + (this.world.rand.nextFloat() - this.world.rand.nextFloat()) * 0.2F) * 0.7F);
             this.world.createExplosion(null, getPos().getX() + 0.5D, getPos().getY() + 1.5D, getPos().getZ() + 0.5D, 8F, true);
         }
