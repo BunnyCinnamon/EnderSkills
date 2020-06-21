@@ -6,6 +6,7 @@ import arekkuusu.enderskills.client.util.ResourceLibrary;
 import arekkuusu.enderskills.client.util.ShaderLibrary;
 import arekkuusu.enderskills.client.util.helper.GLHelper;
 import arekkuusu.enderskills.common.EnderSkills;
+import arekkuusu.enderskills.common.entity.placeable.EntityPlaceableData;
 import arekkuusu.enderskills.common.lib.LibMod;
 import arekkuusu.enderskills.common.skill.ability.defense.light.NearbyInvincibility;
 import net.minecraft.client.renderer.BufferBuilder;
@@ -24,6 +25,7 @@ import org.lwjgl.opengl.GL11;
 public class NearbyInvincibilityRenderer extends SkillRenderer<NearbyInvincibility> {
 
     private static final ResourceLocation FOLLOWING = new ResourceLocation(LibMod.MOD_ID, "textures/entity/nearby_invincibility.png");
+    private static final ResourceLocation FOLLOWING_HEAD = new ResourceLocation(LibMod.MOD_ID, "textures/entity/nearby_invincibility_0.png");
 
     @Override
     public void render(Entity entity, double x, double y, double z, float partialTicks, SkillHolder skillHolder) {
@@ -37,31 +39,31 @@ public class NearbyInvincibilityRenderer extends SkillRenderer<NearbyInvincibili
         ShaderLibrary.BRIGHT.set("alpha", SkillRenderer.getBlend(skillHolder.tick, skillHolder.data.time, 0.5F));
         GlStateManager.disableLighting();
         GlStateManager.enableBlend();
-        this.bindTexture(FOLLOWING);
-        Tessellator tessellator = Tessellator.getInstance();
-        BufferBuilder buff = tessellator.getBuffer();
         //Get Owner
         Entity owner = NBTHelper.getEntity(EntityLivingBase.class, skillHolder.data.nbt, "user");
         //Draw shield texture on entities
+        double scale = NBTHelper.getDouble(skillHolder.data.nbt, "range") * ((double) skillHolder.tick / (double) skillHolder.data.time);
         if (entity == owner) {
-            double scale = NBTHelper.getDouble(skillHolder.data.nbt, "range") * ((double) skillHolder.tick / (double) skillHolder.data.time);
             if (skillHolder.tick % 5 == 0) {
                 for (int i = 0; i < 4; i++) {
-                    if (entity.world.rand.nextDouble() < 0.4D) {
+                    if (entity.world.rand.nextDouble() < 0.8D) {
                         Vec3d vec = entity.getPositionVector();
                         double posX = vec.x + scale * (entity.world.rand.nextDouble() - 0.5);
                         double posY = vec.y + (entity.height / 2) + scale * (entity.world.rand.nextDouble() - 0.5);
                         double posZ = vec.z + scale * (entity.world.rand.nextDouble() - 0.5);
-                        EnderSkills.getProxy().spawnParticle(entity.world, new Vec3d(posX, posY, posZ), new Vec3d(0, 0, 0), 0.5F, 50, 0xF8E603, ResourceLibrary.GLOW_PARTICLE_EFFECT);
+                        EnderSkills.getProxy().spawnParticle(entity.world, new Vec3d(posX, posY, posZ), new Vec3d(0, 0, 0), 1.5F, 50, 0xF8E603, ResourceLibrary.GLOW_PARTICLE_EFFECT);
                     }
                 }
             }
-            addToBuffer(buff, scale);
+            this.bindTexture(FOLLOWING);
+            drawSquareWithOffset(scale, scale);
+            drawSquareWithOffset(scale, 0);
+            drawSquareWithOffset(scale, -scale);
         } else {
-            GlStateManager.translate(0, -(entity.height / 2) - 0.1, 0);
-            addToBuffer(buff, 0.2);
+            this.bindTexture(FOLLOWING_HEAD);
+            drawHeadWithOffset(0.2, -(entity.height / 2) - 0.1);
         }
-        tessellator.draw();
+
         GlStateManager.disableBlend();
         GlStateManager.enableLighting();
         ShaderLibrary.BRIGHT.end();
@@ -69,42 +71,69 @@ public class NearbyInvincibilityRenderer extends SkillRenderer<NearbyInvincibili
         GlStateManager.popMatrix();
     }
 
-    public void addToBuffer(BufferBuilder buff, double scale) {
-        buff.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
-        buff.pos(-scale, -scale, -scale).tex(0, 0).endVertex();
-        buff.pos(scale, -scale, -scale).tex(1, 0).endVertex();
-        buff.pos(scale, scale, -scale).tex(1, 1).endVertex();
-        buff.pos(-scale, scale, -scale).tex(0, 1).endVertex();
-        buff.pos(-scale, scale, -scale).tex(0, 1).endVertex();
-        buff.pos(scale, scale, -scale).tex(1, 1).endVertex();
-        buff.pos(scale, -scale, -scale).tex(1, 0).endVertex();
-        buff.pos(-scale, -scale, -scale).tex(0, 0).endVertex();
+    public void drawSquareWithOffset(double scale, double offset) {
+        GlStateManager.pushMatrix();
+        GlStateManager.translate(0, offset, 0);
+        Tessellator tessellator = Tessellator.getInstance();
+        BufferBuilder buffer = tessellator.getBuffer();
+        buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
+        buffer.pos(scale, 0, -scale).tex(1, 0).endVertex();
+        buffer.pos(scale, 0, scale).tex(1, 1).endVertex();
+        buffer.pos(-scale, 0, scale).tex(0, 1).endVertex();
+        buffer.pos(-scale, 0, -scale).tex(0, 0).endVertex();
 
-        buff.pos(scale, -scale, scale).tex(0, 0).endVertex();
-        buff.pos(-scale, -scale, scale).tex(1, 0).endVertex();
-        buff.pos(-scale, scale, scale).tex(1, 1).endVertex();
-        buff.pos(scale, scale, scale).tex(0, 1).endVertex();
-        buff.pos(scale, scale, scale).tex(0, 1).endVertex();
-        buff.pos(-scale, scale, scale).tex(1, 1).endVertex();
-        buff.pos(-scale, -scale, scale).tex(1, 0).endVertex();
-        buff.pos(scale, -scale, scale).tex(0, 0).endVertex();
+        buffer.pos(-scale, 0, -scale).tex(0, 0).endVertex();
+        buffer.pos(-scale, 0, scale).tex(0, 1).endVertex();
+        buffer.pos(scale, 0, scale).tex(1, 1).endVertex();
+        buffer.pos(scale, 0, -scale).tex(1, 0).endVertex();
+        tessellator.draw();
+        GlStateManager.popMatrix();
+    }
 
-        buff.pos(-scale, -scale, scale).tex(0, 0).endVertex();
-        buff.pos(-scale, -scale, -scale).tex(1, 0).endVertex();
-        buff.pos(-scale, scale, -scale).tex(1, 1).endVertex();
-        buff.pos(-scale, scale, scale).tex(0, 1).endVertex();
-        buff.pos(-scale, scale, scale).tex(0, 1).endVertex();
-        buff.pos(-scale, scale, -scale).tex(1, 1).endVertex();
-        buff.pos(-scale, -scale, -scale).tex(1, 0).endVertex();
-        buff.pos(-scale, -scale, scale).tex(0, 0).endVertex();
+    public void drawHeadWithOffset(double scale, double offset) {
+        GlStateManager.pushMatrix();
+        GlStateManager.translate(0, offset, 0);
+        Tessellator tessellator = Tessellator.getInstance();
+        BufferBuilder buffer = tessellator.getBuffer();
 
-        buff.pos(scale, -scale, -scale).tex(0, 0).endVertex();
-        buff.pos(scale, -scale, scale).tex(1, 0).endVertex();
-        buff.pos(scale, scale, scale).tex(1, 1).endVertex();
-        buff.pos(scale, scale, -scale).tex(0, 1).endVertex();
-        buff.pos(scale, scale, -scale).tex(0, 1).endVertex();
-        buff.pos(scale, scale, scale).tex(1, 1).endVertex();
-        buff.pos(scale, -scale, scale).tex(1, 0).endVertex();
-        buff.pos(scale, -scale, -scale).tex(0, 0).endVertex();
+        buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
+        buffer.pos(-scale, -scale, -scale).tex(0, 0).endVertex();
+        buffer.pos(scale, -scale, -scale).tex(1, 0).endVertex();
+        buffer.pos(scale, scale, -scale).tex(1, 1).endVertex();
+        buffer.pos(-scale, scale, -scale).tex(0, 1).endVertex();
+        buffer.pos(-scale, scale, -scale).tex(0, 1).endVertex();
+        buffer.pos(scale, scale, -scale).tex(1, 1).endVertex();
+        buffer.pos(scale, -scale, -scale).tex(1, 0).endVertex();
+        buffer.pos(-scale, -scale, -scale).tex(0, 0).endVertex();
+
+        buffer.pos(scale, -scale, scale).tex(0, 0).endVertex();
+        buffer.pos(-scale, -scale, scale).tex(1, 0).endVertex();
+        buffer.pos(-scale, scale, scale).tex(1, 1).endVertex();
+        buffer.pos(scale, scale, scale).tex(0, 1).endVertex();
+        buffer.pos(scale, scale, scale).tex(0, 1).endVertex();
+        buffer.pos(-scale, scale, scale).tex(1, 1).endVertex();
+        buffer.pos(-scale, -scale, scale).tex(1, 0).endVertex();
+        buffer.pos(scale, -scale, scale).tex(0, 0).endVertex();
+
+        buffer.pos(-scale, -scale, scale).tex(0, 0).endVertex();
+        buffer.pos(-scale, -scale, -scale).tex(1, 0).endVertex();
+        buffer.pos(-scale, scale, -scale).tex(1, 1).endVertex();
+        buffer.pos(-scale, scale, scale).tex(0, 1).endVertex();
+        buffer.pos(-scale, scale, scale).tex(0, 1).endVertex();
+        buffer.pos(-scale, scale, -scale).tex(1, 1).endVertex();
+        buffer.pos(-scale, -scale, -scale).tex(1, 0).endVertex();
+        buffer.pos(-scale, -scale, scale).tex(0, 0).endVertex();
+
+        buffer.pos(scale, -scale, -scale).tex(0, 0).endVertex();
+        buffer.pos(scale, -scale, scale).tex(1, 0).endVertex();
+        buffer.pos(scale, scale, scale).tex(1, 1).endVertex();
+        buffer.pos(scale, scale, -scale).tex(0, 1).endVertex();
+        buffer.pos(scale, scale, -scale).tex(0, 1).endVertex();
+        buffer.pos(scale, scale, scale).tex(1, 1).endVertex();
+        buffer.pos(scale, -scale, scale).tex(1, 0).endVertex();
+        buffer.pos(scale, -scale, -scale).tex(0, 0).endVertex();
+
+        tessellator.draw();
+        GlStateManager.popMatrix();
     }
 }

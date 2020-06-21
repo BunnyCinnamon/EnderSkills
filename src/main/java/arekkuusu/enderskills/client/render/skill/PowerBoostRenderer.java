@@ -115,6 +115,18 @@ public class PowerBoostRenderer extends SkillRenderer<PowerBoost> {
         @Override
         public void doRender(EntityThrowableData entity, double x, double y, double z, float entityYaw, float partialTicks) {
             GlStateManager.color(1F, 1F, 1F, 1F);
+            for (int i = 0; i < 6; i++) {
+                if (entity.world.rand.nextDouble() < 0.2D) {
+                    Vec3d vec = entity.getPositionEyes(1F);
+                    Vec3d motion = new Vec3d(entity.prevPosX, entity.prevPosY + entity.getEyeHeight(), entity.prevPosZ).subtract(vec);
+                    double offset = entity.world.rand.nextDouble();
+                    double posX = vec.x + (entity.width / 2) * (entity.world.rand.nextDouble() - 0.5) + motion.x * offset;
+                    double posY = vec.y + (entity.height / 2) * (entity.world.rand.nextDouble() - 0.5) + motion.y * offset;
+                    double posZ = vec.z + (entity.width / 2) * (entity.world.rand.nextDouble() - 0.5) + motion.z * offset;
+                    motion = new Vec3d(0, 0, 0);
+                    EnderSkills.getProxy().spawnParticle(entity.world, new Vec3d(posX, posY, posZ), motion, 0.5F, 25, 0xFFFFFF, ResourceLibrary.SPIRAL);
+                }
+            }
             GlStateManager.pushMatrix();
             GLHelper.BLEND_SRC_ALPHA$ONE.blend();
             ShaderLibrary.BRIGHT.begin();
@@ -129,10 +141,10 @@ public class PowerBoostRenderer extends SkillRenderer<PowerBoost> {
             Tessellator tessellator = Tessellator.getInstance();
             BufferBuilder buffer = tessellator.getBuffer();
             buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
-            buffer.pos(-0.25D, -0.25D, 0).tex(0, 0).endVertex();
-            buffer.pos(0.25D, -0.25D, 0).tex(1, 0).endVertex();
-            buffer.pos(0.25D, 0.25D, 0).tex(1, 1).endVertex();
-            buffer.pos(-0.25D, 0.25D, 0).tex(0, 1).endVertex();
+            buffer.pos(-0.35D, -0.35D, 0).tex(0, 0).endVertex();
+            buffer.pos(0.35D, -0.35D, 0).tex(1, 0).endVertex();
+            buffer.pos(0.35D, 0.35D, 0).tex(1, 1).endVertex();
+            buffer.pos(-0.35D, 0.35D, 0).tex(0, 1).endVertex();
             tessellator.draw();
             GlStateManager.disableBlend();
             GlStateManager.enableLighting();

@@ -2,6 +2,7 @@ package arekkuusu.enderskills.client.render.skill;
 
 import arekkuusu.enderskills.api.capability.data.SkillHolder;
 import arekkuusu.enderskills.api.helper.NBTHelper;
+import arekkuusu.enderskills.api.util.Vector;
 import arekkuusu.enderskills.client.render.entity.EntityPlaceableDataRenderer;
 import arekkuusu.enderskills.client.render.entity.EntityThrowableDataRenderer;
 import arekkuusu.enderskills.client.util.ResourceLibrary;
@@ -78,16 +79,16 @@ public class FireballRenderer extends SkillRenderer<Fireball> {
 
         @Override
         public void doRender(EntityThrowableData entity, double x, double y, double z, float entityYaw, float partialTicks) {
+            float particleScale = 0.5F + 5F * ((float) entity.ticksExisted / ((float) entity.getLifeTime() / 5F));
             for (int i = 0; i < 6; i++) {
-                if (entity.world.rand.nextDouble() < 0.6D) {
-                    Vec3d vec = entity.getPositionEyes(1F);
-                    Vec3d motion = new Vec3d(entity.prevPosX, entity.prevPosY + entity.getEyeHeight(), entity.prevPosZ).subtract(vec).scale(0.15F);
-                    double offset = entity.world.rand.nextDouble();
-                    double posX = vec.x + (entity.width / 2) * (entity.world.rand.nextDouble() - 0.5) + motion.x * offset;
-                    double posY = vec.y + (entity.height / 2) * (entity.world.rand.nextDouble() - 0.5) + motion.y * offset;
-                    double posZ = vec.z + (entity.width / 2) * (entity.world.rand.nextDouble() - 0.5) + motion.z * offset;
-                    EnderSkills.getProxy().spawnParticle(entity.world, new Vec3d(posX, posY, posZ), new Vec3d(0, 0, 0), 10F, 5, 0xFFE077, ResourceLibrary.GLOW_PARTICLE_EFFECT);
-                }
+                Vec3d vec = entity.getPositionEyes(1F);
+                Vec3d motion = new Vec3d(entity.prevPosX, entity.prevPosY + entity.getEyeHeight(), entity.prevPosZ).subtract(vec);
+                double offset = entity.world.rand.nextDouble();
+                double posX = vec.x + (entity.width / 2) * (entity.world.rand.nextDouble() - 0.5) + motion.x * offset;
+                double posY = vec.y + (entity.height / 2) * (entity.world.rand.nextDouble() - 0.5) + motion.y * offset;
+                double posZ = vec.z + (entity.width / 2) * (entity.world.rand.nextDouble() - 0.5) + motion.z * offset;
+                Vector speedVec = Vector.Right.rotateRandom(entity.world.rand, 360F).multiply(0.025D * entity.world.rand.nextDouble());
+                EnderSkills.getProxy().spawnParticleLuminescence(entity.world, new Vec3d(posX, posY, posZ), speedVec.toVec3d(), particleScale, 60, ResourceLibrary.GLOW_PARTICLE_EFFECT);
             }
         }
 

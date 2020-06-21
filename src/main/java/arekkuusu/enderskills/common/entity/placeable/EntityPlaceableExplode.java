@@ -58,7 +58,7 @@ public class EntityPlaceableExplode extends EntityPlaceableData {
         }
         if (tick == MIN_TIME && world.isRemote) {
             double scale = getRadius() * 2;
-            for (int i = 0; i < 8; i++) {
+            for (int i = 0; i < 18; i++) {
                 if (world.rand.nextDouble() < 0.8D) {
                     Vec3d vec = getPositionVector();
                     double posX = vec.x + scale * (world.rand.nextDouble() - 0.5);

@@ -3,6 +3,7 @@ package arekkuusu.enderskills.client.render.tile;
 import arekkuusu.enderskills.client.util.ResourceLibrary;
 import arekkuusu.enderskills.client.util.ShaderLibrary;
 import arekkuusu.enderskills.client.util.helper.RenderMisc;
+import arekkuusu.enderskills.client.util.helper.TextHelper;
 import arekkuusu.enderskills.common.CommonConfig;
 import arekkuusu.enderskills.common.block.tile.TileAltar;
 import arekkuusu.enderskills.common.item.ModItems;
@@ -110,8 +111,8 @@ public class TileAltarRenderer extends TileEntitySpecialRenderer<TileAltar> {
         //Draw Name Plate
         if (!tile.isUltimate() && tile.getLevel() == 1F) {
             this.setLightmapDisabled(true);
-            drawNameplate(tile, "Drop Crystal Matrix", x, y + 0.75, z, 2);
-            drawNameplate(tile, "on top to upgrade", x, y + 0.5, z, 2);
+            drawNameplate(tile, TextHelper.translate("altar_drop_line_0"), x, y + 0.75, z, 2);
+            drawNameplate(tile, TextHelper.translate("altar_drop_line_1"), x, y + 0.5, z, 2);
             this.setLightmapDisabled(false);
         }
     }

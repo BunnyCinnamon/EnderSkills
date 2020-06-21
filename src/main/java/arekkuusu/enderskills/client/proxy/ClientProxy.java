@@ -3,10 +3,7 @@ package arekkuusu.enderskills.client.proxy;
 import arekkuusu.enderskills.api.util.Vector;
 import arekkuusu.enderskills.client.keybind.SkillKeyBounds;
 import arekkuusu.enderskills.client.render.ModRenders;
-import arekkuusu.enderskills.client.render.effect.Lightning;
-import arekkuusu.enderskills.client.render.effect.LightningManager;
-import arekkuusu.enderskills.client.render.effect.ParticleBase;
-import arekkuusu.enderskills.client.render.effect.ParticleManager;
+import arekkuusu.enderskills.client.render.effect.*;
 import arekkuusu.enderskills.client.util.ResourceLibrary;
 import arekkuusu.enderskills.client.util.ShaderLibrary;
 import arekkuusu.enderskills.client.util.helper.ModelHelper;
@@ -91,6 +88,13 @@ public class ClientProxy implements IProxy {
     public void spawnParticle(World world, Vec3d pos, Vec3d speed, float scale, int age, int rgb, ResourceLocation location) {
         if (canParticleSpawn()) {
             PARTICLE_RENDERER.add(new ParticleBase(world, pos, speed, scale, age, rgb, location));
+        }
+    }
+
+    @Override
+    public void spawnParticleLuminescence(World world, Vec3d pos, Vec3d speed, float scale, int age, ResourceLocation location) {
+        if (canParticleSpawn()) {
+            PARTICLE_RENDERER.add(new ParticleLuminescence(world, pos, speed, scale, age, location));
         }
     }
 
