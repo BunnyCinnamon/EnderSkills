@@ -400,5 +400,47 @@
       "enderskills:flaming_breath"
     ],
     "subtitle": "enderskills.subtitle.flaming_breath"
+  },
+  "heal_aura": {
+    "sounds": [
+      "enderskills:heal_aura"
+    ],
+    "subtitle": "enderskills.subtitle.heal_aura"
+  },
+  "heal_other": {
+    "sounds": [
+      "enderskills:heal_other"
+    ],
+    "subtitle": "enderskills.subtitle.heal_other"
+  },
+  "heal_self": {
+    "sounds": [
+      "enderskills:heal_self"
+    ],
+    "subtitle": "enderskills.subtitle.heal_self"
+  },
+  "nearby_invincibility": {
+    "sounds": [
+      "enderskills:nearby_invincibility"
+    ],
+    "subtitle": "enderskills.subtitle.nearby_invincibility"
+  },
+  "power_boost": {
+    "sounds": [
+      "enderskills:power_boost"
+    ],
+    "subtitle": "enderskills.subtitle.power_boost"
+  },
+  "charm": {
+    "sounds": [
+      "enderskills:charm"
+    ],
+    "subtitle": "enderskills.subtitle.charm"
+  },
+  "light_hit": {
+    "sounds": [
+      "enderskills:light_hit"
+    ],
+    "subtitle": "enderskills.subtitle.light_hit"
   }
 }

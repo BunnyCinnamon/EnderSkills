@@ -24,6 +24,7 @@ import arekkuusu.enderskills.common.skill.ModAttributes;
 import arekkuusu.enderskills.common.skill.SkillHelper;
 import arekkuusu.enderskills.common.skill.ability.AbilityInfo;
 import arekkuusu.enderskills.common.skill.ability.BaseAbility;
+import arekkuusu.enderskills.common.sound.ModSounds;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.Entity;
@@ -31,8 +32,10 @@ import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.world.WorldServer;
 import net.minecraftforge.client.event.InputUpdateEvent;
 import net.minecraftforge.client.event.MouseEvent;
 import net.minecraftforge.common.MinecraftForge;
@@ -73,6 +76,10 @@ public class Charm extends BaseAbility implements IImpact, ISkillAdvancement {
                     .create();
             EntityThrowableData.throwFor(user, distance, data, false);
             sync(user);
+
+            if (user.world instanceof WorldServer) {
+                ((WorldServer) user.world).playSound(null, user.posX, user.posY, user.posZ, ModSounds.CHARM, SoundCategory.PLAYERS, 5.0F, (1.0F + (user.world.rand.nextFloat() - user.world.rand.nextFloat()) * 0.2F) * 0.7F);
+            }
         }
     }
 
@@ -82,6 +89,10 @@ public class Charm extends BaseAbility implements IImpact, ISkillAdvancement {
         if (trace.typeOfHit == RayTraceResult.Type.ENTITY && trace.entityHit instanceof EntityLivingBase) {
             apply((EntityLivingBase) trace.entityHit, skillData);
             sync((EntityLivingBase) trace.entityHit, skillData);
+
+            if (trace.entityHit.world instanceof WorldServer) {
+                ((WorldServer) trace.entityHit.world).playSound(null, trace.entityHit.posX, trace.entityHit.posY, trace.entityHit.posZ, ModSounds.LIGHT_HIT, SoundCategory.PLAYERS, 5.0F, (1.0F + (trace.entityHit.world.rand.nextFloat() - trace.entityHit.world.rand.nextFloat()) * 0.2F) * 0.7F);
+            }
         }
     }
     //* Entity *//

@@ -18,11 +18,14 @@ import arekkuusu.enderskills.common.skill.ModAbilities;
 import arekkuusu.enderskills.common.skill.ModAttributes;
 import arekkuusu.enderskills.common.skill.ability.AbilityInfo;
 import arekkuusu.enderskills.common.skill.ability.BaseAbility;
+import arekkuusu.enderskills.common.sound.ModSounds;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.SoundCategory;
+import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Config;
 import net.minecraftforge.fml.relauncher.Side;
@@ -53,6 +56,10 @@ public class HealSelf extends BaseAbility implements ISkillAdvancement {
             apply(user, SkillData.of(this).with(INSTANT).create());
             sync(user, SkillData.of(this).with(INSTANT).create());
             sync(user);
+
+            if (user.world instanceof WorldServer) {
+                ((WorldServer) user.world).playSound(null, user.posX, user.posY, user.posZ, ModSounds.HEAL_SELF, SoundCategory.PLAYERS, 5.0F, (1.0F + (user.world.rand.nextFloat() - user.world.rand.nextFloat()) * 0.2F) * 0.7F);
+            }
         }
     }
 

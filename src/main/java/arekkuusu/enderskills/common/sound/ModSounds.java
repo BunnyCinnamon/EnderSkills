@@ -83,6 +83,13 @@ public final class ModSounds {
     public static final SoundEvent FLAMING_RAIN_ACTIVE = empty();
     public static final SoundEvent FOCUS_FLAME = empty();
     public static final SoundEvent EXPLODE = empty();
+    public static final SoundEvent HEAL_AURA = empty();
+    public static final SoundEvent HEAL_OTHER = empty();
+    public static final SoundEvent HEAL_SELF = empty();
+    public static final SoundEvent NEARBY_INVINCIBILITY = empty();
+    public static final SoundEvent POWER_BOOST = empty();
+    public static final SoundEvent CHARM = empty();
+    public static final SoundEvent LIGHT_HIT = empty();
 
     public static void register(IForgeRegistry<SoundEvent> registry) {
         registry.register(new SoundBase("page_turn"));
@@ -152,5 +159,12 @@ public final class ModSounds {
         registry.register(new SoundBase("flaming_rain_active"));
         registry.register(new SoundBase("explode"));
         registry.register(new SoundBase("flaming_breath"));
+        registry.register(new SoundBase("heal_aura"));
+        registry.register(new SoundBase("heal_other"));
+        registry.register(new SoundBase("heal_self"));
+        registry.register(new SoundBase("nearby_invincibility"));
+        registry.register(new SoundBase("power_boost"));
+        registry.register(new SoundBase("charm"));
+        registry.register(new SoundBase("light_hit"));
     }
 }

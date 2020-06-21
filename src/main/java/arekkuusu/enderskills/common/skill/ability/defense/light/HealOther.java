@@ -22,13 +22,16 @@ import arekkuusu.enderskills.common.skill.ModAbilities;
 import arekkuusu.enderskills.common.skill.ModAttributes;
 import arekkuusu.enderskills.common.skill.ability.AbilityInfo;
 import arekkuusu.enderskills.common.skill.ability.BaseAbility;
+import arekkuusu.enderskills.common.sound.ModSounds;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Config;
 import net.minecraftforge.fml.relauncher.Side;
@@ -67,6 +70,10 @@ public class HealOther extends BaseAbility implements IImpact, ISkillAdvancement
                     .create();
             EntityThrowableData.throwFor(user, distance, data, false);
             sync(user);
+
+            if (user.world instanceof WorldServer) {
+                ((WorldServer) user.world).playSound(null, user.posX, user.posY, user.posZ, ModSounds.HEAL_OTHER, SoundCategory.PLAYERS, 5.0F, (1.0F + (user.world.rand.nextFloat() - user.world.rand.nextFloat()) * 0.2F) * 0.7F);
+            }
         }
     }
 
@@ -83,6 +90,10 @@ public class HealOther extends BaseAbility implements IImpact, ISkillAdvancement
         if (trace.typeOfHit == RayTraceResult.Type.ENTITY && trace.entityHit instanceof EntityLivingBase && TeamHelper.SELECTOR_ALLY.apply(owner).test(trace.entityHit)) {
             apply((EntityLivingBase) trace.entityHit, skillData);
             sync((EntityLivingBase) trace.entityHit, skillData);
+
+            if (trace.entityHit.world instanceof WorldServer) {
+                ((WorldServer) trace.entityHit.world).playSound(null, trace.entityHit.posX, trace.entityHit.posY, trace.entityHit.posZ, ModSounds.LIGHT_HIT, SoundCategory.PLAYERS, 5.0F, (1.0F + (trace.entityHit.world.rand.nextFloat() - trace.entityHit.world.rand.nextFloat()) * 0.2F) * 0.7F);
+            }
         }
     }
     //* Entity *//
