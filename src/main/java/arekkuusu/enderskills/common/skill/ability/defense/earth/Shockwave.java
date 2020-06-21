@@ -96,7 +96,6 @@ public class Shockwave extends BaseAbility implements IScanEntities, IExpand, IF
             user.world.spawnEntity(spawn);
             sync(user);
 
-            //EnderSkills.getProxy().playSound(user.world, user.getPositionVector(), ModSounds.SHOCKWAVE, SoundCategory.PLAYERS, 5.0F);
             if (user.world instanceof WorldServer) {
                 ((WorldServer) user.world).playSound(null, user.posX, user.posY, user.posZ, ModSounds.SHOCKWAVE, SoundCategory.PLAYERS, 5.0F, (1.0F + (user.world.rand.nextFloat() - user.world.rand.nextFloat()) * 0.2F) * 0.7F);
             }

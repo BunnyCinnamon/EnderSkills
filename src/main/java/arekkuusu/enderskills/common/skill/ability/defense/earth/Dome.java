@@ -80,7 +80,6 @@ public class Dome extends BaseAbility implements ISkillAdvancement {
             sync(user, data);
             sync(user);
 
-            //EnderSkills.getProxy().playSound(user.world, user.getPositionVector(), ModSounds.DOME_UP, SoundCategory.PLAYERS, 5.0F);
             if (user.world instanceof WorldServer) {
                 ((WorldServer) user.world).playSound(null, user.posX, user.posY, user.posZ, ModSounds.DOME_UP, SoundCategory.PLAYERS, 5.0F, (1.0F + (user.world.rand.nextFloat() - user.world.rand.nextFloat()) * 0.2F) * 0.7F);
             }
