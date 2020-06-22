@@ -10,7 +10,7 @@ public class SkillAdvancementConditionAttribute extends SkillAdvancementConditio
     }
 
     public boolean canUpgrade() {
-        return this.conditions.isEmpty() || this.conditions.stream().anyMatch(SkillAdvancementCondition::isUpgraded);
+        return this.conditions.isEmpty() || this.conditions.stream().allMatch(SkillAdvancementCondition::isUpgraded);
     }
 
     @Override

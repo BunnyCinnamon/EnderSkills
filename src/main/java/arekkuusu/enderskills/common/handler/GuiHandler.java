@@ -47,68 +47,6 @@ public class GuiHandler implements IGuiHandler {
                     GuiScreenSkillAdvancements window = new GuiScreenSkillAdvancements();
                     GuiSkillAdvancementTab tab0 = window.addTab(new TextComponentTranslation(get("tab.defense.title")), SkillAdvancementTabType.BELOW, 0x65974B, 0);
                     if (tab0 != null) {
-                        //Attribute
-                        SkillAdvancementConditionAttribute explosion_resistance = new SkillAdvancementConditionAttribute(
-                                new SkillAdvancementInfo(
-                                        new TextComponentTranslation(get("skill.explosion_resistance.title")),
-                                        new TextComponentTranslation(get("skill.explosion_resistance.description")),
-                                        SkillAdvancementInfo.Frame.NORMAL,
-                                        ModAttributes.EXPLOSION_RESISTANCE,
-                                        false
-                                ),
-                                0, 5
-                        );
-                        SkillAdvancementConditionAttribute damage_resistance = new SkillAdvancementConditionAttribute(
-                                new SkillAdvancementInfo(
-                                        new TextComponentTranslation(get("skill.damage_resistance.title")),
-                                        new TextComponentTranslation(get("skill.damage_resistance.description")),
-                                        SkillAdvancementInfo.Frame.NORMAL,
-                                        ModAttributes.DAMAGE_RESISTANCE,
-                                        false
-                                ),
-                                0, 6
-                        );
-                        SkillAdvancementConditionAttribute knockback_resistance = new SkillAdvancementConditionAttribute(
-                                new SkillAdvancementInfo(
-                                        new TextComponentTranslation(get("skill.knockback_resistance.title")),
-                                        new TextComponentTranslation(get("skill.knockback_resistance.description")),
-                                        SkillAdvancementInfo.Frame.NORMAL,
-                                        ModAttributes.KNOCKBACK_RESISTANCE,
-                                        false
-                                ),
-                                0, 7
-                        );
-                        SkillAdvancementConditionAttribute magic_resistance = new SkillAdvancementConditionAttribute(
-                                new SkillAdvancementInfo(
-                                        new TextComponentTranslation(get("skill.magic_resistance.title")),
-                                        new TextComponentTranslation(get("skill.magic_resistance.description")),
-                                        SkillAdvancementInfo.Frame.NORMAL,
-                                        ModAttributes.MAGIC_RESISTANCE,
-                                        false
-                                ),
-                                2, 5
-                        );
-                        SkillAdvancementConditionAttribute heart_boost = new SkillAdvancementConditionAttribute(
-                                new SkillAdvancementInfo(
-                                        new TextComponentTranslation(get("skill.heart_boost.title")),
-                                        new TextComponentTranslation(get("skill.heart_boost.description")),
-                                        SkillAdvancementInfo.Frame.NORMAL,
-                                        ModAttributes.HEART_BOOST,
-                                        false
-                                ),
-                                2, 6
-                        );
-                        SkillAdvancementConditionAttribute fire_resistance = new SkillAdvancementConditionAttribute(
-                                new SkillAdvancementInfo(
-                                        new TextComponentTranslation(get("skill.fire_resistance.title")),
-                                        new TextComponentTranslation(get("skill.fire_resistance.description")),
-                                        SkillAdvancementInfo.Frame.NORMAL,
-                                        ModAttributes.FIRE_RESISTANCE,
-                                        false
-                                ),
-                                2, 7
-                        );
-                        //Ability
                         GuiSkillAdvancementPage page0 = tab0.addPage(new TextComponentTranslation(get("page.light.title")));
                         SkillAdvancementConditionSimple charm = new SkillAdvancementConditionSimple(
                                 new SkillAdvancementInfo(
@@ -121,6 +59,68 @@ public class GuiHandler implements IGuiHandler {
                                 0, 1
                         );
                         {
+                            //Attribute
+                            SkillAdvancementConditionAttribute explosion_resistance = new SkillAdvancementConditionAttribute(
+                                    new SkillAdvancementInfo(
+                                            new TextComponentTranslation(get("skill.explosion_resistance.title")),
+                                            new TextComponentTranslation(get("skill.explosion_resistance.description")),
+                                            SkillAdvancementInfo.Frame.NORMAL,
+                                            ModAttributes.EXPLOSION_RESISTANCE,
+                                            false
+                                    ),
+                                    0, 5
+                            );
+                            SkillAdvancementConditionAttribute damage_resistance = new SkillAdvancementConditionAttribute(
+                                    new SkillAdvancementInfo(
+                                            new TextComponentTranslation(get("skill.damage_resistance.title")),
+                                            new TextComponentTranslation(get("skill.damage_resistance.description")),
+                                            SkillAdvancementInfo.Frame.NORMAL,
+                                            ModAttributes.DAMAGE_RESISTANCE,
+                                            false
+                                    ),
+                                    0, 6
+                            );
+                            SkillAdvancementConditionAttribute knockback_resistance = new SkillAdvancementConditionAttribute(
+                                    new SkillAdvancementInfo(
+                                            new TextComponentTranslation(get("skill.knockback_resistance.title")),
+                                            new TextComponentTranslation(get("skill.knockback_resistance.description")),
+                                            SkillAdvancementInfo.Frame.NORMAL,
+                                            ModAttributes.KNOCKBACK_RESISTANCE,
+                                            false
+                                    ),
+                                    0, 7
+                            );
+                            SkillAdvancementConditionAttribute magic_resistance = new SkillAdvancementConditionAttribute(
+                                    new SkillAdvancementInfo(
+                                            new TextComponentTranslation(get("skill.magic_resistance.title")),
+                                            new TextComponentTranslation(get("skill.magic_resistance.description")),
+                                            SkillAdvancementInfo.Frame.NORMAL,
+                                            ModAttributes.MAGIC_RESISTANCE,
+                                            false
+                                    ),
+                                    2, 5
+                            );
+                            SkillAdvancementConditionAttribute heart_boost = new SkillAdvancementConditionAttribute(
+                                    new SkillAdvancementInfo(
+                                            new TextComponentTranslation(get("skill.heart_boost.title")),
+                                            new TextComponentTranslation(get("skill.heart_boost.description")),
+                                            SkillAdvancementInfo.Frame.NORMAL,
+                                            ModAttributes.HEART_BOOST,
+                                            false
+                                    ),
+                                    2, 6
+                            );
+                            SkillAdvancementConditionAttribute fire_resistance = new SkillAdvancementConditionAttribute(
+                                    new SkillAdvancementInfo(
+                                            new TextComponentTranslation(get("skill.fire_resistance.title")),
+                                            new TextComponentTranslation(get("skill.fire_resistance.description")),
+                                            SkillAdvancementInfo.Frame.NORMAL,
+                                            ModAttributes.FIRE_RESISTANCE,
+                                            false
+                                    ),
+                                    2, 7
+                            );
+                            //Ability
                             SkillAdvancementConditionSimple heal_aura = new SkillAdvancementConditionSimple(
                                     new SkillAdvancementInfo(
                                             new TextComponentTranslation(get("skill.heal_aura.title")),
@@ -190,6 +190,9 @@ public class GuiHandler implements IGuiHandler {
                             heart_boost.addCondition(new SkillAdvancementConditionOr(heal_aura, power_boost));
                             fire_resistance.addCondition(new SkillAdvancementConditionOr(heal_aura, power_boost));
                             //Altar Requirements
+                            magic_resistance.addCondition(new SkillAdvancementConditionAltar(SkillAdvancementConditionAltar.LEVEL_1));
+                            heart_boost.addCondition(new SkillAdvancementConditionAltar(SkillAdvancementConditionAltar.LEVEL_1));
+                            fire_resistance.addCondition(new SkillAdvancementConditionAltar(SkillAdvancementConditionAltar.LEVEL_1));
                             charm.addCondition(new SkillAdvancementConditionAltar(SkillAdvancementConditionAltar.LEVEL_0));
                             heal_aura.addCondition(new SkillAdvancementConditionAltar(SkillAdvancementConditionAltar.LEVEL_1));
                             power_boost.addCondition(new SkillAdvancementConditionAltar(SkillAdvancementConditionAltar.LEVEL_1));
@@ -219,6 +222,68 @@ public class GuiHandler implements IGuiHandler {
                                 0, 1
                         );
                         {
+                            //Attribute
+                            SkillAdvancementConditionAttribute explosion_resistance = new SkillAdvancementConditionAttribute(
+                                    new SkillAdvancementInfo(
+                                            new TextComponentTranslation(get("skill.explosion_resistance.title")),
+                                            new TextComponentTranslation(get("skill.explosion_resistance.description")),
+                                            SkillAdvancementInfo.Frame.NORMAL,
+                                            ModAttributes.EXPLOSION_RESISTANCE,
+                                            false
+                                    ),
+                                    0, 5
+                            );
+                            SkillAdvancementConditionAttribute damage_resistance = new SkillAdvancementConditionAttribute(
+                                    new SkillAdvancementInfo(
+                                            new TextComponentTranslation(get("skill.damage_resistance.title")),
+                                            new TextComponentTranslation(get("skill.damage_resistance.description")),
+                                            SkillAdvancementInfo.Frame.NORMAL,
+                                            ModAttributes.DAMAGE_RESISTANCE,
+                                            false
+                                    ),
+                                    0, 6
+                            );
+                            SkillAdvancementConditionAttribute knockback_resistance = new SkillAdvancementConditionAttribute(
+                                    new SkillAdvancementInfo(
+                                            new TextComponentTranslation(get("skill.knockback_resistance.title")),
+                                            new TextComponentTranslation(get("skill.knockback_resistance.description")),
+                                            SkillAdvancementInfo.Frame.NORMAL,
+                                            ModAttributes.KNOCKBACK_RESISTANCE,
+                                            false
+                                    ),
+                                    0, 7
+                            );
+                            SkillAdvancementConditionAttribute magic_resistance = new SkillAdvancementConditionAttribute(
+                                    new SkillAdvancementInfo(
+                                            new TextComponentTranslation(get("skill.magic_resistance.title")),
+                                            new TextComponentTranslation(get("skill.magic_resistance.description")),
+                                            SkillAdvancementInfo.Frame.NORMAL,
+                                            ModAttributes.MAGIC_RESISTANCE,
+                                            false
+                                    ),
+                                    2, 5
+                            );
+                            SkillAdvancementConditionAttribute heart_boost = new SkillAdvancementConditionAttribute(
+                                    new SkillAdvancementInfo(
+                                            new TextComponentTranslation(get("skill.heart_boost.title")),
+                                            new TextComponentTranslation(get("skill.heart_boost.description")),
+                                            SkillAdvancementInfo.Frame.NORMAL,
+                                            ModAttributes.HEART_BOOST,
+                                            false
+                                    ),
+                                    2, 6
+                            );
+                            SkillAdvancementConditionAttribute fire_resistance = new SkillAdvancementConditionAttribute(
+                                    new SkillAdvancementInfo(
+                                            new TextComponentTranslation(get("skill.fire_resistance.title")),
+                                            new TextComponentTranslation(get("skill.fire_resistance.description")),
+                                            SkillAdvancementInfo.Frame.NORMAL,
+                                            ModAttributes.FIRE_RESISTANCE,
+                                            false
+                                    ),
+                                    2, 7
+                            );
+                            //Ability
                             SkillAdvancementConditionSimple wall = new SkillAdvancementConditionSimple(
                                     new SkillAdvancementInfo(
                                             new TextComponentTranslation(get("skill.wall.title")),
@@ -289,6 +354,9 @@ public class GuiHandler implements IGuiHandler {
                             heart_boost.addCondition(new SkillAdvancementConditionOr(wall, dome));
                             fire_resistance.addCondition(new SkillAdvancementConditionOr(wall, dome));
                             //Altar Requirements
+                            magic_resistance.addCondition(new SkillAdvancementConditionAltar(SkillAdvancementConditionAltar.LEVEL_1));
+                            heart_boost.addCondition(new SkillAdvancementConditionAltar(SkillAdvancementConditionAltar.LEVEL_1));
+                            fire_resistance.addCondition(new SkillAdvancementConditionAltar(SkillAdvancementConditionAltar.LEVEL_1));
                             taunt.addCondition(new SkillAdvancementConditionAltar(SkillAdvancementConditionAltar.LEVEL_0));
                             wall.addCondition(new SkillAdvancementConditionAltar(SkillAdvancementConditionAltar.LEVEL_1));
                             dome.addCondition(new SkillAdvancementConditionAltar(SkillAdvancementConditionAltar.LEVEL_1));
@@ -314,68 +382,6 @@ public class GuiHandler implements IGuiHandler {
                     }
                     GuiSkillAdvancementTab tab1 = window.addTab(new TextComponentTranslation(get("tab.mobility.title")), SkillAdvancementTabType.BELOW, 0x329CA2, 1);
                     if (tab1 != null) {
-                        //Attribute
-                        SkillAdvancementConditionAttribute jump_height = new SkillAdvancementConditionAttribute(
-                                new SkillAdvancementInfo(
-                                        new TextComponentTranslation(get("skill.jump_height.title")),
-                                        new TextComponentTranslation(get("skill.jump_height.description")),
-                                        SkillAdvancementInfo.Frame.NORMAL,
-                                        ModAttributes.JUMP_HEIGHT,
-                                        false
-                                ),
-                                0, 5
-                        );
-                        SkillAdvancementConditionAttribute speed = new SkillAdvancementConditionAttribute(
-                                new SkillAdvancementInfo(
-                                        new TextComponentTranslation(get("skill.speed.title")),
-                                        new TextComponentTranslation(get("skill.speed.description")),
-                                        SkillAdvancementInfo.Frame.NORMAL,
-                                        ModAttributes.SPEED,
-                                        false
-                                ),
-                                0, 6
-                        );
-                        SkillAdvancementConditionAttribute fall_resistance = new SkillAdvancementConditionAttribute(
-                                new SkillAdvancementInfo(
-                                        new TextComponentTranslation(get("skill.fall_resistance.title")),
-                                        new TextComponentTranslation(get("skill.fall_resistance.description")),
-                                        SkillAdvancementInfo.Frame.NORMAL,
-                                        ModAttributes.FALL_RESISTANCE,
-                                        false
-                                ),
-                                0, 7
-                        );
-                        SkillAdvancementConditionAttribute endurance = new SkillAdvancementConditionAttribute(
-                                new SkillAdvancementInfo(
-                                        new TextComponentTranslation(get("skill.endurance.title")),
-                                        new TextComponentTranslation(get("skill.endurance.description")),
-                                        SkillAdvancementInfo.Frame.NORMAL,
-                                        ModAttributes.ENDURANCE,
-                                        false
-                                ),
-                                2, 5
-                        );
-                        SkillAdvancementConditionAttribute stealth_damage = new SkillAdvancementConditionAttribute(
-                                new SkillAdvancementInfo(
-                                        new TextComponentTranslation(get("skill.stealth_damage.title")),
-                                        new TextComponentTranslation(get("skill.stealth_damage.description")),
-                                        SkillAdvancementInfo.Frame.NORMAL,
-                                        ModAttributes.STEALTH_DAMAGE,
-                                        false
-                                ),
-                                2, 6
-                        );
-                        SkillAdvancementConditionAttribute swim_speed = new SkillAdvancementConditionAttribute(
-                                new SkillAdvancementInfo(
-                                        new TextComponentTranslation(get("skill.swim_speed.title")),
-                                        new TextComponentTranslation(get("skill.swim_speed.description")),
-                                        SkillAdvancementInfo.Frame.NORMAL,
-                                        ModAttributes.SWIM_SPEED,
-                                        false
-                                ),
-                                2, 7
-                        );
-                        //Ability
                         GuiSkillAdvancementPage page0 = tab1.addPage(new TextComponentTranslation(get("page.wind.title")));
                         SkillAdvancementConditionSimple dash = new SkillAdvancementConditionSimple(
                                 new SkillAdvancementInfo(
@@ -388,6 +394,68 @@ public class GuiHandler implements IGuiHandler {
                                 0, 1
                         );
                         {
+                            //Attribute
+                            SkillAdvancementConditionAttribute jump_height = new SkillAdvancementConditionAttribute(
+                                    new SkillAdvancementInfo(
+                                            new TextComponentTranslation(get("skill.jump_height.title")),
+                                            new TextComponentTranslation(get("skill.jump_height.description")),
+                                            SkillAdvancementInfo.Frame.NORMAL,
+                                            ModAttributes.JUMP_HEIGHT,
+                                            false
+                                    ),
+                                    0, 5
+                            );
+                            SkillAdvancementConditionAttribute speed = new SkillAdvancementConditionAttribute(
+                                    new SkillAdvancementInfo(
+                                            new TextComponentTranslation(get("skill.speed.title")),
+                                            new TextComponentTranslation(get("skill.speed.description")),
+                                            SkillAdvancementInfo.Frame.NORMAL,
+                                            ModAttributes.SPEED,
+                                            false
+                                    ),
+                                    0, 6
+                            );
+                            SkillAdvancementConditionAttribute fall_resistance = new SkillAdvancementConditionAttribute(
+                                    new SkillAdvancementInfo(
+                                            new TextComponentTranslation(get("skill.fall_resistance.title")),
+                                            new TextComponentTranslation(get("skill.fall_resistance.description")),
+                                            SkillAdvancementInfo.Frame.NORMAL,
+                                            ModAttributes.FALL_RESISTANCE,
+                                            false
+                                    ),
+                                    0, 7
+                            );
+                            SkillAdvancementConditionAttribute endurance = new SkillAdvancementConditionAttribute(
+                                    new SkillAdvancementInfo(
+                                            new TextComponentTranslation(get("skill.endurance.title")),
+                                            new TextComponentTranslation(get("skill.endurance.description")),
+                                            SkillAdvancementInfo.Frame.NORMAL,
+                                            ModAttributes.ENDURANCE,
+                                            false
+                                    ),
+                                    2, 5
+                            );
+                            SkillAdvancementConditionAttribute stealth_damage = new SkillAdvancementConditionAttribute(
+                                    new SkillAdvancementInfo(
+                                            new TextComponentTranslation(get("skill.stealth_damage.title")),
+                                            new TextComponentTranslation(get("skill.stealth_damage.description")),
+                                            SkillAdvancementInfo.Frame.NORMAL,
+                                            ModAttributes.STEALTH_DAMAGE,
+                                            false
+                                    ),
+                                    2, 6
+                            );
+                            SkillAdvancementConditionAttribute swim_speed = new SkillAdvancementConditionAttribute(
+                                    new SkillAdvancementInfo(
+                                            new TextComponentTranslation(get("skill.swim_speed.title")),
+                                            new TextComponentTranslation(get("skill.swim_speed.description")),
+                                            SkillAdvancementInfo.Frame.NORMAL,
+                                            ModAttributes.SWIM_SPEED,
+                                            false
+                                    ),
+                                    2, 7
+                            );
+                            //Ability
                             SkillAdvancementConditionSimple extra_jump = new SkillAdvancementConditionSimple(
                                     new SkillAdvancementInfo(
                                             new TextComponentTranslation(get("skill.extra_jump.title")),
@@ -457,6 +525,9 @@ public class GuiHandler implements IGuiHandler {
                             stealth_damage.addCondition(new SkillAdvancementConditionOr(extra_jump, fog));
                             swim_speed.addCondition(new SkillAdvancementConditionOr(extra_jump, fog));
                             //Altar Requirements
+                            endurance.addCondition(new SkillAdvancementConditionAltar(SkillAdvancementConditionAltar.LEVEL_1));
+                            stealth_damage.addCondition(new SkillAdvancementConditionAltar(SkillAdvancementConditionAltar.LEVEL_1));
+                            swim_speed.addCondition(new SkillAdvancementConditionAltar(SkillAdvancementConditionAltar.LEVEL_1));
                             dash.addCondition(new SkillAdvancementConditionAltar(SkillAdvancementConditionAltar.LEVEL_0));
                             extra_jump.addCondition(new SkillAdvancementConditionAltar(SkillAdvancementConditionAltar.LEVEL_1));
                             fog.addCondition(new SkillAdvancementConditionAltar(SkillAdvancementConditionAltar.LEVEL_1));
@@ -486,6 +557,68 @@ public class GuiHandler implements IGuiHandler {
                                 0, 1
                         );
                         {
+                            //Attribute
+                            SkillAdvancementConditionAttribute jump_height = new SkillAdvancementConditionAttribute(
+                                    new SkillAdvancementInfo(
+                                            new TextComponentTranslation(get("skill.jump_height.title")),
+                                            new TextComponentTranslation(get("skill.jump_height.description")),
+                                            SkillAdvancementInfo.Frame.NORMAL,
+                                            ModAttributes.JUMP_HEIGHT,
+                                            false
+                                    ),
+                                    0, 5
+                            );
+                            SkillAdvancementConditionAttribute speed = new SkillAdvancementConditionAttribute(
+                                    new SkillAdvancementInfo(
+                                            new TextComponentTranslation(get("skill.speed.title")),
+                                            new TextComponentTranslation(get("skill.speed.description")),
+                                            SkillAdvancementInfo.Frame.NORMAL,
+                                            ModAttributes.SPEED,
+                                            false
+                                    ),
+                                    0, 6
+                            );
+                            SkillAdvancementConditionAttribute fall_resistance = new SkillAdvancementConditionAttribute(
+                                    new SkillAdvancementInfo(
+                                            new TextComponentTranslation(get("skill.fall_resistance.title")),
+                                            new TextComponentTranslation(get("skill.fall_resistance.description")),
+                                            SkillAdvancementInfo.Frame.NORMAL,
+                                            ModAttributes.FALL_RESISTANCE,
+                                            false
+                                    ),
+                                    0, 7
+                            );
+                            SkillAdvancementConditionAttribute endurance = new SkillAdvancementConditionAttribute(
+                                    new SkillAdvancementInfo(
+                                            new TextComponentTranslation(get("skill.endurance.title")),
+                                            new TextComponentTranslation(get("skill.endurance.description")),
+                                            SkillAdvancementInfo.Frame.NORMAL,
+                                            ModAttributes.ENDURANCE,
+                                            false
+                                    ),
+                                    2, 5
+                            );
+                            SkillAdvancementConditionAttribute stealth_damage = new SkillAdvancementConditionAttribute(
+                                    new SkillAdvancementInfo(
+                                            new TextComponentTranslation(get("skill.stealth_damage.title")),
+                                            new TextComponentTranslation(get("skill.stealth_damage.description")),
+                                            SkillAdvancementInfo.Frame.NORMAL,
+                                            ModAttributes.STEALTH_DAMAGE,
+                                            false
+                                    ),
+                                    2, 6
+                            );
+                            SkillAdvancementConditionAttribute swim_speed = new SkillAdvancementConditionAttribute(
+                                    new SkillAdvancementInfo(
+                                            new TextComponentTranslation(get("skill.swim_speed.title")),
+                                            new TextComponentTranslation(get("skill.swim_speed.description")),
+                                            SkillAdvancementInfo.Frame.NORMAL,
+                                            ModAttributes.SWIM_SPEED,
+                                            false
+                                    ),
+                                    2, 7
+                            );
+                            //Ability
                             SkillAdvancementConditionSimple invisibility = new SkillAdvancementConditionSimple(
                                     new SkillAdvancementInfo(
                                             new TextComponentTranslation(get("skill.invisibility.title")),
@@ -556,6 +689,9 @@ public class GuiHandler implements IGuiHandler {
                             stealth_damage.addCondition(new SkillAdvancementConditionOr(invisibility, hover));
                             swim_speed.addCondition(new SkillAdvancementConditionOr(invisibility, hover));
                             //Altar Requirements
+                            endurance.addCondition(new SkillAdvancementConditionAltar(SkillAdvancementConditionAltar.LEVEL_1));
+                            stealth_damage.addCondition(new SkillAdvancementConditionAltar(SkillAdvancementConditionAltar.LEVEL_1));
+                            swim_speed.addCondition(new SkillAdvancementConditionAltar(SkillAdvancementConditionAltar.LEVEL_1));
                             warp.addCondition(new SkillAdvancementConditionAltar(SkillAdvancementConditionAltar.LEVEL_0));
                             invisibility.addCondition(new SkillAdvancementConditionAltar(SkillAdvancementConditionAltar.LEVEL_1));
                             hover.addCondition(new SkillAdvancementConditionAltar(SkillAdvancementConditionAltar.LEVEL_1));
@@ -581,68 +717,6 @@ public class GuiHandler implements IGuiHandler {
                     }
                     GuiSkillAdvancementTab tab2 = window.addTab(new TextComponentTranslation(get("tab.offense.title")), SkillAdvancementTabType.BELOW, 0xAF3B3E, 2);
                     if (tab2 != null) {
-                        //Attribute
-                        SkillAdvancementConditionAttribute damage = new SkillAdvancementConditionAttribute(
-                                new SkillAdvancementInfo(
-                                        new TextComponentTranslation(get("skill.damage.title")),
-                                        new TextComponentTranslation(get("skill.damage.description")),
-                                        SkillAdvancementInfo.Frame.NORMAL,
-                                        ModAttributes.DAMAGE,
-                                        false
-                                ),
-                                0, 5
-                        );
-                        SkillAdvancementConditionAttribute attack_speed = new SkillAdvancementConditionAttribute(
-                                new SkillAdvancementInfo(
-                                        new TextComponentTranslation(get("skill.attack_speed.title")),
-                                        new TextComponentTranslation(get("skill.attack_speed.description")),
-                                        SkillAdvancementInfo.Frame.NORMAL,
-                                        ModAttributes.ATTACK_SPEED,
-                                        false
-                                ),
-                                0, 6
-                        );
-                        SkillAdvancementConditionAttribute knockback = new SkillAdvancementConditionAttribute(
-                                new SkillAdvancementInfo(
-                                        new TextComponentTranslation(get("skill.knockback.title")),
-                                        new TextComponentTranslation(get("skill.knockback.description")),
-                                        SkillAdvancementInfo.Frame.NORMAL,
-                                        ModAttributes.KNOCKBACK,
-                                        false
-                                ),
-                                0, 7
-                        );
-                        SkillAdvancementConditionAttribute ability_power = new SkillAdvancementConditionAttribute(
-                                new SkillAdvancementInfo(
-                                        new TextComponentTranslation(get("skill.ability_power.title")),
-                                        new TextComponentTranslation(get("skill.ability_power.description")),
-                                        SkillAdvancementInfo.Frame.NORMAL,
-                                        ModAttributes.ABILITY_POWER,
-                                        false
-                                ),
-                                2, 5
-                        );
-                        SkillAdvancementConditionAttribute critical_chance = new SkillAdvancementConditionAttribute(
-                                new SkillAdvancementInfo(
-                                        new TextComponentTranslation(get("skill.critical_chance.title")),
-                                        new TextComponentTranslation(get("skill.critical_chance.description")),
-                                        SkillAdvancementInfo.Frame.NORMAL,
-                                        ModAttributes.CRITICAL_CHANCE,
-                                        false
-                                ),
-                                2, 6
-                        );
-                        SkillAdvancementConditionAttribute armor_penetration = new SkillAdvancementConditionAttribute(
-                                new SkillAdvancementInfo(
-                                        new TextComponentTranslation(get("skill.armor_penetration.title")),
-                                        new TextComponentTranslation(get("skill.armor_penetration.description")),
-                                        SkillAdvancementInfo.Frame.NORMAL,
-                                        ModAttributes.ARMOR_PENETRATION,
-                                        false
-                                ),
-                                2, 7
-                        );
-                        //Ability
                         GuiSkillAdvancementPage page0 = tab2.addPage(new TextComponentTranslation(get("page.void.title")));
                         SkillAdvancementConditionSimple shadow = new SkillAdvancementConditionSimple(
                                 new SkillAdvancementInfo(
@@ -655,6 +729,68 @@ public class GuiHandler implements IGuiHandler {
                                 0, 1
                         );
                         {
+                            //Attribute
+                            SkillAdvancementConditionAttribute damage = new SkillAdvancementConditionAttribute(
+                                    new SkillAdvancementInfo(
+                                            new TextComponentTranslation(get("skill.damage.title")),
+                                            new TextComponentTranslation(get("skill.damage.description")),
+                                            SkillAdvancementInfo.Frame.NORMAL,
+                                            ModAttributes.DAMAGE,
+                                            false
+                                    ),
+                                    0, 5
+                            );
+                            SkillAdvancementConditionAttribute attack_speed = new SkillAdvancementConditionAttribute(
+                                    new SkillAdvancementInfo(
+                                            new TextComponentTranslation(get("skill.attack_speed.title")),
+                                            new TextComponentTranslation(get("skill.attack_speed.description")),
+                                            SkillAdvancementInfo.Frame.NORMAL,
+                                            ModAttributes.ATTACK_SPEED,
+                                            false
+                                    ),
+                                    0, 6
+                            );
+                            SkillAdvancementConditionAttribute knockback = new SkillAdvancementConditionAttribute(
+                                    new SkillAdvancementInfo(
+                                            new TextComponentTranslation(get("skill.knockback.title")),
+                                            new TextComponentTranslation(get("skill.knockback.description")),
+                                            SkillAdvancementInfo.Frame.NORMAL,
+                                            ModAttributes.KNOCKBACK,
+                                            false
+                                    ),
+                                    0, 7
+                            );
+                            SkillAdvancementConditionAttribute ability_power = new SkillAdvancementConditionAttribute(
+                                    new SkillAdvancementInfo(
+                                            new TextComponentTranslation(get("skill.ability_power.title")),
+                                            new TextComponentTranslation(get("skill.ability_power.description")),
+                                            SkillAdvancementInfo.Frame.NORMAL,
+                                            ModAttributes.ABILITY_POWER,
+                                            false
+                                    ),
+                                    2, 5
+                            );
+                            SkillAdvancementConditionAttribute critical_chance = new SkillAdvancementConditionAttribute(
+                                    new SkillAdvancementInfo(
+                                            new TextComponentTranslation(get("skill.critical_chance.title")),
+                                            new TextComponentTranslation(get("skill.critical_chance.description")),
+                                            SkillAdvancementInfo.Frame.NORMAL,
+                                            ModAttributes.CRITICAL_CHANCE,
+                                            false
+                                    ),
+                                    2, 6
+                            );
+                            SkillAdvancementConditionAttribute armor_penetration = new SkillAdvancementConditionAttribute(
+                                    new SkillAdvancementInfo(
+                                            new TextComponentTranslation(get("skill.armor_penetration.title")),
+                                            new TextComponentTranslation(get("skill.armor_penetration.description")),
+                                            SkillAdvancementInfo.Frame.NORMAL,
+                                            ModAttributes.ARMOR_PENETRATION,
+                                            false
+                                    ),
+                                    2, 7
+                            );
+                            //Ability
                             SkillAdvancementConditionSimple gloom = new SkillAdvancementConditionSimple(
                                     new SkillAdvancementInfo(
                                             new TextComponentTranslation(get("skill.gloom.title")),
@@ -724,6 +860,9 @@ public class GuiHandler implements IGuiHandler {
                             critical_chance.addCondition(new SkillAdvancementConditionOr(gloom, shadow_jab));
                             armor_penetration.addCondition(new SkillAdvancementConditionOr(gloom, shadow_jab));
                             //Altar Requirements
+                            ability_power.addCondition(new SkillAdvancementConditionAltar(SkillAdvancementConditionAltar.LEVEL_1));
+                            critical_chance.addCondition(new SkillAdvancementConditionAltar(SkillAdvancementConditionAltar.LEVEL_1));
+                            armor_penetration.addCondition(new SkillAdvancementConditionAltar(SkillAdvancementConditionAltar.LEVEL_1));
                             shadow.addCondition(new SkillAdvancementConditionAltar(SkillAdvancementConditionAltar.LEVEL_0));
                             gloom.addCondition(new SkillAdvancementConditionAltar(SkillAdvancementConditionAltar.LEVEL_1));
                             shadow_jab.addCondition(new SkillAdvancementConditionAltar(SkillAdvancementConditionAltar.LEVEL_1));
@@ -753,6 +892,68 @@ public class GuiHandler implements IGuiHandler {
                                 0, 1
                         );
                         {
+                            //Attribute
+                            SkillAdvancementConditionAttribute damage = new SkillAdvancementConditionAttribute(
+                                    new SkillAdvancementInfo(
+                                            new TextComponentTranslation(get("skill.damage.title")),
+                                            new TextComponentTranslation(get("skill.damage.description")),
+                                            SkillAdvancementInfo.Frame.NORMAL,
+                                            ModAttributes.DAMAGE,
+                                            false
+                                    ),
+                                    0, 5
+                            );
+                            SkillAdvancementConditionAttribute attack_speed = new SkillAdvancementConditionAttribute(
+                                    new SkillAdvancementInfo(
+                                            new TextComponentTranslation(get("skill.attack_speed.title")),
+                                            new TextComponentTranslation(get("skill.attack_speed.description")),
+                                            SkillAdvancementInfo.Frame.NORMAL,
+                                            ModAttributes.ATTACK_SPEED,
+                                            false
+                                    ),
+                                    0, 6
+                            );
+                            SkillAdvancementConditionAttribute knockback = new SkillAdvancementConditionAttribute(
+                                    new SkillAdvancementInfo(
+                                            new TextComponentTranslation(get("skill.knockback.title")),
+                                            new TextComponentTranslation(get("skill.knockback.description")),
+                                            SkillAdvancementInfo.Frame.NORMAL,
+                                            ModAttributes.KNOCKBACK,
+                                            false
+                                    ),
+                                    0, 7
+                            );
+                            SkillAdvancementConditionAttribute ability_power = new SkillAdvancementConditionAttribute(
+                                    new SkillAdvancementInfo(
+                                            new TextComponentTranslation(get("skill.ability_power.title")),
+                                            new TextComponentTranslation(get("skill.ability_power.description")),
+                                            SkillAdvancementInfo.Frame.NORMAL,
+                                            ModAttributes.ABILITY_POWER,
+                                            false
+                                    ),
+                                    2, 5
+                            );
+                            SkillAdvancementConditionAttribute critical_chance = new SkillAdvancementConditionAttribute(
+                                    new SkillAdvancementInfo(
+                                            new TextComponentTranslation(get("skill.critical_chance.title")),
+                                            new TextComponentTranslation(get("skill.critical_chance.description")),
+                                            SkillAdvancementInfo.Frame.NORMAL,
+                                            ModAttributes.CRITICAL_CHANCE,
+                                            false
+                                    ),
+                                    2, 6
+                            );
+                            SkillAdvancementConditionAttribute armor_penetration = new SkillAdvancementConditionAttribute(
+                                    new SkillAdvancementInfo(
+                                            new TextComponentTranslation(get("skill.armor_penetration.title")),
+                                            new TextComponentTranslation(get("skill.armor_penetration.description")),
+                                            SkillAdvancementInfo.Frame.NORMAL,
+                                            ModAttributes.ARMOR_PENETRATION,
+                                            false
+                                    ),
+                                    2, 7
+                            );
+                            //Ability
                             SkillAdvancementConditionSimple blood_pool = new SkillAdvancementConditionSimple(
                                     new SkillAdvancementInfo(
                                             new TextComponentTranslation(get("skill.blood_pool.title")),
@@ -823,6 +1024,9 @@ public class GuiHandler implements IGuiHandler {
                             critical_chance.addCondition(new SkillAdvancementConditionOr(blood_pool, contaminate));
                             armor_penetration.addCondition(new SkillAdvancementConditionOr(blood_pool, contaminate));
                             //Altar Requirements
+                            ability_power.addCondition(new SkillAdvancementConditionAltar(SkillAdvancementConditionAltar.LEVEL_1));
+                            critical_chance.addCondition(new SkillAdvancementConditionAltar(SkillAdvancementConditionAltar.LEVEL_1));
+                            armor_penetration.addCondition(new SkillAdvancementConditionAltar(SkillAdvancementConditionAltar.LEVEL_1));
                             bleed.addCondition(new SkillAdvancementConditionAltar(SkillAdvancementConditionAltar.LEVEL_0));
                             blood_pool.addCondition(new SkillAdvancementConditionAltar(SkillAdvancementConditionAltar.LEVEL_1));
                             contaminate.addCondition(new SkillAdvancementConditionAltar(SkillAdvancementConditionAltar.LEVEL_1));
@@ -852,6 +1056,68 @@ public class GuiHandler implements IGuiHandler {
                                 0, 1
                         );
                         {
+                            //Attribute
+                            SkillAdvancementConditionAttribute damage = new SkillAdvancementConditionAttribute(
+                                    new SkillAdvancementInfo(
+                                            new TextComponentTranslation(get("skill.damage.title")),
+                                            new TextComponentTranslation(get("skill.damage.description")),
+                                            SkillAdvancementInfo.Frame.NORMAL,
+                                            ModAttributes.DAMAGE,
+                                            false
+                                    ),
+                                    0, 5
+                            );
+                            SkillAdvancementConditionAttribute attack_speed = new SkillAdvancementConditionAttribute(
+                                    new SkillAdvancementInfo(
+                                            new TextComponentTranslation(get("skill.attack_speed.title")),
+                                            new TextComponentTranslation(get("skill.attack_speed.description")),
+                                            SkillAdvancementInfo.Frame.NORMAL,
+                                            ModAttributes.ATTACK_SPEED,
+                                            false
+                                    ),
+                                    0, 6
+                            );
+                            SkillAdvancementConditionAttribute knockback = new SkillAdvancementConditionAttribute(
+                                    new SkillAdvancementInfo(
+                                            new TextComponentTranslation(get("skill.knockback.title")),
+                                            new TextComponentTranslation(get("skill.knockback.description")),
+                                            SkillAdvancementInfo.Frame.NORMAL,
+                                            ModAttributes.KNOCKBACK,
+                                            false
+                                    ),
+                                    0, 7
+                            );
+                            SkillAdvancementConditionAttribute ability_power = new SkillAdvancementConditionAttribute(
+                                    new SkillAdvancementInfo(
+                                            new TextComponentTranslation(get("skill.ability_power.title")),
+                                            new TextComponentTranslation(get("skill.ability_power.description")),
+                                            SkillAdvancementInfo.Frame.NORMAL,
+                                            ModAttributes.ABILITY_POWER,
+                                            false
+                                    ),
+                                    2, 5
+                            );
+                            SkillAdvancementConditionAttribute critical_chance = new SkillAdvancementConditionAttribute(
+                                    new SkillAdvancementInfo(
+                                            new TextComponentTranslation(get("skill.critical_chance.title")),
+                                            new TextComponentTranslation(get("skill.critical_chance.description")),
+                                            SkillAdvancementInfo.Frame.NORMAL,
+                                            ModAttributes.CRITICAL_CHANCE,
+                                            false
+                                    ),
+                                    2, 6
+                            );
+                            SkillAdvancementConditionAttribute armor_penetration = new SkillAdvancementConditionAttribute(
+                                    new SkillAdvancementInfo(
+                                            new TextComponentTranslation(get("skill.armor_penetration.title")),
+                                            new TextComponentTranslation(get("skill.armor_penetration.description")),
+                                            SkillAdvancementInfo.Frame.NORMAL,
+                                            ModAttributes.ARMOR_PENETRATION,
+                                            false
+                                    ),
+                                    2, 7
+                            );
+                            //Ability
                             SkillAdvancementConditionSimple push = new SkillAdvancementConditionSimple(
                                     new SkillAdvancementInfo(
                                             new TextComponentTranslation(get("skill.push.title")),
@@ -922,6 +1188,9 @@ public class GuiHandler implements IGuiHandler {
                             critical_chance.addCondition(new SkillAdvancementConditionOr(push, pull));
                             armor_penetration.addCondition(new SkillAdvancementConditionOr(push, pull));
                             //Altar Requirements
+                            ability_power.addCondition(new SkillAdvancementConditionAltar(SkillAdvancementConditionAltar.LEVEL_1));
+                            critical_chance.addCondition(new SkillAdvancementConditionAltar(SkillAdvancementConditionAltar.LEVEL_1));
+                            armor_penetration.addCondition(new SkillAdvancementConditionAltar(SkillAdvancementConditionAltar.LEVEL_1));
                             slash.addCondition(new SkillAdvancementConditionAltar(SkillAdvancementConditionAltar.LEVEL_0));
                             push.addCondition(new SkillAdvancementConditionAltar(SkillAdvancementConditionAltar.LEVEL_1));
                             pull.addCondition(new SkillAdvancementConditionAltar(SkillAdvancementConditionAltar.LEVEL_1));
@@ -951,6 +1220,68 @@ public class GuiHandler implements IGuiHandler {
                                 0, 1
                         );
                         {
+                            //Attribute
+                            SkillAdvancementConditionAttribute damage = new SkillAdvancementConditionAttribute(
+                                    new SkillAdvancementInfo(
+                                            new TextComponentTranslation(get("skill.damage.title")),
+                                            new TextComponentTranslation(get("skill.damage.description")),
+                                            SkillAdvancementInfo.Frame.NORMAL,
+                                            ModAttributes.DAMAGE,
+                                            false
+                                    ),
+                                    0, 5
+                            );
+                            SkillAdvancementConditionAttribute attack_speed = new SkillAdvancementConditionAttribute(
+                                    new SkillAdvancementInfo(
+                                            new TextComponentTranslation(get("skill.attack_speed.title")),
+                                            new TextComponentTranslation(get("skill.attack_speed.description")),
+                                            SkillAdvancementInfo.Frame.NORMAL,
+                                            ModAttributes.ATTACK_SPEED,
+                                            false
+                                    ),
+                                    0, 6
+                            );
+                            SkillAdvancementConditionAttribute knockback = new SkillAdvancementConditionAttribute(
+                                    new SkillAdvancementInfo(
+                                            new TextComponentTranslation(get("skill.knockback.title")),
+                                            new TextComponentTranslation(get("skill.knockback.description")),
+                                            SkillAdvancementInfo.Frame.NORMAL,
+                                            ModAttributes.KNOCKBACK,
+                                            false
+                                    ),
+                                    0, 7
+                            );
+                            SkillAdvancementConditionAttribute ability_power = new SkillAdvancementConditionAttribute(
+                                    new SkillAdvancementInfo(
+                                            new TextComponentTranslation(get("skill.ability_power.title")),
+                                            new TextComponentTranslation(get("skill.ability_power.description")),
+                                            SkillAdvancementInfo.Frame.NORMAL,
+                                            ModAttributes.ABILITY_POWER,
+                                            false
+                                    ),
+                                    2, 5
+                            );
+                            SkillAdvancementConditionAttribute critical_chance = new SkillAdvancementConditionAttribute(
+                                    new SkillAdvancementInfo(
+                                            new TextComponentTranslation(get("skill.critical_chance.title")),
+                                            new TextComponentTranslation(get("skill.critical_chance.description")),
+                                            SkillAdvancementInfo.Frame.NORMAL,
+                                            ModAttributes.CRITICAL_CHANCE,
+                                            false
+                                    ),
+                                    2, 6
+                            );
+                            SkillAdvancementConditionAttribute armor_penetration = new SkillAdvancementConditionAttribute(
+                                    new SkillAdvancementInfo(
+                                            new TextComponentTranslation(get("skill.armor_penetration.title")),
+                                            new TextComponentTranslation(get("skill.armor_penetration.description")),
+                                            SkillAdvancementInfo.Frame.NORMAL,
+                                            ModAttributes.ARMOR_PENETRATION,
+                                            false
+                                    ),
+                                    2, 7
+                            );
+                            //Ability
                             SkillAdvancementConditionSimple flaming_breath = new SkillAdvancementConditionSimple(
                                     new SkillAdvancementInfo(
                                             new TextComponentTranslation(get("skill.flaming_breath.title")),
@@ -1022,6 +1353,9 @@ public class GuiHandler implements IGuiHandler {
                             critical_chance.addCondition(new SkillAdvancementConditionOr(flaming_breath, flaming_rain));
                             armor_penetration.addCondition(new SkillAdvancementConditionOr(flaming_breath, flaming_rain));
                             //Altar Requirements
+                            ability_power.addCondition(new SkillAdvancementConditionAltar(SkillAdvancementConditionAltar.LEVEL_1));
+                            critical_chance.addCondition(new SkillAdvancementConditionAltar(SkillAdvancementConditionAltar.LEVEL_1));
+                            armor_penetration.addCondition(new SkillAdvancementConditionAltar(SkillAdvancementConditionAltar.LEVEL_1));
                             fire_spirit.addCondition(new SkillAdvancementConditionAltar(SkillAdvancementConditionAltar.LEVEL_0));
                             flaming_breath.addCondition(new SkillAdvancementConditionAltar(SkillAdvancementConditionAltar.LEVEL_1));
                             flaming_rain.addCondition(new SkillAdvancementConditionAltar(SkillAdvancementConditionAltar.LEVEL_1));
