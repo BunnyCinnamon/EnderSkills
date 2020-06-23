@@ -137,7 +137,7 @@ public class NearbyInvincibility extends BaseAbility implements ISkillAdvancemen
 
     @Override
     public int getMaxLevel() {
-        return Charm.Configuration.getSyncValues().maxLevel;
+        return Configuration.getSyncValues().maxLevel;
     }
 
     public double getRange(AbilityInfo info) {
