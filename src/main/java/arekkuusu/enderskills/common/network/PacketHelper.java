@@ -13,7 +13,6 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
@@ -77,12 +76,10 @@ public final class PacketHelper {
     }
 
     public static void sendWeightSync(EntityPlayerMP player, Skill skill, int weight) {
-        Capabilities.get(player).flatMap(s -> s.get(skill)).ifPresent(info -> {
-            NBTTagCompound compound = new NBTTagCompound();
-            NBTHelper.setResourceLocation(compound, "location", Objects.requireNonNull(skill.getRegistryName()));
-            NBTHelper.setInteger(compound, "weight", weight);
-            PacketHandler.NETWORK.sendTo(new ServerToClientPacket(PacketHandler.SYNC_WEIGHT, compound), player);
-        });
+        NBTTagCompound compound = new NBTTagCompound();
+        NBTHelper.setResourceLocation(compound, "location", Objects.requireNonNull(skill.getRegistryName()));
+        NBTHelper.setInteger(compound, "weight", weight);
+        PacketHandler.NETWORK.sendTo(new ServerToClientPacket(PacketHandler.SYNC_WEIGHT, compound), player);
     }
 
     @SideOnly(Side.CLIENT)

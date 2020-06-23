@@ -10,18 +10,15 @@ import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 
 import javax.annotation.Nullable;
 import java.util.List;
-import java.util.Objects;
 
 public class CommandWeight extends CommandBase {
 
@@ -59,7 +56,11 @@ public class CommandWeight extends CommandBase {
                     .map(ResourceLocation::toString).toArray(String[]::new);
             return getListOfStringsMatchingLastWord(args, skills);
         } else if (args.length == 3) {
-            return getListOfStringsMatchingLastWord(args, "set", "add", "sub", "get");
+            return getListOfStringsMatchingLastWord(args, "set", "add", "sub", "get", "before", "after");
+        } else if (args.length == 4 && args[2].matches("before|after")) {
+            String[] skills = GameRegistry.findRegistry(Skill.class).getKeys().stream()
+                    .map(ResourceLocation::toString).toArray(String[]::new);
+            return getListOfStringsMatchingLastWord(args, skills);
         }
         return super.getTabCompletions(server, sender, args, targetPos);
     }
@@ -88,29 +89,81 @@ public class CommandWeight extends CommandBase {
                 return;
             }
             int weight = capability.getWeight(skill);
-            int weightToSet = args.length > 3 ? parseInt(args[3]) : 0; //We want to 'get'
+            int weightToSet = 0;
 
             String action = args[2];
             switch (action) {
                 case "set":
+                    weightToSet = args.length > 3 ? parseInt(args[3]) : 0; //We want to 'get'
                     weightToSet = MathHelper.clamp(weightToSet, Integer.MIN_VALUE, Integer.MAX_VALUE);
                     capability.putWeight(skill, weightToSet);
+                    message(sender, "weight.set.value", args[1], weight);
                     break;
                 case "add":
+                    weightToSet = args.length > 3 ? parseInt(args[3]) : 0; //We want to 'get'
                     int sum = MathHelper.clamp(weight + weightToSet, Integer.MIN_VALUE, Integer.MAX_VALUE);
                     capability.putWeight(skill, sum);
+                    message(sender, "weight.set.value", args[1], weight);
                     break;
                 case "sub":
+                    weightToSet = args.length > 3 ? parseInt(args[3]) : 0; //We want to 'get'
                     int sub = MathHelper.clamp(weight - weightToSet, Integer.MIN_VALUE, Integer.MAX_VALUE);
                     capability.putWeight(skill, sub);
+                    message(sender, "weight.set.value", args[1], weight);
                     break;
                 case "get":
                     message(sender, "weight.get.value", args[1], weight);
                     return;
+                case "before":
+                case "after":
+                    Skill skillOther = GameRegistry.findRegistry(Skill.class).getValue(new ResourceLocation(args[3]));
+                    if (skillOther == null) {
+                        message(sender, "skill.invalid.skill", args[3]);
+                        return;
+                    }
+                    int weightOther = capability.getWeight(skillOther);
+                    int weightNew = 0;
+                    int weightNewOther = 0;
+
+                    boolean isBefore = action.equals("before");
+                    boolean wasBefore = weightOther > weight;
+                    if (isBefore) {
+                        if (wasBefore) {
+                            weightNew = weightOther - 1;
+                            weightNewOther = weightOther;
+                        } else {
+                            weightNew = weightOther -1;
+                            weightNewOther = weightOther;
+                        }
+                    } else {
+                        if(wasBefore) {
+                            weightNew = weightOther;
+                            weightNewOther = weightOther - 1;
+                        } else {
+                            weightNew = weightOther + 1;
+                            weightNewOther = weightOther;
+                        }
+                    }
+
+                    if (weightNew == weight) {
+                        return;
+                    }
+                    capability.putWeight(skill, weightNew);
+                    capability.putWeight(skillOther, weightNewOther);
+                    for (Skill s : GameRegistry.findRegistry(Skill.class).getValuesCollection()) {
+                        if (capability.hasWeight(s)) {
+                            int w = capability.getWeight(s);
+                            if ((wasBefore ? (w < weightNew && w > weight) : (w > weightNewOther && w < weight)) && s != skill && s != skillOther) {
+                                capability.putWeight(s, wasBefore ? w - 1 : w + 1);
+                                PacketHelper.sendWeightSync((EntityPlayerMP) entity, s, capability.getWeight(s));
+                            }
+                        }
+                    }
+                    PacketHelper.sendWeightSync((EntityPlayerMP) entity, skillOther, capability.getWeight(skillOther));
+                    break;
                 default:
             }
-            message(sender, "weight.set.value", args[1], weight);
-            if(entity instanceof EntityPlayerMP) {
+            if (entity instanceof EntityPlayerMP) {
                 PacketHelper.sendWeightSync((EntityPlayerMP) entity, skill, capability.getWeight(skill));
             }
         } catch (NumberFormatException ex) {

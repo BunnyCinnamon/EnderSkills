@@ -180,6 +180,10 @@ public class SkilledEntityCapability implements ICapabilitySerializable<NBTTagCo
     /* Skill Holders */
 
     /* Skill Weights */
+    public boolean hasWeight(Skill skill) {
+        return skillWeightMap.containsKey(skill);
+    }
+
     public void putWeight(Skill skill, int weight) {
         skillWeightMap.put(skill, weight);
     }
