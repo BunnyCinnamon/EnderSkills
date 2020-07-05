@@ -3,7 +3,6 @@ package arekkuusu.enderskills.common.entity.throwable;
 import arekkuusu.enderskills.api.capability.data.SkillData;
 import arekkuusu.enderskills.common.entity.data.IImpact;
 import arekkuusu.enderskills.common.entity.data.SkillExtendedData;
-import arekkuusu.enderskills.common.entity.placeable.EntityPlaceableData;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.datasync.DataParameter;

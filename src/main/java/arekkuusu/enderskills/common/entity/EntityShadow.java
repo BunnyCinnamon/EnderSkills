@@ -1,6 +1,7 @@
 package arekkuusu.enderskills.common.entity;
 
 import arekkuusu.enderskills.api.event.SkillDamageEvent;
+import arekkuusu.enderskills.api.event.SkillDamageSource;
 import arekkuusu.enderskills.common.skill.ModAbilities;
 import arekkuusu.enderskills.common.skill.SkillHelper;
 import arekkuusu.enderskills.common.sound.ModSounds;
@@ -12,7 +13,6 @@ import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.server.management.PreYggdrasilConverter;
-import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.Vec3d;
@@ -58,7 +58,7 @@ public class EntityShadow extends Entity {
                         for (Map.Entry<EntityLivingBase, Float> set : attackMap.entrySet()) {
                             EntityLivingBase entity = set.getKey();
                             float damage = set.getValue() + (set.getValue() * getMirrorDamage());
-                            DamageSource source = new DamageSource("shadow");
+                            SkillDamageSource source = new SkillDamageSource("skill", owner);
                             SkillDamageEvent event = new SkillDamageEvent(owner, ModAbilities.SHADOW, source, damage);
                             MinecraftForge.EVENT_BUS.post(event);
                             entity.attackEntityFrom(event.getSource(), event.toFloat());

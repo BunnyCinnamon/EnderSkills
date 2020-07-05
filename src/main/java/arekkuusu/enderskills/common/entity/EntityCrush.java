@@ -1,6 +1,7 @@
 package arekkuusu.enderskills.common.entity;
 
 import arekkuusu.enderskills.api.event.SkillDamageEvent;
+import arekkuusu.enderskills.api.event.SkillDamageSource;
 import arekkuusu.enderskills.common.skill.ModAbilities;
 import arekkuusu.enderskills.common.sound.ModSounds;
 import com.google.common.base.Optional;
@@ -12,7 +13,6 @@ import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.server.management.PreYggdrasilConverter;
-import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.MathHelper;
@@ -100,7 +100,7 @@ public class EntityCrush extends Entity {
     private void damage(EntityLivingBase owner, EntityLivingBase target) {
         if (target.isEntityAlive() && !target.getIsInvulnerable() && target != owner) {
             if (!owner.isOnSameTeam(target)) {
-                DamageSource damageSource = new DamageSource("skill");
+                SkillDamageSource damageSource = new SkillDamageSource("skill", owner);
                 SkillDamageEvent event = new SkillDamageEvent(owner, ModAbilities.CRUSH, damageSource, damage);
                 MinecraftForge.EVENT_BUS.post(event);
                 target.attackEntityFrom(event.getSource(), event.toFloat());

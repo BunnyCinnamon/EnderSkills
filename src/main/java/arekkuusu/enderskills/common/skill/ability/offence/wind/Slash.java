@@ -88,7 +88,7 @@ public class Slash extends BaseAbility implements IScanEntities, IExpand, IFindE
     public void onFound(Entity source, @Nullable EntityLivingBase owner, EntityLivingBase target, SkillData skillData) {
         Capabilities.get(owner).flatMap(c -> c.get(this)).ifPresent(skillInfo -> {
             AbilityInfo abilityInfo = (AbilityInfo) skillInfo;
-            EntityDamageSource damageSource = new SkillDamageSource(BaseAbility.DAMAGE_HIT_TYPE, owner);
+            SkillDamageSource damageSource = new SkillDamageSource(BaseAbility.DAMAGE_HIT_TYPE, owner);
             SkillDamageEvent event = new SkillDamageEvent(owner, this, damageSource, getDamage(abilityInfo));
             MinecraftForge.EVENT_BUS.post(event);
             target.attackEntityFrom(event.getSource(), event.toFloat());

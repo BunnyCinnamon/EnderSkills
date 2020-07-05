@@ -2,7 +2,6 @@ package arekkuusu.enderskills.common.entity;
 
 import arekkuusu.enderskills.common.entity.data.ExtendedData;
 import arekkuusu.enderskills.common.entity.data.ListBlockStateExtendedData;
-import arekkuusu.enderskills.common.entity.data.ListUUIDExtendedData;
 import arekkuusu.enderskills.common.entity.data.WallSegmentBehaviorExtendedData;
 import com.google.common.base.Optional;
 import net.minecraft.block.Block;

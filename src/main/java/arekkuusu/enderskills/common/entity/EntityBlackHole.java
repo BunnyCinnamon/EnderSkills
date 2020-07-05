@@ -2,10 +2,10 @@ package arekkuusu.enderskills.common.entity;
 
 import arekkuusu.enderskills.api.capability.data.SkillData;
 import arekkuusu.enderskills.api.event.SkillDamageEvent;
+import arekkuusu.enderskills.api.event.SkillDamageSource;
 import arekkuusu.enderskills.api.helper.TeamHelper;
 import arekkuusu.enderskills.client.sounds.BlackHoleSound;
 import arekkuusu.enderskills.common.entity.data.SkillExtendedData;
-import arekkuusu.enderskills.common.entity.placeable.EntityPlaceableData;
 import arekkuusu.enderskills.common.skill.ModAbilities;
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
@@ -19,7 +19,6 @@ import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.server.management.PreYggdrasilConverter;
-import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -163,7 +162,7 @@ public class EntityBlackHole extends Entity {
                 for (Entity entity : fucc) {
                     if (entity instanceof EntityLivingBase && entity != owner) {
                         double damage = data.nbt.getDouble("damage");
-                        DamageSource source = new DamageSource("skill");
+                        SkillDamageSource source = new SkillDamageSource("skill", owner);
                         source.setExplosion();
                         SkillDamageEvent event = new SkillDamageEvent(owner, ModAbilities.BLACK_HOLE, source, damage);
                         MinecraftForge.EVENT_BUS.post(event);

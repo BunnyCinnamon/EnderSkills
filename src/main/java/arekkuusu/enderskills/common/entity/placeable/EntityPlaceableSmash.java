@@ -1,7 +1,6 @@
 package arekkuusu.enderskills.common.entity.placeable;
 
 import arekkuusu.enderskills.api.capability.data.SkillData;
-import arekkuusu.enderskills.common.entity.placeable.EntityPlaceableData;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.world.World;
 
