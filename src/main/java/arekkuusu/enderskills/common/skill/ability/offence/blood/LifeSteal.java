@@ -7,6 +7,7 @@ import arekkuusu.enderskills.api.capability.data.IInfoUpgradeable;
 import arekkuusu.enderskills.api.capability.data.SkillData;
 import arekkuusu.enderskills.api.capability.data.SkillInfo;
 import arekkuusu.enderskills.api.capability.data.nbt.UUIDWatcher;
+import arekkuusu.enderskills.api.event.SkillDamageSource;
 import arekkuusu.enderskills.api.helper.ExpressionHelper;
 import arekkuusu.enderskills.api.helper.NBTHelper;
 import arekkuusu.enderskills.api.registry.Skill;
@@ -108,7 +109,7 @@ public class LifeSteal extends BaseAbility implements ISkillAdvancement {
     public void onEntityDamage(LivingHurtEvent event) {
         if (isClientWorld(event.getEntityLiving())) return;
         DamageSource source = event.getSource();
-        if (source.getTrueSource() == null || event.getAmount() <= 0) return;
+        if (source.getTrueSource() == null || source instanceof SkillDamageSource || event.getAmount() <= 0) return;
         EntityLivingBase attacker = (EntityLivingBase) source.getTrueSource();
         EntityLivingBase attacked = event.getEntityLiving();
         SkillHelper.getActiveOwner(attacker, this, holder -> {

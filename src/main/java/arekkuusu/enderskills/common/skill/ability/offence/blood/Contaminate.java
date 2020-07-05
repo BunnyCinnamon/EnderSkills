@@ -7,6 +7,7 @@ import arekkuusu.enderskills.api.capability.data.SkillData;
 import arekkuusu.enderskills.api.capability.data.SkillInfo;
 import arekkuusu.enderskills.api.capability.data.nbt.UUIDWatcher;
 import arekkuusu.enderskills.api.event.SkillDamageEvent;
+import arekkuusu.enderskills.api.event.SkillDamageSource;
 import arekkuusu.enderskills.api.helper.ExpressionHelper;
 import arekkuusu.enderskills.api.helper.NBTHelper;
 import arekkuusu.enderskills.api.registry.Skill;
@@ -29,7 +30,6 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.EntityDamageSource;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.WorldServer;
@@ -95,7 +95,7 @@ public class Contaminate extends BaseAbility implements IImpact, ISkillAdvanceme
         if (isClientWorld(entity)) return;
         Optional.ofNullable(NBTHelper.getEntity(EntityLivingBase.class, data.nbt, "user")).ifPresent(user -> {
             double damage = data.nbt.getDouble("damage");
-            EntityDamageSource source = new EntityDamageSource(BaseAbility.DAMAGE_HIT_TYPE, user);
+            SkillDamageSource source = new SkillDamageSource(BaseAbility.DAMAGE_HIT_TYPE, user);
             SkillDamageEvent event = new SkillDamageEvent(user, this, source, damage);
             MinecraftForge.EVENT_BUS.post(event);
             entity.attackEntityFrom(event.getSource(), event.toFloat());
@@ -108,7 +108,7 @@ public class Contaminate extends BaseAbility implements IImpact, ISkillAdvanceme
         Optional.ofNullable(NBTHelper.getEntity(EntityLivingBase.class, data.nbt, "user")).ifPresent(user -> {
             double damage = data.nbt.getDouble("dot");
             double time = data.nbt.getInteger("time");
-            EntityDamageSource source = new EntityDamageSource(BaseAbility.DAMAGE_DOT_TYPE, user);
+            SkillDamageSource source = new SkillDamageSource(BaseAbility.DAMAGE_DOT_TYPE, user);
             source.setMagicDamage();
             SkillDamageEvent event = new SkillDamageEvent(user, this, source, damage);
             MinecraftForge.EVENT_BUS.post(event);

@@ -3,7 +3,6 @@ package arekkuusu.enderskills.common.skill.attribute.deffense;
 import arekkuusu.enderskills.api.capability.Capabilities;
 import arekkuusu.enderskills.api.capability.data.IInfoUpgradeable;
 import arekkuusu.enderskills.api.helper.ExpressionHelper;
-import arekkuusu.enderskills.api.helper.XPHelper;
 import arekkuusu.enderskills.client.gui.data.ISkillAdvancement;
 import arekkuusu.enderskills.client.util.ResourceLibrary;
 import arekkuusu.enderskills.client.util.helper.TextHelper;

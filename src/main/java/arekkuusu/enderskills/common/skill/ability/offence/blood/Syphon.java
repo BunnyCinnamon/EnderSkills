@@ -7,6 +7,7 @@ import arekkuusu.enderskills.api.capability.data.IInfoUpgradeable;
 import arekkuusu.enderskills.api.capability.data.SkillData;
 import arekkuusu.enderskills.api.capability.data.SkillInfo;
 import arekkuusu.enderskills.api.capability.data.nbt.UUIDWatcher;
+import arekkuusu.enderskills.api.event.SkillDamageSource;
 import arekkuusu.enderskills.api.helper.ExpressionHelper;
 import arekkuusu.enderskills.api.helper.NBTHelper;
 import arekkuusu.enderskills.api.registry.Skill;
@@ -30,7 +31,6 @@ import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.EntityDamageSource;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.WorldServer;
@@ -88,7 +88,7 @@ public class Syphon extends BaseAbility implements IImpact, ISkillAdvancement {
                     //Calculate Heal
                     float healthBeforeDamage = target.getHealth();
                     float lifeTaken = healed;
-                    EntityDamageSource source = new EntityDamageSource(BaseAbility.DAMAGE_HIT_TYPE, user);
+                    SkillDamageSource source = new SkillDamageSource(BaseAbility.DAMAGE_HIT_TYPE, user);
                     source.setMagicDamage();
                     target.attackEntityFrom(source, lifeTaken);
                     float healthAfterDamage = target.getHealth();

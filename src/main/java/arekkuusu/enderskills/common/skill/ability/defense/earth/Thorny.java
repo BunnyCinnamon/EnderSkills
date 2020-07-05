@@ -11,7 +11,6 @@ import arekkuusu.enderskills.api.helper.ExpressionHelper;
 import arekkuusu.enderskills.api.helper.NBTHelper;
 import arekkuusu.enderskills.api.registry.Skill;
 import arekkuusu.enderskills.client.gui.data.ISkillAdvancement;
-import arekkuusu.enderskills.client.sounds.HoverSound;
 import arekkuusu.enderskills.client.sounds.ThornySound;
 import arekkuusu.enderskills.client.util.ResourceLibrary;
 import arekkuusu.enderskills.client.util.helper.TextHelper;
@@ -89,7 +88,7 @@ public class Thorny extends BaseAbility implements ISkillAdvancement {
         EntityLivingBase entity = event.getEntityLiving();
         DamageSource source = event.getSource();
         if (!source.getDamageType().matches("player|mob")) return;
-        if (source.getTrueSource() == null || event.getAmount() <= 0) return;
+        if (source.getTrueSource() == null || source instanceof SkillDamageSource || event.getAmount() <= 0) return;
         Capabilities.get(entity).ifPresent(capability -> {
             if (capability.owns(this) && capability.isActive(this)) {
                 capability.get(this).ifPresent(skillInfo -> {

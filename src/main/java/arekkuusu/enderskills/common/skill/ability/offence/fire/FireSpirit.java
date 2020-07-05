@@ -8,6 +8,7 @@ import arekkuusu.enderskills.api.capability.data.SkillData;
 import arekkuusu.enderskills.api.capability.data.SkillInfo;
 import arekkuusu.enderskills.api.capability.data.nbt.UUIDWatcher;
 import arekkuusu.enderskills.api.event.SkillDamageEvent;
+import arekkuusu.enderskills.api.event.SkillDamageSource;
 import arekkuusu.enderskills.api.helper.ExpressionHelper;
 import arekkuusu.enderskills.api.helper.NBTHelper;
 import arekkuusu.enderskills.api.registry.Skill;
@@ -31,7 +32,6 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.DamageSource;
-import net.minecraft.util.EntityDamageSource;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.MinecraftForge;
@@ -125,7 +125,7 @@ public class FireSpirit extends BaseAbility implements ISkillAdvancement {
             } else {
                 double damage = data.nbt.getDouble("dot");
                 double time = data.nbt.getInteger("time");
-                EntityDamageSource source = new EntityDamageSource(BaseAbility.DAMAGE_DOT_TYPE, user);
+                SkillDamageSource source = new SkillDamageSource(BaseAbility.DAMAGE_DOT_TYPE, user);
                 source.setFireDamage();
                 SkillDamageEvent event = new SkillDamageEvent(user, this, source, damage);
                 MinecraftForge.EVENT_BUS.post(event);
@@ -138,7 +138,7 @@ public class FireSpirit extends BaseAbility implements ISkillAdvancement {
     public void onEntityDamage(LivingHurtEvent event) {
         if (isClientWorld(event.getEntityLiving())) return;
         DamageSource source = event.getSource();
-        if (source.getTrueSource() == null || event.getAmount() <= 0) return;
+        if (source.getTrueSource() == null || source instanceof SkillDamageSource || event.getAmount() <= 0) return;
         EntityLivingBase attacker = (EntityLivingBase) source.getTrueSource();
         EntityLivingBase target = event.getEntityLiving();
         SkillHelper.getActiveOwner(attacker, this, holder -> {

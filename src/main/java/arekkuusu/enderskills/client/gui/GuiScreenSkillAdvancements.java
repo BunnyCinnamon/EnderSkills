@@ -273,7 +273,7 @@ public class GuiScreenSkillAdvancements extends GuiScreen {
             GlStateManager.color(1F, 1F, 1F, 1F);
             GlStateManager.popMatrix();
             GlStateManager.pushMatrix();
-            String xpTotalString = TextHelper.translate("gui.xp_level", xpTotal);
+            String xpTotalString = TextHelper.translate("gui.xp_level", xpValue);
             int lenght = fontRenderer.getStringWidth(xpTotalString);
             GlStateManager.translate(this.x + 25 + 24 - (lenght / 2D) + 10 * 8, this.y - 13, 0);
             GlStateManager.scale(0.7F, 0.7F, 0.7F);

@@ -4,7 +4,6 @@ import arekkuusu.enderskills.api.capability.Capabilities;
 import arekkuusu.enderskills.api.capability.data.IInfoUpgradeable;
 import arekkuusu.enderskills.api.event.SkillDamageEvent;
 import arekkuusu.enderskills.api.helper.ExpressionHelper;
-import arekkuusu.enderskills.api.helper.XPHelper;
 import arekkuusu.enderskills.client.gui.data.ISkillAdvancement;
 import arekkuusu.enderskills.client.util.ResourceLibrary;
 import arekkuusu.enderskills.client.util.helper.TextHelper;
@@ -46,7 +45,11 @@ public class AbilityPower extends BaseAttribute implements ISkillAdvancement {
             if (capability.owns(this)) {
                 capability.get(this).ifPresent(skillInfo -> {
                     AttributeInfo attributeInfo = (AttributeInfo) skillInfo;
-                    event.setAmount(event.getAmount() + getModifier(attributeInfo));
+                    if (Configuration.getSyncValues().extra.multiplyDamage) {
+                        event.setAmount(event.getAmount() + event.getAmount() * getModifierMultiplication(attributeInfo));
+                    } else {
+                        event.setAmount(event.getAmount() + getModifierAddition(attributeInfo));
+                    }
                 });
             }
         });
@@ -61,7 +64,14 @@ public class AbilityPower extends BaseAttribute implements ISkillAdvancement {
         return Configuration.getSyncValues().maxLevel;
     }
 
-    public float getModifier(AttributeInfo info) {
+    public int getModifierAddition(AttributeInfo info) {
+        int level = getLevel(info);
+        int levelMax = getMaxLevel();
+        double func = ExpressionHelper.getExpression(this, Configuration.getSyncValues().modifier, level, levelMax);
+        return (int) (func * getEffectiveness());
+    }
+
+    public float getModifierMultiplication(AttributeInfo info) {
         int level = getLevel(info);
         int levelMax = getMaxLevel();
         double func = ExpressionHelper.getExpression(this, Configuration.getSyncValues().modifier, level, levelMax);
@@ -90,13 +100,21 @@ public class AbilityPower extends BaseAttribute implements ISkillAdvancement {
                         } else {
                             description.add("Current Level:");
                         }
-                        description.add("AP: +" + TextHelper.format2FloatPoint(getModifier(attributeInfo)));
+                        if (Configuration.getSyncValues().extra.multiplyDamage) {
+                            description.add("Dmg: +" + TextHelper.format2FloatPoint(getModifierMultiplication(attributeInfo) * 100) + " %");
+                        } else {
+                            description.add("Dmg: +" + getModifierAddition(attributeInfo));
+                        }
                         if (attributeInfo.getLevel() < getMaxLevel()) { //Copy info and set a higher level...
                             AttributeInfo infoNew = new AttributeInfo(attributeInfo.serializeNBT());
                             infoNew.setLevel(infoNew.getLevel() + 1);
                             description.add("");
                             description.add("Next Level:");
-                            description.add("AP: +" + TextHelper.format2FloatPoint(getModifier(infoNew)));
+                            if (Configuration.getSyncValues().extra.multiplyDamage) {
+                                description.add("AP: +" + TextHelper.format2FloatPoint(getModifierMultiplication(infoNew) * 100) + " %");
+                            } else {
+                                description.add("AP: +" + getModifierAddition(infoNew));
+                            }
                         }
                     });
                 }
@@ -144,6 +162,7 @@ public class AbilityPower extends BaseAttribute implements ISkillAdvancement {
         Configuration.getSyncValues().modifier = Configuration.getValues().modifier;
         Configuration.getSyncValues().effectiveness = Configuration.getValues().effectiveness;
         Configuration.getSyncValues().advancement.upgrade = Configuration.getValues().advancement.upgrade;
+        Configuration.getSyncValues().extra.multiplyDamage = Configuration.getValues().extra.multiplyDamage;
     }
 
     @Override
@@ -152,6 +171,7 @@ public class AbilityPower extends BaseAttribute implements ISkillAdvancement {
         compound.setString("modifier", Configuration.getValues().modifier);
         compound.setDouble("effectiveness", Configuration.getValues().effectiveness);
         compound.setString("advancement.upgrade", Configuration.getValues().advancement.upgrade);
+        compound.setBoolean("extra.multiplyDamage", Configuration.getValues().extra.multiplyDamage);
     }
 
     @Override
@@ -161,6 +181,7 @@ public class AbilityPower extends BaseAttribute implements ISkillAdvancement {
         Configuration.getSyncValues().modifier = compound.getString("modifier");
         Configuration.getSyncValues().effectiveness = compound.getDouble("effectiveness");
         Configuration.getSyncValues().advancement.upgrade = compound.getString("advancement.upgrade");
+        Configuration.getSyncValues().extra.multiplyDamage = compound.getBoolean("extra.multiplyDamage");
     }
 
     @Config(modid = LibMod.MOD_ID, name = LibMod.MOD_ID + "/Attribute/" + LibNames.ABILITY_POWER)
@@ -182,6 +203,8 @@ public class AbilityPower extends BaseAttribute implements ISkillAdvancement {
         }
 
         public static class Values {
+            @Config.Comment("Skill specific extra Configuration")
+            public final Extra extra = new Extra();
             @Config.Comment("Skill specific Advancement Configuration")
             public final Advancement advancement = new Advancement();
 
@@ -190,11 +213,16 @@ public class AbilityPower extends BaseAttribute implements ISkillAdvancement {
             public int maxLevel = Integer.MAX_VALUE;
 
             @Config.Comment("Modifier Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
-            public String modifier = "(2 * x) + (x / 4)";
+            public String modifier = "0.01 * x";
 
             @Config.Comment("Effectiveness Modifier")
             @Config.RangeDouble
             public double effectiveness = 1D;
+
+            public static class Extra {
+                @Config.Comment("This config option when active will make Damage multiply the total damage instead of adding a flat amount")
+                public boolean multiplyDamage = true;
+            }
 
             public static class Advancement {
                 @Config.Comment("Function f(x)=? where 'x' is [Next Level] and 'y' is [Max Level], XP Cost is in units [NOT LEVELS]")

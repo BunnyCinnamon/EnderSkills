@@ -8,6 +8,7 @@ import arekkuusu.enderskills.api.capability.data.SkillData;
 import arekkuusu.enderskills.api.capability.data.SkillInfo;
 import arekkuusu.enderskills.api.capability.data.nbt.UUIDWatcher;
 import arekkuusu.enderskills.api.event.SkillDamageEvent;
+import arekkuusu.enderskills.api.event.SkillDamageSource;
 import arekkuusu.enderskills.api.helper.ExpressionHelper;
 import arekkuusu.enderskills.api.helper.NBTHelper;
 import arekkuusu.enderskills.api.helper.RayTraceHelper;
@@ -32,7 +33,6 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
-import net.minecraft.util.EntityDamageSource;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.MinecraftForge;
@@ -110,7 +110,7 @@ public class ShadowJab extends BaseAbility implements ISkillAdvancement {
                                 if (!uuids.contains(target.getUniqueID())) {
                                     //Apply initial damage
                                     double damage = data.nbt.getDouble("damage");
-                                    EntityDamageSource source = new EntityDamageSource(BaseAbility.DAMAGE_HIT_TYPE, user);
+                                    SkillDamageSource source = new SkillDamageSource(BaseAbility.DAMAGE_HIT_TYPE, user);
                                     SkillDamageEvent event = new SkillDamageEvent(user, this, source, damage);
                                     MinecraftForge.EVENT_BUS.post(event);
                                     target.attackEntityFrom(source, event.toFloat());
@@ -141,7 +141,7 @@ public class ShadowJab extends BaseAbility implements ISkillAdvancement {
                 } else {
                     double damage = data.nbt.getDouble("dot");
                     double time = data.nbt.getInteger("time");
-                    EntityDamageSource source = new EntityDamageSource(BaseAbility.DAMAGE_DOT_TYPE, user);
+                    SkillDamageSource source = new SkillDamageSource(BaseAbility.DAMAGE_DOT_TYPE, user);
                     SkillDamageEvent event = new SkillDamageEvent(user, this, source, damage);
                     MinecraftForge.EVENT_BUS.post(event);
                     entity.attackEntityFrom(source, (float) (event.toFloat() / time));

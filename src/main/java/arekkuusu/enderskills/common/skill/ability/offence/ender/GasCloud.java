@@ -8,6 +8,7 @@ import arekkuusu.enderskills.api.capability.data.SkillData;
 import arekkuusu.enderskills.api.capability.data.SkillInfo;
 import arekkuusu.enderskills.api.capability.data.nbt.UUIDWatcher;
 import arekkuusu.enderskills.api.event.SkillDamageEvent;
+import arekkuusu.enderskills.api.event.SkillDamageSource;
 import arekkuusu.enderskills.api.helper.ExpressionHelper;
 import arekkuusu.enderskills.api.helper.NBTHelper;
 import arekkuusu.enderskills.api.registry.Skill;
@@ -34,7 +35,6 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.EntityDamageSource;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.RayTraceResult;
@@ -118,7 +118,7 @@ public class GasCloud extends BaseAbility implements IImpact, IExpand, IFindEnti
 
     @Override
     public void onFound(Entity source, @Nullable EntityLivingBase owner, EntityLivingBase target, SkillData skillData) {
-        EntityDamageSource damageSource = new EntityDamageSource(BaseAbility.DAMAGE_HIT_TYPE, owner);
+        SkillDamageSource damageSource = new SkillDamageSource(BaseAbility.DAMAGE_HIT_TYPE, owner);
         damageSource.setExplosion();
         double damage = skillData.nbt.getDouble("damage");
         double radius = skillData.nbt.getDouble("range");
@@ -157,7 +157,7 @@ public class GasCloud extends BaseAbility implements IImpact, IExpand, IFindEnti
                 if (!isClientWorld(entity)) {
                     double damage = data.nbt.getDouble("dot");
                     double time = data.nbt.getInteger("dotDuration");
-                    EntityDamageSource source = new EntityDamageSource(BaseAbility.DAMAGE_DOT_TYPE, user);
+                    SkillDamageSource source = new SkillDamageSource(BaseAbility.DAMAGE_DOT_TYPE, user);
                     source.setMagicDamage();
                     SkillDamageEvent event = new SkillDamageEvent(user, this, source, damage);
                     MinecraftForge.EVENT_BUS.post(event);

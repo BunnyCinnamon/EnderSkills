@@ -8,6 +8,7 @@ import arekkuusu.enderskills.api.capability.data.SkillData;
 import arekkuusu.enderskills.api.capability.data.SkillInfo;
 import arekkuusu.enderskills.api.capability.data.nbt.UUIDWatcher;
 import arekkuusu.enderskills.api.event.SkillDamageEvent;
+import arekkuusu.enderskills.api.event.SkillDamageSource;
 import arekkuusu.enderskills.api.helper.ExpressionHelper;
 import arekkuusu.enderskills.api.helper.NBTHelper;
 import arekkuusu.enderskills.api.registry.Skill;
@@ -121,7 +122,7 @@ public class Shadow extends BaseAbility implements ISkillAdvancement {
     public void onEntityDamage(LivingHurtEvent event) {
         if (isClientWorld(event.getEntityLiving()) || event.getSource().getDamageType().equals("shadow")) return;
         DamageSource source = event.getSource();
-        if (source.getTrueSource() == null || !(source.getTrueSource() instanceof EntityLivingBase) || event.getAmount() <= 0)
+        if (source.getTrueSource() == null || source instanceof SkillDamageSource || !(source.getTrueSource() instanceof EntityLivingBase) || event.getAmount() <= 0)
             return;
         EntityLivingBase attacker = (EntityLivingBase) source.getTrueSource();
         Capabilities.get(attacker).ifPresent(capability -> {

@@ -3,7 +3,6 @@ package arekkuusu.enderskills.common.skill.attribute.offense;
 import arekkuusu.enderskills.api.capability.Capabilities;
 import arekkuusu.enderskills.api.capability.data.IInfoUpgradeable;
 import arekkuusu.enderskills.api.helper.ExpressionHelper;
-import arekkuusu.enderskills.api.helper.XPHelper;
 import arekkuusu.enderskills.client.gui.data.ISkillAdvancement;
 import arekkuusu.enderskills.client.util.ResourceLibrary;
 import arekkuusu.enderskills.client.util.helper.TextHelper;
@@ -43,7 +42,7 @@ public class ArmorPenetration extends BaseAttribute implements ISkillAdvancement
     public void onEntityDamage(LivingHurtEvent event) {
         if (isClientWorld(event.getEntityLiving()) || SkillHelper.isSkillDamage(event.getSource())) return;
         DamageSource source = event.getSource();
-        if (source.getTrueSource() == null) return;
+        if (source.getTrueSource() == null || source instanceof SkillDamageSource) return;
         EntityLivingBase target = event.getEntityLiving();
         EntityLivingBase attacker = (EntityLivingBase) source.getTrueSource();
         Capabilities.get(attacker).ifPresent(capability -> {

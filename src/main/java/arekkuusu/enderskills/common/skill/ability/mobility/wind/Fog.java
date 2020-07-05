@@ -7,6 +7,7 @@ import arekkuusu.enderskills.api.capability.data.IInfoUpgradeable;
 import arekkuusu.enderskills.api.capability.data.SkillData;
 import arekkuusu.enderskills.api.capability.data.SkillInfo;
 import arekkuusu.enderskills.api.capability.data.nbt.UUIDWatcher;
+import arekkuusu.enderskills.api.event.SkillDamageSource;
 import arekkuusu.enderskills.api.event.SkillUseEvent;
 import arekkuusu.enderskills.api.helper.ExpressionHelper;
 import arekkuusu.enderskills.api.helper.NBTHelper;
@@ -106,7 +107,7 @@ public class Fog extends BaseAbility implements ISkillAdvancement {
         if (isClientWorld(event.getEntityLiving()) || event.getSource().getDamageType().equals("ability")) return;
         DamageSource source = event.getSource();
         if (!source.getDamageType().matches("player|mob")) return;
-        if (source.getTrueSource() == null || source.getImmediateSource() != source.getTrueSource()) return;
+        if (source.getTrueSource() == null || source instanceof SkillDamageSource || source.getImmediateSource() != source.getTrueSource()) return;
         EntityLivingBase target = event.getEntityLiving();
         SkillHelper.getActiveOwner(target, this, holder -> {
             unapply(target, holder.data);

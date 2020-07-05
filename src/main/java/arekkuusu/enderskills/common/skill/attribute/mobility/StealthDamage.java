@@ -3,7 +3,6 @@ package arekkuusu.enderskills.common.skill.attribute.mobility;
 import arekkuusu.enderskills.api.capability.Capabilities;
 import arekkuusu.enderskills.api.capability.data.IInfoUpgradeable;
 import arekkuusu.enderskills.api.helper.ExpressionHelper;
-import arekkuusu.enderskills.api.helper.XPHelper;
 import arekkuusu.enderskills.client.gui.data.ISkillAdvancement;
 import arekkuusu.enderskills.client.util.ResourceLibrary;
 import arekkuusu.enderskills.client.util.helper.TextHelper;
@@ -43,7 +42,7 @@ public class StealthDamage extends BaseAttribute implements ISkillAdvancement {
         if (isClientWorld(event.getEntityLiving()) || event.getSource().getDamageType().equals("ability")) return;
         DamageSource source = event.getSource();
         if (!source.getDamageType().matches("player|mob")) return;
-        if (source.getTrueSource() == null || source.getImmediateSource() != source.getTrueSource()) return;
+        if (source.getTrueSource() == null || source instanceof SkillDamageSource || source.getImmediateSource() != source.getTrueSource()) return;
         EntityLivingBase target = event.getEntityLiving();
         EntityLivingBase attacker = (EntityLivingBase) source.getTrueSource();
         Capabilities.get(attacker).ifPresent(capability -> {
