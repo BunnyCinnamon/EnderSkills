@@ -1,7 +1,7 @@
 package arekkuusu.enderskills.client.proxy;
 
 import arekkuusu.enderskills.api.util.Vector;
-import arekkuusu.enderskills.client.keybind.SkillKeyBounds;
+import arekkuusu.enderskills.client.keybind.ESKeyBounds;
 import arekkuusu.enderskills.client.render.ModRenders;
 import arekkuusu.enderskills.client.render.effect.*;
 import arekkuusu.enderskills.client.util.ResourceLibrary;
@@ -59,7 +59,7 @@ public class ClientProxy implements IProxy {
 
     @Override
     public void init(FMLInitializationEvent event) {
-        SkillKeyBounds.init();
+        ESKeyBounds.init();
         ShaderLibrary.init();
         ModRenders.init();
         RenderMisc.init();

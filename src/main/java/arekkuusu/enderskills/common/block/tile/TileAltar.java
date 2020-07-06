@@ -3,7 +3,7 @@ package arekkuusu.enderskills.common.block.tile;
 import arekkuusu.enderskills.api.util.Vector;
 import arekkuusu.enderskills.client.gui.data.SkillAdvancementConditionAltar;
 import arekkuusu.enderskills.client.util.ResourceLibrary;
-import arekkuusu.enderskills.common.EnderSkills;
+import arekkuusu.enderskills.common.ES;
 import arekkuusu.enderskills.common.block.ModBlocks;
 import arekkuusu.enderskills.common.item.ModItems;
 import arekkuusu.enderskills.common.sound.ModSounds;
@@ -98,11 +98,11 @@ public class TileAltar extends TileBase implements ITickable {
                     double posX = pos.getX() + 1 * world.rand.nextDouble();
                     double posY = pos.getY() + 0.1 * world.rand.nextDouble();
                     double posZ = pos.getZ() + 1 * world.rand.nextDouble();
-                    EnderSkills.getProxy().spawnParticle(world, new Vec3d(posX, posY, posZ), new Vec3d(0, 0.1, 0), 4F, 50, COLORS[world.rand.nextInt(COLORS.length - 1)], ResourceLibrary.GLOW_PARTICLE_EFFECT);
+                    ES.getProxy().spawnParticle(world, new Vec3d(posX, posY, posZ), new Vec3d(0, 0.1, 0), 4F, 50, COLORS[world.rand.nextInt(COLORS.length - 1)], ResourceLibrary.GLOW_PARTICLE_EFFECT);
 
                     posX = pos.getX() + 10D * (world.rand.nextDouble() - 0.5D);
                     posZ = pos.getZ() + 10D * (world.rand.nextDouble() - 0.5D);
-                    EnderSkills.getProxy().spawnParticle(world, new Vec3d(posX, posY, posZ), new Vec3d(0, 0.05, 0), 1F, 25, COLORS[world.rand.nextInt(COLORS.length - 1)], ResourceLibrary.GLOW_PARTICLE_EFFECT);
+                    ES.getProxy().spawnParticle(world, new Vec3d(posX, posY, posZ), new Vec3d(0, 0.05, 0), 1F, 25, COLORS[world.rand.nextInt(COLORS.length - 1)], ResourceLibrary.GLOW_PARTICLE_EFFECT);
                 }
             }
             --lastLevelAnimationTimer;
@@ -119,7 +119,7 @@ public class TileAltar extends TileBase implements ITickable {
                 Vector origin = new Vector(getPos()).addVector(0.5D, 0.5D, 0.5D);
                 Vector from = Vector.fromSpherical(world.rand.nextFloat() * 360F, world.rand.nextFloat() * 180F - 90F).multiply(5D * world.rand.nextDouble()).add(origin);
                 Vector to = Vector.fromSpherical(world.rand.nextFloat() * 360F, world.rand.nextFloat() * 180F - 90F).multiply(4D).add(origin);
-                EnderSkills.getProxy().spawnLightning(from, to, 5, 0.75F, 5, 0x5194FF, true);
+                ES.getProxy().spawnLightning(from, to, 5, 0.75F, 5, 0x5194FF, true);
                 world.playSound(null, from.x, from.y, from.z, ModSounds.SPARK, SoundCategory.BLOCKS, 1.0F, (1.0F + (world.rand.nextFloat() - world.rand.nextFloat()) * 0.2F) * 0.7F);
             }
             if (lastLevelAnimationTimer < ANIMATION_TIME) {

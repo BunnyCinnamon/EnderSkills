@@ -2,7 +2,6 @@ package arekkuusu.enderskills.client.render.skill;
 
 import arekkuusu.enderskills.api.capability.data.SkillHolder;
 import arekkuusu.enderskills.client.render.effect.ParticleVanilla;
-import arekkuusu.enderskills.common.EnderSkills;
 import arekkuusu.enderskills.common.skill.ability.mobility.wind.ExtraJump;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;

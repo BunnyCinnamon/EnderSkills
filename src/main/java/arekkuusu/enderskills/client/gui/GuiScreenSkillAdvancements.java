@@ -16,7 +16,6 @@ import com.google.common.collect.Lists;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.client.gui.GuiButton;
-import net.minecraft.client.gui.GuiIngame;
 import net.minecraft.client.gui.GuiLabel;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.network.NetworkPlayerInfo;
@@ -54,7 +53,6 @@ public class GuiScreenSkillAdvancements extends GuiScreen {
     public int maxPages = 0;
 
     public final NetworkPlayerInfo info = Minecraft.getMinecraft().getConnection().getPlayerInfo(Minecraft.getMinecraft().player.getUniqueID());
-    public final GuiIngame inGameGui = Minecraft.getMinecraft().ingameGUI;
     public final List<GuiSkillAdvancementTab> tabs = Lists.newLinkedList();
     public List<GuiButton> alternateButtonList = new ArrayList<>();
     protected List<GuiLabel> alternateLabelList = Lists.<GuiLabel>newArrayList();
@@ -69,6 +67,7 @@ public class GuiScreenSkillAdvancements extends GuiScreen {
     public int scrollMouseX;
     public int scrollMouseY;
     public boolean isScrolling;
+    public boolean isShifting;
 
     public GuiScreenSkillAdvancements() {
         this.allowUserInput = true;
@@ -186,6 +185,9 @@ public class GuiScreenSkillAdvancements extends GuiScreen {
         } else {
             confirmation.drawGui(mouseX, mouseY, partialTicks);
         }
+        if(!this.allowUserInput) {
+            this.drawGradientRect(0, 0, this.mc.displayWidth, this.mc.displayHeight, -1072689136, -804253680);
+        }
         GlStateManager.disableBlend();
         GlStateManager.enableLighting();
         GlStateManager.enableRescaleNormal();
@@ -256,7 +258,7 @@ public class GuiScreenSkillAdvancements extends GuiScreen {
             GlStateManager.translate(this.x + 25 + 24 + 10 * 16, this.y - 12, 0);
             GlStateManager.scale(0.5F, 0.5F, 0.5F);
             GlStateManager.color(1F, 1F, 1F, 1F);
-            this.drawString(this.mc.fontRenderer, TextHelper.translate("gui.xp", xpTotal), 0, 0, -1);
+            this.drawString(this.mc.fontRenderer, TextHelper.translate("gui.xp", xpValue), 0, 0, -1);
             GlStateManager.color(1F, 1F, 1F, 1F);
             GlStateManager.popMatrix();
 
@@ -273,9 +275,9 @@ public class GuiScreenSkillAdvancements extends GuiScreen {
             GlStateManager.color(1F, 1F, 1F, 1F);
             GlStateManager.popMatrix();
             GlStateManager.pushMatrix();
-            String xpTotalString = TextHelper.translate("gui.xp_level", xpValue);
-            int lenght = fontRenderer.getStringWidth(xpTotalString);
-            GlStateManager.translate(this.x + 25 + 24 - (lenght / 2D) + 10 * 8, this.y - 13, 0);
+            String xpTotalString = TextHelper.translate("gui.xp_level", xpTotal);
+            int width = fontRenderer.getStringWidth(xpTotalString);
+            GlStateManager.translate(this.x + 25 + 24 - (width / 2D) + 10 * 8, this.y - 13, 0);
             GlStateManager.scale(0.7F, 0.7F, 0.7F);
             GlStateManager.color(1F, 1F, 1F, 1F);
             this.drawString(this.mc.fontRenderer, xpTotalString, 0, 0, -1);
@@ -451,7 +453,7 @@ public class GuiScreenSkillAdvancements extends GuiScreen {
     }
 
     @Override
-    protected void keyTyped(char typedChar, int keyCode) throws IOException {
+    protected void keyTyped(char typedChar, int keyCode) {
         if (keyCode == 1) {
             if (confirmation == null) {
                 this.mc.displayGuiScreen(null);
@@ -469,6 +471,7 @@ public class GuiScreenSkillAdvancements extends GuiScreen {
             this.selectedTab.tabPage = Math.min(this.selectedTab.tabPage + 1, this.selectedTab.maxPages - 1);
             Minecraft.getMinecraft().getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.UI_BUTTON_CLICK, 1.0F));
         }
+        isShifting = keyCode == 42;
     }
 
     @Override
@@ -492,9 +495,9 @@ public class GuiScreenSkillAdvancements extends GuiScreen {
             }
         } else {
             if (button.id == 105) {
-                GuiScreenSkillAdvancements.confirmation = new GuiConfirmation(this.mc, TextHelper.translate("gui.reset_unlocks_title"), TextHelper.translate("gui.reset_unlocks_description"), () -> {
+                GuiScreenSkillAdvancements.confirmation = new GuiConfirmation(this.mc, TextHelper.translate("gui.reset_unlocks_title"), TextHelper.translate("gui.reset_unlocks_description"), (g) -> {
                     PacketHelper.sendResetSkillsRequestPacket(this.mc.player);
-                }, true, true);
+                }, true, true, false);
                 GuiScreenSkillAdvancements.confirmation.initGui();
             } else if (button.id == 106) {
                 PacketHelper.sendStoreXPRequestPacket(this.mc.player);

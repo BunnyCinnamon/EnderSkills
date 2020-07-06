@@ -331,6 +331,7 @@ public class AnimatedStoneGolem extends BaseAbility implements ISkillAdvancement
         Configuration.getSyncValues().cooldown = Configuration.getValues().cooldown;
         Configuration.getSyncValues().time = Configuration.getValues().time;
         Configuration.getSyncValues().effectiveness = Configuration.getValues().effectiveness;
+        Configuration.getSyncValues().extra.damage = Configuration.getValues().extra.damage;
         Configuration.getSyncValues().extra.mirror = Configuration.getValues().extra.mirror;
         Configuration.getSyncValues().extra.stunTime = Configuration.getValues().extra.stunTime;
         Configuration.getSyncValues().extra.health = Configuration.getValues().extra.health;
@@ -343,6 +344,7 @@ public class AnimatedStoneGolem extends BaseAbility implements ISkillAdvancement
         NBTHelper.setArray(compound, "cooldown", Configuration.getValues().cooldown);
         NBTHelper.setArray(compound, "time", Configuration.getValues().time);
         compound.setDouble("effectiveness", Configuration.getValues().effectiveness);
+        NBTHelper.setArray(compound, "extra.damage", Configuration.getValues().extra.damage);
         NBTHelper.setArray(compound, "extra.mirror", Configuration.getValues().extra.mirror);
         NBTHelper.setArray(compound, "extra.stunTime", Configuration.getValues().extra.stunTime);
         NBTHelper.setArray(compound, "extra.health", Configuration.getValues().extra.health);
@@ -356,6 +358,7 @@ public class AnimatedStoneGolem extends BaseAbility implements ISkillAdvancement
         Configuration.getSyncValues().cooldown = NBTHelper.getArray(compound, "cooldown");
         Configuration.getSyncValues().time = NBTHelper.getArray(compound, "time");
         Configuration.getSyncValues().effectiveness = compound.getDouble("effectiveness");
+        Configuration.getSyncValues().extra.damage = NBTHelper.getArray(compound, "extra.damage");
         Configuration.getSyncValues().extra.mirror = NBTHelper.getArray(compound, "extra.mirror");
         Configuration.getSyncValues().extra.stunTime = NBTHelper.getArray(compound, "extra.stunTime");
         Configuration.getSyncValues().extra.health = NBTHelper.getArray(compound, "extra.health");
@@ -402,13 +405,13 @@ public class AnimatedStoneGolem extends BaseAbility implements ISkillAdvancement
 
             public static class Extra {
                 @Config.Comment("Golem Damage Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
-                public String[] damage = {"(0+){0.75 + ((e^(0.1 * (x / y)) - 1)/((e^0.1) - 1)) * (1.5 - 0.75)}"};
+                public String[] damage = {"(0+){5 + ((e^(0.1 * (x / y)) - 1)/((e^0.1) - 1)) * (25 - 5)}"};
                 @Config.Comment("Golem Damage Multiplier Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
                 public String[] mirror = {"(0+){0.75 + ((e^(0.1 * (x / y)) - 1)/((e^0.1) - 1)) * (1.5 - 0.75)}"};
                 @Config.Comment("Golem Health Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
                 public String[] stunTime = {"(0+){3 * 20}"};
                 @Config.Comment("Golem Health Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
-                public String[] health = {"(0+){100 + (100 * 0.1 * x)}"};
+                public String[] health = {"(0+){150 + (100 * 0.1 * x)}"};
             }
 
             public static class Advancement {

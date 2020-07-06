@@ -394,7 +394,7 @@ public class BlackHole extends BaseAbility implements IImpact, ISkillAdvancement
                 @Config.Comment("Damage Over Time Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
                 public String[] dot = {"(0+){18 + (((e^(0.1 * (x / y)) - 1)/((e^0.1) - 1)) * (32 - 18))}"};
                 @Config.Comment("Initial Damage Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
-                public String[] damage = {"(0+){16 + (((e^(0.1 * (x / y)) - 1)/((e^0.1) - 1)) * (30 - 16))}"};
+                public String[] damage = {"(0+){26 + (((e^(0.1 * (x / y)) - 1)/((e^0.1) - 1)) * (50 - 26))}"};
             }
 
             public static class Advancement {

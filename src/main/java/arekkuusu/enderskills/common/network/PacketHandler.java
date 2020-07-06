@@ -10,7 +10,7 @@ import arekkuusu.enderskills.api.helper.XPHelper;
 import arekkuusu.enderskills.api.registry.Skill;
 import arekkuusu.enderskills.client.gui.data.ISkillAdvancement;
 import arekkuusu.enderskills.common.CommonConfig;
-import arekkuusu.enderskills.common.EnderSkills;
+import arekkuusu.enderskills.common.ES;
 import arekkuusu.enderskills.common.lib.LibMod;
 import arekkuusu.enderskills.common.skill.ModAbilities;
 import com.google.common.collect.Lists;
@@ -27,6 +27,7 @@ import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.registries.IForgeRegistry;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -42,7 +43,7 @@ public final class PacketHandler {
         int age = NBTHelper.getInteger(compound, "age");
         int rgb = NBTHelper.getInteger(compound, "rgb");
         ResourceLocation location = NBTHelper.getResourceLocation(compound, "location");
-        EnderSkills.getProxy().spawnParticle(world, pos, speed, scale, age, rgb, location);
+        ES.getProxy().spawnParticle(world, pos, speed, scale, age, rgb, location);
     }));
 
     public static final IPacketHandler SYNC_GLOBAL_CONFIG = (((compound, context) -> {
@@ -56,15 +57,19 @@ public final class PacketHandler {
         skill.readSyncConfig(compound);
     }));
 
+    public static final List<Runnable> SYNC_SKILLS_QUEUE = new ArrayList<>();
+
     public static final IPacketHandler SYNC_SKILLS = (((compound, context) -> {
-        EntityPlayer player = EnderSkills.getProxy().getPlayer();
+        EntityPlayer player = ES.getProxy().getPlayer();
         Capabilities.get(player).ifPresent(s -> {
             s.deserializeNBT(compound);
+            SYNC_SKILLS_QUEUE.forEach(Runnable::run);
+            SYNC_SKILLS_QUEUE.clear();
         });
     }));
 
     public static final IPacketHandler SYNC_SKILL = (((compound, context) -> {
-        EntityPlayer player = EnderSkills.getProxy().getPlayer();
+        EntityPlayer player = ES.getProxy().getPlayer();
         Capabilities.get(player).ifPresent(skills -> {
             IForgeRegistry<Skill> registry = GameRegistry.findRegistry(Skill.class);
             Skill skill = registry.getValue(NBTHelper.getResourceLocation(compound, "location"));
@@ -76,7 +81,7 @@ public final class PacketHandler {
     }));
 
     public static final IPacketHandler SYNC_WEIGHT = (((compound, context) -> {
-        EntityPlayer player = EnderSkills.getProxy().getPlayer();
+        EntityPlayer player = ES.getProxy().getPlayer();
         Capabilities.get(player).ifPresent(skills -> {
             IForgeRegistry<Skill> registry = GameRegistry.findRegistry(Skill.class);
             Skill skill = registry.getValue(NBTHelper.getResourceLocation(compound, "location"));
@@ -135,7 +140,7 @@ public final class PacketHandler {
 
     //TODO: REMOVE TOO HARDCODED!!
     public static final IPacketHandler SYNC_ENDURANCE = (((compound, context) -> {
-        EntityPlayer player = EnderSkills.getProxy().getPlayer();
+        EntityPlayer player = ES.getProxy().getPlayer();
         Capabilities.endurance(player).ifPresent(capability -> {
             capability.setEndurance(compound.getInteger("endurance"));
             capability.setEnduranceDelay(compound.getInteger("endurance_delay"));
@@ -144,7 +149,7 @@ public final class PacketHandler {
     }));
 
     public static final IPacketHandler SYNC_ADVANCEMENT = (((compound, context) -> {
-        EntityPlayer player = EnderSkills.getProxy().getPlayer();
+        EntityPlayer player = ES.getProxy().getPlayer();
         Capabilities.advancement(player).ifPresent(c -> {
             player.experienceLevel = compound.getInteger("lvl");
             player.experience = compound.getInteger("lvl_progress");

@@ -1,7 +1,7 @@
 package arekkuusu.enderskills.client.util.resource;
 
 import arekkuusu.enderskills.client.util.resource.shader.ShaderResource;
-import arekkuusu.enderskills.common.EnderSkills;
+import arekkuusu.enderskills.common.ES;
 import com.google.common.collect.Lists;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.resources.IResourceManager;
@@ -75,7 +75,7 @@ public class ShaderManager implements IResourceManagerReloadListener {
                     throw new RuntimeException("Error creating shader: " + info);
                 }
             } catch(IOException e) {
-                EnderSkills.LOG.warn("[Shader Resource] Failed to load shader " + location.toString());
+                ES.LOG.warn("[Shader Resource] Failed to load shader " + location.toString());
                 OpenGlHelper.glDeleteShader(shader);
                 e.printStackTrace();
             }

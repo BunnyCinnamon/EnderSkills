@@ -11,6 +11,7 @@ import arekkuusu.enderskills.client.gui.data.SkillAdvancementConditionSimple;
 import arekkuusu.enderskills.client.gui.data.SkillAdvancementInfo;
 import arekkuusu.enderskills.client.util.helper.RenderMisc;
 import arekkuusu.enderskills.client.util.helper.TextHelper;
+import arekkuusu.enderskills.common.network.PacketHandler;
 import com.google.common.collect.Lists;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.advancements.AdvancementState;
@@ -290,7 +291,18 @@ public class GuiSkillAdvancementSimple extends GuiSkillAdvancement {
                         }
                     }
                     description += TextHelper.translate("gui.advancement.undone_warning");
-                    GuiScreenSkillAdvancements.confirmation = new GuiConfirmation(this.mc, title, description, this.advancement::upgrade, true, true);
+                    GuiScreenSkillAdvancements.confirmation = new GuiConfirmation(this.mc, title, description, (g) -> {
+                        this.advancement.upgrade();
+                        if (g.isShifting) {
+                            this.gui.gui.allowUserInput = false;
+                            PacketHandler.SYNC_SKILLS_QUEUE.add(() -> {
+                                this.gui.gui.isShifting = true;
+                                this.gui.gui.allowUserInput = true;
+                                this.actionPerformed(button);
+                            });
+                        }
+                    }, true, true, this.gui.gui.isShifting);
+                    this.gui.gui.isShifting = false;
                     GuiScreenSkillAdvancements.confirmation.initGui();
                     button.playPressSound(this.mc.getSoundHandler());
                 }

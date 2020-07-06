@@ -1,7 +1,7 @@
 package arekkuusu.enderskills.client.render.skill;
 
 import arekkuusu.enderskills.client.util.ResourceLibrary;
-import arekkuusu.enderskills.common.EnderSkills;
+import arekkuusu.enderskills.common.ES;
 import arekkuusu.enderskills.common.entity.throwable.EntityThrowableData;
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.entity.RenderManager;
@@ -30,7 +30,7 @@ public class ProjectileBlood extends Render<EntityThrowableData> {
                 double posY = vec.y + (entity.height / 2) * (entity.world.rand.nextDouble() - 0.5) + motion.y * offset;
                 double posZ = vec.z + (entity.width / 2) * (entity.world.rand.nextDouble() - 0.5) + motion.z * offset;
                 motion = new Vec3d(0, 0, 0);
-                EnderSkills.getProxy().spawnParticle(entity.world, new Vec3d(posX, posY, posZ), motion, 2F, 25, 0x690303, ResourceLibrary.SPIT);
+                ES.getProxy().spawnParticle(entity.world, new Vec3d(posX, posY, posZ), motion, 2F, 25, 0x690303, ResourceLibrary.SPIT);
             }
         }
     }

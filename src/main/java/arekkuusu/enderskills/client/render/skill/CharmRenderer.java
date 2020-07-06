@@ -1,13 +1,11 @@
 package arekkuusu.enderskills.client.render.skill;
 
-import arekkuusu.enderskills.api.capability.Capabilities;
-import arekkuusu.enderskills.api.capability.SkilledEntityCapability;
 import arekkuusu.enderskills.api.capability.data.SkillHolder;
 import arekkuusu.enderskills.client.render.entity.EntityThrowableDataRenderer;
 import arekkuusu.enderskills.client.util.ResourceLibrary;
 import arekkuusu.enderskills.client.util.ShaderLibrary;
 import arekkuusu.enderskills.client.util.helper.GLHelper;
-import arekkuusu.enderskills.common.EnderSkills;
+import arekkuusu.enderskills.common.ES;
 import arekkuusu.enderskills.common.entity.throwable.EntityThrowableData;
 import arekkuusu.enderskills.common.lib.LibMod;
 import arekkuusu.enderskills.common.skill.ModAbilities;
@@ -32,7 +30,6 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.opengl.GL11;
 
 import javax.annotation.Nonnull;
-import java.util.Optional;
 
 @SideOnly(Side.CLIENT)
 public class CharmRenderer extends SkillRenderer<Charm> {
@@ -52,7 +49,7 @@ public class CharmRenderer extends SkillRenderer<Charm> {
             double posX = vec.x + entity.world.rand.nextDouble() - 0.5D;
             double posY = vec.y + entity.world.rand.nextDouble() - 0.5D;
             double posZ = vec.z + entity.world.rand.nextDouble() - 0.5D;
-            EnderSkills.getProxy().spawnParticle(entity.world, new Vec3d(posX, posY, posZ), new Vec3d(0, 0, 0), 1, 50, entity.world.rand.nextBoolean() ? 0xFFFFFF : 0x58DB11, ResourceLibrary.SPIRAL);
+            ES.getProxy().spawnParticle(entity.world, new Vec3d(posX, posY, posZ), new Vec3d(0, 0, 0), 1, 50, entity.world.rand.nextBoolean() ? 0xFFFFFF : 0x58DB11, ResourceLibrary.SPIRAL);
         }
     }
 
@@ -99,7 +96,7 @@ public class CharmRenderer extends SkillRenderer<Charm> {
                     double posY = vec.y + (entity.height / 2) * (entity.world.rand.nextDouble() - 0.5) + motion.y * offset;
                     double posZ = vec.z + (entity.width / 2) * (entity.world.rand.nextDouble() - 0.5) + motion.z * offset;
                     motion = new Vec3d(0, 0, 0);
-                    EnderSkills.getProxy().spawnParticle(entity.world, new Vec3d(posX, posY, posZ), motion, 0.5F, 25, 0xFFFFFF, ResourceLibrary.SPIRAL);
+                    ES.getProxy().spawnParticle(entity.world, new Vec3d(posX, posY, posZ), motion, 0.5F, 25, 0xFFFFFF, ResourceLibrary.SPIRAL);
                 }
             }
             GlStateManager.pushMatrix();

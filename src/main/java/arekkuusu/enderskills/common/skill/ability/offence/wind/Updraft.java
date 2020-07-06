@@ -165,14 +165,6 @@ public class Updraft extends BaseAbility implements IScanEntities, IExpand, IFin
         return (int) (result * getEffectiveness());
     }
 
-    public int getTime(AbilityInfo info) {
-        int level = getLevel(info);
-        int levelMax = getMaxLevel();
-        double func = ExpressionHelper.getExpression(this, Configuration.getSyncValues().time, level, levelMax);
-        double result = (func * CommonConfig.getSyncValues().skill.globalTime);
-        return (int) (result * getEffectiveness());
-    }
-
     public double getEffectiveness() {
         return Configuration.getSyncValues().effectiveness * CommonConfig.getSyncValues().skill.globalEffectiveness;
     }
@@ -283,7 +275,6 @@ public class Updraft extends BaseAbility implements IScanEntities, IExpand, IFin
     public void initSyncConfig() {
         Configuration.getSyncValues().maxLevel = Configuration.getValues().maxLevel;
         Configuration.getSyncValues().cooldown = Configuration.getValues().cooldown;
-        Configuration.getSyncValues().time = Configuration.getValues().time;
         Configuration.getSyncValues().range = Configuration.getValues().range;
         Configuration.getSyncValues().effectiveness = Configuration.getValues().effectiveness;
         Configuration.getSyncValues().extra.liftRange = Configuration.getValues().extra.liftRange;
@@ -295,7 +286,6 @@ public class Updraft extends BaseAbility implements IScanEntities, IExpand, IFin
     public void writeSyncConfig(NBTTagCompound compound) {
         compound.setInteger("maxLevel", Configuration.getValues().maxLevel);
         NBTHelper.setArray(compound, "cooldown", Configuration.getValues().cooldown);
-        NBTHelper.setArray(compound, "time", Configuration.getValues().time);
         NBTHelper.setArray(compound, "range", Configuration.getValues().range);
         compound.setDouble("effectiveness", Configuration.getValues().effectiveness);
         NBTHelper.setArray(compound, "extra.liftRange", Configuration.getValues().extra.liftRange);
@@ -308,7 +298,6 @@ public class Updraft extends BaseAbility implements IScanEntities, IExpand, IFin
     public void readSyncConfig(NBTTagCompound compound) {
         Configuration.getSyncValues().maxLevel = compound.getInteger("maxLevel");
         Configuration.getSyncValues().cooldown = NBTHelper.getArray(compound, "cooldown");
-        Configuration.getSyncValues().time = NBTHelper.getArray(compound, "time");
         Configuration.getSyncValues().range = NBTHelper.getArray(compound, "range");
         Configuration.getSyncValues().effectiveness = compound.getDouble("effectiveness");
         Configuration.getSyncValues().extra.liftRange = NBTHelper.getArray(compound, "extra.liftRange");
@@ -346,9 +335,6 @@ public class Updraft extends BaseAbility implements IScanEntities, IExpand, IFin
 
             @Config.Comment("Cooldown Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
             public String[] cooldown = {"(0+){(14 * 20) + (6 * 20) * (1 - ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)))}"};
-
-            @Config.Comment("Duration Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
-            public String[] time = {"(0+){UNUSED}"};
 
             @Config.Comment("Range Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
             public String[] range = {"(0+){8 + ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)) * (16 - 8)}"};

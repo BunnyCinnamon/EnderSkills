@@ -5,8 +5,7 @@ import arekkuusu.enderskills.api.helper.NBTHelper;
 import arekkuusu.enderskills.client.util.ResourceLibrary;
 import arekkuusu.enderskills.client.util.ShaderLibrary;
 import arekkuusu.enderskills.client.util.helper.GLHelper;
-import arekkuusu.enderskills.common.EnderSkills;
-import arekkuusu.enderskills.common.entity.placeable.EntityPlaceableData;
+import arekkuusu.enderskills.common.ES;
 import arekkuusu.enderskills.common.lib.LibMod;
 import arekkuusu.enderskills.common.skill.ability.defense.light.NearbyInvincibility;
 import net.minecraft.client.renderer.BufferBuilder;
@@ -51,7 +50,7 @@ public class NearbyInvincibilityRenderer extends SkillRenderer<NearbyInvincibili
                         double posX = vec.x + scale * (entity.world.rand.nextDouble() - 0.5);
                         double posY = vec.y + (entity.height / 2) + scale * (entity.world.rand.nextDouble() - 0.5);
                         double posZ = vec.z + scale * (entity.world.rand.nextDouble() - 0.5);
-                        EnderSkills.getProxy().spawnParticle(entity.world, new Vec3d(posX, posY, posZ), new Vec3d(0, 0, 0), 1.5F, 50, 0xF8E603, ResourceLibrary.GLOW_PARTICLE_EFFECT);
+                        ES.getProxy().spawnParticle(entity.world, new Vec3d(posX, posY, posZ), new Vec3d(0, 0, 0), 1.5F, 50, 0xF8E603, ResourceLibrary.GLOW_PARTICLE_EFFECT);
                     }
                 }
             }

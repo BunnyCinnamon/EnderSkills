@@ -2,7 +2,7 @@ package arekkuusu.enderskills.client.render.skill;
 
 import arekkuusu.enderskills.api.capability.data.SkillHolder;
 import arekkuusu.enderskills.client.util.ResourceLibrary;
-import arekkuusu.enderskills.common.EnderSkills;
+import arekkuusu.enderskills.common.ES;
 import arekkuusu.enderskills.common.skill.ability.defense.light.HealSelf;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.Vec3d;
@@ -20,7 +20,7 @@ public class HealSelfRenderer extends SkillRenderer<HealSelf> {
                 double posX = vec.x + (entity.width / 2) * (entity.world.rand.nextDouble() - 0.5);
                 double posY = vec.y + entity.height * entity.world.rand.nextDouble();
                 double posZ = vec.z + (entity.width / 2) * (entity.world.rand.nextDouble() - 0.5);
-                EnderSkills.getProxy().spawnParticle(entity.world, new Vec3d(posX, posY, posZ), new Vec3d(0, 0, 0), 3, 50, 0x58DB11, ResourceLibrary.PLUS);
+                ES.getProxy().spawnParticle(entity.world, new Vec3d(posX, posY, posZ), new Vec3d(0, 0, 0), 3, 50, 0x58DB11, ResourceLibrary.PLUS);
             }
         }
     }

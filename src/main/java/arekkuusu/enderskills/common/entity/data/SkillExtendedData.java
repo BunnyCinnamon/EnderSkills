@@ -1,7 +1,7 @@
 package arekkuusu.enderskills.common.entity.data;
 
 import arekkuusu.enderskills.api.capability.data.SkillData;
-import arekkuusu.enderskills.common.EnderSkills;
+import arekkuusu.enderskills.common.ES;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.common.util.INBTSerializable;
@@ -34,7 +34,7 @@ public class SkillExtendedData extends ExtendedData<SkillExtendedData> implement
                 data = null;
             }
         } catch (Exception e) {
-            EnderSkills.LOG.error("[Packet] Failed to receive packet");
+            ES.LOG.error("[Packet] Failed to receive packet");
             e.printStackTrace();
         }
     }
@@ -50,7 +50,7 @@ public class SkillExtendedData extends ExtendedData<SkillExtendedData> implement
                 beef.writeBoolean(false);
             }
         } catch (Exception e) {
-            EnderSkills.LOG.error("[Packet] Failed to send packet");
+            ES.LOG.error("[Packet] Failed to send packet");
             e.printStackTrace();
         }
     }

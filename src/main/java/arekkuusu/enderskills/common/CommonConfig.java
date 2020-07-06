@@ -1,6 +1,6 @@
 package arekkuusu.enderskills.common;
 
-import arekkuusu.enderskills.api.EnderSkillsAPI;
+import arekkuusu.enderskills.api.ESAPI;
 import arekkuusu.enderskills.api.helper.ExpressionHelper;
 import arekkuusu.enderskills.api.registry.Skill;
 import arekkuusu.enderskills.common.lib.LibMod;
@@ -38,7 +38,7 @@ public final class CommonConfig {
     @Deprecated
     public static void initSyncConfig() {
         CommonConfig.getSyncValues().skill.defaultHumanTeam = CommonConfig.getValues().skill.defaultHumanTeam;
-        EnderSkillsAPI.defaultHumanTeam = CommonConfig.getSyncValues().skill.defaultHumanTeam;
+        ESAPI.defaultHumanTeam = CommonConfig.getSyncValues().skill.defaultHumanTeam;
         CommonConfig.getSyncValues().skill.globalCooldown = CommonConfig.getValues().skill.globalCooldown;
         CommonConfig.getSyncValues().skill.globalTime = CommonConfig.getValues().skill.globalTime;
         CommonConfig.getSyncValues().skill.globalRange = CommonConfig.getValues().skill.globalRange;
@@ -94,7 +94,7 @@ public final class CommonConfig {
         CommonConfig.getSyncValues().advancement.levels.tokenCostThreshold = compound.getInteger("advancement.levels.tokenCostThreshold");
         CommonConfig.getSyncValues().advancement.levels.defaultLevel = compound.getInteger("advancement.levels.defaultLevel");
         CommonConfig.getSyncValues().skill.defaultHumanTeam = compound.getBoolean("defaultHumanTeam");
-        EnderSkillsAPI.defaultHumanTeam = CommonConfig.getSyncValues().skill.defaultHumanTeam;
+        ESAPI.defaultHumanTeam = CommonConfig.getSyncValues().skill.defaultHumanTeam;
         CommonConfig.getSyncValues().skill.globalCooldown = compound.getDouble("globalCooldown");
         CommonConfig.getSyncValues().skill.globalTime = compound.getDouble("globalTime");
         CommonConfig.getSyncValues().skill.globalRange = compound.getDouble("globalRange");

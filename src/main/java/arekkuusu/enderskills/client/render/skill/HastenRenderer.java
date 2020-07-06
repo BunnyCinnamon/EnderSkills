@@ -4,7 +4,6 @@ import arekkuusu.enderskills.api.capability.Capabilities;
 import arekkuusu.enderskills.api.capability.data.SkillHolder;
 import arekkuusu.enderskills.client.render.effect.ParticleVanilla;
 import arekkuusu.enderskills.client.util.helper.GLHelper;
-import arekkuusu.enderskills.common.EnderSkills;
 import arekkuusu.enderskills.common.skill.ModAbilities;
 import arekkuusu.enderskills.common.skill.ability.mobility.wind.Hasten;
 import net.minecraft.client.Minecraft;

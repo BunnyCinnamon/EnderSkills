@@ -6,7 +6,7 @@ import arekkuusu.enderskills.client.render.effect.ParticleVanilla;
 import arekkuusu.enderskills.client.render.entity.EntityThrowableDataRenderer;
 import arekkuusu.enderskills.client.util.ResourceLibrary;
 import arekkuusu.enderskills.client.util.helper.RenderMisc;
-import arekkuusu.enderskills.common.EnderSkills;
+import arekkuusu.enderskills.common.ES;
 import arekkuusu.enderskills.common.entity.placeable.EntityPlaceableFlamingRain;
 import arekkuusu.enderskills.common.skill.ModAbilities;
 import arekkuusu.enderskills.common.skill.ability.offence.fire.FlamingRain;
@@ -59,7 +59,7 @@ public class FlamingRainRenderer extends SkillRenderer<FlamingRain> {
                     ParticleVanilla vanilla = new ParticleVanilla(entity.world, spawnVec, new Vec3d(0, -speed, 0), 5F, time, 0xFFFFFF, 48);
                     vanilla.noFading = true;
                     Minecraft.getMinecraft().effectRenderer.addEffect(vanilla);
-                    EnderSkills.getProxy().spawnParticleLuminescence(entity.world, new Vec3d(posX, posY, posZ), new Vec3d(0, 0, 0), 12F, time, ResourceLibrary.GLOW_PARTICLE_EFFECT);
+                    ES.getProxy().spawnParticleLuminescence(entity.world, new Vec3d(posX, posY, posZ), new Vec3d(0, 0, 0), 12F, time, ResourceLibrary.GLOW_PARTICLE_EFFECT);
                 }
             }
         }

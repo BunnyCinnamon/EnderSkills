@@ -346,7 +346,7 @@ public class Sacrifice extends BaseAbility implements ISkillAdvancement {
                 @Config.Comment("Health Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
                 public String[] health = {"(0+){0.05 + x * 0.05}"};
                 @Config.Comment("Power Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
-                public String[] power = {"(0+){1 + x * 0.05}"};
+                public String[] power = {"(0+){2 + x * 0.05}"};
             }
 
             public static class Advancement {

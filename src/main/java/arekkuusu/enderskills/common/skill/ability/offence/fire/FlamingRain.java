@@ -228,6 +228,7 @@ public class FlamingRain extends BaseAbility implements IImpact, ILoopSound, IEx
                         description.add("Duration: " + TextHelper.format2FloatPoint(getTime(abilityInfo) / 20D) + "s");
                         description.add("Rain Duration: " + getRainDuration(abilityInfo) + "s");
                         description.add("Rain Size: " + TextHelper.format2FloatPoint(getRainRange(abilityInfo)) + " Blocks");
+                        description.add("DoT: " + TextHelper.format2FloatPoint(getDoT(abilityInfo) / 2D) + " Hearts");
                         if (abilityInfo.getLevel() < getMaxLevel()) { //Copy info and set a higher level...
                             AbilityInfo infoNew = new AbilityInfo(abilityInfo.serializeNBT());
                             infoNew.setLevel(infoNew.getLevel() + 1);
@@ -238,6 +239,7 @@ public class FlamingRain extends BaseAbility implements IImpact, ILoopSound, IEx
                             description.add("Duration: " + TextHelper.format2FloatPoint(getTime(infoNew) / 20D) + "s");
                             description.add("Rain Duration: " + getRainDuration(infoNew) + "s");
                             description.add("Rain Size: " + TextHelper.format2FloatPoint(getRainRange(infoNew)) + " Blocks");
+                            description.add("DoT: " + TextHelper.format2FloatPoint(getDoT(infoNew) / 2D) + " Hearts");
                         }
                     });
                 }

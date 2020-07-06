@@ -1,6 +1,6 @@
 package arekkuusu.enderskills.api;
 
-public class EnderSkillsAPI {
+public class ESAPI {
 
     public static boolean defaultHumanTeam = true;
 }

@@ -10,7 +10,7 @@ import org.lwjgl.input.Keyboard;
 
 import java.util.List;
 
-public class SkillKeyBounds {
+public class ESKeyBounds {
 
     public static List<KeyBinding> skillUseList = Lists.newLinkedList();
     public static KeyBinding skillGroupRotateRight;
@@ -24,6 +24,7 @@ public class SkillKeyBounds {
     public static KeyBinding skillUse7;
     public static KeyBinding skillUse8;
     public static KeyBinding skillUse9;
+    public static KeyBinding upgrade;
 
     public static void init() {
         skillGroupRotateRight = create("rotate_right", KeyConflictContext.IN_GAME, KeyModifier.ALT, Keyboard.KEY_D);
@@ -37,6 +38,7 @@ public class SkillKeyBounds {
         skillUse7 = create("use_7", KeyConflictContext.IN_GAME, KeyModifier.ALT, Keyboard.KEY_7);
         skillUse8 = create("use_8", KeyConflictContext.IN_GAME, KeyModifier.ALT, Keyboard.KEY_8);
         skillUse9 = create("use_9", KeyConflictContext.IN_GAME, KeyModifier.ALT, Keyboard.KEY_9);
+        upgrade = create("assisted_upgrade", KeyConflictContext.IN_GAME, KeyModifier.NONE, Keyboard.KEY_LSHIFT);
         skillUseList.add(skillUse1);
         skillUseList.add(skillUse2);
         skillUseList.add(skillUse3);

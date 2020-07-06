@@ -41,9 +41,9 @@ public class SkillAdvancementConditionSimple extends SkillAdvancementCondition {
                 if (c.level >= requirement.getLevels() && c.getExperienceTotal(player) >= requirement.getXp()) {
                     PacketHelper.sendSkillUpgradeRequestPacket(Minecraft.getMinecraft().player, info.skill);
                 } else {
-                    String title = this.isUpgraded() ? "Confirm Upgrade?" : "Confirm Unlock?";
+                    String title = this.isUpgraded() ? "Can't upgrade" : "Can't Unlock";
                     String description = "\u00A74Not enough funds.\u00A7r";
-                    GuiScreenSkillAdvancements.confirmation = new GuiConfirmation(Minecraft.getMinecraft(), title, description, () -> {}, false, true);
+                    GuiScreenSkillAdvancements.confirmation = new GuiConfirmation(Minecraft.getMinecraft(), title, description, (g) -> {}, false, true, false);
                     GuiScreenSkillAdvancements.confirmation.initGui();
                 }
             });

@@ -363,7 +363,7 @@ public class Explode extends BaseAbility implements IScanEntities, IExpand, IFin
 
             public static class Extra {
                 @Config.Comment("Damage Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
-                public String[] damage = {"(0+){84 + ((e^(0.1 * (x / y)) - 1)/((e^0.1) - 1)) * (142 - 84)}"};
+                public String[] damage = {"(0+){184 + ((e^(0.1 * (x / y)) - 1)/((e^0.1) - 1)) * (242 - 184)}"};
                 @Config.Comment("Damage Over Time Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
                 public String[] dot = {"(0+){16 + ((e^(0.1 * (x / y)) - 1)/((e^0.1) - 1)) * (42 - 16)}"};
             }

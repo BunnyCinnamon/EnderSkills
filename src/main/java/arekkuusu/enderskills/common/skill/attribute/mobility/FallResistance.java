@@ -191,7 +191,7 @@ public class FallResistance extends BaseAttribute implements ISkillAdvancement {
             public int maxLevel = Integer.MAX_VALUE;
 
             @Config.Comment("Modifier Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
-            public String[] modifier = {"(0+){((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1))}"};
+            public String[] modifier = {"(0+){1 - e^(-0.01 * x)}"};
 
             @Config.Comment("Effectiveness Modifier")
             @Config.RangeDouble

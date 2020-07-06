@@ -12,31 +12,32 @@ import net.minecraft.client.renderer.GlStateManager;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Pattern;
+import java.util.function.Consumer;
 
 public class GuiConfirmation extends Gui {
 
-    public static final Pattern PATTERN = Pattern.compile("(.+) \\S+");
     public GuiButton buttonYes;
     public GuiButton buttonNo;
-    public final Runnable function;
+    public final Consumer<GuiConfirmation> function;
     public final Minecraft mc;
     public final String title;
-    private final boolean canConfirm;
-    private final boolean canNegate;
+    public final boolean canConfirm;
+    public final boolean canNegate;
+    public final boolean isShifting;
     public final String description;
     public int width;
     public int height;
     public int x;
     public int y;
 
-    public GuiConfirmation(Minecraft mc, String title, String description, Runnable function, boolean canConfirm, boolean canNegate) {
+    public GuiConfirmation(Minecraft mc, String title, String description, Consumer<GuiConfirmation> function, boolean canConfirm, boolean canNegate, boolean isShifting) {
         this.mc = mc;
         this.function = function;
         this.description = description;
         this.title = title;
         this.canConfirm = canConfirm;
         this.canNegate = canNegate;
+        this.isShifting = isShifting;
     }
 
     public void initGui() {
@@ -112,6 +113,17 @@ public class GuiConfirmation extends Gui {
         this.drawTexturedModalRect(xOffset - 4, yOffset + 3, 0, 103, 4, 26);
         drawScaledCustomSizeModalRect(xOffset, yOffset + 3, 5, 103, 1, 26, textureWidth, 26, 256, 256);
         this.drawTexturedModalRect(xOffset + textureWidth, yOffset + 3, 7, 103, 4, 26);
+        if (isShifting) {
+            drawScaledCustomSizeModalRect(xOffset - 7, yOffset - 5, 108, 4, 18, 18, 14, 14, 256, 256);
+            GlStateManager.color(1F, 1F, 1F, 1F);
+            GlStateManager.pushMatrix();
+            GlStateManager.scale(0.6D, 0.6D, 0.6D);
+            this.mc.fontRenderer.drawString(TextHelper.translate("gui.advancement.locked"), (float) (xOffset + 9) / 0.6F, (float) (yOffset - 1) / 0.6F, -1, true);
+            double mSize = Math.pow(0.6D, -1D);
+            GlStateManager.scale(mSize, mSize, mSize);
+            GlStateManager.popMatrix();
+            GlStateManager.color(1F, 1F, 1F, 1F);
+        }
         GlStateManager.color(1F, 1F, 1F, 1F);
         this.mc.fontRenderer.drawString(title, (float) (xOffset + 4), (float) (yOffset + 9), -1, true);
         GlStateManager.color(1F, 1F, 1F, 1F);
@@ -181,9 +193,11 @@ public class GuiConfirmation extends Gui {
         if (button.id == 0) {
             confirm();
         }
+        buttonNo.enabled = false;
+        buttonYes.enabled = false;
     }
 
     public void confirm() {
-        this.mc.addScheduledTask(this.function);
+        this.mc.addScheduledTask(() -> this.function.accept(this));
     }
 }

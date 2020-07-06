@@ -15,7 +15,7 @@ import arekkuusu.enderskills.client.gui.data.ISkillAdvancement;
 import arekkuusu.enderskills.client.util.ResourceLibrary;
 import arekkuusu.enderskills.client.util.helper.TextHelper;
 import arekkuusu.enderskills.common.CommonConfig;
-import arekkuusu.enderskills.common.EnderSkills;
+import arekkuusu.enderskills.common.ES;
 import arekkuusu.enderskills.common.lib.LibMod;
 import arekkuusu.enderskills.common.lib.LibNames;
 import arekkuusu.enderskills.common.skill.ModAbilities;
@@ -120,14 +120,14 @@ public class LifeSteal extends BaseAbility implements ISkillAdvancement {
                 double posX = vec.x + (attacked.width / 2) * (attacked.world.rand.nextDouble() - 0.5);
                 double posY = vec.y + attacked.height * attacked.world.rand.nextDouble();
                 double posZ = vec.z + (attacked.width / 2) * (attacked.world.rand.nextDouble() - 0.5);
-                EnderSkills.getProxy().spawnParticle(attacked.world, new Vec3d(posX, posY, posZ), new Vec3d(0, 0, 0), 3, 50, 0x8A0303, ResourceLibrary.MINUS);
+                ES.getProxy().spawnParticle(attacked.world, new Vec3d(posX, posY, posZ), new Vec3d(0, 0, 0), 3, 50, 0x8A0303, ResourceLibrary.MINUS);
             }
             for (int i = 0; i < 6; i++) {
                 Vec3d vec = attacker.getPositionVector();
                 double posX = vec.x + (attacker.width / 2) * (attacker.world.rand.nextDouble() - 0.5);
                 double posY = vec.y + attacker.height * attacker.world.rand.nextDouble();
                 double posZ = vec.z + (attacker.width / 2) * (attacker.world.rand.nextDouble() - 0.5);
-                EnderSkills.getProxy().spawnParticle(attacker.world, new Vec3d(posX, posY, posZ), new Vec3d(0, 0, 0), 3, 50, 0x8A0303, ResourceLibrary.PLUS);
+                ES.getProxy().spawnParticle(attacker.world, new Vec3d(posX, posY, posZ), new Vec3d(0, 0, 0), 3, 50, 0x8A0303, ResourceLibrary.PLUS);
             }
 
             if (attacker.world instanceof WorldServer) {

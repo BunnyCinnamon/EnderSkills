@@ -29,14 +29,14 @@ import org.apache.logging.log4j.Logger;
         version = LibMod.MOD_VERSION,
         acceptedMinecraftVersions = "[1.12.2]"
 )
-public class EnderSkills {
+public class ES {
 
     @SidedProxy(clientSide = LibMod.CLIENT_PROXY, serverSide = LibMod.SERVER_PROXY)
     private static IProxy proxy;
-    private static final EnderSkills INSTANCE = new EnderSkills();
+    private static final ES INSTANCE = new ES();
     public static final Logger LOG = LogManager.getLogger(LibMod.MOD_NAME);
 
-    private EnderSkills() {
+    private ES() {
     }
 
     public static IProxy getProxy() {
@@ -44,7 +44,7 @@ public class EnderSkills {
     }
 
     @Mod.InstanceFactory
-    public static EnderSkills getInstance() {
+    public static ES getInstance() {
         return INSTANCE;
     }
 

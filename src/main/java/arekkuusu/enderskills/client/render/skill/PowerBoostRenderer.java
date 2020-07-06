@@ -6,7 +6,7 @@ import arekkuusu.enderskills.client.util.ResourceLibrary;
 import arekkuusu.enderskills.client.util.ShaderLibrary;
 import arekkuusu.enderskills.client.util.helper.GLHelper;
 import arekkuusu.enderskills.client.util.helper.RenderMisc;
-import arekkuusu.enderskills.common.EnderSkills;
+import arekkuusu.enderskills.common.ES;
 import arekkuusu.enderskills.common.entity.throwable.EntityThrowableData;
 import arekkuusu.enderskills.common.lib.LibMod;
 import arekkuusu.enderskills.common.skill.ModAbilities;
@@ -44,7 +44,7 @@ public class PowerBoostRenderer extends SkillRenderer<PowerBoost> {
                 double posX = vec.x + (entity.width / 2) * (entity.world.rand.nextDouble() - 0.5);
                 double posY = vec.y + entity.height * entity.world.rand.nextDouble();
                 double posZ = vec.z + (entity.width / 2) * (entity.world.rand.nextDouble() - 0.5);
-                EnderSkills.getProxy().spawnParticle(entity.world, new Vec3d(posX, posY, posZ), new Vec3d(0, 0.01, 0), 1F, 20, 0xFFFFFF, ResourceLibrary.MOTE);
+                ES.getProxy().spawnParticle(entity.world, new Vec3d(posX, posY, posZ), new Vec3d(0, 0.01, 0), 1F, 20, 0xFFFFFF, ResourceLibrary.MOTE);
             }
         }
         GlStateManager.color(1F, 1F, 1F, 1F);
@@ -124,7 +124,7 @@ public class PowerBoostRenderer extends SkillRenderer<PowerBoost> {
                     double posY = vec.y + (entity.height / 2) * (entity.world.rand.nextDouble() - 0.5) + motion.y * offset;
                     double posZ = vec.z + (entity.width / 2) * (entity.world.rand.nextDouble() - 0.5) + motion.z * offset;
                     motion = new Vec3d(0, 0, 0);
-                    EnderSkills.getProxy().spawnParticle(entity.world, new Vec3d(posX, posY, posZ), motion, 0.5F, 25, 0xFFFFFF, ResourceLibrary.SPIRAL);
+                    ES.getProxy().spawnParticle(entity.world, new Vec3d(posX, posY, posZ), motion, 0.5F, 25, 0xFFFFFF, ResourceLibrary.SPIRAL);
                 }
             }
             GlStateManager.pushMatrix();
