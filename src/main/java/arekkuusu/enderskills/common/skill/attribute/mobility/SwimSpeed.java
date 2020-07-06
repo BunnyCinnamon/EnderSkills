@@ -199,7 +199,9 @@ public class SwimSpeed extends BaseAttribute implements ISkillAdvancement {
             public int maxLevel = 20;
 
             @Config.Comment("Modifier Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
-            public String[] modifier = {"(0+){x * 0.075}"};
+            public String[] modifier = {
+                    "(0+){x * 0.075}"
+            };
 
             @Config.Comment("Effectiveness Modifier")
             @Config.RangeDouble
@@ -207,7 +209,9 @@ public class SwimSpeed extends BaseAttribute implements ISkillAdvancement {
 
             public static class Advancement {
                 @Config.Comment("Function f(x)=? where 'x' is [Next Level] and 'y' is [Max Level], XP Cost is in units [NOT LEVELS]")
-                public String[] upgrade = {"(0+){3395 * 2 * (x / y)}"};
+                public String[] upgrade = {
+                        "(0+){3395 * 2 * (x / y)}"
+                };
             }
         }
     }

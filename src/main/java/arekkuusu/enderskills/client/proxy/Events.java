@@ -378,7 +378,8 @@ public class Events {
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void onPlayerScreenRender(RenderWorldLastEvent event) {
-        if(Minecraft.getMinecraft().getRenderManager().options == null) return; //WHY WHAT THE FUCK?????????????????????
+        if (Minecraft.getMinecraft().getRenderManager().options == null)
+            return; //WHY WHAT THE FUCK?????????????????????
         if (Minecraft.getMinecraft().gameSettings.thirdPersonView != 0) return;
         if (Minecraft.getMinecraft().player.isElytraFlying()) return;
         Capabilities.get(Minecraft.getMinecraft().player).ifPresent(skills -> {

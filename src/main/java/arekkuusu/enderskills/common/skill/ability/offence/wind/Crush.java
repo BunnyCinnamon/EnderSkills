@@ -257,7 +257,7 @@ public class Crush extends BaseAbility implements IImpact, ISkillAdvancement {
         NBTHelper.setArray(compound, "cooldown", Configuration.getValues().cooldown);
         NBTHelper.setArray(compound, "range", Configuration.getValues().range);
         compound.setDouble("effectiveness", Configuration.getValues().effectiveness);
-        NBTHelper.setArray(compound,"extra.size", Configuration.getValues().extra.size);
+        NBTHelper.setArray(compound, "extra.size", Configuration.getValues().extra.size);
         NBTHelper.setArray(compound, "extra.damage", Configuration.getValues().extra.damage);
         NBTHelper.setArray(compound, "advancement.upgrade", Configuration.getValues().advancement.upgrade);
     }
@@ -269,8 +269,8 @@ public class Crush extends BaseAbility implements IImpact, ISkillAdvancement {
         Configuration.getSyncValues().cooldown = NBTHelper.getArray(compound, "cooldown");
         Configuration.getSyncValues().range = NBTHelper.getArray(compound, "range");
         Configuration.getSyncValues().effectiveness = compound.getDouble("effectiveness");
-        Configuration.getSyncValues().extra.size = NBTHelper.getArray(compound,"extra.size");
-        Configuration.getSyncValues().extra.damage = NBTHelper.getArray(compound,"extra.damage");
+        Configuration.getSyncValues().extra.size = NBTHelper.getArray(compound, "extra.size");
+        Configuration.getSyncValues().extra.damage = NBTHelper.getArray(compound, "extra.damage");
         Configuration.getSyncValues().advancement.upgrade = NBTHelper.getArray(compound, "advancement.upgrade");
     }
 
@@ -303,10 +303,14 @@ public class Crush extends BaseAbility implements IImpact, ISkillAdvancement {
             public int maxLevel = 100;
 
             @Config.Comment("Cooldown Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
-            public String[] cooldown = {"(0+){(20 * 20) + (12 * 20) * (1 - ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)))}"};
+            public String[] cooldown = {
+                    "(0+){(20 * 20) + (12 * 20) * (1 - ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)))}"
+            };
 
             @Config.Comment("Range Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
-            public String[] range = {"(0+){8 + ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)) * (16 - 8)}"};
+            public String[] range = {
+                    "(0+){8 + ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)) * (16 - 8)}"
+            };
 
             @Config.Comment("Effectiveness Modifier")
             @Config.RangeDouble
@@ -314,14 +318,20 @@ public class Crush extends BaseAbility implements IImpact, ISkillAdvancement {
 
             public static class Extra {
                 @Config.Comment("Crush Size Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
-                public String[] size = {"(0+){7 + ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)) * (12 - 7)}"};
+                public String[] size = {
+                        "(0+){7 + ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)) * (12 - 7)}"
+                };
                 @Config.Comment("Damage Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
-                public String[] damage = {"(0+){40 + ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)) * (175 - 40)}"};
+                public String[] damage = {
+                        "(0+){40 + ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)) * (175 - 40)}"
+                };
             }
 
             public static class Advancement {
                 @Config.Comment("Function f(x)=? where 'x' is [Next Level] and 'y' is [Max Level], XP Cost is in units [NOT LEVELS]")
-                public String[] upgrade = {"(0+){(5730 * (1 - (0 ^ (0 ^ x)))) + 7 * x}"};
+                public String[] upgrade = {
+                        "(0+){(5730 * (1 - (0 ^ (0 ^ x)))) + 7 * x}"
+                };
             }
         }
     }

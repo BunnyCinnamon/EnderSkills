@@ -43,10 +43,10 @@ public class GuiSkillAdvancementTab extends Gui {
             page.mc = this.mc;
             page.initGui();
         }
-        if(!firstOpened) {
+        if (!firstOpened) {
             firstOpened = true;
             for (GuiSkillAdvancementPage page : pages) {
-                if(!page.advancements.isEmpty() && page.advancements.get(0).isUnlocked()) {
+                if (!page.advancements.isEmpty() && page.advancements.get(0).isUnlocked()) {
                     tabPage = pages.indexOf(page);
                 }
             }

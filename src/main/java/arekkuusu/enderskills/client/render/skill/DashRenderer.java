@@ -30,7 +30,7 @@ public class DashRenderer extends SkillRenderer<Dash> {
                 }
             }
         }
-        if(entity.onGround) {
+        if (entity.onGround) {
             Vec3d pos = entity.getPositionVector();
             IBlockState state = entity.world.getBlockState(new BlockPos(pos).down());
             for (int i = 0; i < 12; i++) {

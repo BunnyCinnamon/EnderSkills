@@ -188,7 +188,9 @@ public class DamageResistance extends BaseAttribute implements ISkillAdvancement
             public int maxLevel = Integer.MAX_VALUE;
 
             @Config.Comment("Modifier Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
-            public String[] modifier = {"(0+){1 - e^(-0.05 * x)}"};
+            public String[] modifier = {
+                    "(0+){1 - e^(-0.05 * x)}"
+            };
 
             @Config.Comment("Effectiveness Modifier")
             @Config.RangeDouble
@@ -196,7 +198,9 @@ public class DamageResistance extends BaseAttribute implements ISkillAdvancement
 
             public static class Advancement {
                 @Config.Comment("Function f(x)=? where 'x' is [Next Level] and 'y' is [Max Level], XP Cost is in units [NOT LEVELS]")
-                public String[] upgrade = {"(0+){(136 * (1 - (0 ^ (0 ^ x)))) + ((125000000000) * (x / y))}"};
+                public String[] upgrade = {
+                        "(0+){(136 * (1 - (0 ^ (0 ^ x)))) + ((125000000000) * (x / y))}"
+                };
             }
         }
     }

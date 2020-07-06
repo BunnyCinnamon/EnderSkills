@@ -305,10 +305,14 @@ public class HealAura extends BaseAbility implements IScanEntities, IExpand, IFi
             public int maxLevel = 100;
 
             @Config.Comment("Cooldown Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
-            public String[] cooldown = {"(0+){(14 * 20) + (21 * 20) * (1 - ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)))}"};
+            public String[] cooldown = {
+                    "(0+){(14 * 20) + (21 * 20) * (1 - ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)))}"
+            };
 
             @Config.Comment("Range Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
-            public String[] range = {"(0+){4 + ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)) * (14 - 4)}"};
+            public String[] range = {
+                    "(0+){4 + ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)) * (14 - 4)}"
+            };
 
             @Config.Comment("Effectiveness Modifier")
             @Config.RangeDouble
@@ -316,12 +320,16 @@ public class HealAura extends BaseAbility implements IScanEntities, IExpand, IFi
 
             public static class Extra {
                 @Config.Comment("Heal Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
-                public String[] heal = {"(0+){0.05 + ((e^(0.1 * (x / y)) - 1)/((e^0.1) - 1)) * (0.3 - 0.05)"};
+                public String[] heal = {
+                        "(0+){0.05 + ((e^(0.1 * (x / y)) - 1)/((e^0.1) - 1)) * (0.3 - 0.05)}"
+                };
             }
 
             public static class Advancement {
                 @Config.Comment("Function f(x)=? where 'x' is [Next Level] and 'y' is [Max Level], XP Cost is in units [NOT LEVELS]")
-                public String[] upgrade = {"(0+){(825 * (1 - (0 ^ (0 ^ x)))) + 7 * x}"};
+                public String[] upgrade = {
+                        "(0+){(825 * (1 - (0 ^ (0 ^ x)))) + 7 * x}"
+                };
             }
         }
     }

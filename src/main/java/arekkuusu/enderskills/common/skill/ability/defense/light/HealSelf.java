@@ -215,7 +215,7 @@ public class HealSelf extends BaseAbility implements ISkillAdvancement {
         compound.setInteger("maxLevel", Configuration.getValues().maxLevel);
         NBTHelper.setArray(compound, "cooldown", Configuration.getValues().cooldown);
         compound.setDouble("effectiveness", Configuration.getValues().effectiveness);
-        NBTHelper.setArray(compound,"extra.heal", Configuration.getValues().extra.heal);
+        NBTHelper.setArray(compound, "extra.heal", Configuration.getValues().extra.heal);
         NBTHelper.setArray(compound, "advancement.upgrade", Configuration.getValues().advancement.upgrade);
     }
 
@@ -225,7 +225,7 @@ public class HealSelf extends BaseAbility implements ISkillAdvancement {
         Configuration.getSyncValues().maxLevel = compound.getInteger("maxLevel");
         Configuration.getSyncValues().cooldown = NBTHelper.getArray(compound, "cooldown");
         Configuration.getSyncValues().effectiveness = compound.getDouble("effectiveness");
-        Configuration.getSyncValues().extra.heal = NBTHelper.getArray(compound,"extra.heal");
+        Configuration.getSyncValues().extra.heal = NBTHelper.getArray(compound, "extra.heal");
         Configuration.getSyncValues().advancement.upgrade = NBTHelper.getArray(compound, "advancement.upgrade");
     }
 
@@ -258,7 +258,9 @@ public class HealSelf extends BaseAbility implements ISkillAdvancement {
             public int maxLevel = 100;
 
             @Config.Comment("Cooldown Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
-            public String[] cooldown = {"(0+){(45 * 20) + (15 * 20) * (1 - ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)))}"};
+            public String[] cooldown = {
+                    "(0+){(45 * 20) + (15 * 20) * (1 - ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)))}"
+            };
 
             @Config.Comment("Effectiveness Modifier")
             @Config.RangeDouble
@@ -266,12 +268,16 @@ public class HealSelf extends BaseAbility implements ISkillAdvancement {
 
             public static class Extra {
                 @Config.Comment("Heal Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
-                public String[] heal = {"(0+){0.25 + ((e^(0.1 * (x / y)) - 1)/((e^0.1) - 1)) * (0.75 - 0.25)}"};
+                public String[] heal = {
+                        "(0+){0.25 + ((e^(0.1 * (x / y)) - 1)/((e^0.1) - 1)) * (0.75 - 0.25)}"
+                };
             }
 
             public static class Advancement {
                 @Config.Comment("Function f(x)=? where 'x' is [Next Level] and 'y' is [Max Level], XP Cost is in units [NOT LEVELS]")
-                public String[] upgrade = {"(0+){(5730 * (1 - (0 ^ (0 ^ x)))) + 7 * x}"};
+                public String[] upgrade = {
+                        "(0+){(5730 * (1 - (0 ^ (0 ^ x)))) + 7 * x}"
+                };
             }
         }
     }

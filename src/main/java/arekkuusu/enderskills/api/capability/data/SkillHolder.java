@@ -32,7 +32,7 @@ public final class SkillHolder implements INBTSerializable<NBTTagCompound> {
         if (tick >= data.time && data.time != -1) {
             setDead(); //End my suffering
         }
-        if(isDead()) {
+        if (isDead()) {
             data.skill.end(entity, data); //Last tick
         }
         tick++;

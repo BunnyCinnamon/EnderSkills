@@ -43,7 +43,7 @@ public class SpeedBoostRenderer extends SkillRenderer<SpeedBoost> {
         @SubscribeEvent
         public void onEntityUpdate(LivingEvent.LivingUpdateEvent event) {
             EntityLivingBase entity = event.getEntityLiving();
-            if(!entity.world.isRemote) return; //EAT ASS
+            if (!entity.world.isRemote) return; //EAT ASS
             if ((entity.motionX != 0 || entity.motionY != 0 || entity.motionZ != 0) && !entity.isInvisible()) {
                 Capabilities.get(entity).filter(c -> c.isActive(ModAbilities.SPEED_BOOST)).ifPresent(c -> {
                     if (!TRAVELED_VECTORS.containsKey(entity)) {

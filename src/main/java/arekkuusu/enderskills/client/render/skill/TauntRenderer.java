@@ -63,7 +63,7 @@ public class TauntRenderer extends SkillRenderer<Taunt> {
 
         @Override
         public void doRender(EntityPlaceableData entity, double x, double y, double z, float entityYaw, float partialTicks) {
-            if(MinecraftForgeClient.getRenderPass() != 1) return;
+            if (MinecraftForgeClient.getRenderPass() != 1) return;
             int tick = Math.min(entity.tick, EntityPlaceableData.MIN_TIME);
             double scale = entity.getRadius() * ((double) tick / (double) EntityPlaceableData.MIN_TIME);
             GlStateManager.color(1F, 1F, 1F, 1F);

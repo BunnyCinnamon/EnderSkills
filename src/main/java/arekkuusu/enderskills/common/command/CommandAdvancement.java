@@ -13,11 +13,9 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.TextComponentTranslation;
 
 import javax.annotation.Nullable;
 import java.util.List;
-import java.util.Objects;
 
 public class CommandAdvancement extends CommandBase {
 
@@ -62,7 +60,7 @@ public class CommandAdvancement extends CommandBase {
     public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
         EntityLivingBase entity = getEntity(server, sender, args[0], EntityLivingBase.class);
         //String playerName = args.length > 0 && !args[0].equals("@p") ? args[0] : sender.getName();
-       // EntityPlayerMP player = server.getPlayerList().getPlayerByUsername(playerName);
+        // EntityPlayerMP player = server.getPlayerList().getPlayerByUsername(playerName);
         if (entity == null) {
             message(sender, "not_found.player");
             return;
@@ -155,7 +153,7 @@ public class CommandAdvancement extends CommandBase {
                     message(sender, "advancement.invalid");
                     return;
             }
-            if(entity instanceof EntityPlayerMP) {
+            if (entity instanceof EntityPlayerMP) {
                 PacketHelper.sendAdvancementSync((EntityPlayerMP) entity);
             }
         } catch (NumberFormatException ex) {

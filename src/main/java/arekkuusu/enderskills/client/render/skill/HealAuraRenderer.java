@@ -37,7 +37,7 @@ public class HealAuraRenderer extends SkillRenderer<HealAura> {
 
     @Override
     public void render(Entity entity, double x, double y, double z, float partialTicks, SkillHolder skillHolder) {
-        if(skillHolder.tick % 5 == 0) {
+        if (skillHolder.tick % 5 == 0) {
             for (int i = 0; i < 3; i++) {
                 Vec3d vec = entity.getPositionVector();
                 double posX = vec.x + entity.width * (entity.world.rand.nextDouble() - 0.5);
@@ -57,9 +57,9 @@ public class HealAuraRenderer extends SkillRenderer<HealAura> {
 
         @Override
         public void doRender(EntityPlaceableData entity, double x, double y, double z, float entityYaw, float partialTicks) {
-            if(MinecraftForgeClient.getRenderPass() != 1) return;
+            if (MinecraftForgeClient.getRenderPass() != 1) return;
             GlStateManager.color(1F, 1F, 1F, 1F);
-            if(entity.tick % 5 == 0) {
+            if (entity.tick % 5 == 0) {
                 for (int i = 0; i < 6; i++) {
                     if (entity.world.rand.nextDouble() < 0.4D) {
                         Vec3d vec = entity.getPositionVector();

@@ -185,7 +185,7 @@ public class GuiScreenSkillAdvancements extends GuiScreen {
         } else {
             confirmation.drawGui(mouseX, mouseY, partialTicks);
         }
-        if(!this.allowUserInput) {
+        if (!this.allowUserInput) {
             this.drawGradientRect(0, 0, this.mc.displayWidth, this.mc.displayHeight, -1072689136, -804253680);
         }
         GlStateManager.disableBlend();

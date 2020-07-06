@@ -26,7 +26,7 @@ public class StoneGolemRender extends RenderLiving<EntityStoneGolem> {
         if (net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(new net.minecraftforge.client.event.RenderLivingEvent.Pre<>(entity, this, partialTicks, x, y, z)))
             return;
         GlStateManager.pushMatrix();
-        GlStateManager.translate(0 , -(2.7F - (entity.height / 2.7F) * 2.7F),0);
+        GlStateManager.translate(0, -(2.7F - (entity.height / 2.7F) * 2.7F), 0);
         GlStateManager.pushMatrix();
         GlStateManager.disableCull();
         this.mainModel.swingProgress = this.getSwingProgress(entity, partialTicks);

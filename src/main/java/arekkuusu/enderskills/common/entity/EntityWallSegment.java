@@ -208,7 +208,7 @@ public class EntityWallSegment extends Entity {
         ListBlockStateExtendedData data = new ListBlockStateExtendedData();
         data.deserializeNBT(compound.getCompoundTag("SYNC_BLOCKS_DATA"));
         this.dataManager.set(SYNC_BLOCKS_DATA, data);
-        if(compound.hasKey("SYNC_WALL")) {
+        if (compound.hasKey("SYNC_WALL")) {
             this.dataManager.set(SYNC_WALL, Optional.fromNullable(compound.getUniqueId("SYNC_WALL")));
         }
         setDuration(compound.getInteger("SYNC_DURATION"));
@@ -231,7 +231,7 @@ public class EntityWallSegment extends Entity {
         compound.setTag("states", list);
         compound.setInteger("behavior", getBehavior().getId());
         compound.setTag("SYNC_BLOCKS_DATA", this.dataManager.get(SYNC_BLOCKS_DATA).serializeNBT());
-        if(this.dataManager.get(SYNC_WALL).isPresent()) {
+        if (this.dataManager.get(SYNC_WALL).isPresent()) {
             compound.setUniqueId("SYNC_WALL", this.dataManager.get(SYNC_WALL).get());
         }
         compound.setInteger("SYNC_DURATION", this.dataManager.get(SYNC_DURATION));

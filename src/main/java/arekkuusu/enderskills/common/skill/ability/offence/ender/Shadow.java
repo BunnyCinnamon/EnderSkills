@@ -299,7 +299,7 @@ public class Shadow extends BaseAbility implements ISkillAdvancement {
         compound.setInteger("maxLevel", Configuration.getValues().maxLevel);
         NBTHelper.setArray(compound, "cooldown", Configuration.getValues().cooldown);
         compound.setDouble("effectiveness", Configuration.getValues().effectiveness);
-        NBTHelper.setArray(compound,"extra.mirror", Configuration.getValues().extra.mirror);
+        NBTHelper.setArray(compound, "extra.mirror", Configuration.getValues().extra.mirror);
         NBTHelper.setArray(compound, "advancement.upgrade", Configuration.getValues().advancement.upgrade);
     }
 
@@ -309,7 +309,7 @@ public class Shadow extends BaseAbility implements ISkillAdvancement {
         Configuration.getSyncValues().maxLevel = compound.getInteger("maxLevel");
         Configuration.getSyncValues().cooldown = NBTHelper.getArray(compound, "cooldown");
         Configuration.getSyncValues().effectiveness = compound.getDouble("effectiveness");
-        Configuration.getSyncValues().extra.mirror =  NBTHelper.getArray(compound, "extra.mirror");
+        Configuration.getSyncValues().extra.mirror = NBTHelper.getArray(compound, "extra.mirror");
         Configuration.getSyncValues().advancement.upgrade = NBTHelper.getArray(compound, "advancement.upgrade");
     }
 
@@ -342,7 +342,9 @@ public class Shadow extends BaseAbility implements ISkillAdvancement {
             public int maxLevel = 5;
 
             @Config.Comment("Cooldown Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
-            public String[] cooldown = {"(0+){(5 * 20) + (5 * 20) * (1 - ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)))}"};
+            public String[] cooldown = {
+                    "(0+){(5 * 20) + (5 * 20) * (1 - ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)))}"
+            };
 
             @Config.Comment("Effectiveness Modifier")
             @Config.RangeDouble
@@ -350,12 +352,16 @@ public class Shadow extends BaseAbility implements ISkillAdvancement {
 
             public static class Extra {
                 @Config.Comment("Shadow Damage Multiplier Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
-                public String[] mirror = {"(0+){0.1 * x}"};
+                public String[] mirror = {
+                        "(0+){0.1 * x}"
+                };
             }
 
             public static class Advancement {
                 @Config.Comment("Function f(x)=? where 'x' is [Next Level] and 'y' is [Max Level], XP Cost is in units [NOT LEVELS]")
-                public String[] upgrade = {"(0+){(170 * (1 - (0 ^ (0 ^ x)))) + 7 * x}"};
+                public String[] upgrade = {
+                        "(0+){(170 * (1 - (0 ^ (0 ^ x)))) + 7 * x}"
+                };
             }
         }
     }

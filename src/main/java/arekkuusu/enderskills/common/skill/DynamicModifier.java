@@ -32,7 +32,7 @@ public class DynamicModifier {
 
     public void remove(EntityLivingBase entity) {
         IAttributeInstance attribute = entity.getEntityAttribute(attributeTarget);
-        if(attribute != null) {
+        if (attribute != null) {
             DynamicAttribute dynamicAttribute = (DynamicAttribute) attribute.getModifier(uuid);
             if (dynamicAttribute != null) {
                 attribute.removeModifier(dynamicAttribute);

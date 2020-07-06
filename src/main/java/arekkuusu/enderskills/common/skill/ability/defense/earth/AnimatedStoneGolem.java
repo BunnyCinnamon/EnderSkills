@@ -394,10 +394,14 @@ public class AnimatedStoneGolem extends BaseAbility implements ISkillAdvancement
             public int maxLevel = 100;
 
             @Config.Comment("Cooldown Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
-            public String[] cooldown = {"(0+){(90 * 20) + (30 * 20) * (1 - ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)))}"};
+            public String[] cooldown = {
+                    "(0+){(90 * 20) + (30 * 20) * (1 - ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)))}"
+            };
 
             @Config.Comment("Duration Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
-            public String[] time = {"(0+){45 * 20 + ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)) * ((90 * 20) - (45 * 20))}"};
+            public String[] time = {
+                    "(0+){45 * 20 + ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)) * ((90 * 20) - (45 * 20))}"
+            };
 
             @Config.Comment("Effectiveness Modifier")
             @Config.RangeDouble
@@ -405,18 +409,28 @@ public class AnimatedStoneGolem extends BaseAbility implements ISkillAdvancement
 
             public static class Extra {
                 @Config.Comment("Golem Damage Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
-                public String[] damage = {"(0+){5 + ((e^(0.1 * (x / y)) - 1)/((e^0.1) - 1)) * (25 - 5)}"};
+                public String[] damage = {
+                        "(0+){5 + ((e^(0.1 * (x / y)) - 1)/((e^0.1) - 1)) * (25 - 5)}"
+                };
                 @Config.Comment("Golem Damage Multiplier Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
-                public String[] mirror = {"(0+){0.75 + ((e^(0.1 * (x / y)) - 1)/((e^0.1) - 1)) * (1.5 - 0.75)}"};
+                public String[] mirror = {
+                        "(0+){0.75 + ((e^(0.1 * (x / y)) - 1)/((e^0.1) - 1)) * (1.5 - 0.75)}"
+                };
                 @Config.Comment("Golem Health Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
-                public String[] stunTime = {"(0+){3 * 20}"};
+                public String[] stunTime = {
+                        "(0+){3 * 20}"
+                };
                 @Config.Comment("Golem Health Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
-                public String[] health = {"(0+){150 + (100 * 0.1 * x)}"};
+                public String[] health = {
+                        "(0+){150 + (100 * 0.1 * x)}"
+                };
             }
 
             public static class Advancement {
                 @Config.Comment("Function f(x)=? where 'x' is [Next Level] and 'y' is [Max Level], XP Cost is in units [NOT LEVELS]")
-                public String[] upgrade = {"(0+){(22070 * (1 - (0 ^ (0 ^ x)))) + 7 * x}"};
+                public String[] upgrade = {
+                        "(0+){(22070 * (1 - (0 ^ (0 ^ x)))) + 7 * x}"
+                };
             }
         }
     }

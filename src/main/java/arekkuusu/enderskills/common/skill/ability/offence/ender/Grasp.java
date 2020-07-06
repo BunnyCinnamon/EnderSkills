@@ -368,9 +368,9 @@ public class Grasp extends BaseAbility implements IImpact, IExpand, ILoopSound, 
         NBTHelper.setArray(compound, "time", Configuration.getValues().time);
         NBTHelper.setArray(compound, "range", Configuration.getValues().range);
         compound.setDouble("effectiveness", Configuration.getValues().effectiveness);
-         NBTHelper.setArray(compound,"extra.dot", Configuration.getValues().extra.dot);
-         NBTHelper.setArray(compound,"extra.graspDuration", Configuration.getValues().extra.graspDuration);
-         NBTHelper.setArray(compound,"extra.graspRange", Configuration.getValues().extra.graspRange);
+        NBTHelper.setArray(compound, "extra.dot", Configuration.getValues().extra.dot);
+        NBTHelper.setArray(compound, "extra.graspDuration", Configuration.getValues().extra.graspDuration);
+        NBTHelper.setArray(compound, "extra.graspRange", Configuration.getValues().extra.graspRange);
         NBTHelper.setArray(compound, "advancement.upgrade", Configuration.getValues().advancement.upgrade);
     }
 
@@ -382,9 +382,9 @@ public class Grasp extends BaseAbility implements IImpact, IExpand, ILoopSound, 
         Configuration.getSyncValues().time = NBTHelper.getArray(compound, "time");
         Configuration.getSyncValues().range = NBTHelper.getArray(compound, "range");
         Configuration.getSyncValues().effectiveness = compound.getDouble("effectiveness");
-        Configuration.getSyncValues().extra.dot = NBTHelper.getArray(compound,"extra.dot");
-        Configuration.getSyncValues().extra.graspDuration = NBTHelper.getArray(compound,"extra.graspDuration");
-        Configuration.getSyncValues().extra.graspRange =NBTHelper.getArray(compound,"extra.graspRange");
+        Configuration.getSyncValues().extra.dot = NBTHelper.getArray(compound, "extra.dot");
+        Configuration.getSyncValues().extra.graspDuration = NBTHelper.getArray(compound, "extra.graspDuration");
+        Configuration.getSyncValues().extra.graspRange = NBTHelper.getArray(compound, "extra.graspRange");
         Configuration.getSyncValues().advancement.upgrade = NBTHelper.getArray(compound, "advancement.upgrade");
     }
 
@@ -417,13 +417,19 @@ public class Grasp extends BaseAbility implements IImpact, IExpand, ILoopSound, 
             public int maxLevel = 100;
 
             @Config.Comment("Cooldown Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
-            public String[] cooldown = {"(0+){(16 * 20) + (14 * 20) * (1 - ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)))}"};
+            public String[] cooldown = {
+                    "(0+){(16 * 20) + (14 * 20) * (1 - ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)))}"
+            };
 
             @Config.Comment("Duration Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
-            public String[] time = {"(0+){(5 * 20) + ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)) * ((15 * 20) - (5 * 20))}"};
+            public String[] time = {
+                    "(0+){(5 * 20) + ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)) * ((15 * 20) - (5 * 20))}"
+            };
 
             @Config.Comment("Range Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
-            public String[] range = {"(0+){8 + ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)) * (20 - 8)}"};
+            public String[] range = {
+                    "(0+){8 + ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)) * (20 - 8)}"
+            };
 
             @Config.Comment("Effectiveness Modifier")
             @Config.RangeDouble
@@ -431,16 +437,24 @@ public class Grasp extends BaseAbility implements IImpact, IExpand, ILoopSound, 
 
             public static class Extra {
                 @Config.Comment("Damage Over Time Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
-                public String[] dot = {"(0+){4 + (((e^(0.1 * (x / y)) - 1)/((e^0.1) - 1)) * (18 - 4))}"};
+                public String[] dot = {
+                        "(0+){4 + (((e^(0.1 * (x / y)) - 1)/((e^0.1) - 1)) * (18 - 4))}"
+                };
                 @Config.Comment("Pool Duration Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
-                public String[] graspDuration = {"(0+){(6 * 20) + ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)) * ((20 * 20) - (6 * 20))}"};
+                public String[] graspDuration = {
+                        "(0+){(6 * 20) + ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)) * ((20 * 20) - (6 * 20))}"
+                };
                 @Config.Comment("Pool Range Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
-                public String[] graspRange = {"(0+){3 + ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)) * (6 - 3)}"};
+                public String[] graspRange = {
+                        "(0+){3 + ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)) * (6 - 3)}"
+                };
             }
 
             public static class Advancement {
                 @Config.Comment("Function f(x)=? where 'x' is [Next Level] and 'y' is [Max Level], XP Cost is in units [NOT LEVELS]")
-                public String[] upgrade = {"(0+){(5730 * (1 - (0 ^ (0 ^ x)))) + 7 * x}"};
+                public String[] upgrade = {
+                        "(0+){(5730 * (1 - (0 ^ (0 ^ x)))) + 7 * x}"
+                };
             }
         }
     }

@@ -139,13 +139,13 @@ public class GuiSkillAdvancementPage extends Gui {
         if (mouseX >= x && mouseY >= y && mouseX < x + width && mouseY < y + height) {
             double progress = SkillAdvancementConditionAltar.ALTAR_JUICE;
             String text = "";
-            if(progress < SkillAdvancementConditionAltar.LEVEL_0) {
+            if (progress < SkillAdvancementConditionAltar.LEVEL_0) {
                 text = TextHelper.translate("gui.altar_power_0");
-            } else if(progress < SkillAdvancementConditionAltar.LEVEL_1) {
+            } else if (progress < SkillAdvancementConditionAltar.LEVEL_1) {
                 text = TextHelper.translate("gui.altar_power_1");
-            } else if(progress < SkillAdvancementConditionAltar.LEVEL_2) {
+            } else if (progress < SkillAdvancementConditionAltar.LEVEL_2) {
                 text = TextHelper.translate("gui.altar_power_2");
-            } else if(progress < SkillAdvancementConditionAltar.LEVEL_3) {
+            } else if (progress < SkillAdvancementConditionAltar.LEVEL_3) {
                 text = TextHelper.translate("gui.altar_power_3");
             } else {
                 text = TextHelper.translate("gui.altar_power_4");

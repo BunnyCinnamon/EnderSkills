@@ -265,7 +265,7 @@ public class SpeedBoost extends BaseAbility implements ISkillAdvancement {
         NBTHelper.setArray(compound, "cooldown", Configuration.getValues().cooldown);
         NBTHelper.setArray(compound, "time", Configuration.getValues().time);
         compound.setDouble("effectiveness", Configuration.getValues().effectiveness);
-        NBTHelper.setArray(compound,"extra.speed", Configuration.getValues().extra.speed);
+        NBTHelper.setArray(compound, "extra.speed", Configuration.getValues().extra.speed);
         NBTHelper.setArray(compound, "advancement.upgrade", Configuration.getValues().advancement.upgrade);
     }
 
@@ -276,7 +276,7 @@ public class SpeedBoost extends BaseAbility implements ISkillAdvancement {
         Configuration.getSyncValues().cooldown = NBTHelper.getArray(compound, "cooldown");
         Configuration.getSyncValues().time = NBTHelper.getArray(compound, "time");
         Configuration.getSyncValues().effectiveness = compound.getDouble("effectiveness");
-        Configuration.getSyncValues().extra.speed = NBTHelper.getArray(compound,"extra.speed");
+        Configuration.getSyncValues().extra.speed = NBTHelper.getArray(compound, "extra.speed");
         Configuration.getSyncValues().advancement.upgrade = NBTHelper.getArray(compound, "advancement.upgrade");
     }
 
@@ -309,10 +309,14 @@ public class SpeedBoost extends BaseAbility implements ISkillAdvancement {
             public int maxLevel = 100;
 
             @Config.Comment("Cooldown Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
-            public String[] cooldown = {"(0+){(90 * 20) + (30 * 20) * (1 - ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)))}"};
+            public String[] cooldown = {
+                    "(0+){(90 * 20) + (30 * 20) * (1 - ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)))}"
+            };
 
             @Config.Comment("Duration Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
-            public String[] time = {"(0+){(10 * 20) + ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)) * ((30 * 20) - (10 * 20))}"};
+            public String[] time = {
+                    "(0+){(10 * 20) + ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)) * ((30 * 20) - (10 * 20))}"
+            };
 
             @Config.Comment("Effectiveness Modifier")
             @Config.RangeDouble
@@ -320,12 +324,16 @@ public class SpeedBoost extends BaseAbility implements ISkillAdvancement {
 
             public static class Extra {
                 @Config.Comment("Speed Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
-                public String[] speed = {"1 + ((e^(0.1 * (x / y)) - 1)/((e^0.1) - 1)) * (4 - 1)}"};
+                public String[] speed = {
+                        "1 + ((e^(0.1 * (x / y)) - 1)/((e^0.1) - 1)) * (4 - 1)}"
+                };
             }
 
             public static class Advancement {
                 @Config.Comment("Function f(x)=? where 'x' is [Next Level] and 'y' is [Max Level], XP Cost is in units [NOT LEVELS]")
-                public String[] upgrade = {"(0+){(22070 * (1 - (0 ^ (0 ^ x)))) + 5730 * x}"};
+                public String[] upgrade = {
+                        "(0+){(22070 * (1 - (0 ^ (0 ^ x)))) + 5730 * x}"
+                };
             }
         }
     }

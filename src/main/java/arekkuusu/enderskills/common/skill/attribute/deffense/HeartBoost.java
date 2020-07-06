@@ -165,7 +165,7 @@ public class HeartBoost extends BaseAttribute implements ISkillAdvancement {
         compound.setInteger("maxLevel", Configuration.getValues().maxLevel);
         NBTHelper.setArray(compound, "modifier", Configuration.getValues().modifier);
         compound.setDouble("effectiveness", Configuration.getValues().effectiveness);
-        NBTHelper.setArray(compound,"advancement.upgrade", Configuration.getValues().advancement.upgrade);
+        NBTHelper.setArray(compound, "advancement.upgrade", Configuration.getValues().advancement.upgrade);
     }
 
     @Override

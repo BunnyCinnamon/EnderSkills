@@ -420,13 +420,19 @@ public class GasCloud extends BaseAbility implements IImpact, IExpand, IFindEnti
             public int maxLevel = 100;
 
             @Config.Comment("Cooldown Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
-            public String[] cooldown = {"(0+){(22 * 20) + (38 * 20) * (1 - ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)))}"};
+            public String[] cooldown = {
+                    "(0+){(22 * 20) + (38 * 20) * (1 - ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)))}"
+            };
 
             @Config.Comment("Duration Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
-            public String[] time = {"(0+){8 * 20}"};
+            public String[] time = {
+                    "(0+){8 * 20}"
+            };
 
             @Config.Comment("Range Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
-            public String[] range = {"(0+){8 + ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)) * (20 - 8)}"};
+            public String[] range = {
+                    "(0+){8 + ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)) * (20 - 8)}"
+            };
 
             @Config.Comment("Effectiveness Modifier")
             @Config.RangeDouble
@@ -434,18 +440,28 @@ public class GasCloud extends BaseAbility implements IImpact, IExpand, IFindEnti
 
             public static class Extra {
                 @Config.Comment("Initial Damage Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
-                public String[] damage = {"(0+){4 + ((e^(0.1 * (x / y)) - 1)/((e^0.1) - 1)) * (18 - 4)}"};
+                public String[] damage = {
+                        "(0+){4 + ((e^(0.1 * (x / y)) - 1)/((e^0.1) - 1)) * (18 - 4)}"
+                };
                 @Config.Comment("Damage Over Time Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
-                public String[] dot = {"(0+){6 + (((e^(0.1 * (x / y)) - 1)/((e^0.1) - 1)) * (20 - 6))}"};
+                public String[] dot = {
+                        "(0+){6 + (((e^(0.1 * (x / y)) - 1)/((e^0.1) - 1)) * (20 - 6))}"
+                };
                 @Config.Comment("Pool Duration Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
-                public String[] cloudDuration = {"(0+){1 * 20}"};
+                public String[] cloudDuration = {
+                        "(0+){1 * 20}"
+                };
                 @Config.Comment("Pool Range Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
-                public String[] cloudRange = {"(0+){4 + ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)) * (10 - 4)}"};
+                public String[] cloudRange = {
+                        "(0+){4 + ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)) * (10 - 4)}"
+                };
             }
 
             public static class Advancement {
                 @Config.Comment("Function f(x)=? where 'x' is [Next Level] and 'y' is [Max Level], XP Cost is in units [NOT LEVELS]")
-                public String[] upgrade = {"(0+){(5730 * (1 - (0 ^ (0 ^ x)))) + 7 * x}"};
+                public String[] upgrade = {
+                        "(0+){(5730 * (1 - (0 ^ (0 ^ x)))) + 7 * x}"
+                };
             }
         }
     }

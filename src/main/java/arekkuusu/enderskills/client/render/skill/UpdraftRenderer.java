@@ -3,7 +3,6 @@ package arekkuusu.enderskills.client.render.skill;
 import arekkuusu.enderskills.api.capability.data.SkillHolder;
 import arekkuusu.enderskills.api.helper.NBTHelper;
 import arekkuusu.enderskills.client.render.effect.ParticleVanilla;
-import arekkuusu.enderskills.common.entity.placeable.EntityPlaceableData;
 import arekkuusu.enderskills.common.entity.placeable.EntityPlaceableUpdraft;
 import arekkuusu.enderskills.common.skill.ability.offence.wind.Updraft;
 import net.minecraft.client.Minecraft;

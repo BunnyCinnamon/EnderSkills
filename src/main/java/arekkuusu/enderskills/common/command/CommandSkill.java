@@ -12,17 +12,14 @@ import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 
 import javax.annotation.Nullable;
 import java.util.List;
-import java.util.Objects;
 
 public class CommandSkill extends CommandBase {
 
@@ -135,7 +132,7 @@ public class CommandSkill extends CommandBase {
                 default:
             }
             message(sender, "skill.set.level", args[1], skillLevel.getLevel());
-            if(entity instanceof EntityPlayerMP) {
+            if (entity instanceof EntityPlayerMP) {
                 PacketHelper.sendSkillSync((EntityPlayerMP) entity, skill);
             }
         } catch (NumberFormatException ex) {

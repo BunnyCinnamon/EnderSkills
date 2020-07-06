@@ -1,6 +1,5 @@
 package arekkuusu.enderskills.client.render.entity;
 
-import arekkuusu.enderskills.client.util.helper.GLHelper;
 import arekkuusu.enderskills.common.entity.EntityShadow;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;

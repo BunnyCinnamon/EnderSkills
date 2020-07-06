@@ -54,6 +54,6 @@ public final class SkillHelper {
     }
 
     public static boolean isActive(Entity entity, Skill skill, Function<SkillHolder, Boolean> function) {
-       return Capabilities.get(entity).map(c -> c.getActives().stream().filter(h -> h.data.skill == skill).anyMatch(function::apply)).orElse(false);
+        return Capabilities.get(entity).map(c -> c.getActives().stream().filter(h -> h.data.skill == skill).anyMatch(function::apply)).orElse(false);
     }
 }

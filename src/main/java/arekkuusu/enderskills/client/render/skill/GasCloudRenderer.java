@@ -76,7 +76,7 @@ public class GasCloudRenderer extends SkillRenderer<GasCloud> {
                     }
                 }
             }
-            if(MinecraftForgeClient.getRenderPass() != 1) return;
+            if (MinecraftForgeClient.getRenderPass() != 1) return;
             scale = entity.getRadius() * MathHelper.clamp((double) entity.tick / (double) EntityPlaceableData.MIN_TIME, 0D, 1D);
             GlStateManager.color(1F, 1F, 1F, 1F);
             GlStateManager.pushMatrix();
@@ -180,7 +180,7 @@ public class GasCloudRenderer extends SkillRenderer<GasCloud> {
         @Override
         @Nonnull
         protected ResourceLocation getEntityTexture(EntityPlaceableData entity) {
-            if(!CommonConfig.RENDER_CONFIG.rendering.helpMyFramesAreDying) {
+            if (!CommonConfig.RENDER_CONFIG.rendering.helpMyFramesAreDying) {
                 if (!CommonConfig.RENDER_CONFIG.rendering.vanilla) {
                     return ResourceLibrary.DARK_BACKGROUND;
                 } else {

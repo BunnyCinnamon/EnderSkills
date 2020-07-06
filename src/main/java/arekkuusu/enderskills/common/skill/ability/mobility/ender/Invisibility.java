@@ -103,7 +103,8 @@ public class Invisibility extends BaseAbility implements ISkillAdvancement {
         if (isClientWorld(event.getEntityLiving()) || event.getSource().getDamageType().equals("ability")) return;
         DamageSource source = event.getSource();
         if (!source.getDamageType().matches("player|mob")) return;
-        if (source.getTrueSource() == null || source instanceof SkillDamageSource || source.getImmediateSource() != source.getTrueSource()) return;
+        if (source.getTrueSource() == null || source instanceof SkillDamageSource || source.getImmediateSource() != source.getTrueSource())
+            return;
         EntityLivingBase target = event.getEntityLiving();
         Capabilities.get(target).flatMap(c -> c.getActive(this)).ifPresent(holder -> {
             unapply(target);
@@ -295,10 +296,14 @@ public class Invisibility extends BaseAbility implements ISkillAdvancement {
             public int maxLevel = 0;
 
             @Config.Comment("Cooldown Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
-            public String[] cooldown = {"(0+){60 * 20}"};
+            public String[] cooldown = {
+                    "(0+){60 * 20}"
+            };
 
             @Config.Comment("Duration Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
-            public String[] time = {"(0+){6 * 20}"};
+            public String[] time = {
+                    "(0+){6 * 20}"
+            };
 
             @Config.Comment("Effectiveness Modifier")
             @Config.RangeDouble
@@ -309,7 +314,9 @@ public class Invisibility extends BaseAbility implements ISkillAdvancement {
 
             public static class Advancement {
                 @Config.Comment("Function f(x)=? where 'x' is [Next Level] and 'y' is [Max Level], XP Cost is in units [NOT LEVELS]")
-                public String[] upgrade = {"(0+){5730}"};
+                public String[] upgrade = {
+                        "(0+){5730}"
+                };
             }
         }
     }

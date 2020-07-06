@@ -67,9 +67,9 @@ public class ParticleBase extends Particle {
             vMin = this.particleTexture.getMinV();
             vMax = this.particleTexture.getMaxV();
         } else {
-            uMin = (float)this.particleTextureIndexX / 16.0F;
+            uMin = (float) this.particleTextureIndexX / 16.0F;
             uMax = uMin + 0.0624375F;
-            vMin = (float)this.particleTextureIndexY / 16.0F;
+            vMin = (float) this.particleTextureIndexY / 16.0F;
             vMax = vMin + 0.0624375F;
         }
         //Fix for particle wobbliness
@@ -105,7 +105,7 @@ public class ParticleBase extends Particle {
 
     //Don't mind
     public void setParticleTexture(@Nullable ResourceLocation texture) {
-        if(texture != null) {
+        if (texture != null) {
             setParticleTexture(Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(texture.toString()));
         }
     }

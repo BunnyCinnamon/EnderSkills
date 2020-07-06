@@ -45,7 +45,7 @@ public class TeleportRenderer extends SkillRenderer<Teleport> {
         @SubscribeEvent
         @SideOnly(Side.CLIENT)
         public void entityTick(LivingEvent.LivingUpdateEvent event) {
-            if(!event.getEntity().world.isRemote) return;
+            if (!event.getEntity().world.isRemote) return;
             Capabilities.get(event.getEntityLiving()).flatMap(c -> c.getActive(ModAbilities.TELEPORT).filter(h -> h.tick == 0)).ifPresent(h -> {
                 Vec3d offset = new Vec3d(0, event.getEntity().height / 2D, 0);
                 TeleportRift riftOrigin = new TeleportRift(event.getEntityLiving(), NBTHelper.getVector(h.data.nbt, "origin").add(offset));
@@ -142,8 +142,8 @@ public class TeleportRenderer extends SkillRenderer<Teleport> {
             } else {
                 Minecraft.getMinecraft().getRenderManager().renderEngine.bindTexture(ResourceLibrary.PORTAL_BACKGROUND);
             }
-            if(!CommonConfig.RENDER_CONFIG.rendering.helpMyFramesAreDying) {
-                if(!CommonConfig.RENDER_CONFIG.rendering.vanilla) {
+            if (!CommonConfig.RENDER_CONFIG.rendering.helpMyFramesAreDying) {
+                if (!CommonConfig.RENDER_CONFIG.rendering.vanilla) {
                     ShaderLibrary.UNIVERSE.begin();
                     ShaderLibrary.UNIVERSE.set("dimensions", Minecraft.getMinecraft().displayWidth, Minecraft.getMinecraft().displayHeight);
                     ShaderLibrary.UNIVERSE.set("yaw", (Minecraft.getMinecraft().player.rotationYaw * 2F * 3.141592653589793F / 360F));
@@ -208,8 +208,8 @@ public class TeleportRenderer extends SkillRenderer<Teleport> {
             }
             GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
             GL11.glDisable(3042);
-            if(!CommonConfig.RENDER_CONFIG.rendering.helpMyFramesAreDying) {
-                if(!CommonConfig.RENDER_CONFIG.rendering.vanilla) {
+            if (!CommonConfig.RENDER_CONFIG.rendering.helpMyFramesAreDying) {
+                if (!CommonConfig.RENDER_CONFIG.rendering.vanilla) {
                     ShaderLibrary.UNIVERSE.end();
                 } else {
                     ShaderLibrary.UNIVERSE_DEFAULT.end();

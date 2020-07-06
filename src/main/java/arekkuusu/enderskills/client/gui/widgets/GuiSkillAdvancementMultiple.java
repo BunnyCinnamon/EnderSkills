@@ -66,7 +66,7 @@ public class GuiSkillAdvancementMultiple extends GuiSkillAdvancement {
     @Override
     public void drawSkillToolTip(int mouseX, int mouseY, float partialTicks) {
         for (GuiSkillAdvancementSimple advancement : this.advancements) {
-            if(advancement.isVisible() && advancement.isHovered()) {
+            if (advancement.isVisible() && advancement.isHovered()) {
                 advancement.drawSkillToolTip(mouseX, mouseY, partialTicks);
             }
         }

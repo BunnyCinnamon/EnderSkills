@@ -6,12 +6,16 @@ import java.util.List;
 
 public interface ISkillAdvancement {
     void addDescription(List<String> description);
+
     boolean canUpgrade(EntityLivingBase entity);
+
     void onUpgrade(EntityLivingBase entity);
+
     Requirement getRequirement(EntityLivingBase entity);
 
     interface Requirement {
         int getLevels();
+
         int getXp();
     }
 

@@ -6,9 +6,6 @@ import arekkuusu.enderskills.client.util.ShaderLibrary;
 import arekkuusu.enderskills.client.util.helper.GLHelper;
 import arekkuusu.enderskills.client.util.helper.RenderMisc;
 import arekkuusu.enderskills.common.lib.LibMod;
-import arekkuusu.enderskills.common.skill.ModAbilities;
-import arekkuusu.enderskills.common.skill.SkillHelper;
-import arekkuusu.enderskills.common.skill.ability.defense.earth.Thorny;
 import arekkuusu.enderskills.common.skill.ability.offence.fire.FireSpirit;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
@@ -29,7 +26,7 @@ public class FireSpiritRenderer extends SkillRenderer<FireSpirit> {
     @Override
     public void render(Entity entity, double x, double y, double z, float partialTicks, SkillHolder skillHolder) {
         Entity owner = NBTHelper.getEntity(EntityLivingBase.class, skillHolder.data.nbt, "user");
-        if(owner == entity) {
+        if (owner == entity) {
             GlStateManager.pushMatrix();
             GLHelper.BLEND_SRC_ALPHA$ONE.blend();
             ShaderLibrary.BRIGHT.begin();

@@ -64,7 +64,7 @@ public class Speed extends BaseAttribute implements ISkillAdvancement {
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public void fovChanged(FOVUpdateEvent event) {
-        if(event.getNewfov() > 1.1F) {
+        if (event.getNewfov() > 1.1F) {
             event.setNewfov(1.1F);
         }
     }
@@ -207,7 +207,9 @@ public class Speed extends BaseAttribute implements ISkillAdvancement {
             public int maxLevel = 10;
 
             @Config.Comment("Modifier Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
-            public String[] modifier = {"(0+){x * 0.01}"};
+            public String[] modifier = {
+                    "(0+){x * 0.01}"
+            };
 
             @Config.Comment("Effectiveness Modifier")
             @Config.RangeDouble
@@ -215,7 +217,9 @@ public class Speed extends BaseAttribute implements ISkillAdvancement {
 
             public static class Advancement {
                 @Config.Comment("Function f(x)=? where 'x' is [Next Level] and 'y' is [Max Level], XP Cost is in units [NOT LEVELS]")
-                public String[] upgrade = {"(0+){3395 * 2 * (x / y)}"};
+                public String[] upgrade = {
+                        "(0+){3395 * 2 * (x / y)}"
+                };
             }
         }
     }

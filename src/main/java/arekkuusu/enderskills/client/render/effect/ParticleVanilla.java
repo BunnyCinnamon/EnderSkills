@@ -19,10 +19,10 @@ public class ParticleVanilla extends ParticleBase {
     @Override
     public void onUpdate() {
         super.onUpdate();
-        if(noFading) {
+        if (noFading) {
             particleAlpha = 1F;
         }
-        if(index != 48) {
+        if (index != 48) {
             this.setParticleTextureIndex(7 - this.particleAge * 8 / this.particleMaxAge);
         }
     }

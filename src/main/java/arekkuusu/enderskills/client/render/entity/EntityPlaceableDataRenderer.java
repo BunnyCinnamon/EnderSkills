@@ -17,7 +17,7 @@ public class EntityPlaceableDataRenderer extends Render<EntityPlaceableData> {
     public final static Map<Skill, IRenderFactory<? super EntityPlaceableData>> DEFERRED_RENDERS = Maps.newHashMap();
     public final static Map<Skill, Render<? super EntityPlaceableData>> RENDERS = Maps.newHashMap();
 
-    public static void init(RenderManager manager){
+    public static void init(RenderManager manager) {
         DEFERRED_RENDERS.forEach((key, value) -> RENDERS.put(key, value.createRenderFor(manager)));
     }
 
@@ -27,7 +27,7 @@ public class EntityPlaceableDataRenderer extends Render<EntityPlaceableData> {
 
     @Override
     public void doRender(EntityPlaceableData entity, double x, double y, double z, float entityYaw, float partialTicks) {
-        if(entity.getData() != null && RENDERS.containsKey(entity.getData().skill)) {
+        if (entity.getData() != null && RENDERS.containsKey(entity.getData().skill)) {
             RENDERS.get(entity.getData().skill).doRender(entity, x, y, z, entityYaw, partialTicks);
         }
     }

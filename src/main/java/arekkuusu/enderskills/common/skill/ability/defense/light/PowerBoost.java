@@ -319,13 +319,19 @@ public class PowerBoost extends BaseAbility implements IImpact, ISkillAdvancemen
             public int maxLevel = 100;
 
             @Config.Comment("Cooldown Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
-            public String[] cooldown = {"(0+){(16 * 20) + (19 * 20) * (1 - ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)))}"};
+            public String[] cooldown = {
+                    "(0+){(16 * 20) + (19 * 20) * (1 - ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)))}"
+            };
 
             @Config.Comment("Duration Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
-            public String[] time = {"(0+){10 * 20 + ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)) * (30 * 20 - 10 * 20)}"};
+            public String[] time = {
+                    "(0+){10 * 20 + ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)) * (30 * 20 - 10 * 20)}"
+            };
 
             @Config.Comment("Range Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
-            public String[] range = {"(0+){5}"};
+            public String[] range = {
+                    "(0+){5}"
+            };
 
             @Config.Comment("Effectiveness Modifier")
             @Config.RangeDouble
@@ -333,12 +339,16 @@ public class PowerBoost extends BaseAbility implements IImpact, ISkillAdvancemen
 
             public static class Extra {
                 @Config.Comment("Power Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
-                public String[] power = {"(0+){0.25 + ((e^(0.1 * (x / y)) - 1)/((e^0.1) - 1)) * (2 - 0.25)}"};
+                public String[] power = {
+                        "(0+){0.25 + ((e^(0.1 * (x / y)) - 1)/((e^0.1) - 1)) * (2 - 0.25)}"
+                };
             }
 
             public static class Advancement {
                 @Config.Comment("Function f(x)=? where 'x' is [Next Level] and 'y' is [Max Level], XP Cost is in units [NOT LEVELS]")
-                public String[] upgrade = {"(0+){(825 * (1 - (0 ^ (0 ^ x)))) + 7 * x}"};
+                public String[] upgrade = {
+                        "(0+){(825 * (1 - (0 ^ (0 ^ x)))) + 7 * x}"
+                };
             }
         }
     }

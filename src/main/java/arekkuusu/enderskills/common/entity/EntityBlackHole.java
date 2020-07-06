@@ -113,7 +113,7 @@ public class EntityBlackHole extends Entity {
         }
         super.onUpdate();
         SkillData data = getData();
-        if(world.isRemote && getRadius() != 0 && points.isEmpty()) {
+        if (world.isRemote && getRadius() != 0 && points.isEmpty()) {
             this.setupShape(new Random(this.getSeed()));
         }
         if (getLifeTime() > this.tick) {
@@ -196,7 +196,7 @@ public class EntityBlackHole extends Entity {
 
     @SideOnly(Side.CLIENT)
     public void makeSound() {
-        if(firstUpdate) {
+        if (firstUpdate) {
             Minecraft.getMinecraft().getSoundHandler().playSound(new BlackHoleSound(this));
         }
     }

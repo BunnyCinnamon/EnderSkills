@@ -273,7 +273,7 @@ public class Syphon extends BaseAbility implements IImpact, ISkillAdvancement {
         Configuration.getSyncValues().cooldown = NBTHelper.getArray(compound, "cooldown");
         Configuration.getSyncValues().range = NBTHelper.getArray(compound, "range");
         Configuration.getSyncValues().effectiveness = compound.getDouble("effectiveness");
-        Configuration.getSyncValues().extra.heal = NBTHelper.getArray(compound,"extra.heal");
+        Configuration.getSyncValues().extra.heal = NBTHelper.getArray(compound, "extra.heal");
         Configuration.getSyncValues().advancement.upgrade = NBTHelper.getArray(compound, "advancement.upgrade");
     }
 
@@ -306,10 +306,14 @@ public class Syphon extends BaseAbility implements IImpact, ISkillAdvancement {
             public int maxLevel = 4;
 
             @Config.Comment("Cooldown Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
-            public String[] cooldown = {"{(0+)(30 * 20) + (30 * 20) * (1 - ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)))}"};
+            public String[] cooldown = {
+                    "{(0+)(30 * 20) + (30 * 20) * (1 - ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)))}"
+            };
 
             @Config.Comment("Range Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
-            public String[] range = {"(0+){5 + ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)) * (8 - 5)}"};
+            public String[] range = {
+                    "(0+){5 + ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)) * (8 - 5)}"
+            };
 
             @Config.Comment("Effectiveness Modifier")
             @Config.RangeDouble
@@ -317,12 +321,16 @@ public class Syphon extends BaseAbility implements IImpact, ISkillAdvancement {
 
             public static class Extra {
                 @Config.Comment("Heal Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
-                public String[] heal = {"(0+){0.1 + ((x / y) * (0.3 - 0.1))}"};
+                public String[] heal = {
+                        "(0+){0.1 + ((x / y) * (0.3 - 0.1))}"
+                };
             }
 
             public static class Advancement {
                 @Config.Comment("Function f(x)=? where 'x' is [Next Level] and 'y' is [Max Level], XP Cost is in units [NOT LEVELS]")
-                public String[] upgrade = {"(0+){(5730 * (1 - (0 ^ (0 ^ x)))) + 7 * x}"};
+                public String[] upgrade = {
+                        "(0+){(5730 * (1 - (0 ^ (0 ^ x)))) + 7 * x}"
+                };
             }
         }
     }

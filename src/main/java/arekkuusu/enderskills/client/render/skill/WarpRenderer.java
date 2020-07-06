@@ -6,7 +6,6 @@ import arekkuusu.enderskills.client.util.ResourceLibrary;
 import arekkuusu.enderskills.client.util.ShaderLibrary;
 import arekkuusu.enderskills.client.util.helper.RenderMisc;
 import arekkuusu.enderskills.common.CommonConfig;
-import arekkuusu.enderskills.common.lib.LibMod;
 import arekkuusu.enderskills.common.skill.ModAbilities;
 import arekkuusu.enderskills.common.skill.ability.mobility.ender.Warp;
 import com.google.common.collect.Lists;
@@ -17,8 +16,6 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.util.EnumParticleTypes;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.common.MinecraftForge;
@@ -141,8 +138,8 @@ public class WarpRenderer extends SkillRenderer<Warp> {
                 GlStateManager.depthMask(false);
             }
             GL11.glBlendFunc(GL11.GL_SRC_ALPHA, outline ? GL11.GL_ONE : GL11.GL_ONE_MINUS_SRC_ALPHA);
-            if(!CommonConfig.RENDER_CONFIG.rendering.helpMyFramesAreDying) {
-                if(!CommonConfig.RENDER_CONFIG.rendering.vanilla) {
+            if (!CommonConfig.RENDER_CONFIG.rendering.helpMyFramesAreDying) {
+                if (!CommonConfig.RENDER_CONFIG.rendering.vanilla) {
                     ShaderLibrary.UNIVERSE.begin();
                     ShaderLibrary.UNIVERSE.set("dimensions", Minecraft.getMinecraft().displayWidth, Minecraft.getMinecraft().displayHeight);
                     ShaderLibrary.UNIVERSE.set("yaw", (Minecraft.getMinecraft().player.rotationYaw * 2F * 3.141592653589793F / 360F));
@@ -173,8 +170,8 @@ public class WarpRenderer extends SkillRenderer<Warp> {
             buffer.pos(width, 0, -width).tex(1, 0).endVertex();
             tessellator.draw();
             GlStateManager.popMatrix();
-            if(!CommonConfig.RENDER_CONFIG.rendering.helpMyFramesAreDying) {
-                if(!CommonConfig.RENDER_CONFIG.rendering.vanilla) {
+            if (!CommonConfig.RENDER_CONFIG.rendering.helpMyFramesAreDying) {
+                if (!CommonConfig.RENDER_CONFIG.rendering.vanilla) {
                     ShaderLibrary.UNIVERSE.end();
                 } else {
                     ShaderLibrary.UNIVERSE_DEFAULT.end();

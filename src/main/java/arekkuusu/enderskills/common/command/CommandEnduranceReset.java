@@ -2,8 +2,6 @@ package arekkuusu.enderskills.common.command;
 
 import arekkuusu.enderskills.api.capability.Capabilities;
 import arekkuusu.enderskills.api.capability.EnduranceCapability;
-import arekkuusu.enderskills.api.capability.SkilledEntityCapability;
-import arekkuusu.enderskills.api.capability.data.IInfoCooldown;
 import arekkuusu.enderskills.common.lib.LibMod;
 import arekkuusu.enderskills.common.network.PacketHelper;
 import com.google.common.collect.ImmutableList;
@@ -14,11 +12,9 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.TextComponentTranslation;
 
 import javax.annotation.Nullable;
 import java.util.List;
-import java.util.Objects;
 
 public class CommandEnduranceReset extends CommandBase {
 
@@ -51,7 +47,7 @@ public class CommandEnduranceReset extends CommandBase {
     public List<String> getTabCompletions(MinecraftServer server, ICommandSender sender, String[] args, @Nullable BlockPos targetPos) {
         if (args.length == 1) {
             return getListOfStringsMatchingLastWord(args, server.getOnlinePlayerNames());
-        } else if(args.length == 2) {
+        } else if (args.length == 2) {
             return getListOfStringsMatchingLastWord(args, "reset");
         }
         return super.getTabCompletions(server, sender, args, targetPos);
@@ -80,7 +76,7 @@ public class CommandEnduranceReset extends CommandBase {
                 message(sender, "endurance.invalid");
                 return;
         }
-        if(entity instanceof EntityPlayerMP) {
+        if (entity instanceof EntityPlayerMP) {
             PacketHelper.sendEnduranceSync((EntityPlayerMP) entity);
         }
     }

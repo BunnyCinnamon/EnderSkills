@@ -9,7 +9,6 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.common.util.INBTSerializable;
 
-import java.util.Map;
 import java.util.Objects;
 
 public final class SkillData implements INBTSerializable<NBTTagCompound> {

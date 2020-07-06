@@ -50,7 +50,7 @@ public class ExpressionHelper {
     public static FunctionInfo parse(String string) {
         Pattern pattern = Pattern.compile(REGEX);
         Matcher matcher = pattern.matcher(string.trim());
-        if(matcher.matches()) {
+        if (matcher.matches()) {
             String condition = matcher.group(1).trim().replace(" ", "");
             String function = matcher.group(2).trim();
             if (condition.endsWith("+")) {

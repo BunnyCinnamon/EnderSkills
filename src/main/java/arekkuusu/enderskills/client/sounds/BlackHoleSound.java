@@ -1,7 +1,6 @@
 package arekkuusu.enderskills.client.sounds;
 
 import arekkuusu.enderskills.common.entity.EntityBlackHole;
-import arekkuusu.enderskills.common.entity.placeable.EntityPlaceableData;
 import arekkuusu.enderskills.common.sound.ModSounds;
 import net.minecraft.client.audio.MovingSound;
 import net.minecraft.util.SoundCategory;

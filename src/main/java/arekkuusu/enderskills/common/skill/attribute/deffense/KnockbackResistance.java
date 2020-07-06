@@ -198,7 +198,9 @@ public class KnockbackResistance extends BaseAttribute implements ISkillAdvancem
             public int maxLevel = 10;
 
             @Config.Comment("Modifier Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
-            public String[] modifier = {"(0+){10 * x}"};
+            public String[] modifier = {
+                    "(0+){10 * x}"
+            };
 
             @Config.Comment("Effectiveness Modifier")
             @Config.RangeDouble
@@ -206,7 +208,9 @@ public class KnockbackResistance extends BaseAttribute implements ISkillAdvancem
 
             public static class Advancement {
                 @Config.Comment("Function f(x)=? where 'x' is [Next Level] and 'y' is [Max Level], XP Cost is in units [NOT LEVELS]")
-                public String[] upgrade = {"(0+){(170 * (1 - (0 ^ (0 ^ x)))) + 7 * x}"};
+                public String[] upgrade = {
+                        "(0+){(170 * (1 - (0 ^ (0 ^ x)))) + 7 * x}"
+                };
             }
         }
     }

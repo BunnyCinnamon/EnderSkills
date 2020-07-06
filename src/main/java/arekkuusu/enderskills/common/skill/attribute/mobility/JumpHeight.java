@@ -189,7 +189,9 @@ public class JumpHeight extends BaseAttribute implements ISkillAdvancement {
             public int maxLevel = 2;
 
             @Config.Comment("Modifier Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
-            public String[] modifier = {"(0+){0.5 * x * 0.15}"};
+            public String[] modifier = {
+                    "(0+){0.5 * x * 0.15}"
+            };
 
             @Config.Comment("Effectiveness Modifier")
             @Config.RangeDouble
@@ -197,7 +199,9 @@ public class JumpHeight extends BaseAttribute implements ISkillAdvancement {
 
             public static class Advancement {
                 @Config.Comment("Function f(x)=? where 'x' is [Next Level] and 'y' is [Max Level], XP Cost is in units [NOT LEVELS]")
-                public String[] upgrade = {"(0+){(560 * (1 - (0 ^ (0 ^ x)))) + 3395 * x}"};
+                public String[] upgrade = {
+                        "(0+){(560 * (1 - (0 ^ (0 ^ x)))) + 3395 * x}"
+                };
             }
         }
     }

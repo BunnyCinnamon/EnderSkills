@@ -288,7 +288,9 @@ public class ExtraJump extends BaseAbility implements ISkillAdvancement {
             public int maxLevel = 2;
 
             @Config.Comment("Range Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
-            public String[] range = {"(0+){x}"};
+            public String[] range = {
+                    "(0+){x}"
+            };
 
             @Config.Comment("Effectiveness Modifier")
             @Config.RangeDouble
@@ -299,7 +301,9 @@ public class ExtraJump extends BaseAbility implements ISkillAdvancement {
 
             public static class Advancement {
                 @Config.Comment("Function f(x)=? where 'x' is [Next Level] and 'y' is [Max Level], XP Cost is in units [NOT LEVELS]")
-                public String[] upgrade = {"(0+){(825 * (1 - (0 ^ (0 ^ x)))) + 22070 * x}"};
+                public String[] upgrade = {
+                        "(0+){(825 * (1 - (0 ^ (0 ^ x)))) + 22070 * x}"
+                };
             }
         }
     }

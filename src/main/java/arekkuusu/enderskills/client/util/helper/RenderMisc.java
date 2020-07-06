@@ -191,7 +191,7 @@ public final class RenderMisc {
 
     public static void renderItemStack(ItemStack stack) {
         //Fix stack 'y' center
-        if(stack.getItem() instanceof ItemBlock) {
+        if (stack.getItem() instanceof ItemBlock) {
             GlStateManager.translate(0F, -0.1F, 0F);
         }
         GlStateManager.alphaFunc(516, 0.1F);

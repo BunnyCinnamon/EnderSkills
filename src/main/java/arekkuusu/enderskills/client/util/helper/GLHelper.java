@@ -4,7 +4,7 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
 import org.lwjgl.opengl.GL11;
 
-public enum  GLHelper {
+public enum GLHelper {
     BLEND_NORMAL(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA),
     BLEND_ALPHA(GL11.GL_ONE, GL11.GL_SRC_ALPHA),
     BLEND_PRE_ALPHA(GL11.GL_ONE, GL11.GL_ONE_MINUS_SRC_ALPHA),

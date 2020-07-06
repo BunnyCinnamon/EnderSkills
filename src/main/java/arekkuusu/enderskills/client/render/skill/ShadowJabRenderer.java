@@ -1,7 +1,6 @@
 package arekkuusu.enderskills.client.render.skill;
 
 import arekkuusu.enderskills.api.helper.NBTHelper;
-import arekkuusu.enderskills.api.util.Quat;
 import arekkuusu.enderskills.api.util.Vector;
 import arekkuusu.enderskills.client.render.model.ModelFist;
 import arekkuusu.enderskills.client.util.helper.GLHelper;

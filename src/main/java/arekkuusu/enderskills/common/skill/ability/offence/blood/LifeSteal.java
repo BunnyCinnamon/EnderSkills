@@ -287,7 +287,7 @@ public class LifeSteal extends BaseAbility implements ISkillAdvancement {
         Configuration.getSyncValues().maxLevel = compound.getInteger("maxLevel");
         Configuration.getSyncValues().cooldown = NBTHelper.getArray(compound, "cooldown");
         Configuration.getSyncValues().effectiveness = compound.getDouble("effectiveness");
-        Configuration.getSyncValues().extra.heal = NBTHelper.getArray(compound,"extra.heal");
+        Configuration.getSyncValues().extra.heal = NBTHelper.getArray(compound, "extra.heal");
         Configuration.getSyncValues().advancement.upgrade = NBTHelper.getArray(compound, "advancement.upgrade");
     }
 
@@ -320,7 +320,9 @@ public class LifeSteal extends BaseAbility implements ISkillAdvancement {
             public int maxLevel = 4;
 
             @Config.Comment("Cooldown Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
-            public String[] cooldown = {"(0+){(5 * 20) + (5 * 20) * (1 - ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)))}"};
+            public String[] cooldown = {
+                    "(0+){(5 * 20) + (5 * 20) * (1 - ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)))}"
+            };
 
             @Config.Comment("Effectiveness Modifier")
             @Config.RangeDouble
@@ -328,12 +330,16 @@ public class LifeSteal extends BaseAbility implements ISkillAdvancement {
 
             public static class Extra {
                 @Config.Comment("Heal Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
-                public String[] heal = {"(0+){0.01 + ((x / y) * (0.05 - 0.01))}"};
+                public String[] heal = {
+                        "(0+){0.01 + ((x / y) * (0.05 - 0.01))}"
+                };
             }
 
             public static class Advancement {
                 @Config.Comment("Function f(x)=? where 'x' is [Next Level] and 'y' is [Max Level], XP Cost is in units [NOT LEVELS]")
-                public String[] upgrade = {"(0+){(5730 * (1 - (0 ^ (0 ^ x)))) + ((22070 / y) * (0 ^ (0 ^ x)))}"};
+                public String[] upgrade = {
+                        "(0+){(5730 * (1 - (0 ^ (0 ^ x)))) + ((22070 / y) * (0 ^ (0 ^ x)))}"
+                };
             }
         }
     }

@@ -5,7 +5,6 @@ import arekkuusu.enderskills.client.util.ShaderLibrary;
 import arekkuusu.enderskills.client.util.helper.RenderMisc;
 import arekkuusu.enderskills.common.CommonConfig;
 import arekkuusu.enderskills.common.entity.EntityPortal;
-import arekkuusu.enderskills.common.lib.LibMod;
 import com.sasmaster.glelwjgl.java.CoreGLE;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;

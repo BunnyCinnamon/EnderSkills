@@ -137,7 +137,7 @@ public class EntityTokenOrb extends Entity {
                             for (int j = 0; j < c.level; j++) {
                                 exp = exp * 2D;
                             }
-                            if(exp > CommonConfig.getSyncValues().advancement.levels.tokenCostThreshold) {
+                            if (exp > CommonConfig.getSyncValues().advancement.levels.tokenCostThreshold) {
                                 exp -= exp * CommonConfig.getSyncValues().advancement.levels.tokenDiminishableCost;
                             }
                             double xp = 2D / exp;

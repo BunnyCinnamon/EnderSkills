@@ -13,11 +13,9 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.TextComponentTranslation;
 
 import javax.annotation.Nullable;
 import java.util.List;
-import java.util.Objects;
 
 public class CommandCooldownReset extends CommandBase {
 
@@ -50,7 +48,7 @@ public class CommandCooldownReset extends CommandBase {
     public List<String> getTabCompletions(MinecraftServer server, ICommandSender sender, String[] args, @Nullable BlockPos targetPos) {
         if (args.length == 1) {
             return getListOfStringsMatchingLastWord(args, server.getOnlinePlayerNames());
-        } else if(args.length == 2) {
+        } else if (args.length == 2) {
             return getListOfStringsMatchingLastWord(args, "reset");
         }
         return super.getTabCompletions(server, sender, args, targetPos);
@@ -79,7 +77,7 @@ public class CommandCooldownReset extends CommandBase {
                 message(sender, "cooldown.invalid");
                 return;
         }
-        if(entity instanceof EntityPlayerMP) {
+        if (entity instanceof EntityPlayerMP) {
             PacketHelper.sendSkillsSync((EntityPlayerMP) entity);
         }
     }

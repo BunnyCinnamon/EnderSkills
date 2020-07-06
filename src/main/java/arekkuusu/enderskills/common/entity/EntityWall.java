@@ -42,7 +42,7 @@ public class EntityWall extends Entity {
 
     @Override
     public void onUpdate() {
-        if(isDead) return;
+        if (isDead) return;
         if (world.isRemote && !goingDown && getSegments().length > 0 && getSegments()[0] != null && getSegments()[0].getBehavior() != null && getSegments()[0].getBehavior().getClass() == WallSegmentBehaviorExtendedData.Drop.class) {
             if (getData().skill == ModAbilities.WALL) {
                 world.playSound(posX, posY, posZ, ModSounds.WALL_DOWN, SoundCategory.PLAYERS, 1.0F, (1.0F + (world.rand.nextFloat() - world.rand.nextFloat()) * 0.2F) * 0.7F, false);
@@ -58,7 +58,7 @@ public class EntityWall extends Entity {
         motionY = 0;
         motionZ = 0;
 
-        if(getSegments().length == 0) setDead();
+        if (getSegments().length == 0) setDead();
     }
 
     public void create(BlockPos pos, EnumFacing cardinal, int width, int height, int duration) {
@@ -120,7 +120,7 @@ public class EntityWall extends Entity {
 
     public EntityWallSegment[] getSegments() {
         UUID[] uuids = this.dataManager.get(SYNC_UUID_DATA).uuids;
-        if(uuids == null) return new EntityWallSegment[0];
+        if (uuids == null) return new EntityWallSegment[0];
         EntityWallSegment[] segments = new EntityWallSegment[uuids.length];
         for (int i = 0; i < uuids.length; i++) {
             UUID uuid = uuids[i];

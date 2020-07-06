@@ -1,9 +1,5 @@
 package arekkuusu.enderskills.client.render.skill;
 
-import arekkuusu.enderskills.api.util.Quat;
-import arekkuusu.enderskills.api.util.Vector;
-import arekkuusu.enderskills.client.render.effect.ParticleSweepVanilla;
-import arekkuusu.enderskills.client.render.effect.ParticleVanilla;
 import arekkuusu.enderskills.client.render.entity.EntityPlaceableDataRenderer;
 import arekkuusu.enderskills.client.util.ShaderLibrary;
 import arekkuusu.enderskills.client.util.helper.GLHelper;
@@ -11,7 +7,6 @@ import arekkuusu.enderskills.common.entity.placeable.EntityPlaceableData;
 import arekkuusu.enderskills.common.lib.LibMod;
 import arekkuusu.enderskills.common.skill.ModAbilities;
 import arekkuusu.enderskills.common.skill.ability.offence.wind.Slash;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
@@ -19,13 +14,11 @@ import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.opengl.GL11;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 @SideOnly(Side.CLIENT)
 public class SlashRenderer extends SkillRenderer<Slash> {
@@ -46,7 +39,7 @@ public class SlashRenderer extends SkillRenderer<Slash> {
         @Override
         public void doRender(EntityPlaceableData entity, double x, double y, double z, float entityYaw, float partialTicks) {
             /*if (entity.tick == 1*//*entity.tick % 2 == 0*//*) {
-                *//*double distance = entity.getRadius()*//**//* * ((float) entity.tick / (float) entity.getLifeTime())*//**//*;
+             *//*double distance = entity.getRadius()*//**//* * ((float) entity.tick / (float) entity.getLifeTime())*//**//*;
                 Vec3d lookVec = entity.getLookVec();
                 *//**//*Quat quatX = Quat.fromAxisAngleRad(Vector.X, (entity.world.rand.nextFloat() - 0.5F) * 40F * (float) Math.PI / 180F);
                 Quat quatY = Quat.fromAxisAngleRad(Vector.Y, (entity.world.rand.nextFloat() - 0.5F) * 40F * (float) Math.PI / 180F);
@@ -69,7 +62,7 @@ public class SlashRenderer extends SkillRenderer<Slash> {
                     *//**//*}
                 }*//*
             }*/
-            if(entity.tick > entity.getLifeTime()) return;
+            if (entity.tick > entity.getLifeTime()) return;
             double progress = ((double) entity.tick + partialTicks) / (double) entity.getLifeTime();
             double scale = (entity.getRadius() + 3) * 2 * progress;
             GlStateManager.pushMatrix();

@@ -10,29 +10,29 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class ItemBase extends Item implements IModel {
 
-	public ItemBase(String id) {
-		super();
-		ModItems.setRegistry(this, id);
-	}
+    public ItemBase(String id) {
+        super();
+        ModItems.setRegistry(this, id);
+    }
 
-	@Override
-	public boolean canApplyAtEnchantingTable(ItemStack stack, Enchantment enchantment) {
-		return false;
-	}
+    @Override
+    public boolean canApplyAtEnchantingTable(ItemStack stack, Enchantment enchantment) {
+        return false;
+    }
 
-	@Override
-	public boolean isEnchantable(ItemStack stack) {
-		return false;
-	}
+    @Override
+    public boolean isEnchantable(ItemStack stack) {
+        return false;
+    }
 
-	@Override
-	public int getItemEnchantability() {
-		return 0;
-	}
+    @Override
+    public int getItemEnchantability() {
+        return 0;
+    }
 
-	@Override
-	@SideOnly(Side.CLIENT)
-	public void registerModel() {
-		ModelHelper.registerModel(this, 0);
-	}
+    @Override
+    @SideOnly(Side.CLIENT)
+    public void registerModel() {
+        ModelHelper.registerModel(this, 0);
+    }
 }

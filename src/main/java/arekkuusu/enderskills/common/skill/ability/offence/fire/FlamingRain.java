@@ -329,9 +329,9 @@ public class FlamingRain extends BaseAbility implements IImpact, ILoopSound, IEx
         NBTHelper.setArray(compound, "time", Configuration.getValues().time);
         NBTHelper.setArray(compound, "range", Configuration.getValues().range);
         compound.setDouble("effectiveness", Configuration.getValues().effectiveness);
-        NBTHelper.setArray(compound,"extra.dot", Configuration.getValues().extra.dot);
-        NBTHelper.setArray(compound,"extra.rainDuration", Configuration.getValues().extra.rainDuration);
-        NBTHelper.setArray(compound,"extra.rainRange", Configuration.getValues().extra.rainRange);
+        NBTHelper.setArray(compound, "extra.dot", Configuration.getValues().extra.dot);
+        NBTHelper.setArray(compound, "extra.rainDuration", Configuration.getValues().extra.rainDuration);
+        NBTHelper.setArray(compound, "extra.rainRange", Configuration.getValues().extra.rainRange);
         NBTHelper.setArray(compound, "advancement.upgrade", Configuration.getValues().advancement.upgrade);
     }
 
@@ -343,9 +343,9 @@ public class FlamingRain extends BaseAbility implements IImpact, ILoopSound, IEx
         Configuration.getSyncValues().time = NBTHelper.getArray(compound, "time");
         Configuration.getSyncValues().range = NBTHelper.getArray(compound, "range");
         Configuration.getSyncValues().effectiveness = compound.getDouble("effectiveness");
-        Configuration.getSyncValues().extra.dot = NBTHelper.getArray(compound,"extra.dot");
-        Configuration.getSyncValues().extra.rainDuration = NBTHelper.getArray(compound,"extra.rainDuration");
-        Configuration.getSyncValues().extra.rainRange = NBTHelper.getArray(compound,"extra.rainRange");
+        Configuration.getSyncValues().extra.dot = NBTHelper.getArray(compound, "extra.dot");
+        Configuration.getSyncValues().extra.rainDuration = NBTHelper.getArray(compound, "extra.rainDuration");
+        Configuration.getSyncValues().extra.rainRange = NBTHelper.getArray(compound, "extra.rainRange");
         Configuration.getSyncValues().advancement.upgrade = NBTHelper.getArray(compound, "advancement.upgrade");
     }
 
@@ -378,13 +378,19 @@ public class FlamingRain extends BaseAbility implements IImpact, ILoopSound, IEx
             public int maxLevel = 100;
 
             @Config.Comment("Cooldown Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
-            public String[] cooldown = {"(0+){(18 * 20) + (2 * 27) * (1 - ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)))}"};
+            public String[] cooldown = {
+                    "(0+){(18 * 20) + (2 * 27) * (1 - ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)))}"
+            };
 
             @Config.Comment("Duration Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
-            public String[] time = {"(0+){15 * 20}"};
+            public String[] time = {
+                    "(0+){15 * 20}"
+            };
 
             @Config.Comment("Range Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
-            public String[] range = {"(0+){15 + ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)) * (35 - 15)}"};
+            public String[] range = {
+                    "(0+){15 + ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)) * (35 - 15)}"
+            };
 
             @Config.Comment("Effectiveness Modifier")
             @Config.RangeDouble
@@ -392,16 +398,24 @@ public class FlamingRain extends BaseAbility implements IImpact, ILoopSound, IEx
 
             public static class Extra {
                 @Config.Comment("Damage Over Time Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
-                public String[] dot = {"(0+){18 + (((e^(0.1 * (x / y)) - 1)/((e^0.1) - 1)) * (48 - 18))}"};
+                public String[] dot = {
+                        "(0+){18 + (((e^(0.1 * (x / y)) - 1)/((e^0.1) - 1)) * (48 - 18))}"
+                };
                 @Config.Comment("Rain Duration Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
-                public String[] rainDuration = {"(0+){(6 * 20) + ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)) * ((20 * 20) - (6 * 20))}"};
+                public String[] rainDuration = {
+                        "(0+){(6 * 20) + ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)) * ((20 * 20) - (6 * 20))}"
+                };
                 @Config.Comment("Rain Range Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
-                public String[] rainRange = {"(0+){10 + ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)) * (20 - 10)}"};
+                public String[] rainRange = {
+                        "(0+){10 + ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)) * (20 - 10)}"
+                };
             }
 
             public static class Advancement {
                 @Config.Comment("Function f(x)=? where 'x' is [Next Level] and 'y' is [Max Level], XP Cost is in units [NOT LEVELS]")
-                public String[] upgrade = {"(0+){(825 * (1 - (0 ^ (0 ^ x)))) + 7 * x}"};
+                public String[] upgrade = {
+                        "(0+){(825 * (1 - (0 ^ (0 ^ x)))) + 7 * x}"
+                };
             }
         }
     }

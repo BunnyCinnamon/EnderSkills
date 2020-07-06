@@ -3,7 +3,6 @@ package arekkuusu.enderskills.client.render.skill;
 import arekkuusu.enderskills.api.capability.Capabilities;
 import arekkuusu.enderskills.common.skill.ModAbilities;
 import arekkuusu.enderskills.common.skill.ability.mobility.ender.Invisibility;
-import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraftforge.client.event.RenderLivingEvent;
 import net.minecraftforge.common.MinecraftForge;

@@ -38,7 +38,7 @@ public class AbilityPower extends BaseAttribute implements ISkillAdvancement {
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public void onSkillDamage(SkillDamageEvent event) {
-        if(event.getEntityLiving() == null) return;
+        if (event.getEntityLiving() == null) return;
         if (isClientWorld(event.getEntityLiving()) || !SkillHelper.isSkillDamage(event.getSource())) return;
         if (event.getAmount() <= 0) return;
         EntityLivingBase entity = event.getEntityLiving();
@@ -214,7 +214,9 @@ public class AbilityPower extends BaseAttribute implements ISkillAdvancement {
             public int maxLevel = Integer.MAX_VALUE;
 
             @Config.Comment("Modifier Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
-            public String[] modifier = {"(0+){(0.1 * x) * ((0.4 * x) * 0.03)}"};
+            public String[] modifier = {
+                    "(0+){(0.1 * x) * ((0.4 * x) * 0.03)}"
+            };
 
             @Config.Comment("Effectiveness Modifier")
             @Config.RangeDouble
@@ -227,7 +229,9 @@ public class AbilityPower extends BaseAttribute implements ISkillAdvancement {
 
             public static class Advancement {
                 @Config.Comment("Function f(x)=? where 'x' is [Next Level] and 'y' is [Max Level], XP Cost is in units [NOT LEVELS]")
-                public String[] upgrade = {"(0+){(150 * (1 - (0 ^ (0 ^ x)))) + 10 + 40 * x}"};
+                public String[] upgrade = {
+                        "(0+){(150 * (1 - (0 ^ (0 ^ x)))) + 10 + 40 * x}"
+                };
             }
         }
     }

@@ -59,7 +59,7 @@ public class Endurance extends BaseAttribute implements ISkillAdvancement {
                     Capabilities.endurance(entity).ifPresent(cap -> {
                         int amount = cap.getEnduranceDefault() + getModifier(attributeInfo);
                         if (amount != cap.getEnduranceMax()) {
-                            if(cap.getEndurance() > amount) {
+                            if (cap.getEndurance() > amount) {
                                 cap.setEndurance(amount);
                             }
                             cap.setEnduranceMax(amount);
@@ -71,7 +71,7 @@ public class Endurance extends BaseAttribute implements ISkillAdvancement {
                 });
             } else {
                 Capabilities.endurance(entity).ifPresent(cap -> {
-                    if(cap.getEndurance() > cap.getEnduranceDefault()) {
+                    if (cap.getEndurance() > cap.getEnduranceDefault()) {
                         cap.setEndurance(cap.getEnduranceDefault());
                     }
                     cap.setEnduranceMax(cap.getEnduranceDefault());
@@ -104,7 +104,7 @@ public class Endurance extends BaseAttribute implements ISkillAdvancement {
         Capabilities.endurance(entity).ifPresent(capability -> {
             if (hasEnduranceDrain(event.getSkill())) {
                 int enduranceNeeded = getEnduranceDrain(event.getSkill());
-                if(entity instanceof EntityPlayer && ((EntityPlayer) entity).capabilities.isCreativeMode) {
+                if (entity instanceof EntityPlayer && ((EntityPlayer) entity).capabilities.isCreativeMode) {
                     enduranceNeeded = 0;
                 }
                 if (capability.getEndurance() < enduranceNeeded) {
@@ -121,7 +121,7 @@ public class Endurance extends BaseAttribute implements ISkillAdvancement {
         Capabilities.endurance(entity).ifPresent(capability -> {
             if (hasEnduranceDrain(event.getSkill())) {
                 int enduranceNeeded = getEnduranceDrain(event.getSkill());
-                if(entity instanceof EntityPlayer && ((EntityPlayer) entity).capabilities.isCreativeMode) {
+                if (entity instanceof EntityPlayer && ((EntityPlayer) entity).capabilities.isCreativeMode) {
                     enduranceNeeded = 0;
                 }
                 if (capability.getEndurance() < enduranceNeeded) {
@@ -303,7 +303,9 @@ public class Endurance extends BaseAttribute implements ISkillAdvancement {
             public int maxLevel = Integer.MAX_VALUE;
 
             @Config.Comment("Modifier Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
-            public String[] modifier = {"(0+){x * 1}"};
+            public String[] modifier = {
+                    "(0+){x * 1}"
+            };
 
             @Config.Comment("Effectiveness Modifier")
             @Config.RangeDouble
@@ -374,7 +376,9 @@ public class Endurance extends BaseAttribute implements ISkillAdvancement {
 
             public static class Advancement {
                 @Config.Comment("Function f(x)=? where 'x' is [Next Level] and 'y' is [Max Level], XP Cost is in units [NOT LEVELS]")
-                public String[] upgrade = {"(0+){(280 * (1 - (0 ^ (0 ^ x)))) + 20 + 780 * x}"};
+                public String[] upgrade = {
+                        "(0+){(280 * (1 - (0 ^ (0 ^ x)))) + 20 + 780 * x}"
+                };
             }
         }
     }

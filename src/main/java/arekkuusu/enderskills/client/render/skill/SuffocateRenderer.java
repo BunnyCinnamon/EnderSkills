@@ -4,15 +4,11 @@ import arekkuusu.enderskills.api.capability.Capabilities;
 import arekkuusu.enderskills.client.render.effect.ParticleVanilla;
 import arekkuusu.enderskills.client.render.entity.EntityPlaceableDataRenderer;
 import arekkuusu.enderskills.client.render.entity.EntityThrowableDataRenderer;
-import arekkuusu.enderskills.client.util.ResourceLibrary;
 import arekkuusu.enderskills.client.util.ShaderLibrary;
 import arekkuusu.enderskills.client.util.helper.GLHelper;
-import arekkuusu.enderskills.common.CommonConfig;
 import arekkuusu.enderskills.common.entity.placeable.EntityPlaceableData;
-import arekkuusu.enderskills.common.entity.throwable.EntityThrowableData;
 import arekkuusu.enderskills.common.lib.LibMod;
 import arekkuusu.enderskills.common.skill.ModAbilities;
-import arekkuusu.enderskills.common.skill.ability.offence.ender.GasCloud;
 import arekkuusu.enderskills.common.skill.ability.offence.wind.Suffocate;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BufferBuilder;
@@ -22,7 +18,6 @@ import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
@@ -34,7 +29,6 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.opengl.GL11;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 @SideOnly(Side.CLIENT)
 public class SuffocateRenderer extends SkillRenderer<Suffocate> {

@@ -137,11 +137,11 @@ public class CommandWeight extends CommandBase {
                             weightNew = weightOther - 1;
                             weightNewOther = weightOther;
                         } else {
-                            weightNew = weightOther -1;
+                            weightNew = weightOther - 1;
                             weightNewOther = weightOther;
                         }
                     } else {
-                        if(wasBefore) {
+                        if (wasBefore) {
                             weightNew = weightOther;
                             weightNewOther = weightOther - 1;
                         } else {
