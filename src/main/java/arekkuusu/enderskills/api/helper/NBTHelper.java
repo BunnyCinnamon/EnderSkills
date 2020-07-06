@@ -6,6 +6,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraft.nbt.NBTTagString;
 import net.minecraft.util.IStringSerializable;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
@@ -108,6 +109,23 @@ public final class NBTHelper {
     }
 
     /* Complex Helpers */
+    public static void setArray(NBTTagCompound compound, String tag, String... array) {
+        NBTTagList list = new NBTTagList();
+        for (String s : array) {
+            list.appendTag(new NBTTagString(s));
+        }
+        compound.setTag(tag, list);
+    }
+
+    public static String[] getArray(NBTTagCompound compound, String tag) {
+        NBTTagList list = compound.getTagList(tag, Constants.NBT.TAG_STRING);
+        String[] array = new String[list.tagCount()];
+        for (int i = 0; i < list.tagCount(); i++) {
+            array[i] = list.getStringTagAt(i);
+        }
+        return array;
+    }
+
     public static void setBlockPos(NBTTagCompound compound, String tag, @Nullable BlockPos pos) {
         if (pos == null) pos = BlockPos.ORIGIN;
         NBTTagCompound nbt = new NBTTagCompound();

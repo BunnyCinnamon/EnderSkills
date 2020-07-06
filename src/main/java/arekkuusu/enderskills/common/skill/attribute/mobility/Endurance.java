@@ -244,9 +244,9 @@ public class Endurance extends BaseAttribute implements ISkillAdvancement {
     @Override
     public void writeSyncConfig(NBTTagCompound compound) {
         compound.setInteger("maxLevel", Configuration.getValues().maxLevel);
-        compound.setString("modifier", Configuration.getValues().modifier);
+        NBTHelper.setArray(compound, "modifier", Configuration.getValues().modifier);
         compound.setDouble("effectiveness", Configuration.getValues().effectiveness);
-        compound.setString("advancement.upgrade", Configuration.getValues().advancement.upgrade);
+        NBTHelper.setArray(compound, "advancement.upgrade", Configuration.getValues().advancement.upgrade);
         NBTTagList list = new NBTTagList();
         for (Map.Entry<String, Integer> entry : Configuration.getValues().extra.enduranceMap.entrySet()) {
             NBTTagCompound nbt = new NBTTagCompound();
@@ -261,9 +261,9 @@ public class Endurance extends BaseAttribute implements ISkillAdvancement {
     @SideOnly(Side.CLIENT)
     public void readSyncConfig(NBTTagCompound compound) {
         Configuration.getSyncValues().maxLevel = compound.getInteger("maxLevel");
-        Configuration.getSyncValues().modifier = compound.getString("modifier");
+        Configuration.getSyncValues().modifier = NBTHelper.getArray(compound, "modifier");
         Configuration.getSyncValues().effectiveness = compound.getDouble("effectiveness");
-        Configuration.getSyncValues().advancement.upgrade = compound.getString("advancement.upgrade");
+        Configuration.getSyncValues().advancement.upgrade = NBTHelper.getArray(compound, "advancement.upgrade");
         NBTTagList list = compound.getTagList("extra.enduranceMap", Constants.NBT.TAG_COMPOUND);
         Configuration.getSyncValues().extra.enduranceMap.clear();
         for (int i = 0; i < list.tagCount(); i++) {
@@ -303,7 +303,7 @@ public class Endurance extends BaseAttribute implements ISkillAdvancement {
             public int maxLevel = Integer.MAX_VALUE;
 
             @Config.Comment("Modifier Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
-            public String modifier = "x * 1";
+            public String[] modifier = {"(0+){x * 1}"};
 
             @Config.Comment("Effectiveness Modifier")
             @Config.RangeDouble
@@ -374,7 +374,7 @@ public class Endurance extends BaseAttribute implements ISkillAdvancement {
 
             public static class Advancement {
                 @Config.Comment("Function f(x)=? where 'x' is [Next Level] and 'y' is [Max Level], XP Cost is in units [NOT LEVELS]")
-                public String upgrade = "(690 * (1 - (0 ^ (0 ^ x)))) + 7 * x";
+                public String[] upgrade = {"(0+){(690 * (1 - (0 ^ (0 ^ x)))) + 7 * x}"};
             }
         }
     }

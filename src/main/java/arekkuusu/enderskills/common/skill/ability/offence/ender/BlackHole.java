@@ -319,30 +319,30 @@ public class BlackHole extends BaseAbility implements IImpact, ISkillAdvancement
     @Override
     public void writeSyncConfig(NBTTagCompound compound) {
         compound.setInteger("maxLevel", Configuration.getValues().maxLevel);
-        compound.setString("cooldown", Configuration.getValues().cooldown);
-        compound.setString("time", Configuration.getValues().time);
-        compound.setString("range", Configuration.getValues().range);
+        NBTHelper.setArray(compound, "cooldown", Configuration.getValues().cooldown);
+        NBTHelper.setArray(compound, "time", Configuration.getValues().time);
+        NBTHelper.setArray(compound, "range", Configuration.getValues().range);
         compound.setDouble("effectiveness", Configuration.getValues().effectiveness);
-        compound.setString("extra.holeDuration", Configuration.getValues().extra.holeDuration);
-        compound.setString("extra.holeRange", Configuration.getValues().extra.holeRange);
-        compound.setString("extra.dot", Configuration.getValues().extra.dot);
-        compound.setString("extra.damage", Configuration.getValues().extra.damage);
-        compound.setString("advancement.upgrade", Configuration.getValues().advancement.upgrade);
+        NBTHelper.setArray(compound,"extra.holeDuration", Configuration.getValues().extra.holeDuration);
+        NBTHelper.setArray(compound,"extra.holeRange", Configuration.getValues().extra.holeRange);
+        NBTHelper.setArray(compound,"extra.dot", Configuration.getValues().extra.dot);
+        NBTHelper.setArray(compound, "extra.damage", Configuration.getValues().extra.damage);
+        NBTHelper.setArray(compound, "advancement.upgrade", Configuration.getValues().advancement.upgrade);
     }
 
     @Override
     @SideOnly(Side.CLIENT)
     public void readSyncConfig(NBTTagCompound compound) {
         Configuration.getSyncValues().maxLevel = compound.getInteger("maxLevel");
-        Configuration.getSyncValues().cooldown = compound.getString("cooldown");
-        Configuration.getSyncValues().time = compound.getString("time");
-        Configuration.getSyncValues().range = compound.getString("range");
+        Configuration.getSyncValues().cooldown = NBTHelper.getArray(compound, "cooldown");
+        Configuration.getSyncValues().time = NBTHelper.getArray(compound, "time");
+        Configuration.getSyncValues().range = NBTHelper.getArray(compound, "range");
         Configuration.getSyncValues().effectiveness = compound.getDouble("effectiveness");
-        Configuration.getSyncValues().extra.holeDuration = compound.getString("extra.holeDuration");
-        Configuration.getSyncValues().extra.holeRange = compound.getString("extra.holeRange");
-        Configuration.getSyncValues().extra.dot = compound.getString("extra.dot");
-        Configuration.getSyncValues().extra.damage = compound.getString("extra.damage");
-        Configuration.getSyncValues().advancement.upgrade = compound.getString("advancement.upgrade");
+        Configuration.getSyncValues().extra.holeDuration = NBTHelper.getArray(compound, "extra.holeDuration");
+        Configuration.getSyncValues().extra.holeRange = NBTHelper.getArray(compound, "extra.holeRange");
+        Configuration.getSyncValues().extra.dot = NBTHelper.getArray(compound, "extra.dot");
+        Configuration.getSyncValues().extra.damage = NBTHelper.getArray(compound, "extra.damage");
+        Configuration.getSyncValues().advancement.upgrade = NBTHelper.getArray(compound, "advancement.upgrade");
     }
 
     @Config(modid = LibMod.MOD_ID, name = LibMod.MOD_ID + "/Ability/" + LibNames.BLACK_HOLE)
@@ -374,13 +374,13 @@ public class BlackHole extends BaseAbility implements IImpact, ISkillAdvancement
             public int maxLevel = 100;
 
             @Config.Comment("Cooldown Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
-            public String cooldown = "(90 * 20) + (30 * 20) * (1 - ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)))";
+            public String[] cooldown = {"(0+){(90 * 20) + (30 * 20) * (1 - ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)))}"};
 
             @Config.Comment("Duration Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
-            public String time = "(8 * 20)";
+            public String[] time = {"(0+){(8 * 20)}"};
 
             @Config.Comment("Range Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
-            public String range = "5 + ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)) * (11 - 5)";
+            public String[] range = {"(0+){5 + ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)) * (11 - 5)}"};
 
             @Config.Comment("Effectiveness Modifier")
             @Config.RangeDouble
@@ -388,18 +388,18 @@ public class BlackHole extends BaseAbility implements IImpact, ISkillAdvancement
 
             public static class Extra {
                 @Config.Comment("Black Hole Duration Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
-                public String holeDuration = "5 * 20";
+                public String[] holeDuration = {"(0+){5 * 20}"};
                 @Config.Comment("Black Hole Range Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
-                public String holeRange = "4 + ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)) * (8 - 4)";
+                public String[] holeRange = {"(0+){4 + ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)) * (8 - 4)}"};
                 @Config.Comment("Damage Over Time Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
-                public String dot = "18 + (((e^(0.1 * (x / y)) - 1)/((e^0.1) - 1)) * (32 - 18))";
+                public String[] dot = {"(0+){18 + (((e^(0.1 * (x / y)) - 1)/((e^0.1) - 1)) * (32 - 18))}"};
                 @Config.Comment("Initial Damage Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
-                public String damage = "16 + (((e^(0.1 * (x / y)) - 1)/((e^0.1) - 1)) * (30 - 16))";
+                public String[] damage = {"(0+){16 + (((e^(0.1 * (x / y)) - 1)/((e^0.1) - 1)) * (30 - 16))}"};
             }
 
             public static class Advancement {
                 @Config.Comment("Function f(x)=? where 'x' is [Next Level] and 'y' is [Max Level], XP Cost is in units [NOT LEVELS]")
-                public String upgrade = "(22070 * (1 - (0 ^ (0 ^ x)))) + 7 * x";
+                public String[] upgrade = {"(0+){(22070 * (1 - (0 ^ (0 ^ x)))) + 7 * x}"};
             }
         }
     }

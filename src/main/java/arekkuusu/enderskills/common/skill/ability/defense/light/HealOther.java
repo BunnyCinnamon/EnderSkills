@@ -131,14 +131,6 @@ public class HealOther extends BaseAbility implements IImpact, ISkillAdvancement
         return (int) (result * getEffectiveness());
     }
 
-    public int getTime(AbilityInfo info) {
-        int level = getLevel(info);
-        int levelMax = getMaxLevel();
-        double func = ExpressionHelper.getExpression(this, Configuration.getSyncValues().time, level, levelMax);
-        double result = (func * CommonConfig.getSyncValues().skill.globalTime);
-        return (int) (result * getEffectiveness());
-    }
-
     public double getEffectiveness() {
         return Configuration.getSyncValues().effectiveness * CommonConfig.getSyncValues().skill.globalEffectiveness;
     }
@@ -248,7 +240,6 @@ public class HealOther extends BaseAbility implements IImpact, ISkillAdvancement
     public void initSyncConfig() {
         Configuration.getSyncValues().maxLevel = Configuration.getValues().maxLevel;
         Configuration.getSyncValues().cooldown = Configuration.getValues().cooldown;
-        Configuration.getSyncValues().time = Configuration.getValues().time;
         Configuration.getSyncValues().range = Configuration.getValues().range;
         Configuration.getSyncValues().effectiveness = Configuration.getValues().effectiveness;
         Configuration.getSyncValues().extra.heal = Configuration.getValues().extra.heal;
@@ -258,24 +249,22 @@ public class HealOther extends BaseAbility implements IImpact, ISkillAdvancement
     @Override
     public void writeSyncConfig(NBTTagCompound compound) {
         compound.setInteger("maxLevel", Configuration.getValues().maxLevel);
-        compound.setString("cooldown", Configuration.getValues().cooldown);
-        compound.setString("time", Configuration.getValues().time);
-        compound.setString("range", Configuration.getValues().range);
+        NBTHelper.setArray(compound, "cooldown", Configuration.getValues().cooldown);
+        NBTHelper.setArray(compound, "range", Configuration.getValues().range);
         compound.setDouble("effectiveness", Configuration.getValues().effectiveness);
-        compound.setString("extra.heal", Configuration.getValues().extra.heal);
-        compound.setString("advancement.upgrade", Configuration.getValues().advancement.upgrade);
+        NBTHelper.setArray(compound, "extra.heal", Configuration.getValues().extra.heal);
+        NBTHelper.setArray(compound, "advancement.upgrade", Configuration.getValues().advancement.upgrade);
     }
 
     @Override
     @SideOnly(Side.CLIENT)
     public void readSyncConfig(NBTTagCompound compound) {
         Configuration.getSyncValues().maxLevel = compound.getInteger("maxLevel");
-        Configuration.getSyncValues().cooldown = compound.getString("cooldown");
-        Configuration.getSyncValues().time = compound.getString("time");
-        Configuration.getSyncValues().range = compound.getString("range");
+        Configuration.getSyncValues().cooldown = NBTHelper.getArray(compound, "cooldown");
+        Configuration.getSyncValues().range = NBTHelper.getArray(compound, "range");
         Configuration.getSyncValues().effectiveness = compound.getDouble("effectiveness");
-        Configuration.getSyncValues().extra.heal = compound.getString("extra.heal");
-        Configuration.getSyncValues().advancement.upgrade = compound.getString("advancement.upgrade");
+        Configuration.getSyncValues().extra.heal = NBTHelper.getArray(compound,"extra.heal");
+        Configuration.getSyncValues().advancement.upgrade = NBTHelper.getArray(compound, "advancement.upgrade");
     }
 
     @Config(modid = LibMod.MOD_ID, name = LibMod.MOD_ID + "/Ability/" + LibNames.HEAL_OTHER)
@@ -307,13 +296,10 @@ public class HealOther extends BaseAbility implements IImpact, ISkillAdvancement
             public int maxLevel = 100;
 
             @Config.Comment("Cooldown Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
-            public String cooldown = "(40 * 20) + (20 * 20) * (1 - ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)))";
-
-            @Config.Comment("Duration Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
-            public String time = "UNUSED";
+            public String[] cooldown = {"(0+){(40 * 20) + (20 * 20) * (1 - ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)))}"};
 
             @Config.Comment("Range Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
-            public String range = "14 + ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)) * (24 - 14)";
+            public String[] range = {"(0+){14 + ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)) * (24 - 14)}"};
 
             @Config.Comment("Effectiveness Modifier")
             @Config.RangeDouble
@@ -321,12 +307,12 @@ public class HealOther extends BaseAbility implements IImpact, ISkillAdvancement
 
             public static class Extra {
                 @Config.Comment("Heal Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
-                public String heal = "0.25 + ((e^(0.1 * (x / y)) - 1)/((e^0.1) - 1)) * (0.75 - 0.25)";
+                public String[] heal = {"(0+){0.25 + ((e^(0.1 * (x / y)) - 1)/((e^0.1) - 1)) * (0.75 - 0.25)}"};
             }
 
             public static class Advancement {
                 @Config.Comment("Function f(x)=? where 'x' is [Next Level] and 'y' is [Max Level], XP Cost is in units [NOT LEVELS]")
-                public String upgrade = "(5730 * (1 - (0 ^ (0 ^ x)))) + 7 * x";
+                public String[] upgrade = {"(0+){(5730 * (1 - (0 ^ (0 ^ x)))) + 7 * x}"};
             }
         }
     }

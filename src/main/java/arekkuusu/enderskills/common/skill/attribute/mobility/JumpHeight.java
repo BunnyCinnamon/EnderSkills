@@ -3,6 +3,7 @@ package arekkuusu.enderskills.common.skill.attribute.mobility;
 import arekkuusu.enderskills.api.capability.Capabilities;
 import arekkuusu.enderskills.api.capability.data.IInfoUpgradeable;
 import arekkuusu.enderskills.api.helper.ExpressionHelper;
+import arekkuusu.enderskills.api.helper.NBTHelper;
 import arekkuusu.enderskills.client.gui.data.ISkillAdvancement;
 import arekkuusu.enderskills.client.util.ResourceLibrary;
 import arekkuusu.enderskills.client.util.helper.TextHelper;
@@ -147,18 +148,18 @@ public class JumpHeight extends BaseAttribute implements ISkillAdvancement {
     @Override
     public void writeSyncConfig(NBTTagCompound compound) {
         compound.setInteger("maxLevel", Configuration.getValues().maxLevel);
-        compound.setString("modifier", Configuration.getValues().modifier);
+        NBTHelper.setArray(compound, "modifier", Configuration.getValues().modifier);
         compound.setDouble("effectiveness", Configuration.getValues().effectiveness);
-        compound.setString("advancement.upgrade", Configuration.getValues().advancement.upgrade);
+        NBTHelper.setArray(compound, "advancement.upgrade", Configuration.getValues().advancement.upgrade);
     }
 
     @Override
     @SideOnly(Side.CLIENT)
     public void readSyncConfig(NBTTagCompound compound) {
         Configuration.getSyncValues().maxLevel = compound.getInteger("maxLevel");
-        Configuration.getSyncValues().modifier = compound.getString("modifier");
+        Configuration.getSyncValues().modifier = NBTHelper.getArray(compound, "modifier");
         Configuration.getSyncValues().effectiveness = compound.getDouble("effectiveness");
-        Configuration.getSyncValues().advancement.upgrade = compound.getString("advancement.upgrade");
+        Configuration.getSyncValues().advancement.upgrade = NBTHelper.getArray(compound, "advancement.upgrade");
     }
 
     @Config(modid = LibMod.MOD_ID, name = LibMod.MOD_ID + "/Attribute/" + LibNames.JUMP_HEIGHT)
@@ -188,7 +189,7 @@ public class JumpHeight extends BaseAttribute implements ISkillAdvancement {
             public int maxLevel = 2;
 
             @Config.Comment("Modifier Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
-            public String modifier = "0.5 * x * 0.15";
+            public String[] modifier = {"(0+){0.5 * x * 0.15}"};
 
             @Config.Comment("Effectiveness Modifier")
             @Config.RangeDouble
@@ -196,7 +197,7 @@ public class JumpHeight extends BaseAttribute implements ISkillAdvancement {
 
             public static class Advancement {
                 @Config.Comment("Function f(x)=? where 'x' is [Next Level] and 'y' is [Max Level], XP Cost is in units [NOT LEVELS]")
-                public String upgrade = "(560 * (1 - (0 ^ (0 ^ x)))) + 3395 * x";
+                public String[] upgrade = {"(0+){(560 * (1 - (0 ^ (0 ^ x)))) + 3395 * x}"};
             }
         }
     }

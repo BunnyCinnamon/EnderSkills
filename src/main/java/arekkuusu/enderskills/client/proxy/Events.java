@@ -288,7 +288,8 @@ public class Events {
                 drawTexturedRectangle(x, y, 0, 80 + (CommonConfig.RENDER_CONFIG.endurance.overlay.ordinal() - 1) * 5 * 2 + 5, fillWidth, 5, fill, 5, 256);
             }
             //Endurance title
-            renderText(TextHelper.translate("endurance.title", endurance), x - 4, y - 5, 0.5D, 0xFFFFFF);
+            renderText(TextHelper.translate("endurance.title", endurance, enduranceMax), x - 4, y - 5, 0.5D, 0xFFFFFF);
+            renderText(TextHelper.translate("endurance.amount", endurance, enduranceMax), x + width / 2, y, 0.8D, 0xFFFFFF);
             GlStateManager.popMatrix();
             //Fix scale
             GlStateManager.scale(mSize, mSize, mSize);

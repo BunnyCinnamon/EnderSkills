@@ -39,7 +39,12 @@ public class CommandWeight extends CommandBase {
 
     @Override
     public int getRequiredPermissionLevel() {
-        return 2;
+        return 0;
+    }
+
+    @Override
+    public boolean checkPermission(MinecraftServer server, ICommandSender sender) {
+        return true;
     }
 
     @Override

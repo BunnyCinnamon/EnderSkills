@@ -197,14 +197,6 @@ public class BloodPool extends BaseAbility implements IImpact, ILoopSound, IExpa
         return (result * getEffectiveness());
     }
 
-    public double getRange(AbilityInfo info) {
-        int level = getLevel(info);
-        int levelMax = getMaxLevel();
-        double func = ExpressionHelper.getExpression(this, Configuration.getSyncValues().range, level, levelMax);
-        double result = (func * CommonConfig.getSyncValues().skill.globalRange);
-        return (result * getEffectiveness());
-    }
-
     public int getCooldown(AbilityInfo info) {
         int level = getLevel(info);
         int levelMax = getMaxLevel();
@@ -334,7 +326,6 @@ public class BloodPool extends BaseAbility implements IImpact, ILoopSound, IExpa
         Configuration.getSyncValues().maxLevel = Configuration.getValues().maxLevel;
         Configuration.getSyncValues().cooldown = Configuration.getValues().cooldown;
         Configuration.getSyncValues().time = Configuration.getValues().time;
-        Configuration.getSyncValues().range = Configuration.getValues().range;
         Configuration.getSyncValues().effectiveness = Configuration.getValues().effectiveness;
         Configuration.getSyncValues().extra.dot = Configuration.getValues().extra.dot;
         Configuration.getSyncValues().extra.poolDuration = Configuration.getValues().extra.poolDuration;
@@ -345,26 +336,24 @@ public class BloodPool extends BaseAbility implements IImpact, ILoopSound, IExpa
     @Override
     public void writeSyncConfig(NBTTagCompound compound) {
         compound.setInteger("maxLevel", Configuration.getValues().maxLevel);
-        compound.setString("cooldown", Configuration.getValues().cooldown);
-        compound.setString("time", Configuration.getValues().time);
-        compound.setString("range", Configuration.getValues().range);
+        NBTHelper.setArray(compound, "cooldown", Configuration.getValues().cooldown);
+        NBTHelper.setArray(compound, "time", Configuration.getValues().time);
         compound.setDouble("effectiveness", Configuration.getValues().effectiveness);
-        compound.setString("extra.poolDuration", Configuration.getValues().extra.poolDuration);
-        compound.setString("extra.poolRange", Configuration.getValues().extra.poolRange);
-        compound.setString("advancement.upgrade", Configuration.getValues().advancement.upgrade);
+        NBTHelper.setArray(compound,"extra.poolDuration", Configuration.getValues().extra.poolDuration);
+        NBTHelper.setArray(compound,"extra.poolRange", Configuration.getValues().extra.poolRange);
+        NBTHelper.setArray(compound, "advancement.upgrade", Configuration.getValues().advancement.upgrade);
     }
 
     @Override
     @SideOnly(Side.CLIENT)
     public void readSyncConfig(NBTTagCompound compound) {
         Configuration.getSyncValues().maxLevel = compound.getInteger("maxLevel");
-        Configuration.getSyncValues().cooldown = compound.getString("cooldown");
-        Configuration.getSyncValues().time = compound.getString("time");
-        Configuration.getSyncValues().range = compound.getString("range");
+        Configuration.getSyncValues().cooldown = NBTHelper.getArray(compound, "cooldown");
+        Configuration.getSyncValues().time = NBTHelper.getArray(compound, "time");
         Configuration.getSyncValues().effectiveness = compound.getDouble("effectiveness");
-        Configuration.getSyncValues().extra.poolDuration = compound.getString("extra.poolDuration");
-        Configuration.getSyncValues().extra.poolRange = compound.getString("extra.poolRange");
-        Configuration.getSyncValues().advancement.upgrade = compound.getString("advancement.upgrade");
+        Configuration.getSyncValues().extra.poolDuration = NBTHelper.getArray(compound,"extra.poolDuration");
+        Configuration.getSyncValues().extra.poolRange = NBTHelper.getArray(compound,"extra.poolRange");
+        Configuration.getSyncValues().advancement.upgrade = NBTHelper.getArray(compound, "advancement.upgrade");
     }
 
     @Config(modid = LibMod.MOD_ID, name = LibMod.MOD_ID + "/Ability/" + LibNames.BLOOD_POOL)
@@ -396,13 +385,10 @@ public class BloodPool extends BaseAbility implements IImpact, ILoopSound, IExpa
             public int maxLevel = 5;
 
             @Config.Comment("Cooldown Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
-            public String cooldown = "(30 * 20) + (30 * 20) * (1 - ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)))";
+            public String[] cooldown = {"(0+){(30 * 20) + (30 * 20) * (1 - ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)))}"};
 
             @Config.Comment("Duration Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
-            public String time = "3 * 20";
-
-            @Config.Comment("Range Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
-            public String range = "UNUSED";
+            public String[] time = {"(0+){3 * 20}"};
 
             @Config.Comment("Effectiveness Modifier")
             @Config.RangeDouble
@@ -410,16 +396,16 @@ public class BloodPool extends BaseAbility implements IImpact, ILoopSound, IExpa
 
             public static class Extra {
                 @Config.Comment("Damage Over Time Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
-                public String dot = "8 + (((e^(0.1 * (x / y)) - 1)/((e^0.1) - 1)) * (30 - 8))";
+                public String[] dot = {"(0+){8 + (((e^(0.1 * (x / y)) - 1)/((e^0.1) - 1)) * (30 - 8))}"};
                 @Config.Comment("Pool Duration Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
-                public String poolDuration = "(6 * 20) + ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)) * ((20 * 20) - (6 * 20))";
+                public String[] poolDuration = {"(0+){(6 * 20) + ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)) * ((20 * 20) - (6 * 20))}"};
                 @Config.Comment("Pool Range Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
-                public String poolRange = "2 + ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)) * (4 - 2)";
+                public String[] poolRange = {"(0+){2 + ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)) * (4 - 2)}"};
             }
 
             public static class Advancement {
                 @Config.Comment("Function f(x)=? where 'x' is [Next Level] and 'y' is [Max Level], XP Cost is in units [NOT LEVELS]")
-                public String upgrade = "(825 * (1 - (0 ^ (0 ^ x)))) + 7 * x";
+                public String[] upgrade = {"(0+){(825 * (1 - (0 ^ (0 ^ x)))) + 7 * x}"};
             }
         }
     }

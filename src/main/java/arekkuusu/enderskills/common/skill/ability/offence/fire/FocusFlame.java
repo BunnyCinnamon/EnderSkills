@@ -337,30 +337,30 @@ public class FocusFlame extends BaseAbility implements IImpact, ILoopSound, ISca
     @Override
     public void writeSyncConfig(NBTTagCompound compound) {
         compound.setInteger("maxLevel", Configuration.getValues().maxLevel);
-        compound.setString("cooldown", Configuration.getValues().cooldown);
-        compound.setString("time", Configuration.getValues().time);
-        compound.setString("range", Configuration.getValues().range);
+        NBTHelper.setArray(compound, "cooldown", Configuration.getValues().cooldown);
+        NBTHelper.setArray(compound, "time", Configuration.getValues().time);
+        NBTHelper.setArray(compound, "range", Configuration.getValues().range);
         compound.setDouble("effectiveness", Configuration.getValues().effectiveness);
-        compound.setString("extra.flameRange", Configuration.getValues().extra.flameRange);
-        compound.setString("extra.flameDuration", Configuration.getValues().extra.flameDuration);
-        compound.setString("extra.damage", Configuration.getValues().extra.damage);
-        compound.setString("extra.dot", Configuration.getValues().extra.dot);
-        compound.setString("advancement.upgrade", Configuration.getValues().advancement.upgrade);
+        NBTHelper.setArray(compound,"extra.flameRange", Configuration.getValues().extra.flameRange);
+        NBTHelper.setArray(compound,"extra.flameDuration", Configuration.getValues().extra.flameDuration);
+        NBTHelper.setArray(compound, "extra.damage", Configuration.getValues().extra.damage);
+        NBTHelper.setArray(compound,"extra.dot", Configuration.getValues().extra.dot);
+        NBTHelper.setArray(compound, "advancement.upgrade", Configuration.getValues().advancement.upgrade);
     }
 
     @Override
     @SideOnly(Side.CLIENT)
     public void readSyncConfig(NBTTagCompound compound) {
         Configuration.getSyncValues().maxLevel = compound.getInteger("maxLevel");
-        Configuration.getSyncValues().cooldown = compound.getString("cooldown");
-        Configuration.getSyncValues().time = compound.getString("time");
-        Configuration.getSyncValues().range = compound.getString("range");
+        Configuration.getSyncValues().cooldown = NBTHelper.getArray(compound, "cooldown");
+        Configuration.getSyncValues().time = NBTHelper.getArray(compound, "time");
+        Configuration.getSyncValues().range = NBTHelper.getArray(compound, "range");
         Configuration.getSyncValues().effectiveness = compound.getDouble("effectiveness");
-        Configuration.getSyncValues().extra.flameRange = compound.getString("extra.flameRange");
-        Configuration.getSyncValues().extra.flameDuration = compound.getString("extra.flameDuration");
-        Configuration.getSyncValues().extra.damage = compound.getString("extra.damage");
-        Configuration.getSyncValues().extra.dot = compound.getString("extra.dot");
-        Configuration.getSyncValues().advancement.upgrade = compound.getString("advancement.upgrade");
+        Configuration.getSyncValues().extra.flameRange = NBTHelper.getArray(compound,"extra.flameRange");
+        Configuration.getSyncValues().extra.flameDuration = NBTHelper.getArray(compound,"extra.flameDuration");
+        Configuration.getSyncValues().extra.damage = NBTHelper.getArray(compound,"extra.damage");
+        Configuration.getSyncValues().extra.dot = NBTHelper.getArray(compound,"extra.dot");
+        Configuration.getSyncValues().advancement.upgrade = NBTHelper.getArray(compound, "advancement.upgrade");
     }
 
     @Config(modid = LibMod.MOD_ID, name = LibMod.MOD_ID + "/Ability/" + LibNames.FOCUS_FLAME)
@@ -392,13 +392,13 @@ public class FocusFlame extends BaseAbility implements IImpact, ILoopSound, ISca
             public int maxLevel = 100;
 
             @Config.Comment("Cooldown Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
-            public String cooldown = "(22 * 20) + (48 * 20) * (1 - ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)))";
+            public String[] cooldown = {"(0+){(22 * 20) + (48 * 20) * (1 - ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)))}"};
 
             @Config.Comment("Duration Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
-            public String time = "15 * 20";
+            public String[] time = {"(0+){15 * 20}"};
 
             @Config.Comment("Range Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
-            public String range = "12 + ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)) * (22 - 12)";
+            public String[] range = {"(0+){12 + ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)) * (22 - 12)}"};
 
             @Config.Comment("Effectiveness Modifier")
             @Config.RangeDouble
@@ -406,18 +406,18 @@ public class FocusFlame extends BaseAbility implements IImpact, ILoopSound, ISca
 
             public static class Extra {
                 @Config.Comment("Flame Range Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
-                public String flameRange = "0.5";
+                public String[] flameRange = {"(0+){0.5}"};
                 @Config.Comment("Flame Duration Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
-                public String flameDuration = "20";
+                public String[] flameDuration = {"(0+){20}"};
                 @Config.Comment("Damage Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
-                public String damage = "40 + ((e^(0.1 * (x / y)) - 1)/((e^0.1) - 1)) * (90 - 40)";
+                public String[] damage = {"(0+){40 + ((e^(0.1 * (x / y)) - 1)/((e^0.1) - 1)) * (90 - 40)}"};
                 @Config.Comment("Damage Over Time Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
-                public String dot = "14 + ((e^(0.1 * (x / y)) - 1)/((e^0.1) - 1)) * (40 - 14)";
+                public String[] dot = {"(0+){14 + ((e^(0.1 * (x / y)) - 1)/((e^0.1) - 1)) * (40 - 14)}"};
             }
 
             public static class Advancement {
                 @Config.Comment("Function f(x)=? where 'x' is [Next Level] and 'y' is [Max Level], XP Cost is in units [NOT LEVELS]")
-                public String upgrade = "(5730 * (1 - (0 ^ (0 ^ x)))) + 7 * x";
+                public String[] upgrade = {"(0+){(5730 * (1 - (0 ^ (0 ^ x)))) + 7 * x}"};
             }
         }
     }

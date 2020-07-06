@@ -294,26 +294,26 @@ public class Updraft extends BaseAbility implements IScanEntities, IExpand, IFin
     @Override
     public void writeSyncConfig(NBTTagCompound compound) {
         compound.setInteger("maxLevel", Configuration.getValues().maxLevel);
-        compound.setString("cooldown", Configuration.getValues().cooldown);
-        compound.setString("time", Configuration.getValues().time);
-        compound.setString("range", Configuration.getValues().range);
+        NBTHelper.setArray(compound, "cooldown", Configuration.getValues().cooldown);
+        NBTHelper.setArray(compound, "time", Configuration.getValues().time);
+        NBTHelper.setArray(compound, "range", Configuration.getValues().range);
         compound.setDouble("effectiveness", Configuration.getValues().effectiveness);
-        compound.setString("extra.liftRange", Configuration.getValues().extra.liftRange);
-        compound.setString("extra.launch", Configuration.getValues().extra.launch);
-        compound.setString("advancement.upgrade", Configuration.getValues().advancement.upgrade);
+        NBTHelper.setArray(compound, "extra.liftRange", Configuration.getValues().extra.liftRange);
+        NBTHelper.setArray(compound, "extra.launch", Configuration.getValues().extra.launch);
+        NBTHelper.setArray(compound, "advancement.upgrade", Configuration.getValues().advancement.upgrade);
     }
 
     @Override
     @SideOnly(Side.CLIENT)
     public void readSyncConfig(NBTTagCompound compound) {
         Configuration.getSyncValues().maxLevel = compound.getInteger("maxLevel");
-        Configuration.getSyncValues().cooldown = compound.getString("cooldown");
-        Configuration.getSyncValues().time = compound.getString("time");
-        Configuration.getSyncValues().range = compound.getString("range");
+        Configuration.getSyncValues().cooldown = NBTHelper.getArray(compound, "cooldown");
+        Configuration.getSyncValues().time = NBTHelper.getArray(compound, "time");
+        Configuration.getSyncValues().range = NBTHelper.getArray(compound, "range");
         Configuration.getSyncValues().effectiveness = compound.getDouble("effectiveness");
-        Configuration.getSyncValues().extra.liftRange = compound.getString("extra.liftRange");
-        Configuration.getSyncValues().extra.launch = compound.getString("extra.launch");
-        Configuration.getSyncValues().advancement.upgrade = compound.getString("advancement.upgrade");
+        Configuration.getSyncValues().extra.liftRange = NBTHelper.getArray(compound, "extra.liftRange");
+        Configuration.getSyncValues().extra.launch = NBTHelper.getArray(compound, "extra.launch");
+        Configuration.getSyncValues().advancement.upgrade = NBTHelper.getArray(compound, "advancement.upgrade");
     }
 
     @Config(modid = LibMod.MOD_ID, name = LibMod.MOD_ID + "/Ability/" + LibNames.UPDRAFT)
@@ -345,13 +345,13 @@ public class Updraft extends BaseAbility implements IScanEntities, IExpand, IFin
             public int maxLevel = 100;
 
             @Config.Comment("Cooldown Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
-            public String cooldown = "(14 * 20) + (6 * 20) * (1 - ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)))";
+            public String[] cooldown = {"(0+){(14 * 20) + (6 * 20) * (1 - ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)))}"};
 
             @Config.Comment("Duration Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
-            public String time = "UNUSED";
+            public String[] time = {"(0+){UNUSED}"};
 
             @Config.Comment("Range Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
-            public String range = "8 + ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)) * (16 - 8)";
+            public String[] range = {"(0+){8 + ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)) * (16 - 8)}"};
 
             @Config.Comment("Effectiveness Modifier")
             @Config.RangeDouble
@@ -359,14 +359,14 @@ public class Updraft extends BaseAbility implements IScanEntities, IExpand, IFin
 
             public static class Extra {
                 @Config.Comment("Lift Range Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
-                public String liftRange = "2 + ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)) * (8 - 2)";
+                public String[] liftRange = {"(0+){2 + ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)) * (8 - 2)}"};
                 @Config.Comment("Lift Launch Force Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
-                public String launch = "6 + ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)) * (40 - 6)";
+                public String[] launch = {"(0+){6 + ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)) * (40 - 6)}"};
             }
 
             public static class Advancement {
                 @Config.Comment("Function f(x)=? where 'x' is [Next Level] and 'y' is [Max Level], XP Cost is in units [NOT LEVELS]")
-                public String upgrade = "(5730 * (1 - (0 ^ (0 ^ x)))) + 7 * x";
+                public String[] upgrade = {"(0+){(5730 * (1 - (0 ^ (0 ^ x)))) + 7 * x}"};
             }
         }
     }

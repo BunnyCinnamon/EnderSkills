@@ -80,6 +80,7 @@ public final class CommonConfig {
         compound.setDouble("globalEffectiveness", CommonConfig.getValues().skill.globalEffectiveness);
         compound.setDouble("extra.globalEffectEffectiveness", CommonConfig.getValues().skill.extra.globalEffectEffectiveness);
         ExpressionHelper.EXPRESSION_CACHE.clear();
+        ExpressionHelper.FUNCTION_CACHE.clear();
     }
 
     @Deprecated
@@ -100,6 +101,7 @@ public final class CommonConfig {
         CommonConfig.getSyncValues().skill.globalEffectiveness = compound.getDouble("globalEffectiveness");
         CommonConfig.getSyncValues().skill.extra.globalEffectEffectiveness = compound.getDouble("extra.globalEffectEffectiveness");
         ExpressionHelper.EXPRESSION_CACHE.clear();
+        ExpressionHelper.FUNCTION_CACHE.clear();
     }
 
     public static class Values {

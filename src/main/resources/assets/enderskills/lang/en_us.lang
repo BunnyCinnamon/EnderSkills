@@ -99,6 +99,7 @@ ui.enderskills.gui.advancement.undone_warning=\n\n§4This action cannot be undon
 
 ui.enderskills.cooldown.timer=%1$ss
 ui.enderskills.endurance.title=Endurance
+ui.enderskills.endurance.amount=%s
 ui.enderskills.skill_group.title=Abilities
 
 ui.enderskills.max_health.info=Health: %s
@@ -218,7 +219,7 @@ ui.enderskills.skill.shadow.title=Shadow
 ui.enderskills.skill.shadow.description=Summons a shadow copy that mimics every attack once.
 ui.enderskills.skill.gloom.title=Gloom
 ui.enderskills.skill.gloom.description=Sends a quick long range beam of darkness at the enemy. It’ll hit them and quickly damage them over time.
-ui.enderskills.skill.shadow_jab.title=Shadow Jab
+ui.enderskills.skill.shadow_jab.title=Shadow Fury
 ui.enderskills.skill.shadow_jab.description=Sends a quick stream of punches at the enemy. It’ll hit them and quickly damage them over time.
 ui.enderskills.skill.gas_cloud.title=Gas Cloud
 ui.enderskills.skill.gas_cloud.description=Summons a cloud of poisonous gas that explodes upon placement and slowly damages everyone over time in the AoE.
