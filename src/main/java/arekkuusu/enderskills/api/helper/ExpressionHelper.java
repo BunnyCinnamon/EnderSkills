@@ -51,8 +51,8 @@ public class ExpressionHelper {
         Pattern pattern = Pattern.compile(REGEX);
         Matcher matcher = pattern.matcher(string.trim());
         if(matcher.matches()) {
-            String condition = matcher.group(1).replace(" ", "");
-            String function = matcher.group(2);
+            String condition = matcher.group(1).trim().replace(" ", "");
+            String function = matcher.group(2).trim();
             if (condition.endsWith("+")) {
                 int min = Integer.parseInt(condition.substring(0, condition.length() - 1));
                 return new FunctionInfo(FunctionInfo.Condition.PlusInfinite, function, min);

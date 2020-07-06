@@ -374,7 +374,7 @@ public class Endurance extends BaseAttribute implements ISkillAdvancement {
 
             public static class Advancement {
                 @Config.Comment("Function f(x)=? where 'x' is [Next Level] and 'y' is [Max Level], XP Cost is in units [NOT LEVELS]")
-                public String[] upgrade = {"(0+){(690 * (1 - (0 ^ (0 ^ x)))) + 7 * x}"};
+                public String[] upgrade = {"(0+){(280 * (1 - (0 ^ (0 ^ x)))) + 20 + 780 * x}"};
             }
         }
     }
