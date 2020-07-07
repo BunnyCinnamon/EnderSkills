@@ -117,6 +117,10 @@ public class Warp extends BaseAbility implements ISkillAdvancement {
     public static int ticksSinceLastTap;
     @SideOnly(Side.CLIENT)
     public static boolean keyWasPressed;
+    @SideOnly(Side.CLIENT)
+    public static boolean wasTapped;
+    @SideOnly(Side.CLIENT)
+    public static int ticksForNextTap;
 
     @SideOnly(Side.CLIENT)
     @SubscribeEvent(priority = EventPriority.LOWEST)
@@ -126,8 +130,8 @@ public class Warp extends BaseAbility implements ISkillAdvancement {
         Capabilities.get(player).flatMap(c -> c.get(this)).ifPresent(skillInfo -> {
             AbilityInfo abilityInfo = (AbilityInfo) skillInfo;
             if (abilityInfo.hasCooldown()) return;
-            boolean tapped = Minecraft.getMinecraft().gameSettings.keyBindSprint.isPressed();
-            if (tapped) {
+            boolean tapped = Minecraft.getMinecraft().gameSettings.keyBindSprint.isKeyDown();
+            if (tapped && !wasTapped) {
                 //Pressed same combination within 7 ticks
                 if (ticksSinceLastTap <= 7) {
                     Capabilities.endurance(player).ifPresent(endurance -> {
@@ -159,6 +163,7 @@ public class Warp extends BaseAbility implements ISkillAdvancement {
                     ticksSinceLastTap = 0;
                 }
             }
+            if(tapped && !wasTapped) wasTapped = true;
         });
     }
 
@@ -167,6 +172,8 @@ public class Warp extends BaseAbility implements ISkillAdvancement {
     public void onKeyTapUpdate(TickEvent.ClientTickEvent event) {
         if (Minecraft.getMinecraft().gameSettings.keyBindSprint.isKeyDown()) keyWasPressed = false;
         if (ticksSinceLastTap < 10) ticksSinceLastTap++;
+        boolean tapped = Minecraft.getMinecraft().gameSettings.keyBindSprint.isKeyDown();
+        if(wasTapped && !tapped) wasTapped = false;
     }
 
     public int getLevel(IInfoUpgradeable info) {
@@ -352,8 +359,6 @@ public class Warp extends BaseAbility implements ISkillAdvancement {
         }
 
         public static class Values {
-            @Config.Comment("Skill specific extra Configuration")
-            public final Extra extra = new Extra();
             @Config.Comment("Skill specific Advancement Configuration")
             public final Advancement advancement = new Advancement();
 
@@ -374,9 +379,6 @@ public class Warp extends BaseAbility implements ISkillAdvancement {
             @Config.Comment("Effectiveness Modifier")
             @Config.RangeDouble
             public double effectiveness = 1D;
-
-            public static class Extra {
-            }
 
             public static class Advancement {
                 @Config.Comment("Function f(x)=? where 'x' is [Next Level] and 'y' is [Max Level], XP Cost is in units [NOT LEVELS]")

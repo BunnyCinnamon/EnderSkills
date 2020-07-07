@@ -335,8 +335,6 @@ public class Taunt extends BaseAbility implements IScanEntities, IExpand, IFindE
         }
 
         public static class Values {
-            @Config.Comment("Skill specific extra Configuration")
-            public final Extra extra = new Extra();
             @Config.Comment("Skill specific Advancement Configuration")
             public final Advancement advancement = new Advancement();
 
@@ -362,9 +360,6 @@ public class Taunt extends BaseAbility implements IScanEntities, IExpand, IFindE
             @Config.Comment("Effectiveness Modifier")
             @Config.RangeDouble
             public double effectiveness = 1D;
-
-            public static class Extra {
-            }
 
             public static class Advancement {
                 @Config.Comment("Function f(x)=? where 'x' is [Next Level] and 'y' is [Max Level], XP Cost is in units [NOT LEVELS]")

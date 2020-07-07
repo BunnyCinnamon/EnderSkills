@@ -109,7 +109,7 @@ public class LifeSteal extends BaseAbility implements ISkillAdvancement {
     public void onEntityDamage(LivingHurtEvent event) {
         if (isClientWorld(event.getEntityLiving())) return;
         DamageSource source = event.getSource();
-        if (source.getTrueSource() == null || source instanceof SkillDamageSource || event.getAmount() <= 0) return;
+        if (!(source.getTrueSource() instanceof EntityLivingBase) || source instanceof SkillDamageSource || event.getAmount() <= 0) return;
         EntityLivingBase attacker = (EntityLivingBase) source.getTrueSource();
         EntityLivingBase attacked = event.getEntityLiving();
         SkillHelper.getActiveOwner(attacker, this, holder -> {

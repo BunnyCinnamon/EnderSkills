@@ -17,7 +17,7 @@ import javax.annotation.Nonnull;
 public abstract class BaseAbility extends Skill {
 
     public static final String DAMAGE_HIT_TYPE = "skill";
-    public static final String DAMAGE_DOT_TYPE = "skillIndirect";
+    public static final String DAMAGE_DOT_TYPE = "indirectSkill";
     public static final int INDEFINITE = -1;
     public static final int INSTANT = 0;
 

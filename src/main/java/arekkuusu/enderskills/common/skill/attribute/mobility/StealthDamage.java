@@ -44,7 +44,7 @@ public class StealthDamage extends BaseAttribute implements ISkillAdvancement {
         if (isClientWorld(event.getEntityLiving()) || event.getSource().getDamageType().equals("ability")) return;
         DamageSource source = event.getSource();
         if (!source.getDamageType().matches("player|mob")) return;
-        if (source.getTrueSource() == null || source instanceof SkillDamageSource || source.getImmediateSource() != source.getTrueSource())
+        if (!(source.getTrueSource() instanceof EntityLivingBase) || source instanceof SkillDamageSource || source.getImmediateSource() != source.getTrueSource())
             return;
         EntityLivingBase target = event.getEntityLiving();
         EntityLivingBase attacker = (EntityLivingBase) source.getTrueSource();

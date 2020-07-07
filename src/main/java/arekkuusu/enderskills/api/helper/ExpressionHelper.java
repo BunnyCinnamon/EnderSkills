@@ -8,6 +8,7 @@ import com.google.common.collect.Maps;
 import it.unimi.dsi.fastutil.ints.Int2DoubleArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Tuple;
 
 import java.util.Map;
@@ -17,15 +18,23 @@ import java.util.regex.Pattern;
 
 public class ExpressionHelper {
 
-    public static Map<Skill, Object2ObjectMap<String, FunctionInfo>> FUNCTION_CACHE = Maps.newHashMap();
-    public static Map<Tuple<Skill, String>, Int2DoubleArrayMap> EXPRESSION_CACHE = Maps.newHashMap();
-    public static Function<Skill, Object2ObjectArrayMap<String, FunctionInfo>> MAP_CONDITION_SUPPLIER = (s) -> new Object2ObjectArrayMap<>();
-    public static Function<Tuple<Skill, String>, Int2DoubleArrayMap> MAP_DOUBLE_SUPPLIER = (s) -> new Int2DoubleArrayMap();
+    public static Map<ResourceLocation, Object2ObjectMap<String, FunctionInfo>> FUNCTION_CACHE = Maps.newHashMap();
+    public static Map<Tuple<ResourceLocation, String>, Int2DoubleArrayMap> EXPRESSION_CACHE = Maps.newHashMap();
+    public static Function<ResourceLocation, Object2ObjectArrayMap<String, FunctionInfo>> MAP_CONDITION_SUPPLIER = (s) -> new Object2ObjectArrayMap<>();
+    public static Function<Tuple<ResourceLocation, String>, Int2DoubleArrayMap> MAP_DOUBLE_SUPPLIER = (s) -> new Int2DoubleArrayMap();
     public static Function<String, FunctionInfo> CONDITION_SUPPLIER = ExpressionHelper::parse;
     public static String REGEX = "^\\((.+)\\)\\{(.+)\\}$";
 
     public static double getExpression(Skill skill, String function, int min, int max) {
-        Int2DoubleArrayMap map = EXPRESSION_CACHE.computeIfAbsent(new Tuple<>(skill, function), MAP_DOUBLE_SUPPLIER);
+        return getExpression(skill.getRegistryName(), function, min, max);
+    }
+
+    public static double getExpression(Skill skill, String[] functionArray, int min, int max) {
+        return getExpression(skill.getRegistryName(), functionArray, min, max);
+    }
+
+    public static double getExpression(ResourceLocation location, String function, int min, int max) {
+        Int2DoubleArrayMap map = EXPRESSION_CACHE.computeIfAbsent(new Tuple<>(location, function), MAP_DOUBLE_SUPPLIER);
         if (!map.containsKey(min)) {
             final Point x = new Point("x", String.valueOf(min));
             final Point y = new Point("y", String.valueOf(max));
@@ -35,8 +44,8 @@ public class ExpressionHelper {
         return map.get(min);
     }
 
-    public static double getExpression(Skill skill, String[] functionArray, int min, int max) {
-        Object2ObjectMap<String, FunctionInfo> map = FUNCTION_CACHE.computeIfAbsent(skill, MAP_CONDITION_SUPPLIER);
+    public static double getExpression(ResourceLocation location, String[] functionArray, int min, int max) {
+        Object2ObjectMap<String, FunctionInfo> map = FUNCTION_CACHE.computeIfAbsent(location, MAP_CONDITION_SUPPLIER);
         FunctionInfo match = null;
         for (String s : functionArray) {
             FunctionInfo info = map.computeIfAbsent(s, CONDITION_SUPPLIER);
@@ -44,7 +53,7 @@ public class ExpressionHelper {
                 match = info;
             }
         }
-        return match != null ? ExpressionHelper.getExpression(skill, match.function, min, max) : 0;
+        return match != null ? ExpressionHelper.getExpression(location, match.function, min, max) : 0;
     }
 
     public static FunctionInfo parse(String string) {

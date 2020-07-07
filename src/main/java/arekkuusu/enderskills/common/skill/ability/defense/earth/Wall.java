@@ -325,7 +325,7 @@ public class Wall extends BaseAbility implements ISkillAdvancement {
             public static class Extra {
                 @Config.Comment("Wall Size Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
                 public String[] size = {
-                        "(0+){5"
+                        "(0+){5}"
                 };
                 @Config.Comment("Wall Launch Force Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
                 public String[] launch = {

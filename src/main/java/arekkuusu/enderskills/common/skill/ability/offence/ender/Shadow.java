@@ -122,8 +122,7 @@ public class Shadow extends BaseAbility implements ISkillAdvancement {
     public void onEntityDamage(LivingHurtEvent event) {
         if (isClientWorld(event.getEntityLiving()) || event.getSource().getDamageType().equals("shadow")) return;
         DamageSource source = event.getSource();
-        if (source.getTrueSource() == null || source instanceof SkillDamageSource || !(source.getTrueSource() instanceof EntityLivingBase) || event.getAmount() <= 0)
-            return;
+        if (!(source.getTrueSource() instanceof EntityLivingBase) || source instanceof SkillDamageSource || event.getAmount() <= 0) return;
         EntityLivingBase attacker = (EntityLivingBase) source.getTrueSource();
         Capabilities.get(attacker).ifPresent(capability -> {
             //Do Damage

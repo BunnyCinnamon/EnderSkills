@@ -41,7 +41,7 @@ public class CriticalChance extends BaseAttribute implements ISkillAdvancement {
     public void onEntityDamage(LivingHurtEvent event) {
         if (isClientWorld(event.getEntityLiving()) || event.getSource().getDamageType().equals("ability")) return;
         DamageSource source = event.getSource();
-        if (source.getTrueSource() == null || source instanceof SkillDamageSource) return;
+        if (!(source.getTrueSource() instanceof EntityLivingBase) || source instanceof SkillDamageSource) return;
         EntityLivingBase target = event.getEntityLiving();
         EntityLivingBase attacker = (EntityLivingBase) source.getTrueSource();
         Capabilities.get(attacker).ifPresent(capability -> {

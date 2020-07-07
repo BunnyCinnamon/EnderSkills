@@ -29,12 +29,20 @@ import javax.annotation.Nullable;
 public class AdvancementCapability implements ICapabilitySerializable<NBTTagCompound>, Capability.IStorage<AdvancementCapability> {
 
     public Skill[] skillUnlockOrder = new Skill[0];
-    public int resetCount;
     public int experienceSpent;
-    public int experienceLevel;
-    public double experienceProgress;
+    public int resetCount;
+    /* Advancement specific */
     public double levelProgress;
-    public int level = CommonConfig.getSyncValues().advancement.levels.defaultLevel;
+    public int level;
+    /* Advancement specific */
+    /* Vanilla specific */
+    public double experienceProgress;
+    public int experienceLevel;
+    /* Vanilla specific */
+
+    public AdvancementCapability() {
+        level = CommonConfig.getSyncValues().advancement.levels.defaultLevel;
+    }
 
     public int getExperienceTotal(EntityLivingBase entity) {
         return XPHelper.getXPTotal(this.experienceLevel, this.experienceProgress)

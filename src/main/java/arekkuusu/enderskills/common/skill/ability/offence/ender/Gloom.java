@@ -354,7 +354,7 @@ public class Gloom extends BaseAbility implements IImpact, ISkillAdvancement {
 
             @Config.Comment("Duration Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
             public String[] time = {
-                    "(0+){8 * 20"
+                    "(0+){8 * 20}"
             };
 
             @Config.Comment("Range Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")

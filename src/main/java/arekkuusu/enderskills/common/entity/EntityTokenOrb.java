@@ -1,7 +1,10 @@
 package arekkuusu.enderskills.common.entity;
 
 import arekkuusu.enderskills.api.capability.Capabilities;
+import arekkuusu.enderskills.api.helper.ExpressionHelper;
 import arekkuusu.enderskills.common.CommonConfig;
+import arekkuusu.enderskills.common.lib.LibMod;
+import arekkuusu.enderskills.common.lib.LibNames;
 import arekkuusu.enderskills.common.network.PacketHelper;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.Entity;
@@ -11,6 +14,7 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.DamageSource;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
@@ -133,15 +137,7 @@ public class EntityTokenOrb extends Entity {
                 if (this.tokenValue > 0) {
                     Capabilities.advancement(entityIn).ifPresent(c -> {
                         for (int i = 0; i < this.tokenValue; i++) {
-                            double exp = 1;
-                            for (int j = 0; j < c.level; j++) {
-                                exp = exp * 2D;
-                            }
-                            if (exp > CommonConfig.getSyncValues().advancement.levels.tokenCostThreshold) {
-                                exp -= exp * CommonConfig.getSyncValues().advancement.levels.tokenDiminishableCost;
-                            }
-                            double xp = 2D / exp;
-                            c.levelProgress += xp;
+                            c.levelProgress += ExpressionHelper.getExpression(new ResourceLocation(LibMod.MOD_ID, LibNames.TOKEN), CommonConfig.getSyncValues().advancement.levels.function, c.level, Integer.MAX_VALUE);
                             if (c.levelProgress >= 1D) {
                                 c.levelProgress = c.levelProgress - 1D;
                                 c.level++;

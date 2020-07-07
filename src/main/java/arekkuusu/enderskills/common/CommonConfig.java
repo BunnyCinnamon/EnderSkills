@@ -2,6 +2,7 @@ package arekkuusu.enderskills.common;
 
 import arekkuusu.enderskills.api.ESAPI;
 import arekkuusu.enderskills.api.helper.ExpressionHelper;
+import arekkuusu.enderskills.api.helper.NBTHelper;
 import arekkuusu.enderskills.api.registry.Skill;
 import arekkuusu.enderskills.common.lib.LibMod;
 import net.minecraft.nbt.NBTTagCompound;
@@ -48,8 +49,7 @@ public final class CommonConfig {
         CommonConfig.getSyncValues().advancement.xp.globalCostMultiplier = CommonConfig.getValues().advancement.xp.globalCostMultiplier;
         CommonConfig.getSyncValues().advancement.xp.retryXPReturn = CommonConfig.getValues().advancement.xp.retryXPReturn;
         CommonConfig.getSyncValues().advancement.maxRetries = CommonConfig.getValues().advancement.maxRetries;
-        CommonConfig.getSyncValues().advancement.levels.tokenDiminishableCost = CommonConfig.getValues().advancement.levels.tokenDiminishableCost;
-        CommonConfig.getSyncValues().advancement.levels.tokenCostThreshold = CommonConfig.getValues().advancement.levels.tokenCostThreshold;
+        CommonConfig.getSyncValues().advancement.levels.function = CommonConfig.getValues().advancement.levels.function;
         CommonConfig.getSyncValues().advancement.levels.defaultLevel = CommonConfig.getValues().advancement.levels.defaultLevel;
         CommonConfig.getSyncValues().worldGen.enderOreQuantity = CommonConfig.getValues().worldGen.enderOreQuantity;
         CommonConfig.getSyncValues().worldGen.enderOreSpawnRate = CommonConfig.getValues().worldGen.enderOreSpawnRate;
@@ -70,8 +70,7 @@ public final class CommonConfig {
         compound.setDouble("advancement.xp.globalCostMultiplier", CommonConfig.getValues().advancement.xp.globalCostMultiplier);
         compound.setDouble("advancement.xp.retryXPReturn", CommonConfig.getValues().advancement.xp.retryXPReturn);
         compound.setInteger("advancement.maxRetries", CommonConfig.getValues().advancement.maxRetries);
-        compound.setDouble("advancement.levels.tokenDiminishableCost", CommonConfig.getValues().advancement.levels.tokenDiminishableCost);
-        compound.setInteger("advancement.levels.tokenCostThreshold", CommonConfig.getValues().advancement.levels.tokenCostThreshold);
+        NBTHelper.setArray(compound, "advancement.levels.function", CommonConfig.getValues().advancement.levels.function);
         compound.setInteger("advancement.levels.defaultLevel", CommonConfig.getValues().advancement.levels.defaultLevel);
         compound.setBoolean("defaultHumanTeam", CommonConfig.getValues().skill.defaultHumanTeam);
         compound.setDouble("globalCooldown", CommonConfig.getValues().skill.globalCooldown);
@@ -90,8 +89,7 @@ public final class CommonConfig {
         CommonConfig.getSyncValues().advancement.xp.globalCostMultiplier = compound.getDouble("advancement.xp.globalCostMultiplier");
         CommonConfig.getSyncValues().advancement.xp.retryXPReturn = compound.getDouble("advancement.xp.retryXPReturn");
         CommonConfig.getSyncValues().advancement.maxRetries = compound.getInteger("advancement.maxRetries");
-        CommonConfig.getSyncValues().advancement.levels.tokenDiminishableCost = compound.getDouble("advancement.levels.tokenDiminishableCost");
-        CommonConfig.getSyncValues().advancement.levels.tokenCostThreshold = compound.getInteger("advancement.levels.tokenCostThreshold");
+        CommonConfig.getSyncValues().advancement.levels.function = NBTHelper.getArray(compound, "advancement.levels.function");
         CommonConfig.getSyncValues().advancement.levels.defaultLevel = compound.getInteger("advancement.levels.defaultLevel");
         CommonConfig.getSyncValues().skill.defaultHumanTeam = compound.getBoolean("defaultHumanTeam");
         ESAPI.defaultHumanTeam = CommonConfig.getSyncValues().skill.defaultHumanTeam;
@@ -147,8 +145,18 @@ public final class CommonConfig {
             }
 
             public static class Levels {
-                public double tokenDiminishableCost = 0.3;
-                public int tokenCostThreshold = 10;
+                public String[] function = {
+                        "(0+){0}",
+                        "(1+){1}",
+                        "(2+){x/2}",
+                        "(3+){x/4}",
+                        "(4+){x/6}",
+                        "(5+){x/12}",
+                        "(6+){x/24}",
+                        "(7+){x/48}",
+                        "(8+){x/96}",
+                        "(9+){x/(2 ^ x) * 0.3}"
+                };
                 public int defaultLevel = 1;
             }
         }

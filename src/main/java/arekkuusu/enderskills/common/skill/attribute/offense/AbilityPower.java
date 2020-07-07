@@ -102,9 +102,9 @@ public class AbilityPower extends BaseAttribute implements ISkillAdvancement {
                             description.add("Current Level:");
                         }
                         if (Configuration.getSyncValues().extra.multiplyDamage) {
-                            description.add("Dmg: +" + TextHelper.format2FloatPoint(getModifierMultiplication(attributeInfo) * 100) + " %");
+                            description.add("AP: +" + TextHelper.format2FloatPoint(getModifierMultiplication(attributeInfo) * 100) + " %");
                         } else {
-                            description.add("Dmg: +" + getModifierAddition(attributeInfo));
+                            description.add("AP: +" + getModifierAddition(attributeInfo));
                         }
                         if (attributeInfo.getLevel() < getMaxLevel()) { //Copy info and set a higher level...
                             AttributeInfo infoNew = new AttributeInfo(attributeInfo.serializeNBT());

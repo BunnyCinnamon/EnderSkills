@@ -42,7 +42,7 @@ public class Damage extends BaseAttribute implements ISkillAdvancement {
     public void onEntityDamage(LivingHurtEvent event) {
         if (isClientWorld(event.getEntityLiving()) || SkillHelper.isSkillDamage(event.getSource())) return;
         DamageSource source = event.getSource();
-        if (source.getTrueSource() == null || source instanceof SkillDamageSource || event.getAmount() <= 0) return;
+        if (!(source.getTrueSource() instanceof EntityLivingBase) || source instanceof SkillDamageSource || event.getAmount() <= 0 || !(source.getTrueSource() instanceof EntityLivingBase)) return;
         EntityLivingBase attacker = (EntityLivingBase) source.getTrueSource();
         Capabilities.get(attacker).ifPresent(capability -> {
             //Do Damage
