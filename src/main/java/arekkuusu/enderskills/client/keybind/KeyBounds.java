@@ -10,7 +10,7 @@ import org.lwjgl.input.Keyboard;
 
 import java.util.List;
 
-public class ESKeyBounds {
+public class KeyBounds {
 
     public static List<KeyBinding> skillUseList = Lists.newLinkedList();
     public static KeyBinding skillGroupRotateRight;

@@ -73,6 +73,9 @@ public class CommandWeight extends CommandBase {
     @Override
     public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
         EntityLivingBase entity = getEntity(server, sender, args[0], EntityLivingBase.class);
+        if(sender.getCommandSenderEntity() != entity && !sender.canUseCommand(2, this.getName())) {
+            message(sender, "not_found.player");
+        }
         if (entity == null) {
             message(sender, "not_found.player");
             return;

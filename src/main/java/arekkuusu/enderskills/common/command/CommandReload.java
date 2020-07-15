@@ -1,7 +1,7 @@
 package arekkuusu.enderskills.common.command;
 
 import arekkuusu.enderskills.common.CommonConfig;
-import arekkuusu.enderskills.common.ES;
+import arekkuusu.enderskills.common.EnderSkills;
 import arekkuusu.enderskills.common.lib.LibMod;
 import arekkuusu.enderskills.common.network.PacketHelper;
 import com.google.common.collect.ImmutableList;
@@ -85,7 +85,7 @@ public class CommandReload extends CommandBase {
                     sync.invoke(null, configuration, cls, modid, category, true, null);
                     configuration.save();
                 } catch (ClassNotFoundException | IllegalAccessException | InvocationTargetException e) {
-                    ES.LOG.fatal("[Config Reload] - Failed to reload Configuration from disk");
+                    EnderSkills.LOG.fatal("[Config Reload] - Failed to reload Configuration from disk");
                     e.printStackTrace();
                 }
             }

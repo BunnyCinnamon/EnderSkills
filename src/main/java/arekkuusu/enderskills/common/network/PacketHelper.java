@@ -87,7 +87,11 @@ public final class PacketHelper {
         NBTTagCompound compound = new NBTTagCompound();
         NBTHelper.setResourceLocation(compound, "location", Objects.requireNonNull(skill.getRegistryName()));
         NBTHelper.setEntity(compound, entity, "user");
-        PacketHandler.NETWORK.sendToServer(new ClientToServerPacket(PacketHandler.SKILL_UPDATE_REQUEST, compound));
+        PacketHandler.NETWORK.sendToServer(new ClientToServerPacket(PacketHandler.SKILL_UPGRADE_REQUEST, compound));
+    }
+
+    public static void sendGuiSync(EntityPlayerMP player) {
+        PacketHandler.NETWORK.sendTo(new ServerToClientPacket(PacketHandler.GUI_SYNC, new NBTTagCompound()), player);
     }
 
     @SideOnly(Side.CLIENT)
@@ -130,7 +134,6 @@ public final class PacketHelper {
         NBTHelper.setNBT(compound, "data", data.serializeNBT());
         PacketHandler.NETWORK.sendToAllAround(new ServerToClientPacket(PacketHandler.SKILL_DATA_REMOVE_RESPONSE, compound), fromEntity(entity, 69)); // Nice
     }
-
     //TODO: REMOVE TOO HARDCODED!!
 
     public static void sendEnduranceSync(EntityPlayerMP player) {

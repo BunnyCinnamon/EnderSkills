@@ -1,6 +1,6 @@
 package arekkuusu.enderskills.common.network;
 
-import arekkuusu.enderskills.common.ES;
+import arekkuusu.enderskills.common.EnderSkills;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.NBTTagCompound;
@@ -32,7 +32,7 @@ public class ServerToClientPacket implements IMessage {
             handler = PacketHandler.HANDLERS.get(buf.readInt());
             data = beef.readCompoundTag();
         } catch (Exception e) {
-            ES.LOG.error("[Packet] Failed to receive packet");
+            EnderSkills.LOG.error("[Packet] Failed to receive packet");
             e.printStackTrace();
         }
     }
@@ -44,7 +44,7 @@ public class ServerToClientPacket implements IMessage {
             buf.writeInt(PacketHandler.HANDLERS.indexOf(handler));
             beef.writeCompoundTag(data);
         } catch (Exception e) {
-            ES.LOG.error("[Packet] Failed to send packet");
+            EnderSkills.LOG.error("[Packet] Failed to send packet");
             e.printStackTrace();
         }
     }

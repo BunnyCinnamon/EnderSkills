@@ -1,6 +1,6 @@
 package arekkuusu.enderskills.common.block;
 
-import arekkuusu.enderskills.common.ES;
+import arekkuusu.enderskills.common.EnderSkills;
 import arekkuusu.enderskills.common.block.tile.TileAltar;
 import arekkuusu.enderskills.common.lib.LibGui;
 import net.minecraft.block.SoundType;
@@ -42,7 +42,7 @@ public class BlockAltar extends BlockBase {
     @Override
     public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ) {
         if (worldIn.isRemote) {
-            playerIn.openGui(ES.getInstance(), LibGui.LEVEL_EDITING, worldIn, pos.getX(), pos.getY(), pos.getZ());
+            playerIn.openGui(EnderSkills.getInstance(), LibGui.LEVEL_EDITING, worldIn, pos.getX(), pos.getY(), pos.getZ());
         }
         return true;
     }

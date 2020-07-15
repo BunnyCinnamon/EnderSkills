@@ -1,6 +1,6 @@
 package arekkuusu.enderskills.common;
 
-import arekkuusu.enderskills.api.ESAPI;
+import arekkuusu.enderskills.api.EnderSkillsAPI;
 import arekkuusu.enderskills.api.helper.ExpressionHelper;
 import arekkuusu.enderskills.api.helper.NBTHelper;
 import arekkuusu.enderskills.api.registry.Skill;
@@ -39,7 +39,7 @@ public final class CommonConfig {
     @Deprecated
     public static void initSyncConfig() {
         CommonConfig.getSyncValues().skill.defaultHumanTeam = CommonConfig.getValues().skill.defaultHumanTeam;
-        ESAPI.defaultHumanTeam = CommonConfig.getSyncValues().skill.defaultHumanTeam;
+        EnderSkillsAPI.defaultHumanTeam = CommonConfig.getSyncValues().skill.defaultHumanTeam;
         CommonConfig.getSyncValues().skill.globalCooldown = CommonConfig.getValues().skill.globalCooldown;
         CommonConfig.getSyncValues().skill.globalTime = CommonConfig.getValues().skill.globalTime;
         CommonConfig.getSyncValues().skill.globalRange = CommonConfig.getValues().skill.globalRange;
@@ -78,8 +78,8 @@ public final class CommonConfig {
         compound.setDouble("globalRange", CommonConfig.getValues().skill.globalRange);
         compound.setDouble("globalEffectiveness", CommonConfig.getValues().skill.globalEffectiveness);
         compound.setDouble("extra.globalEffectEffectiveness", CommonConfig.getValues().skill.extra.globalEffectEffectiveness);
-        ExpressionHelper.EXPRESSION_CACHE.clear();
-        ExpressionHelper.FUNCTION_CACHE.clear();
+        EnderSkillsAPI.EXPRESSION_FUNCTION_CACHE.clear();
+        EnderSkillsAPI.EXPRESSION_CACHE.clear();
     }
 
     @Deprecated
@@ -92,14 +92,14 @@ public final class CommonConfig {
         CommonConfig.getSyncValues().advancement.levels.function = NBTHelper.getArray(compound, "advancement.levels.function");
         CommonConfig.getSyncValues().advancement.levels.defaultLevel = compound.getInteger("advancement.levels.defaultLevel");
         CommonConfig.getSyncValues().skill.defaultHumanTeam = compound.getBoolean("defaultHumanTeam");
-        ESAPI.defaultHumanTeam = CommonConfig.getSyncValues().skill.defaultHumanTeam;
         CommonConfig.getSyncValues().skill.globalCooldown = compound.getDouble("globalCooldown");
         CommonConfig.getSyncValues().skill.globalTime = compound.getDouble("globalTime");
         CommonConfig.getSyncValues().skill.globalRange = compound.getDouble("globalRange");
         CommonConfig.getSyncValues().skill.globalEffectiveness = compound.getDouble("globalEffectiveness");
         CommonConfig.getSyncValues().skill.extra.globalEffectEffectiveness = compound.getDouble("extra.globalEffectEffectiveness");
-        ExpressionHelper.EXPRESSION_CACHE.clear();
-        ExpressionHelper.FUNCTION_CACHE.clear();
+        EnderSkillsAPI.defaultHumanTeam = CommonConfig.getSyncValues().skill.defaultHumanTeam;
+        EnderSkillsAPI.EXPRESSION_FUNCTION_CACHE.clear();
+        EnderSkillsAPI.EXPRESSION_CACHE.clear();
     }
 
     public static class Values {

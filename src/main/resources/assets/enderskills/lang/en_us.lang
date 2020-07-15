@@ -93,9 +93,10 @@ ui.enderskills.gui.advancement.and=&&
 ui.enderskills.gui.advancement.confirm_upgrade=Confirm Upgrade?
 ui.enderskills.gui.advancement.confirm_unlock=Confirm Unlock?
 ui.enderskills.gui.advancement.locked=Dialog locked
-ui.enderskills.gui.advancement.requires=§lRequires:§r
+ui.enderskills.gui.advancement.description=§llvl §l%1$s §l-> §llvl §l%2$s§r\n
+ui.enderskills.gui.advancement.requires=§lRequirements:§r
 ui.enderskills.gui.advancement.requires_levels=\n- %s EL.
-ui.enderskills.gui.advancement.requires_xp=\n- %s XP."
+ui.enderskills.gui.advancement.requires_xp=\n- %s XP.
 ui.enderskills.gui.advancement.undone_warning=\n\n§4This action cannot be undone.§r
 
 ui.enderskills.cooldown.timer=%1$ss

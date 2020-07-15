@@ -21,6 +21,7 @@ import net.minecraft.client.renderer.texture.TextureMap;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class GuiSkillAdvancementSimple extends GuiSkillAdvancement {
 
@@ -280,8 +281,14 @@ public class GuiSkillAdvancementSimple extends GuiSkillAdvancement {
                         ISkillAdvancement.Requirement requirement = ((ISkillAdvancement) advancement.info.skill).getRequirement(this.mc.player);
                         int levels = requirement.getLevels();
                         int xp = requirement.getXp();
+                        Optional<SkillInfo> optional = c.get(advancement.info.skill).filter(i -> i instanceof IInfoUpgradeable);
+                        if (optional.isPresent()) {
+                            SkillInfo info = optional.get();
+                            int lvl = ((IInfoUpgradeable) info).getLevel();
+                            description += TextHelper.translate("gui.advancement.description", lvl, lvl + 1);
+                        }
                         if (levels > 0 || (xp > 0)) {
-                            description = TextHelper.translate("gui.advancement.requires");
+                            description += TextHelper.translate("gui.advancement.requires");
                         }
                         if (levels > 0) {
                             description += TextHelper.translate("gui.advancement.requires_levels", levels);
@@ -292,10 +299,10 @@ public class GuiSkillAdvancementSimple extends GuiSkillAdvancement {
                     }
                     description += TextHelper.translate("gui.advancement.undone_warning");
                     GuiScreenSkillAdvancements.confirmation = new GuiConfirmation(this.mc, title, description, (g) -> {
-                        this.advancement.upgrade();
-                        if (g.isShifting) {
+                        boolean success = this.advancement.upgrade();
+                        if (g.isShifting && success) {
                             this.gui.gui.allowUserInput = false;
-                            PacketHandler.SYNC_SKILLS_QUEUE.add(() -> {
+                            PacketHandler.GUI_SYNC_QUEUE.add(() -> {
                                 this.gui.gui.isShifting = true;
                                 this.gui.gui.allowUserInput = true;
                                 this.actionPerformed(button);

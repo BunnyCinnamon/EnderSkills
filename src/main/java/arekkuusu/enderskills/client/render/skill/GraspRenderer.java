@@ -7,7 +7,7 @@ import arekkuusu.enderskills.client.util.ResourceLibrary;
 import arekkuusu.enderskills.client.util.ShaderLibrary;
 import arekkuusu.enderskills.client.util.helper.RenderMisc;
 import arekkuusu.enderskills.common.CommonConfig;
-import arekkuusu.enderskills.common.ES;
+import arekkuusu.enderskills.common.EnderSkills;
 import arekkuusu.enderskills.common.entity.placeable.EntityPlaceableGrasp;
 import arekkuusu.enderskills.common.skill.ModAbilities;
 import arekkuusu.enderskills.common.skill.ability.offence.ender.Grasp;
@@ -71,7 +71,7 @@ public class GraspRenderer extends SkillRenderer<Grasp> {
         float angle = entity.ticksExisted * 1.15F % 360F;
         vec = vec.rotateYaw(angle * (float) Math.PI / 180F);
         vec = vec.add(entity.getPositionVector());
-        ES.getProxy().spawnParticle(entity.world, vec, new Vec3d(0, 0.1, 0), 3F, 50, 0x1E0034, ResourceLibrary.GLOW_PARTICLE_EFFECT);
+        EnderSkills.getProxy().spawnParticle(entity.world, vec, new Vec3d(0, 0.1, 0), 3F, 50, 0x1E0034, ResourceLibrary.GLOW_PARTICLE_EFFECT);
     }
 
     @SideOnly(Side.CLIENT)
@@ -104,7 +104,7 @@ public class GraspRenderer extends SkillRenderer<Grasp> {
                     double posX = pos.getX() + 1 * entity.world.rand.nextDouble();
                     double posY = pos.getY() + 1D + 0.1 * entity.world.rand.nextDouble();
                     double posZ = pos.getZ() + 1 * entity.world.rand.nextDouble();
-                    ES.getProxy().spawnParticle(entity.world, new Vec3d(posX, posY, posZ), new Vec3d(0, 0.1, 0), 2F, 50, colors[entity.world.rand.nextInt(colors.length - 1)], ResourceLibrary.GLOW_PARTICLE_EFFECT);
+                    EnderSkills.getProxy().spawnParticle(entity.world, new Vec3d(posX, posY, posZ), new Vec3d(0, 0.1, 0), 2F, 50, colors[entity.world.rand.nextInt(colors.length - 1)], ResourceLibrary.GLOW_PARTICLE_EFFECT);
                 }
                 GlStateManager.pushMatrix();
                 GlStateManager.translate(x - originVec.x, y - originVec.y, z - originVec.z);

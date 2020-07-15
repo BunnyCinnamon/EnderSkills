@@ -1,29 +1,24 @@
 package arekkuusu.enderskills.api.helper;
 
+import arekkuusu.enderskills.api.EnderSkillsAPI;
 import arekkuusu.enderskills.api.registry.Skill;
 import com.expression.parser.Parser;
 import com.expression.parser.util.ParserResult;
 import com.expression.parser.util.Point;
-import com.google.common.collect.Maps;
 import it.unimi.dsi.fastutil.ints.Int2DoubleArrayMap;
-import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Tuple;
 
-import java.util.Map;
+import javax.annotation.Nullable;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class ExpressionHelper {
 
-    public static Map<ResourceLocation, Object2ObjectMap<String, FunctionInfo>> FUNCTION_CACHE = Maps.newHashMap();
-    public static Map<Tuple<ResourceLocation, String>, Int2DoubleArrayMap> EXPRESSION_CACHE = Maps.newHashMap();
-    public static Function<ResourceLocation, Object2ObjectArrayMap<String, FunctionInfo>> MAP_CONDITION_SUPPLIER = (s) -> new Object2ObjectArrayMap<>();
-    public static Function<Tuple<ResourceLocation, String>, Int2DoubleArrayMap> MAP_DOUBLE_SUPPLIER = (s) -> new Int2DoubleArrayMap();
-    public static Function<String, FunctionInfo> CONDITION_SUPPLIER = ExpressionHelper::parse;
-    public static String REGEX = "^\\((.+)\\)\\{(.+)\\}$";
+    public static Function<String, FunctionInfo> EXPRESSION_PARSER_SUPPLIER = ExpressionHelper::parse;
+    public static String EXPRESSION_REGEX = "^\\((.+)\\)\\{(.+)\\}$";
 
     public static double getExpression(Skill skill, String function, int min, int max) {
         return getExpression(skill.getRegistryName(), function, min, max);
@@ -34,7 +29,7 @@ public class ExpressionHelper {
     }
 
     public static double getExpression(ResourceLocation location, String function, int min, int max) {
-        Int2DoubleArrayMap map = EXPRESSION_CACHE.computeIfAbsent(new Tuple<>(location, function), MAP_DOUBLE_SUPPLIER);
+        Int2DoubleArrayMap map = EnderSkillsAPI.EXPRESSION_CACHE.computeIfAbsent(new Tuple<>(location, function), EnderSkillsAPI.EXPRESSION_CACHE_SUPPLIER);
         if (!map.containsKey(min)) {
             final Point x = new Point("x", String.valueOf(min));
             final Point y = new Point("y", String.valueOf(max));
@@ -45,19 +40,28 @@ public class ExpressionHelper {
     }
 
     public static double getExpression(ResourceLocation location, String[] functionArray, int min, int max) {
-        Object2ObjectMap<String, FunctionInfo> map = FUNCTION_CACHE.computeIfAbsent(location, MAP_CONDITION_SUPPLIER);
+        Object2ObjectMap<String, FunctionInfo> map = EnderSkillsAPI.EXPRESSION_FUNCTION_CACHE.computeIfAbsent(location, EnderSkillsAPI.EXPRESSION_FUNCTION_CACHE_SUPPLIER);
         FunctionInfo match = null;
+        FunctionInfo temp = null;
         for (String s : functionArray) {
-            FunctionInfo info = map.computeIfAbsent(s, CONDITION_SUPPLIER);
-            if (info.matches(min)) {
+            FunctionInfo info = map.computeIfAbsent(s, ExpressionHelper.EXPRESSION_PARSER_SUPPLIER);
+            if (info.matches(min) && isNotOverride(temp, info, min)) {
                 match = info;
             }
+            temp = info;
         }
         return match != null ? ExpressionHelper.getExpression(location, match.function, min, max) : 0;
     }
 
+    public static boolean isNotOverride(@Nullable FunctionInfo prev, FunctionInfo next, int min) {
+        return prev == null || next.condition != FunctionInfo.Condition.MinusInfinite
+                || (prev.condition == FunctionInfo.Condition.PlusInfinite && min > prev.min)
+                || (prev.condition == FunctionInfo.Condition.Between && min > prev.max)
+                || (prev.condition == FunctionInfo.Condition.MinusInfinite && min > prev.min);
+    }
+
     public static FunctionInfo parse(String string) {
-        Pattern pattern = Pattern.compile(REGEX);
+        Pattern pattern = Pattern.compile(ExpressionHelper.EXPRESSION_REGEX);
         Matcher matcher = pattern.matcher(string.trim());
         if (matcher.matches()) {
             String condition = matcher.group(1).trim().replace(" ", "");
@@ -71,11 +75,11 @@ public class ExpressionHelper {
             } else {
                 int index = condition.indexOf('-');
                 int min = Integer.parseInt(condition.substring(0, index));
-                int max = Integer.parseInt(condition.substring(index));
+                int max = Integer.parseInt(condition.substring(index + 1));
                 return new FunctionInfo(FunctionInfo.Condition.Between, function, min, max);
             }
         } else {
-            throw new IllegalStateException("[ExpressionHelper] - Expression " + string + " is not valid");
+            throw new IllegalStateException("[ExpressionHelper] - Expression " + string + " is not valid, might be missing a { or }");
         }
     }
 

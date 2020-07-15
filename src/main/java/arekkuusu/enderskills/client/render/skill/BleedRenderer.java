@@ -4,7 +4,7 @@ import arekkuusu.enderskills.api.capability.data.SkillHolder;
 import arekkuusu.enderskills.api.helper.NBTHelper;
 import arekkuusu.enderskills.client.util.ResourceLibrary;
 import arekkuusu.enderskills.client.util.ShaderLibrary;
-import arekkuusu.enderskills.common.ES;
+import arekkuusu.enderskills.common.EnderSkills;
 import arekkuusu.enderskills.common.skill.ModAbilities;
 import arekkuusu.enderskills.common.skill.SkillHelper;
 import arekkuusu.enderskills.common.skill.ability.offence.blood.Bleed;
@@ -33,7 +33,7 @@ public class BleedRenderer extends SkillRenderer<Bleed> {
             double posX = vec.x + entity.world.rand.nextDouble() - 0.5D;
             double posY = vec.y + entity.world.rand.nextDouble() * entity.height;
             double posZ = vec.z + entity.world.rand.nextDouble() - 0.5D;
-            ES.getProxy().spawnParticle(entity.world, new Vec3d(posX, posY, posZ), new Vec3d(0, -0.1, 0), 2F, 50, 0x8A0303, ResourceLibrary.DROPLET);
+            EnderSkills.getProxy().spawnParticle(entity.world, new Vec3d(posX, posY, posZ), new Vec3d(0, -0.1, 0), 2F, 50, 0x8A0303, ResourceLibrary.DROPLET);
         }
     }
 

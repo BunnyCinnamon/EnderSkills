@@ -7,7 +7,7 @@ import arekkuusu.enderskills.api.capability.data.SkillHolder;
 import arekkuusu.enderskills.api.capability.data.SkillInfo;
 import arekkuusu.enderskills.api.helper.NBTHelper;
 import arekkuusu.enderskills.api.registry.Skill;
-import arekkuusu.enderskills.client.keybind.ESKeyBounds;
+import arekkuusu.enderskills.client.keybind.KeyBounds;
 import arekkuusu.enderskills.client.render.skill.SkillRendererDispatcher;
 import arekkuusu.enderskills.client.util.ResourceLibrary;
 import arekkuusu.enderskills.client.util.helper.TextHelper;
@@ -58,19 +58,19 @@ public class Events {
     public static void onKeyPress(InputEvent.KeyInputEvent event) {
         EntityPlayerSP player = Minecraft.getMinecraft().player;
         Capabilities.get(player).ifPresent(capability -> {
-            if (ESKeyBounds.skillGroupRotateLeft.isPressed()) {
+            if (KeyBounds.skillGroupRotateLeft.isPressed()) {
                 rotateSkillGroup(capability, true);
                 player.sendStatusMessage(TextHelper.getTextComponent("rotate_skill_group", skillGroup), true);
                 rotate = EnumFacing.AxisDirection.NEGATIVE;
                 return;
             }
-            if (ESKeyBounds.skillGroupRotateRight.isPressed()) {
+            if (KeyBounds.skillGroupRotateRight.isPressed()) {
                 rotateSkillGroup(capability, false);
                 player.sendStatusMessage(TextHelper.getTextComponent("rotate_skill_group", skillGroup), true);
                 rotate = EnumFacing.AxisDirection.POSITIVE;
                 return;
             }
-            List<KeyBinding> skillUseList = ESKeyBounds.skillUseList;
+            List<KeyBinding> skillUseList = KeyBounds.skillUseList;
             for (int i = 0; i < skillUseList.size(); i++) {
                 KeyBinding binding = skillUseList.get(i);
                 if (binding.isPressed()) {
@@ -164,7 +164,7 @@ public class Events {
                     GlStateManager.enableTexture2D();
                 }
                 if (CommonConfig.RENDER_CONFIG.skillGroup.renderControls && skill.isKeyBound()) {
-                    KeyBinding binding = ESKeyBounds.skillUseList.get(i);
+                    KeyBinding binding = KeyBounds.skillUseList.get(i);
                     String control = binding.getKeyModifier().getLocalizedComboName(binding.getKeyCode());
                     renderText(control, x, y + 14, 0.3D, hasCool ? 0x8C605D : 8453920);
                 }

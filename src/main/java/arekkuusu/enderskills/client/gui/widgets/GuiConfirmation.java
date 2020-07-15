@@ -25,6 +25,8 @@ public class GuiConfirmation extends Gui {
     public final boolean canNegate;
     public final boolean isShifting;
     public final String description;
+    public boolean allowUserInput;
+    public int timer;
     public int width;
     public int height;
     public int x;
@@ -38,6 +40,8 @@ public class GuiConfirmation extends Gui {
         this.canConfirm = canConfirm;
         this.canNegate = canNegate;
         this.isShifting = isShifting;
+        this.allowUserInput = true;
+        this.timer = 5;
     }
 
     public void initGui() {
@@ -64,6 +68,16 @@ public class GuiConfirmation extends Gui {
         }
         this.buttonYes = new GuiCustomButton(0, this.x - 25, this.y + 5 + descriptionFormattedLines.size() * this.mc.fontRenderer.FONT_HEIGHT, 12, 10, "", 0, 72, 12, 10, 0);
         this.buttonNo = new GuiCustomButton(1, this.x + 13, this.y + 5 + descriptionFormattedLines.size() * this.mc.fontRenderer.FONT_HEIGHT, 11, 11, "", 12, 72, 11, 11, 0);
+        buttonYes.enabled = false;
+        buttonNo.enabled = false;
+    }
+
+    public void update() {
+        if(this.timer > 0) this.timer--;
+        if(timer == 0) {
+            buttonYes.enabled = allowUserInput;
+            buttonNo.enabled = allowUserInput;
+        }
     }
 
     public void drawGui(int mouseX, int mouseY, float partialTicks) {
@@ -193,8 +207,7 @@ public class GuiConfirmation extends Gui {
         if (button.id == 0) {
             confirm();
         }
-        buttonNo.enabled = false;
-        buttonYes.enabled = false;
+        this.allowUserInput = false;
     }
 
     public void confirm() {

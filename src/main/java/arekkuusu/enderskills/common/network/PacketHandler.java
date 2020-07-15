@@ -10,7 +10,7 @@ import arekkuusu.enderskills.api.helper.XPHelper;
 import arekkuusu.enderskills.api.registry.Skill;
 import arekkuusu.enderskills.client.gui.data.ISkillAdvancement;
 import arekkuusu.enderskills.common.CommonConfig;
-import arekkuusu.enderskills.common.ES;
+import arekkuusu.enderskills.common.EnderSkills;
 import arekkuusu.enderskills.common.lib.LibMod;
 import arekkuusu.enderskills.common.skill.ModAbilities;
 import com.google.common.collect.Lists;
@@ -43,7 +43,7 @@ public final class PacketHandler {
         int age = NBTHelper.getInteger(compound, "age");
         int rgb = NBTHelper.getInteger(compound, "rgb");
         ResourceLocation location = NBTHelper.getResourceLocation(compound, "location");
-        ES.getProxy().spawnParticle(world, pos, speed, scale, age, rgb, location);
+        EnderSkills.getProxy().spawnParticle(world, pos, speed, scale, age, rgb, location);
     }));
 
     public static final IPacketHandler SYNC_GLOBAL_CONFIG = (((compound, context) -> {
@@ -57,19 +57,15 @@ public final class PacketHandler {
         skill.readSyncConfig(compound);
     }));
 
-    public static final List<Runnable> SYNC_SKILLS_QUEUE = new ArrayList<>();
-
     public static final IPacketHandler SYNC_SKILLS = (((compound, context) -> {
-        EntityPlayer player = ES.getProxy().getPlayer();
+        EntityPlayer player = EnderSkills.getProxy().getPlayer();
         Capabilities.get(player).ifPresent(s -> {
             s.deserializeNBT(compound);
-            SYNC_SKILLS_QUEUE.forEach(Runnable::run);
-            SYNC_SKILLS_QUEUE.clear();
         });
     }));
 
     public static final IPacketHandler SYNC_SKILL = (((compound, context) -> {
-        EntityPlayer player = ES.getProxy().getPlayer();
+        EntityPlayer player = EnderSkills.getProxy().getPlayer();
         Capabilities.get(player).ifPresent(skills -> {
             IForgeRegistry<Skill> registry = GameRegistry.findRegistry(Skill.class);
             Skill skill = registry.getValue(NBTHelper.getResourceLocation(compound, "location"));
@@ -81,7 +77,7 @@ public final class PacketHandler {
     }));
 
     public static final IPacketHandler SYNC_WEIGHT = (((compound, context) -> {
-        EntityPlayer player = ES.getProxy().getPlayer();
+        EntityPlayer player = EnderSkills.getProxy().getPlayer();
         Capabilities.get(player).ifPresent(skills -> {
             IForgeRegistry<Skill> registry = GameRegistry.findRegistry(Skill.class);
             Skill skill = registry.getValue(NBTHelper.getResourceLocation(compound, "location"));
@@ -140,7 +136,7 @@ public final class PacketHandler {
 
     //TODO: REMOVE TOO HARDCODED!!
     public static final IPacketHandler SYNC_ENDURANCE = (((compound, context) -> {
-        EntityPlayer player = ES.getProxy().getPlayer();
+        EntityPlayer player = EnderSkills.getProxy().getPlayer();
         Capabilities.endurance(player).ifPresent(capability -> {
             capability.setEndurance(compound.getInteger("endurance"));
             capability.setEnduranceDelay(compound.getInteger("endurance_delay"));
@@ -149,7 +145,7 @@ public final class PacketHandler {
     }));
 
     public static final IPacketHandler SYNC_ADVANCEMENT = (((compound, context) -> {
-        EntityPlayer player = ES.getProxy().getPlayer();
+        EntityPlayer player = EnderSkills.getProxy().getPlayer();
         Capabilities.advancement(player).ifPresent(c -> {
             player.experienceLevel = compound.getInteger("lvl");
             player.experience = compound.getInteger("lvl_progress");
@@ -158,7 +154,7 @@ public final class PacketHandler {
         });
     }));
 
-    public static final IPacketHandler SKILL_UPDATE_REQUEST = (((compound, context) -> {
+    public static final IPacketHandler SKILL_UPGRADE_REQUEST = (((compound, context) -> {
         IForgeRegistry<Skill> registry = GameRegistry.findRegistry(Skill.class);
         Skill skill = registry.getValue(NBTHelper.getResourceLocation(compound, "location"));
         assert skill != null;
@@ -176,10 +172,12 @@ public final class PacketHandler {
                                         ((IInfoUpgradeable) info).setLevel(lvl);
                                         PacketHelper.sendSkillsSync((EntityPlayerMP) e);
                                         PacketHelper.sendAdvancementSync((EntityPlayerMP) e);
+                                        PacketHelper.sendGuiSync((EntityPlayerMP) e);
                                     }
                                 } else {
                                     ((IInfoUpgradeable) info).setLevel(lvl);
                                     PacketHelper.sendSkillSync((EntityPlayerMP) e, skill);
+                                    PacketHelper.sendGuiSync((EntityPlayerMP) e);
                                 }
                             }
                         }
@@ -192,14 +190,25 @@ public final class PacketHandler {
                             c.add(skill);
                             PacketHelper.sendSkillsSync((EntityPlayerMP) e);
                             PacketHelper.sendAdvancementSync((EntityPlayerMP) e);
+                            PacketHelper.sendGuiSync((EntityPlayerMP) e);
                         }
                     } else {
                         c.add(skill);
                         PacketHelper.sendSkillsSync((EntityPlayerMP) e);
+                        PacketHelper.sendGuiSync((EntityPlayerMP) e);
                     }
                 }
             });
         });
+    }));
+
+    public static final List<Runnable> GUI_SYNC_QUEUE = new ArrayList<>();
+
+    public static final IPacketHandler GUI_SYNC = (((compound, context) -> {
+        if (!GUI_SYNC_QUEUE.isEmpty()) {
+            GUI_SYNC_QUEUE.forEach(Runnable::run);
+            GUI_SYNC_QUEUE.clear();
+        }
     }));
 
     public static final IPacketHandler USE_DASH_REQUEST = (((compound, context) -> {
@@ -299,7 +308,8 @@ public final class PacketHandler {
         //TODO: REMOVE TOO HARDCODED!!
         HANDLERS.add(SYNC_ENDURANCE);
         HANDLERS.add(SYNC_ADVANCEMENT);
-        HANDLERS.add(SKILL_UPDATE_REQUEST);
+        HANDLERS.add(SKILL_UPGRADE_REQUEST);
+        HANDLERS.add(GUI_SYNC);
         HANDLERS.add(RESET_SKILLS_REQUEST);
         HANDLERS.add(USE_DASH_REQUEST);
         HANDLERS.add(USE_FOG_REQUEST);

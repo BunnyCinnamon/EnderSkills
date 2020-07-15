@@ -5,7 +5,7 @@ import arekkuusu.enderskills.client.render.entity.EntityPlaceableDataRenderer;
 import arekkuusu.enderskills.client.util.ResourceLibrary;
 import arekkuusu.enderskills.client.util.ShaderLibrary;
 import arekkuusu.enderskills.client.util.helper.GLHelper;
-import arekkuusu.enderskills.common.ES;
+import arekkuusu.enderskills.common.EnderSkills;
 import arekkuusu.enderskills.common.entity.placeable.EntityPlaceableData;
 import arekkuusu.enderskills.common.lib.LibMod;
 import arekkuusu.enderskills.common.skill.ModAbilities;
@@ -43,7 +43,7 @@ public class HealAuraRenderer extends SkillRenderer<HealAura> {
                 double posX = vec.x + entity.width * (entity.world.rand.nextDouble() - 0.5);
                 double posY = vec.y + entity.height * entity.world.rand.nextDouble();
                 double posZ = vec.z + entity.width * (entity.world.rand.nextDouble() - 0.5);
-                ES.getProxy().spawnParticle(entity.world, new Vec3d(posX, posY, posZ), new Vec3d(0, 0, 0), 3, 50, 0x58DB11, ResourceLibrary.PLUS);
+                EnderSkills.getProxy().spawnParticle(entity.world, new Vec3d(posX, posY, posZ), new Vec3d(0, 0, 0), 3, 50, 0x58DB11, ResourceLibrary.PLUS);
             }
         }
     }
@@ -66,7 +66,7 @@ public class HealAuraRenderer extends SkillRenderer<HealAura> {
                         double posX = vec.x + entity.width * (entity.world.rand.nextDouble() - 0.5);
                         double posY = vec.y + entity.height * (entity.world.rand.nextDouble() - 0.5);
                         double posZ = vec.z + entity.width * (entity.world.rand.nextDouble() - 0.5);
-                        ES.getProxy().spawnParticle(entity.world, new Vec3d(posX, posY, posZ), new Vec3d(0, 0, 0), 1, 50, 0xFFFFFF, ResourceLibrary.PLUS);
+                        EnderSkills.getProxy().spawnParticle(entity.world, new Vec3d(posX, posY, posZ), new Vec3d(0, 0, 0), 1, 50, 0xFFFFFF, ResourceLibrary.PLUS);
                     }
                 }
             }

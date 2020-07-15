@@ -350,7 +350,8 @@ public class Explode extends BaseAbility implements IScanEntities, IExpand, IFin
 
             @Config.Comment("Cooldown Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
             public String[] cooldown = {
-                    "(0+){(90 * 20) + (30 * 20) * (1 - ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)))}"
+                    "(0-49){(90 * 20) + (20 * 20) * (1 - ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)))}",
+                    "(50+){(110 * 20) + (10 * 20) * (1 - ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)))}"
             };
 
             @Config.Comment("Duration Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
@@ -370,7 +371,8 @@ public class Explode extends BaseAbility implements IScanEntities, IExpand, IFin
             public static class Extra {
                 @Config.Comment("Damage Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
                 public String[] damage = {
-                        "(0+){84 + ((e^(0.1 * (x / y)) - 1)/((e^0.1) - 1)) * (142 - 84)}"
+                        "(0-49){86 + ((e^(0.1 * (x / 49)) - 1)/((e^0.1) - 1)) * (100 - 86)}",
+                        "(50+){100 + ((e^(0.1 * (x / y)) - 1)/((e^0.1) - 1)) * (142 - 100)}"
                 };
                 @Config.Comment("Damage Over Time Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
                 public String[] dot = {

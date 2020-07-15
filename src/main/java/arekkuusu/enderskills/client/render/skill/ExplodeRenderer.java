@@ -5,7 +5,7 @@ import arekkuusu.enderskills.client.util.ResourceLibrary;
 import arekkuusu.enderskills.client.util.ShaderLibrary;
 import arekkuusu.enderskills.client.util.helper.GLHelper;
 import arekkuusu.enderskills.client.util.helper.RenderMisc;
-import arekkuusu.enderskills.common.ES;
+import arekkuusu.enderskills.common.EnderSkills;
 import arekkuusu.enderskills.common.entity.placeable.EntityPlaceableData;
 import arekkuusu.enderskills.common.lib.LibMod;
 import arekkuusu.enderskills.common.skill.ability.offence.fire.Explode;
@@ -54,7 +54,7 @@ public class ExplodeRenderer extends SkillRenderer<Explode> {
                         double posY = vec.y + scale * (entity.world.rand.nextDouble() - 0.5);
                         double posZ = vec.z + scale * (entity.world.rand.nextDouble() - 0.5);
                         float particleScale = 2F + 3F * (float) entity.world.rand.nextGaussian();
-                        ES.getProxy().spawnParticle(entity.world, new Vec3d(posX, posY, posZ), new Vec3d(0, 0, 0), particleScale, 25, 0xFFE077, ResourceLibrary.GLOW_PARTICLE_EFFECT);
+                        EnderSkills.getProxy().spawnParticle(entity.world, new Vec3d(posX, posY, posZ), new Vec3d(0, 0, 0), particleScale, 25, 0xFFE077, ResourceLibrary.GLOW_PARTICLE_EFFECT);
                     }
                 }
             }

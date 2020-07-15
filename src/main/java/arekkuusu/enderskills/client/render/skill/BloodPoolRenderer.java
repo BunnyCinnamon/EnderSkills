@@ -3,7 +3,7 @@ package arekkuusu.enderskills.client.render.skill;
 import arekkuusu.enderskills.api.capability.data.SkillHolder;
 import arekkuusu.enderskills.client.render.entity.EntityThrowableDataRenderer;
 import arekkuusu.enderskills.client.util.ResourceLibrary;
-import arekkuusu.enderskills.common.ES;
+import arekkuusu.enderskills.common.EnderSkills;
 import arekkuusu.enderskills.common.entity.placeable.EntityPlaceableBloodPool;
 import arekkuusu.enderskills.common.skill.ModAbilities;
 import arekkuusu.enderskills.common.skill.ability.offence.blood.BloodPool;
@@ -41,7 +41,7 @@ public class BloodPoolRenderer extends SkillRenderer<BloodPool> {
             double posX = vec.x + entity.world.rand.nextDouble() - 0.5D;
             double posY = vec.y + entity.world.rand.nextDouble() * entity.height;
             double posZ = vec.z + entity.world.rand.nextDouble() - 0.5D;
-            ES.getProxy().spawnParticle(entity.world, new Vec3d(posX, posY, posZ), new Vec3d(0, -0.01, 0), 2F, 50, 0x690303, ResourceLibrary.DROPLET);
+            EnderSkills.getProxy().spawnParticle(entity.world, new Vec3d(posX, posY, posZ), new Vec3d(0, -0.01, 0), 2F, 50, 0x690303, ResourceLibrary.DROPLET);
         }
     }
 
@@ -64,7 +64,7 @@ public class BloodPoolRenderer extends SkillRenderer<BloodPool> {
                     double posX = pos.getX() + 1 * entity.world.rand.nextDouble();
                     double posY = pos.getY() + 1D + 0.1 * entity.world.rand.nextDouble();
                     double posZ = pos.getZ() + 1 * entity.world.rand.nextDouble();
-                    ES.getProxy().spawnParticle(entity.world, new Vec3d(posX, posY, posZ), new Vec3d(0, 0.05, 0), 2F, 50, 0x690303, ResourceLibrary.DROPLET);
+                    EnderSkills.getProxy().spawnParticle(entity.world, new Vec3d(posX, posY, posZ), new Vec3d(0, 0.05, 0), 2F, 50, 0x690303, ResourceLibrary.DROPLET);
                 }
                 GlStateManager.pushMatrix();
                 GlStateManager.translate(x - originVec.x, y - originVec.y, z - originVec.z);

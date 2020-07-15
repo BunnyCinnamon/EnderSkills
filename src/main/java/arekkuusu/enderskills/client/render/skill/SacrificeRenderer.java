@@ -5,7 +5,7 @@ import arekkuusu.enderskills.api.capability.data.SkillHolder;
 import arekkuusu.enderskills.api.helper.NBTHelper;
 import arekkuusu.enderskills.client.util.ResourceLibrary;
 import arekkuusu.enderskills.client.util.ShaderLibrary;
-import arekkuusu.enderskills.common.ES;
+import arekkuusu.enderskills.common.EnderSkills;
 import arekkuusu.enderskills.common.skill.ModAbilities;
 import arekkuusu.enderskills.common.skill.ability.offence.blood.Sacrifice;
 import net.minecraft.entity.Entity;
@@ -33,7 +33,7 @@ public class SacrificeRenderer extends SkillRenderer<Sacrifice> {
             double posX = vec.x;
             double posY = vec.y + entity.height / 2;
             double posZ = vec.z;
-            ES.getProxy().spawnParticle(entity.world, new Vec3d(posX, posY, posZ), new Vec3d(0, 0.05, 0), 20F, 50, 0x8A0303, ResourceLibrary.CROSS);
+            EnderSkills.getProxy().spawnParticle(entity.world, new Vec3d(posX, posY, posZ), new Vec3d(0, 0.05, 0), 20F, 50, 0x8A0303, ResourceLibrary.CROSS);
         }
     }
 
