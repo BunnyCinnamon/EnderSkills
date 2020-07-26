@@ -79,6 +79,7 @@ public class LibNames {
     public static final String FIREBALL = "fireball";
     public static final String EXPLODE = "explode";
     //Misc
+    public static final String BOOK = "book";
     public static final String ALTAR = "altar";
     public static final String ACACIA_BREAK_ALTAR = "acacia_break_altar";
     public static final String BIRCH_BREAK_ALTAR = "birch_break_altar";

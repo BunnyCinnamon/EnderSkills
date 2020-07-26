@@ -26,6 +26,7 @@ public final class ModItems {
     public static final Item TOKEN = PLACE_HOLDER;
     public static final Item CRYSTAL_MATRIX = PLACE_HOLDER;
     public static final Item ENDER_DUST = PLACE_HOLDER;
+    public static final Item BOOK = PLACE_HOLDER;
 
     public static void register(IForgeRegistry<Item> registry) {
         registry.register(itemBlock(ModBlocks.ACACIA_BREAK_ALTAR));
@@ -40,6 +41,7 @@ public final class ModItems {
         registry.register(new ItemBase(LibNames.CRYSTAL_MATRIX));
         registry.register(new ItemBase(LibNames.ENDER_DUST));
         registry.register(itemBlock(ModBlocks.ENDER_ORE));
+        registry.register(new ItemBook());
     }
 
     public static void init() {

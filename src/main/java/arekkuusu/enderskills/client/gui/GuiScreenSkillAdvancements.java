@@ -89,11 +89,11 @@ public class GuiScreenSkillAdvancements extends GuiScreen {
         maxBoundaryY = minBoundaryY + 154;
         maxPages = tabs.size();
         if (maxPages > 0) {
-            buttonList.add(new GuiCustomButton(101, this.x + this.guiWidth - 20, this.y - 2, 15, 15, "", 36, 52, 15, 15, 0));
-            buttonList.add(new GuiCustomButton(104, this.x - 3, this.y - 4, 10, 10, "", 51, 52, 10, 10, 0));
+            buttonList.add(new GuiCustomButton(101, this.x + this.guiWidth - 20, this.y - 2, 15, 15, "", 36, 67, 15, 15, 0));
+            buttonList.add(new GuiCustomButton(104, this.x - 3, this.y - 4, 10, 10, "", 51, 62, 10, 10, 0));
 
-            buttonList.add(new GuiCustomButton(102, (this.x) + 2, (this.y - 12) + this.guiHeight, 18, 10, "", 18, 52, 18, 10, 0));
-            buttonList.add(new GuiCustomButton(103, (this.x - 20) + this.guiWidth, (this.y - 12) + this.guiHeight, 18, 10, "", 0, 52, 18, 10, 0));
+            buttonList.add(new GuiCustomButton(102, (this.x) + 2, (this.y - 12) + this.guiHeight, 18, 10, "", 18, 62, 18, 10, 0));
+            buttonList.add(new GuiCustomButton(103, (this.x - 20) + this.guiWidth, (this.y - 12) + this.guiHeight, 18, 10, "", 0, 62, 18, 10, 0));
         }
         String respecTitle = TextHelper.translate("gui.reset_unlocks");
         int respecWidth = this.mc.fontRenderer.getStringWidth(respecTitle) + 4;

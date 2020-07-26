@@ -72,6 +72,7 @@ public final class CreativeTabHandler {
             addItem(ModItems.TOKEN);
             addItem(ModItems.CRYSTAL_MATRIX);
             addItem(ModItems.ENDER_DUST);
+            addItem(ModItems.BOOK);
         }
     }
 }

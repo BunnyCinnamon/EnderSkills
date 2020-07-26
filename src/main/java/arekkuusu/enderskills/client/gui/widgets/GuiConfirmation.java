@@ -66,8 +66,8 @@ public class GuiConfirmation extends Gui {
                 descriptionFormattedLines.add("");
             }
         }
-        this.buttonYes = new GuiCustomButton(0, this.x - 25, this.y + 5 + descriptionFormattedLines.size() * this.mc.fontRenderer.FONT_HEIGHT, 12, 10, "", 0, 72, 12, 10, 0);
-        this.buttonNo = new GuiCustomButton(1, this.x + 13, this.y + 5 + descriptionFormattedLines.size() * this.mc.fontRenderer.FONT_HEIGHT, 11, 11, "", 12, 72, 11, 11, 0);
+        this.buttonYes = new GuiCustomButton(0, this.x - 25, this.y + 5 + descriptionFormattedLines.size() * this.mc.fontRenderer.FONT_HEIGHT, 12, 10, "", 35, 107, 12, 10, 0);
+        this.buttonNo = new GuiCustomButton(1, this.x + 13, this.y + 5 + descriptionFormattedLines.size() * this.mc.fontRenderer.FONT_HEIGHT, 11, 11, "", 47, 108, 11, 11, 0);
         buttonYes.enabled = false;
         buttonNo.enabled = false;
     }
@@ -75,8 +75,8 @@ public class GuiConfirmation extends Gui {
     public void update() {
         if(this.timer > 0) this.timer--;
         if(timer == 0) {
-            buttonYes.enabled = allowUserInput;
-            buttonNo.enabled = allowUserInput;
+            buttonYes.enabled = allowUserInput && canConfirm;
+            buttonNo.enabled = allowUserInput && canNegate;
         }
     }
 
@@ -146,20 +146,8 @@ public class GuiConfirmation extends Gui {
             this.mc.fontRenderer.drawString(descriptionLines.get(i), (float) (xOffset + 4), (float) (yOffset + 9 + 17 + i * this.mc.fontRenderer.FONT_HEIGHT), -1, false);
             GlStateManager.color(1F, 1F, 1F, 1F);
         }
-        if (!canConfirm) {
-            GlStateManager.color(0.1F, 0.1F, 0.1F, 1F);
-        }
         this.buttonYes.drawButton(this.mc, mouseX, mouseY, partialTicks);
-        if (!canConfirm) {
-            GlStateManager.color(1F, 1F, 1F, 1F);
-        }
-        if (!canNegate) {
-            GlStateManager.color(0.1F, 0.1F, 0.1F, 1F);
-        }
         this.buttonNo.drawButton(this.mc, mouseX, mouseY, partialTicks);
-        if (!canNegate) {
-            GlStateManager.color(1F, 1F, 1F, 1F);
-        }
     }
 
     public List<String> getDescriptionLines() {
