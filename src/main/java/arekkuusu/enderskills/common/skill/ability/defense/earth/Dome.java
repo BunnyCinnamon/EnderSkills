@@ -297,12 +297,12 @@ public class Dome extends BaseAbility implements ISkillAdvancement {
 
             @Config.Comment("Cooldown Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
             public String[] cooldown = {
-                    "(0+){(18 * 20) + (38 * 20) * (1 - ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)))}"
+                    "(0+){(18 * 20) + (38 * 20) * (1 - ((e^(-2.1 * (x / y)) - 1)/((e^-2.1) - 1)))}"
             };
 
             @Config.Comment("Duration Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
             public String[] time = {
-                    "(0+){4 * 20 + ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)) * (12 * 20 - 4 * 20)}"
+                    "(0+){4 * 20 + ((e^(-2.1 * (x / y)) - 1)/((e^-2.1) - 1)) * (12 * 20 - 4 * 20)}"
             };
 
             @Config.Comment("Range Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")

@@ -304,12 +304,12 @@ public class Crush extends BaseAbility implements IImpact, ISkillAdvancement {
 
             @Config.Comment("Cooldown Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
             public String[] cooldown = {
-                    "(0+){(20 * 20) + (12 * 20) * (1 - ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)))}"
+                    "(0+){(20 * 20) + (12 * 20) * (1 - ((e^(-2.1 * (x / y)) - 1)/((e^-2.1) - 1)))}"
             };
 
             @Config.Comment("Range Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
             public String[] range = {
-                    "(0+){8 + ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)) * (16 - 8)}"
+                    "(0+){8 + ((e^(-2.1 * (x / y)) - 1)/((e^-2.1) - 1)) * (16 - 8)}"
             };
 
             @Config.Comment("Effectiveness Modifier")
@@ -319,11 +319,13 @@ public class Crush extends BaseAbility implements IImpact, ISkillAdvancement {
             public static class Extra {
                 @Config.Comment("Crush Size Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
                 public String[] size = {
-                        "(0+){7 + ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)) * (12 - 7)}"
+                        "(0+){7 + ((e^(-2.1 * (x / y)) - 1)/((e^-2.1) - 1)) * (12 - 7)}"
                 };
                 @Config.Comment("Damage Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
                 public String[] damage = {
-                        "(0+){40 + ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)) * (175 - 40)}"
+                        "(0+){40 + ((e^(0.1 * (x / 50)) - 1)/((e^0.1) - 1)) * (81.78 - 40)}",
+                        "(50+){81.78 + ((e^(3.25 * ((x-49) / (y-49))) - 1)/((e^3.25) - 1)) * (165 - 81.78)}",
+                        "(100){175}"
                 };
             }
 

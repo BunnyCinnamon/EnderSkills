@@ -335,12 +335,12 @@ public class Updraft extends BaseAbility implements IScanEntities, IExpand, IFin
 
             @Config.Comment("Cooldown Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
             public String[] cooldown = {
-                    "(0+){(14 * 20) + (6 * 20) * (1 - ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)))}"
+                    "(0+){(14 * 20) + (6 * 20) * (1 - ((e^(-2.1 * (x / y)) - 1)/((e^-2.1) - 1)))}"
             };
 
             @Config.Comment("Range Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
             public String[] range = {
-                    "(0+){8 + ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)) * (16 - 8)}"
+                    "(0+){8 + ((e^(-2.1 * (x / y)) - 1)/((e^-2.1) - 1)) * (16 - 8)}"
             };
 
             @Config.Comment("Effectiveness Modifier")
@@ -350,11 +350,11 @@ public class Updraft extends BaseAbility implements IScanEntities, IExpand, IFin
             public static class Extra {
                 @Config.Comment("Lift Range Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
                 public String[] liftRange = {
-                        "(0+){2 + ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)) * (8 - 2)}"
+                        "(0+){2 + ((e^(-2.1 * (x / y)) - 1)/((e^-2.1) - 1)) * (8 - 2)}"
                 };
                 @Config.Comment("Lift Launch Force Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
                 public String[] launch = {
-                        "(0+){6 + ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)) * (40 - 6)}"
+                        "(0+){6 + ((e^(-2.1 * (x / y)) - 1)/((e^-2.1) - 1)) * (40 - 6)}"
                 };
             }
 

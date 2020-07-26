@@ -452,17 +452,17 @@ public class Push extends BaseAbility implements IImpact, IScanEntities, IExpand
 
             @Config.Comment("Cooldown Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
             public String[] cooldown = {
-                    "(0+){(8 * 20) + (6 * 20) * (1 - ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)))}"
+                    "(0+){(8 * 20) + (6 * 20) * (1 - ((e^(-2.1 * (x / y)) - 1)/((e^-2.1) - 1)))}"
             };
 
             @Config.Comment("Duration Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
             public String[] time = {
-                    "(0+){3 * 20 + ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)) * (8 * 20 - 3 * 20)}"
+                    "(0+){3 * 20 + ((e^(-2.1 * (x / y)) - 1)/((e^-2.1) - 1)) * (8 * 20 - 3 * 20)}"
             };
 
             @Config.Comment("Range Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
             public String[] range = {
-                    "(0+){14 + ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)) * (24 - 14)}"
+                    "(0+){14 + ((e^(-2.1 * (x / y)) - 1)/((e^-2.1) - 1)) * (24 - 14)}"
             };
 
             @Config.Comment("Effectiveness Modifier")
@@ -472,11 +472,11 @@ public class Push extends BaseAbility implements IImpact, IScanEntities, IExpand
             public static class Extra {
                 @Config.Comment("Push Range Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
                 public String[] pushRange = {
-                        "(0+){4 + ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)) * (8 - 4)}"
+                        "(0+){4 + ((e^(-2.1 * (x / y)) - 1)/((e^-2.1) - 1)) * (8 - 4)}"
                 };
                 @Config.Comment("Push Force Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
                 public String[] push = {
-                        "(0+){6 + ((e^(0.1 * (x / y)) - 1)/((e^0.1) - 1)) * (40 - 6)}"
+                        "(0+){6 + ((e^(2.1 * (x / y)) - 1)/((e^2.1) - 1)) * (40 - 6)}"
                 };
             }
 

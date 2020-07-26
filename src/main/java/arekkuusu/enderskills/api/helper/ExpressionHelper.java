@@ -17,8 +17,8 @@ import java.util.regex.Pattern;
 
 public class ExpressionHelper {
 
-    public static Function<String, FunctionInfo> EXPRESSION_PARSER_SUPPLIER = ExpressionHelper::parse;
-    public static String EXPRESSION_REGEX = "^\\((.+)\\)\\{(.+)\\}$";
+    public static final Function<String, FunctionInfo> EXPRESSION_PARSER_SUPPLIER = ExpressionHelper::parse;
+    public static final String EXPRESSION_REGEX = "^\\(([\\+\\-\\d]+)\\)\\{(.+)\\}$";
 
     public static double getExpression(Skill skill, String function, int min, int max) {
         return getExpression(skill.getRegistryName(), function, min, max);
@@ -72,11 +72,14 @@ public class ExpressionHelper {
             } else if (condition.startsWith("-")) {
                 int min = Integer.parseInt(condition.substring(1));
                 return new FunctionInfo(FunctionInfo.Condition.MinusInfinite, function, min);
-            } else {
+            } else if (condition.contains("-")){
                 int index = condition.indexOf('-');
                 int min = Integer.parseInt(condition.substring(0, index));
                 int max = Integer.parseInt(condition.substring(index + 1));
                 return new FunctionInfo(FunctionInfo.Condition.Between, function, min, max);
+            } else {
+                int min = Integer.parseInt(condition);
+                return new FunctionInfo(FunctionInfo.Condition.Equal, function, min);
             }
         } else {
             throw new IllegalStateException("[ExpressionHelper] - Expression " + string + " is not valid, might be missing a { or }");
@@ -125,6 +128,12 @@ public class ExpressionHelper {
                 @Override
                 boolean test(int level, int levelMin, int levelMax) {
                     return level >= levelMin && level <= levelMax;
+                }
+            },
+            Equal {
+                @Override
+                boolean test(int level, int levelMin, int levelMax) {
+                    return level == levelMin;
                 }
             };
 

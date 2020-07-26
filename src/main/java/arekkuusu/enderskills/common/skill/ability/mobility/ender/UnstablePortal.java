@@ -371,17 +371,17 @@ public class UnstablePortal extends BaseAbility implements IImpact, IExpand, ISc
 
             @Config.Comment("Cooldown Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
             public String[] cooldown = {
-                    "(0+){(18 * 20) + (42 * 20) * (1 - ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)))}"
+                    "(0+){(18 * 20) + (42 * 20) * (1 - ((e^(-2.1 * (x / y)) - 1)/((e^-2.1) - 1)))}"
             };
 
             @Config.Comment("Duration Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
             public String[] time = {
-                    "(0+){(5 * 20) + ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)) * ((15 * 20) - (5 * 20))}"
+                    "(0+){(5 * 20) + ((e^(-2.1 * (x / y)) - 1)/((e^-2.1) - 1)) * ((15 * 20) - (5 * 20))}"
             };
 
             @Config.Comment("Range Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
             public String[] range = {
-                    "(0+){14 + ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)) * (24 - 14)}"
+                    "(0+){14 + ((e^(-2.1 * (x / y)) - 1)/((e^-2.1) - 1)) * (24 - 14)}"
             };
 
             @Config.Comment("Effectiveness Modifier")
@@ -391,11 +391,11 @@ public class UnstablePortal extends BaseAbility implements IImpact, IExpand, ISc
             public static class Extra {
                 @Config.Comment("Portal Range Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
                 public String[] portalRange = {
-                        "(0+){4 + ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)) * (8 - 4)"
+                        "(0+){4 + ((e^(-2.1 * (x / y)) - 1)/((e^-2.1) - 1)) * (8 - 4)"
                 };
                 @Config.Comment("Portal Teleport Range Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
                 public String[] portalTeleport = {
-                        "(0+){20 + ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)) * (75 - 20)"
+                        "(0+){20 + ((e^(-2.1 * (x / y)) - 1)/((e^-2.1) - 1)) * (75 - 20)"
                 };
             }
 

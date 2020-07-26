@@ -340,7 +340,7 @@ public class Contaminate extends BaseAbility implements IImpact, ISkillAdvanceme
 
             @Config.Comment("Cooldown Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
             public String[] cooldown = {
-                    "(0+){(10 * 20) + (15 * 20) * (1 - ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)))}"
+                    "(0+){(10 * 20) + (15 * 20) * (1 - ((e^(-2.1 * (x / y)) - 1)/((e^-2.1) - 1)))}"
             };
 
             @Config.Comment("Duration Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
@@ -350,7 +350,7 @@ public class Contaminate extends BaseAbility implements IImpact, ISkillAdvanceme
 
             @Config.Comment("Range Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
             public String[] range = {
-                    "(0+){3 + ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)) * (6 - 3)}"
+                    "(0+){3 + ((e^(-2.1 * (x / y)) - 1)/((e^-2.1) - 1)) * (6 - 3)}"
             };
 
             @Config.Comment("Effectiveness Modifier")
@@ -360,11 +360,15 @@ public class Contaminate extends BaseAbility implements IImpact, ISkillAdvanceme
             public static class Extra {
                 @Config.Comment("Damage Over Time Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
                 public String[] dot = {
-                        "(0+){6 + (((e^(0.1 * (x / y)) - 1)/((e^0.1) - 1)) * (18 - 6))}"
+                        "(0+){6 + ((e^(0.1 * (x / 50)) - 1)/((e^0.1) - 1)) * (9.11 - 6)}",
+                        "(50+){9.11 + ((e^(2.25 * ((x-49) / (y-49))) - 1)/((e^2.25) - 1)) * (16 - 9.11)}",
+                        "(100){18}"
                 };
                 @Config.Comment("Initial Damage Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
                 public String[] damage = {
-                        "(0+){4 + (((e^(0.1 * (x / y)) - 1)/((e^0.1) - 1)) * (6 - 4))}"
+                        "(0+){4 + ((e^(0.1 * (x / 50)) - 1)/((e^0.1) - 1)) * (4.518450 - 4)}",
+                        "(50+){4.518450 + ((e^(1.25 * ((x-49) / (y-49))) - 1)/((e^1.25) - 1)) * (5 - 4.518450)}",
+                        "(100){6}"
                 };
             }
 

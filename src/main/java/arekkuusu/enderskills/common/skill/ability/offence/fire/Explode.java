@@ -350,18 +350,18 @@ public class Explode extends BaseAbility implements IScanEntities, IExpand, IFin
 
             @Config.Comment("Cooldown Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
             public String[] cooldown = {
-                    "(0-49){(90 * 20) + (20 * 20) * (1 - ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)))}",
-                    "(50+){(110 * 20) + (10 * 20) * (1 - ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)))}"
+                    "(0-49){(90 * 20) + (20 * 20) * (1 - ((e^(-2.1 * (x / y)) - 1)/((e^-2.1) - 1)))}",
+                    "(50+){(110 * 20) + (10 * 20) * (1 - ((e^(-2.1 * (x / y)) - 1)/((e^-2.1) - 1)))}"
             };
 
             @Config.Comment("Duration Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
             public String[] time = {
-                    "(0+){(5 * 20) + (7 * 20) * (1 - ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)))}"
+                    "(0+){(5 * 20) + (7 * 20) * (1 - ((e^(-2.1 * (x / y)) - 1)/((e^-2.1) - 1)))}"
             };
 
             @Config.Comment("Range Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
             public String[] range = {
-                    "(0+){6 + ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)) * (10 - 6)}"
+                    "(0+){6 + ((e^(-2.1 * (x / y)) - 1)/((e^-2.1) - 1)) * (10 - 6)}"
             };
 
             @Config.Comment("Effectiveness Modifier")
@@ -371,12 +371,15 @@ public class Explode extends BaseAbility implements IScanEntities, IExpand, IFin
             public static class Extra {
                 @Config.Comment("Damage Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
                 public String[] damage = {
-                        "(0-49){86 + ((e^(0.1 * (x / 49)) - 1)/((e^0.1) - 1)) * (100 - 86)}",
-                        "(50+){100 + ((e^(0.1 * (x / y)) - 1)/((e^0.1) - 1)) * (142 - 100)}"
+                        "(0+){86 + ((e^(0.1 * (x / 50)) - 1)/((e^0.1) - 1)) * (100.24 - 86)}",
+                        "(50+){100.24 + ((e^(3.25 * ((x-49) / (y-49))) - 1)/((e^3.25) - 1)) * (136 - 100.24)}",
+                        "(100){142}"
                 };
                 @Config.Comment("Damage Over Time Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
                 public String[] dot = {
-                        "(0+){16 + ((e^(0.1 * (x / y)) - 1)/((e^0.1) - 1)) * (42 - 16)}"
+                        "(0+){16 + ((e^(0.1 * (x / 50)) - 1)/((e^0.1) - 1)) * (22.73 - 16)}",
+                        "(50+){22.73 + ((e^(2.25 * ((x-49) / (y-49))) - 1)/((e^2.25) - 1)) * (39 - 22.73)}",
+                        "(100){42}"
                 };
             }
 

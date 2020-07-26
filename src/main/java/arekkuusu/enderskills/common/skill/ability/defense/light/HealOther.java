@@ -297,12 +297,12 @@ public class HealOther extends BaseAbility implements IImpact, ISkillAdvancement
 
             @Config.Comment("Cooldown Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
             public String[] cooldown = {
-                    "(0+){(40 * 20) + (20 * 20) * (1 - ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)))}"
+                    "(0+){(40 * 20) + (20 * 20) * (1 - ((e^(-2.1 * (x / y)) - 1)/((e^-2.1) - 1)))}"
             };
 
             @Config.Comment("Range Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
             public String[] range = {
-                    "(0+){14 + ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)) * (24 - 14)}"
+                    "(0+){14 + ((e^(-2.1 * (x / y)) - 1)/((e^-2.1) - 1)) * (24 - 14)}"
             };
 
             @Config.Comment("Effectiveness Modifier")
@@ -312,7 +312,7 @@ public class HealOther extends BaseAbility implements IImpact, ISkillAdvancement
             public static class Extra {
                 @Config.Comment("Heal Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
                 public String[] heal = {
-                        "(0+){0.25 + ((e^(0.1 * (x / y)) - 1)/((e^0.1) - 1)) * (0.75 - 0.25)}"
+                        "(0+){0.25 + ((e^(2.1 * (x / y)) - 1)/((e^2.1) - 1)) * (0.75 - 0.25)}"
                 };
             }
 

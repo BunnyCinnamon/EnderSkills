@@ -395,12 +395,12 @@ public class AnimatedStoneGolem extends BaseAbility implements ISkillAdvancement
 
             @Config.Comment("Cooldown Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
             public String[] cooldown = {
-                    "(0+){(90 * 20) + (30 * 20) * (1 - ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)))}"
+                    "(0+){(90 * 20) + (30 * 20) * (1 - ((e^(-2.1 * (x / y)) - 1)/((e^-2.1) - 1)))}"
             };
 
             @Config.Comment("Duration Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
             public String[] time = {
-                    "(0+){45 * 20 + ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)) * ((90 * 20) - (45 * 20))}"
+                    "(0+){45 * 20 + ((e^(-2.1 * (x / y)) - 1)/((e^-2.1) - 1)) * ((90 * 20) - (45 * 20))}"
             };
 
             @Config.Comment("Effectiveness Modifier")
@@ -410,11 +410,13 @@ public class AnimatedStoneGolem extends BaseAbility implements ISkillAdvancement
             public static class Extra {
                 @Config.Comment("Golem Damage Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
                 public String[] damage = {
-                        "(0+){5 + ((e^(0.1 * (x / y)) - 1)/((e^0.1) - 1)) * (25 - 5)}"
+                        "(0+){5 + ((e^(0.1 * (x / 50)) - 1)/((e^0.1) - 1)) * (6.44 - 5)}",
+                        "(50+){6.44 + ((e^(3.25 * ((x-49) / (y-49))) - 1)/((e^3.25) - 1)) * (22 - 6.44)}",
+                        "(100){25}"
                 };
                 @Config.Comment("Golem Damage Multiplier Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
                 public String[] mirror = {
-                        "(0+){0.75 + ((e^(0.1 * (x / y)) - 1)/((e^0.1) - 1)) * (1.5 - 0.75)}"
+                        "(0+){0.75 + ((e^(2.1 * (x / y)) - 1)/((e^2.1) - 1)) * (1.5 - 0.75)}"
                 };
                 @Config.Comment("Golem Health Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
                 public String[] stunTime = {

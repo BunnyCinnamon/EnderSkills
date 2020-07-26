@@ -379,7 +379,7 @@ public class FlamingRain extends BaseAbility implements IImpact, ILoopSound, IEx
 
             @Config.Comment("Cooldown Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
             public String[] cooldown = {
-                    "(0+){(18 * 20) + (2 * 27) * (1 - ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)))}"
+                    "(0+){(18 * 20) + (2 * 27) * (1 - ((e^(-2.1 * (x / y)) - 1)/((e^-2.1) - 1)))}"
             };
 
             @Config.Comment("Duration Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
@@ -389,7 +389,7 @@ public class FlamingRain extends BaseAbility implements IImpact, ILoopSound, IEx
 
             @Config.Comment("Range Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
             public String[] range = {
-                    "(0+){15 + ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)) * (35 - 15)}"
+                    "(0+){15 + ((e^(-2.1 * (x / y)) - 1)/((e^-2.1) - 1)) * (35 - 15)}"
             };
 
             @Config.Comment("Effectiveness Modifier")
@@ -399,15 +399,17 @@ public class FlamingRain extends BaseAbility implements IImpact, ILoopSound, IEx
             public static class Extra {
                 @Config.Comment("Damage Over Time Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
                 public String[] dot = {
-                        "(0+){18 + (((e^(0.1 * (x / y)) - 1)/((e^0.1) - 1)) * (48 - 18))}"
+                        "(0+){18 + ((e^(0.1 * (x / 50)) - 1)/((e^0.1) - 1)) * (25.77 - 18)}",
+                        "(50+){25.77 + ((e^(2.25 * ((x-49) / (y-49))) - 1)/((e^2.25) - 1)) * (45 - 25.77)}",
+                        "(100){48}"
                 };
                 @Config.Comment("Rain Duration Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
                 public String[] rainDuration = {
-                        "(0+){(6 * 20) + ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)) * ((20 * 20) - (6 * 20))}"
+                        "(0+){(6 * 20) + ((e^(-2.1 * (x / y)) - 1)/((e^-2.1) - 1)) * ((20 * 20) - (6 * 20))}"
                 };
                 @Config.Comment("Rain Range Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
                 public String[] rainRange = {
-                        "(0+){10 + ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)) * (20 - 10)}"
+                        "(0+){10 + ((e^(-2.1 * (x / y)) - 1)/((e^-2.1) - 1)) * (20 - 10)}"
                 };
             }
 

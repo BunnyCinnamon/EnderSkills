@@ -218,7 +218,7 @@ public class Damage extends BaseAttribute implements ISkillAdvancement {
 
             @Config.Comment("Modifier Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
             public String[] modifier = {
-                    "(0+){(0.1 * x) * ((0.4 * x) * 0.03)}"
+                    "(0+){(2.1 * x) * ((0.4 * x) * 0.03)}"
             };
 
             @Config.Comment("Effectiveness Modifier")

@@ -326,7 +326,7 @@ public class FlamingBreath extends BaseAbility implements IScanEntities, IExpand
 
             @Config.Comment("Cooldown Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
             public String[] cooldown = {
-                    "(0+){(16 * 20) + (24 * 20) * (1 - ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)))}"
+                    "(0+){(16 * 20) + (24 * 20) * (1 - ((e^(-2.1 * (x / y)) - 1)/((e^-2.1) - 1)))}"
             };
 
             @Config.Comment("Duration Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
@@ -336,7 +336,7 @@ public class FlamingBreath extends BaseAbility implements IScanEntities, IExpand
 
             @Config.Comment("Range Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
             public String[] range = {
-                    "(0+){5 + ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)) * (10 - 5)}"
+                    "(0+){5 + ((e^(-2.1 * (x / y)) - 1)/((e^-2.1) - 1)) * (10 - 5)}"
             };
 
             @Config.Comment("Effectiveness Modifier")
@@ -346,7 +346,9 @@ public class FlamingBreath extends BaseAbility implements IScanEntities, IExpand
             public static class Extra {
                 @Config.Comment("Damage Over Time Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
                 public String[] dot = {
-                        "(0+){16 + (((e^(0.1 * (x / y)) - 1)/((e^0.1) - 1)) * (42 - 16))}"
+                        "(0+){16 + ((e^(0.1 * (x / 50)) - 1)/((e^0.1) - 1)) * (22.73 - 16)}",
+                        "(50+){22.73 + ((e^(2.25 * ((x-49) / (y-49))) - 1)/((e^2.25) - 1)) * (39 - 22.73)}",
+                        "(100){42}"
                 };
             }
 

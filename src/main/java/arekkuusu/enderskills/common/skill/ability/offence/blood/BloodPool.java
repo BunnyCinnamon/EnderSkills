@@ -386,7 +386,7 @@ public class BloodPool extends BaseAbility implements IImpact, ILoopSound, IExpa
 
             @Config.Comment("Cooldown Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
             public String[] cooldown = {
-                    "(0+){(30 * 20) + (30 * 20) * (1 - ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)))}"
+                    "(0+){(30 * 20) + (30 * 20) * (1 - ((e^(-2.1 * (x / y)) - 1)/((e^-2.1) - 1)))}"
             };
 
             @Config.Comment("Duration Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
@@ -401,15 +401,17 @@ public class BloodPool extends BaseAbility implements IImpact, ILoopSound, IExpa
             public static class Extra {
                 @Config.Comment("Damage Over Time Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
                 public String[] dot = {
-                        "(0+){8 + (((e^(0.1 * (x / y)) - 1)/((e^0.1) - 1)) * (30 - 8))}"
+                        "(0+){8 + ((e^(0.1 * (x / 3)) - 1)/((e^0.1) - 1)) * (13.62 - 8)}",
+                        "(3+){13.62 + ((e^(1.25 * ((x-3) / (y-3))) - 1)/((e^1.25) - 1)) * (29 - 13.62)}",
+                        "(5){30}"
                 };
                 @Config.Comment("Pool Duration Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
                 public String[] poolDuration = {
-                        "(0+){(6 * 20) + ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)) * ((20 * 20) - (6 * 20))}"
+                        "(0+){(6 * 20) + ((e^(-2.1 * (x / y)) - 1)/((e^-2.1) - 1)) * ((20 * 20) - (6 * 20))}"
                 };
                 @Config.Comment("Pool Range Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
                 public String[] poolRange = {
-                        "(0+){2 + ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)) * (4 - 2)}"
+                        "(0+){2 + ((e^(-2.1 * (x / y)) - 1)/((e^-2.1) - 1)) * (4 - 2)}"
                 };
             }
 

@@ -306,12 +306,12 @@ public class HealAura extends BaseAbility implements IScanEntities, IExpand, IFi
 
             @Config.Comment("Cooldown Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
             public String[] cooldown = {
-                    "(0+){(14 * 20) + (21 * 20) * (1 - ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)))}"
+                    "(0+){(14 * 20) + (21 * 20) * (1 - ((e^(-2.1 * (x / y)) - 1)/((e^-2.1) - 1)))}"
             };
 
             @Config.Comment("Range Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
             public String[] range = {
-                    "(0+){4 + ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)) * (14 - 4)}"
+                    "(0+){4 + ((e^(-2.1 * (x / y)) - 1)/((e^-2.1) - 1)) * (14 - 4)}"
             };
 
             @Config.Comment("Effectiveness Modifier")
@@ -321,7 +321,7 @@ public class HealAura extends BaseAbility implements IScanEntities, IExpand, IFi
             public static class Extra {
                 @Config.Comment("Heal Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
                 public String[] heal = {
-                        "(0+){0.05 + ((e^(0.1 * (x / y)) - 1)/((e^0.1) - 1)) * (0.3 - 0.05)}"
+                        "(0+){0.05 + ((e^(2.1 * (x / y)) - 1)/((e^2.1) - 1)) * (0.3 - 0.05)}"
                 };
             }
 

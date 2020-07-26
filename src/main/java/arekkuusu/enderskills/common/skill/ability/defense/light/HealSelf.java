@@ -259,7 +259,7 @@ public class HealSelf extends BaseAbility implements ISkillAdvancement {
 
             @Config.Comment("Cooldown Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
             public String[] cooldown = {
-                    "(0+){(45 * 20) + (15 * 20) * (1 - ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)))}"
+                    "(0+){(45 * 20) + (15 * 20) * (1 - ((e^(-2.1 * (x / y)) - 1)/((e^-2.1) - 1)))}"
             };
 
             @Config.Comment("Effectiveness Modifier")
@@ -269,7 +269,7 @@ public class HealSelf extends BaseAbility implements ISkillAdvancement {
             public static class Extra {
                 @Config.Comment("Heal Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
                 public String[] heal = {
-                        "(0+){0.25 + ((e^(0.1 * (x / y)) - 1)/((e^0.1) - 1)) * (0.75 - 0.25)}"
+                        "(0+){0.25 + ((e^(2.1 * (x / y)) - 1)/((e^2.1) - 1)) * (0.75 - 0.25)}"
                 };
             }
 

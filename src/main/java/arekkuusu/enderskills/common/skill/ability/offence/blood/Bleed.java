@@ -355,7 +355,7 @@ public class Bleed extends BaseAbility implements ISkillAdvancement {
 
             @Config.Comment("Cooldown Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
             public String[] cooldown = {
-                    "(0+){(5 * 20) + (5 * 20) * (1 - ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)))}"
+                    "(0+){(5 * 20) + (5 * 20) * (1 - ((e^(-2.1 * (x / y)) - 1)/((e^-2.1) - 1)))}"
             };
 
             @Config.Comment("Duration Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
@@ -370,7 +370,9 @@ public class Bleed extends BaseAbility implements ISkillAdvancement {
             public static class Extra {
                 @Config.Comment("Damage Over Time Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
                 public String[] dot = {
-                        "(0+){4 + (((e^(0.1 * (x / y)) - 1)/((e^0.1) - 1)) * (20 - 4))}"
+                        "(0+){4 + ((e^(0.1 * (x / 50)) - 1)/((e^0.1) - 1)) * (8.14 - 4)}",
+                        "(50+){8.14 + ((e^(2.25 * ((x-49) / (y-49))) - 1)/((e^2.25) - 1)) * (18 - 8.14)}",
+                        "(100){20}"
                 };
             }
 

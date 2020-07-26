@@ -405,7 +405,7 @@ public class Fireball extends BaseAbility implements IImpact, IScanEntities, IEx
 
             @Config.Comment("Cooldown Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
             public String[] cooldown = {
-                    "(0+){(20 * 20) + (40 * 20) * (1 - ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)))}"
+                    "(0+){(20 * 20) + (40 * 20) * (1 - ((e^(-2.1 * (x / y)) - 1)/((e^-2.1) - 1)))}"
             };
 
             @Config.Comment("Duration Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
@@ -415,7 +415,7 @@ public class Fireball extends BaseAbility implements IImpact, IScanEntities, IEx
 
             @Config.Comment("Range Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
             public String[] range = {
-                    "(0+){14 + ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)) * (24 - 14)}"
+                    "(0+){14 + ((e^(-2.1 * (x / y)) - 1)/((e^-2.1) - 1)) * (24 - 14)}"
             };
 
             @Config.Comment("Effectiveness Modifier")
@@ -425,7 +425,7 @@ public class Fireball extends BaseAbility implements IImpact, IScanEntities, IEx
             public static class Extra {
                 @Config.Comment("Flame Range Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
                 public String[] flameRange = {
-                        "(0+){3 + (1 - ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1))) * (5 - 3)}"
+                        "(0+){3 + (1 - ((e^(-2.1 * (x / y)) - 1)/((e^-2.1) - 1))) * (5 - 3)}"
                 };
                 @Config.Comment("Flame Duration Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
                 public String[] flameDuration = {
@@ -433,11 +433,15 @@ public class Fireball extends BaseAbility implements IImpact, IScanEntities, IEx
                 };
                 @Config.Comment("Damage Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
                 public String[] damage = {
-                        "(0+){40 + ((e^(0.1 * (x / y)) - 1)/((e^0.1) - 1)) * (90 - 40)}"
+                        "(0+){40 + ((e^(0.1 * (x / 50)) - 1)/((e^0.1) - 1)) * (52.96 - 40)}",
+                        "(50+){52.96 + ((e^(2.25 * ((x-49) / (y-49))) - 1)/((e^2.25) - 1)) * (86 - 52.96)}",
+                        "(100){90}"
                 };
                 @Config.Comment("Damage Over Time Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
                 public String[] dot = {
-                        "(0+){14 + ((e^(0.1 * (x / y)) - 1)/((e^0.1) - 1)) * (40 - 14)}"
+                        "(0+){14 + ((e^(0.1 * (x / 50)) - 1)/((e^0.1) - 1)) * (20.73 - 14)}",
+                        "(50+){20.73 + ((e^(2.25 * ((x-49) / (y-49))) - 1)/((e^2.25) - 1)) * (38 - 20.73)}",
+                        "(100){40}"
                 };
             }
 

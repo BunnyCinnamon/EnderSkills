@@ -421,7 +421,7 @@ public class GasCloud extends BaseAbility implements IImpact, IExpand, IFindEnti
 
             @Config.Comment("Cooldown Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
             public String[] cooldown = {
-                    "(0+){(22 * 20) + (38 * 20) * (1 - ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)))}"
+                    "(0+){(22 * 20) + (38 * 20) * (1 - ((e^(-2.1 * (x / y)) - 1)/((e^-2.1) - 1)))}"
             };
 
             @Config.Comment("Duration Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
@@ -431,7 +431,7 @@ public class GasCloud extends BaseAbility implements IImpact, IExpand, IFindEnti
 
             @Config.Comment("Range Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
             public String[] range = {
-                    "(0+){8 + ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)) * (20 - 8)}"
+                    "(0+){8 + ((e^(-2.1 * (x / y)) - 1)/((e^-2.1) - 1)) * (20 - 8)}"
             };
 
             @Config.Comment("Effectiveness Modifier")
@@ -441,11 +441,15 @@ public class GasCloud extends BaseAbility implements IImpact, IExpand, IFindEnti
             public static class Extra {
                 @Config.Comment("Initial Damage Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
                 public String[] damage = {
-                        "(0+){4 + ((e^(0.1 * (x / y)) - 1)/((e^0.1) - 1)) * (18 - 4)}"
+                        "(0+){4 + ((e^(0.1 * (x / 50)) - 1)/((e^0.1) - 1)) * (7.62 - 4)}",
+                        "(50+){7.62 + ((e^(2.25 * ((x-49) / (y-49))) - 1)/((e^2.25) - 1)) * (17 - 7.62)}",
+                        "(100){18}"
                 };
                 @Config.Comment("Damage Over Time Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
                 public String[] dot = {
-                        "(0+){6 + (((e^(0.1 * (x / y)) - 1)/((e^0.1) - 1)) * (20 - 6))}"
+                        "(0+){6 + ((e^(0.1 * (x / 50)) - 1)/((e^0.1) - 1)) * (9.62 - 6)}",
+                        "(50+){9.62 + ((e^(1.25 * ((x-49) / (y-49))) - 1)/((e^1.25) - 1)) * (19 - 9.62)}",
+                        "(100){20}"
                 };
                 @Config.Comment("Pool Duration Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
                 public String[] cloudDuration = {
@@ -453,7 +457,7 @@ public class GasCloud extends BaseAbility implements IImpact, IExpand, IFindEnti
                 };
                 @Config.Comment("Pool Range Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
                 public String[] cloudRange = {
-                        "(0+){4 + ((e^(-0.1 * (x / y)) - 1)/((e^-0.1) - 1)) * (10 - 4)}"
+                        "(0+){4 + ((e^(-2.1 * (x / y)) - 1)/((e^-2.1) - 1)) * (10 - 4)}"
                 };
             }
 
