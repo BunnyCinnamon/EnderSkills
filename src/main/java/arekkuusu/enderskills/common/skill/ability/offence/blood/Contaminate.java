@@ -132,7 +132,7 @@ public class Contaminate extends BaseAbility implements IImpact, ISkillAdvanceme
         int level = getLevel(info);
         int levelMax = getMaxLevel();
         double func = ExpressionHelper.getExpression(this, Configuration.getSyncValues().extra.dot, level, levelMax);
-        double result = (func * CommonConfig.getSyncValues().skill.extra.globalEffectEffectiveness);
+        double result = (func * CommonConfig.getSyncValues().skill.extra.globalNegativeEffect);
         return (result * getEffectiveness());
     }
 
@@ -140,7 +140,7 @@ public class Contaminate extends BaseAbility implements IImpact, ISkillAdvanceme
         int level = getLevel(info);
         int levelMax = getMaxLevel();
         double func = ExpressionHelper.getExpression(this, Configuration.getSyncValues().extra.damage, level, levelMax);
-        double result = (func * CommonConfig.getSyncValues().skill.extra.globalEffectEffectiveness);
+        double result = (func * CommonConfig.getSyncValues().skill.extra.globalNegativeEffect);
         return (result * getEffectiveness());
     }
 
@@ -340,7 +340,9 @@ public class Contaminate extends BaseAbility implements IImpact, ISkillAdvanceme
 
             @Config.Comment("Cooldown Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
             public String[] cooldown = {
-                    "(0+){(10 * 20) + (15 * 20) * (1 - ((e^(-2.1 * (x / y)) - 1)/((e^-2.1) - 1)))}"
+                    "(0+){15 * 20 + 10 * 20 * (1 - ((1 - (e^(-2.1 * (x/49)))) / (1 - e^(-2.1))))}",
+                    "(50+){12 * 20 + 3 * 20 * (1- (((e^(0.1 * ((x-49) / (y-49))) - 1)/((e^0.1) - 1))))}",
+                    "(100){10 * 20}"
             };
 
             @Config.Comment("Duration Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
@@ -350,7 +352,8 @@ public class Contaminate extends BaseAbility implements IImpact, ISkillAdvanceme
 
             @Config.Comment("Range Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
             public String[] range = {
-                    "(0+){3 + ((e^(-2.1 * (x / y)) - 1)/((e^-2.1) - 1)) * (6 - 3)}"
+                    "(0+){3 + 2 * (1 - (e^(-2.1 * (x/49)))) / (1 - e^(-2.1))}",
+                    "(50+){5 + 1 * ((e^(0.1 * ((x - 49) / (y - 49))) - 1)/((e^0.1) - 1))}"
             };
 
             @Config.Comment("Effectiveness Modifier")
@@ -360,13 +363,13 @@ public class Contaminate extends BaseAbility implements IImpact, ISkillAdvanceme
             public static class Extra {
                 @Config.Comment("Damage Over Time Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
                 public String[] dot = {
-                        "(0+){6 + ((e^(0.1 * (x / 50)) - 1)/((e^0.1) - 1)) * (9.11 - 6)}",
+                        "(0+){6 + ((e^(0.1 * (x / 49)) - 1)/((e^0.1) - 1)) * (9.11 - 6)}",
                         "(50+){9.11 + ((e^(2.25 * ((x-49) / (y-49))) - 1)/((e^2.25) - 1)) * (16 - 9.11)}",
                         "(100){18}"
                 };
                 @Config.Comment("Initial Damage Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
                 public String[] damage = {
-                        "(0+){4 + ((e^(0.1 * (x / 50)) - 1)/((e^0.1) - 1)) * (4.518450 - 4)}",
+                        "(0+){4 + ((e^(0.1 * (x / 49)) - 1)/((e^0.1) - 1)) * (4.518450 - 4)}",
                         "(50+){4.518450 + ((e^(1.25 * ((x-49) / (y-49))) - 1)/((e^1.25) - 1)) * (5 - 4.518450)}",
                         "(100){6}"
                 };
@@ -375,7 +378,9 @@ public class Contaminate extends BaseAbility implements IImpact, ISkillAdvanceme
             public static class Advancement {
                 @Config.Comment("Function f(x)=? where 'x' is [Next Level] and 'y' is [Max Level], XP Cost is in units [NOT LEVELS]")
                 public String[] upgrade = {
-                        "(0+){(825 * (1 - (0 ^ (0 ^ x)))) + 7 * x}"
+                        "(0){825}",
+                        "(1+){7 * x}",
+                        "(100){7 * x + 7 * x * 0.1}"
                 };
             }
         }

@@ -119,7 +119,7 @@ public class PowerBoost extends BaseAbility implements IImpact, ISkillAdvancemen
         int level = getLevel(info);
         int levelMax = getMaxLevel();
         double func = ExpressionHelper.getExpression(this, Configuration.getSyncValues().extra.power, level, levelMax);
-        double result = (func * CommonConfig.getSyncValues().skill.extra.globalEffectEffectiveness);
+        double result = (func * CommonConfig.getSyncValues().skill.extra.globalPositiveEffect);
         return (float) (result * getEffectiveness());
     }
 
@@ -320,12 +320,16 @@ public class PowerBoost extends BaseAbility implements IImpact, ISkillAdvancemen
 
             @Config.Comment("Cooldown Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
             public String[] cooldown = {
-                    "(0+){(16 * 20) + (19 * 20) * (1 - ((e^(-2.1 * (x / y)) - 1)/((e^-2.1) - 1)))}"
+                    "(0+){23 * 20 + 12 * 20 * (1 - ((1 - (e^(-2.1 * (x/49)))) / (1 - e^(-2.1))))}",
+                    "(50+){18 * 20 + 5 * 20 * (1- (((e^(0.1 * ((x-49) / (y-49))) - 1)/((e^0.1) - 1))))}",
+                    "(100){(16 * 20)}"
             };
 
             @Config.Comment("Duration Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
             public String[] time = {
-                    "(0+){10 * 20 + ((e^(-2.1 * (x / y)) - 1)/((e^-2.1) - 1)) * (30 * 20 - 10 * 20)}"
+                    "(0+){10 * 20 + 14 * 20 * (1 - (e^(-2.1 * (x/49)))) / (1 - e^(-2.1))}",
+                    "(50+){24 * 20 + 5 * 20 * ((e^(0.1 * ((x - 49) / (y - 49))) - 1)/((e^0.1) - 1))}",
+                    "(100){30 * 20}"
             };
 
             @Config.Comment("Range Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
@@ -347,7 +351,9 @@ public class PowerBoost extends BaseAbility implements IImpact, ISkillAdvancemen
             public static class Advancement {
                 @Config.Comment("Function f(x)=? where 'x' is [Next Level] and 'y' is [Max Level], XP Cost is in units [NOT LEVELS]")
                 public String[] upgrade = {
-                        "(0+){(825 * (1 - (0 ^ (0 ^ x)))) + 7 * x}"
+                        "(0){825}",
+                        "(1+){7 * x}",
+                        "(100){7 * x + 7 * x * 0.1}"
                 };
             }
         }

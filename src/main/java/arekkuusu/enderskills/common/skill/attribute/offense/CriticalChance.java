@@ -206,7 +206,7 @@ public class CriticalChance extends BaseAttribute implements ISkillAdvancement {
             public static class Advancement {
                 @Config.Comment("Function f(x)=? where 'x' is [Next Level] and 'y' is [Max Level], XP Cost is in units [NOT LEVELS]")
                 public String[] upgrade = {
-                        "(0+){22070 * (x / y)}"
+                        "(0+){(150 * (1 - (0 ^ (0 ^ x)))) + 22070 * (x / y)}"
                 };
             }
         }

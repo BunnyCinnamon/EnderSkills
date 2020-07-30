@@ -124,7 +124,7 @@ public class Syphon extends BaseAbility implements IImpact, ISkillAdvancement {
         int level = getLevel(info);
         int levelMax = getMaxLevel();
         double func = ExpressionHelper.getExpression(this, LifeSteal.Configuration.getSyncValues().extra.heal, level, levelMax);
-        double result = (func * CommonConfig.getSyncValues().skill.extra.globalEffectEffectiveness);
+        double result = (func * CommonConfig.getSyncValues().skill.extra.globalNegativeEffect);
         return (float) (result * getEffectiveness());
     }
 
@@ -307,12 +307,15 @@ public class Syphon extends BaseAbility implements IImpact, ISkillAdvancement {
 
             @Config.Comment("Cooldown Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
             public String[] cooldown = {
-                    "{(0+)(30 * 20) + (30 * 20) * (1 - ((e^(-2.1 * (x / y)) - 1)/((e^-2.1) - 1)))}"
+                    "(0+){40 * 20 + 20 * 20 * (1 - ((1 - (e^(-2.1 * (x/1)))) / (1 - e^(-2.1))))}",
+                    "(2+){32 * 20 + 8 * 20 * (1- (((e^(0.1 * ((x-1) / (y-1))) - 1)/((e^0.1) - 1))))}",
+                    "(4){30 * 20}"
             };
 
             @Config.Comment("Range Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
             public String[] range = {
-                    "(0+){5 + ((e^(-2.1 * (x / y)) - 1)/((e^-2.1) - 1)) * (8 - 5)}"
+                    "(0+){5 + 2 * (1 - (e^(-2.1 * (x/49)))) / (1 - e^(-2.1))}",
+                    "(50+){7 + 1 * ((e^(0.1 * ((x - 49) / (y - 49))) - 1)/((e^0.1) - 1))}"
             };
 
             @Config.Comment("Effectiveness Modifier")
@@ -329,7 +332,9 @@ public class Syphon extends BaseAbility implements IImpact, ISkillAdvancement {
             public static class Advancement {
                 @Config.Comment("Function f(x)=? where 'x' is [Next Level] and 'y' is [Max Level], XP Cost is in units [NOT LEVELS]")
                 public String[] upgrade = {
-                        "(0+){(5730 * (1 - (0 ^ (0 ^ x)))) + 7 * x}"
+                        "(0){5730}",
+                        "(1+){7 * x}",
+                        "(100){7 * x + 7 * x * 0.1}"
                 };
             }
         }

@@ -193,7 +193,7 @@ public class BloodPool extends BaseAbility implements IImpact, ILoopSound, IExpa
         int level = getLevel(info);
         int levelMax = getMaxLevel();
         double func = ExpressionHelper.getExpression(this, Configuration.getSyncValues().extra.dot, level, levelMax);
-        double result = (func * CommonConfig.getSyncValues().skill.extra.globalEffectEffectiveness);
+        double result = (func * CommonConfig.getSyncValues().skill.extra.globalNegativeEffect);
         return (result * getEffectiveness());
     }
 
@@ -386,7 +386,9 @@ public class BloodPool extends BaseAbility implements IImpact, ILoopSound, IExpa
 
             @Config.Comment("Cooldown Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
             public String[] cooldown = {
-                    "(0+){(30 * 20) + (30 * 20) * (1 - ((e^(-2.1 * (x / y)) - 1)/((e^-2.1) - 1)))}"
+                    "(0+){40 * 20 + 20 * 20 * (1 - ((1 - (e^(-1.1 * (x/2)))) / (1 - e^(-1.1))))}",
+                    "(3+){35 * 20 + 5 * 20 * (1- (((e^(0.1 * ((x-2) / (y-2))) - 1)/((e^0.1) - 1))))}",
+                    "(5){30 * 20}"
             };
 
             @Config.Comment("Duration Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
@@ -401,24 +403,29 @@ public class BloodPool extends BaseAbility implements IImpact, ILoopSound, IExpa
             public static class Extra {
                 @Config.Comment("Damage Over Time Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
                 public String[] dot = {
-                        "(0+){8 + ((e^(0.1 * (x / 3)) - 1)/((e^0.1) - 1)) * (13.62 - 8)}",
-                        "(3+){13.62 + ((e^(1.25 * ((x-3) / (y-3))) - 1)/((e^1.25) - 1)) * (29 - 13.62)}",
+                        "(0+){8 + ((e^(0.1 * (x / 2)) - 1)/((e^0.1) - 1)) * (13.62 - 8)}",
+                        "(3+){13.62 + ((e^(1.25 * ((x-2) / (y-2))) - 1)/((e^1.25) - 1)) * (29 - 13.62)}",
                         "(5){30}"
                 };
                 @Config.Comment("Pool Duration Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
                 public String[] poolDuration = {
-                        "(0+){(6 * 20) + ((e^(-2.1 * (x / y)) - 1)/((e^-2.1) - 1)) * ((20 * 20) - (6 * 20))}"
+                        "(0+){6 * 20 + 9 * 20 * (1 - (e^(-2.1 * (x/49)))) / (1 - e^(-2.1))}",
+                        "(50+){15 * 20 + 4 * 20 * ((e^(0.1 * ((x - 49) / (y - 49))) - 1)/((e^0.1) - 1))}",
+                        "(100){20 * 20}"
                 };
                 @Config.Comment("Pool Range Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
                 public String[] poolRange = {
-                        "(0+){2 + ((e^(-2.1 * (x / y)) - 1)/((e^-2.1) - 1)) * (4 - 2)}"
+                        "(0+){2 + 1 * (1 - (e^(-2.1 * (x/49)))) / (1 - e^(-2.1))}",
+                        "(50+){3 + 1 * ((e^(0.1 * ((x - 49) / (y - 49))) - 1)/((e^0.1) - 1))}"
                 };
             }
 
             public static class Advancement {
                 @Config.Comment("Function f(x)=? where 'x' is [Next Level] and 'y' is [Max Level], XP Cost is in units [NOT LEVELS]")
                 public String[] upgrade = {
-                        "(0+){(825 * (1 - (0 ^ (0 ^ x)))) + 7 * x}"
+                        "(0){825}",
+                        "(1+){7 * x}",
+                        "(100){7 * x + 7 * x * 0.1}"
                 };
             }
         }

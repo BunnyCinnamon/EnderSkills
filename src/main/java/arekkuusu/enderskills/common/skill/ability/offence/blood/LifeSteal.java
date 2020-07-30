@@ -149,7 +149,7 @@ public class LifeSteal extends BaseAbility implements ISkillAdvancement {
         int level = getLevel(info);
         int levelMax = getMaxLevel();
         double func = ExpressionHelper.getExpression(this, Configuration.getSyncValues().extra.heal, level, levelMax);
-        double result = (func * CommonConfig.getSyncValues().skill.extra.globalEffectEffectiveness);
+        double result = (func * CommonConfig.getSyncValues().skill.extra.globalPositiveEffect);
         return (float) (result * getEffectiveness());
     }
 
@@ -321,7 +321,9 @@ public class LifeSteal extends BaseAbility implements ISkillAdvancement {
 
             @Config.Comment("Cooldown Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
             public String[] cooldown = {
-                    "(0+){(5 * 20) + (5 * 20) * (1 - ((e^(-2.1 * (x / y)) - 1)/((e^-2.1) - 1)))}"
+                    "(0+){7 * 20 + 3 * 20 * (1 - ((1 - (e^(-2.1 * (x/1)))) / (1 - e^(-2.1))))}",
+                    "(2+){6 * 20 + 1 * 20 * (1- (((e^(0.1 * ((x-1) / (y-1))) - 1)/((e^0.1) - 1))))}",
+                    "(4){(5 * 20)}"
             };
 
             @Config.Comment("Effectiveness Modifier")
@@ -338,7 +340,9 @@ public class LifeSteal extends BaseAbility implements ISkillAdvancement {
             public static class Advancement {
                 @Config.Comment("Function f(x)=? where 'x' is [Next Level] and 'y' is [Max Level], XP Cost is in units [NOT LEVELS]")
                 public String[] upgrade = {
-                        "(0+){(5730 * (1 - (0 ^ (0 ^ x)))) + ((22070 / y) * (0 ^ (0 ^ x)))}"
+                        "(0){5730}",
+                        "(1+){((22070 / y) * (0 ^ (0 ^ x)))}",
+                        "(100){((22070 / y) * (0 ^ (0 ^ x))) + ((22070 / y) * (0 ^ (0 ^ x))) * 0.1}"
                 };
             }
         }

@@ -210,7 +210,7 @@ public class Grasp extends BaseAbility implements IImpact, IExpand, ILoopSound, 
         int level = getLevel(info);
         int levelMax = getMaxLevel();
         double func = ExpressionHelper.getExpression(this, Configuration.getSyncValues().extra.dot, level, levelMax);
-        double result = (func * CommonConfig.getSyncValues().skill.extra.globalEffectEffectiveness);
+        double result = (func * CommonConfig.getSyncValues().skill.extra.globalNegativeEffect);
         return (result * getEffectiveness());
     }
 
@@ -418,17 +418,22 @@ public class Grasp extends BaseAbility implements IImpact, IExpand, ILoopSound, 
 
             @Config.Comment("Cooldown Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
             public String[] cooldown = {
-                    "(0+){(16 * 20) + (14 * 20) * (1 - ((e^(-2.1 * (x / y)) - 1)/((e^-2.1) - 1)))}"
+                    "(0+){22 * 20 + 8 * 20 * (1 - ((1 - (e^(-2.1 * (x/49)))) / (1 - e^(-2.1))))}",
+                    "(50+){18 * 20 + 4 * 20 * (1- (((e^(0.1 * ((x-49) / (y-49))) - 1)/((e^0.1) - 1))))}",
+                    "(100){16 * 20}"
             };
 
             @Config.Comment("Duration Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
             public String[] time = {
-                    "(0+){(5 * 20) + ((e^(-2.1 * (x / y)) - 1)/((e^-2.1) - 1)) * ((15 * 20) - (5 * 20))}"
+                    "(0+){5 * 20 + 6 * 20 * (1 - (e^(-2.1 * (x/49)))) / (1 - e^(-2.1))}",
+                    "(50+){11 * 20 + 2 * 20 * ((e^(0.1 * ((x - 49) / (y - 49))) - 1)/((e^0.1) - 1))}",
+                    "(100){15 * 20}"
             };
 
             @Config.Comment("Range Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
             public String[] range = {
-                    "(0+){8 + ((e^(-2.1 * (x / y)) - 1)/((e^-2.1) - 1)) * (20 - 8)}"
+                    "(0+){8 + 8 * (1 - (e^(-2.1 * (x/49)))) / (1 - e^(-2.1))}",
+                    "(50+){16 + 4 * ((e^(0.1 * ((x - 49) / (y - 49))) - 1)/((e^0.1) - 1))}"
             };
 
             @Config.Comment("Effectiveness Modifier")
@@ -438,24 +443,29 @@ public class Grasp extends BaseAbility implements IImpact, IExpand, ILoopSound, 
             public static class Extra {
                 @Config.Comment("Damage Over Time Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
                 public String[] dot = {
-                        "(0+){4 + ((e^(0.1 * (x / 50)) - 1)/((e^0.1) - 1)) * (7.62 - 4)}",
+                        "(0+){4 + ((e^(0.1 * (x / 49)) - 1)/((e^0.1) - 1)) * (7.62 - 4)}",
                         "(50+){7.62 + ((e^(2.25 * ((x-49) / (y-49))) - 1)/((e^2.25) - 1)) * (17 - 7.62)}",
                         "(100){18}"
                 };
                 @Config.Comment("Pool Duration Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
                 public String[] graspDuration = {
-                        "(0+){(6 * 20) + ((e^(-2.1 * (x / y)) - 1)/((e^-2.1) - 1)) * ((20 * 20) - (6 * 20))}"
+                        "(0+){6 * 20 + 9 * 20 * (1 - (e^(-2.1 * (x/49)))) / (1 - e^(-2.1))}",
+                        "(50+){15 * 20 + 4 * 20 * ((e^(0.1 * ((x - 49) / (y - 49))) - 1)/((e^0.1) - 1))}",
+                        "(100){20 * 20}"
                 };
                 @Config.Comment("Pool Range Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
                 public String[] graspRange = {
-                        "(0+){3 + ((e^(-2.1 * (x / y)) - 1)/((e^-2.1) - 1)) * (6 - 3)}"
+                        "(0+){3 + 2 * (1 - (e^(-2.1 * (x/49)))) / (1 - e^(-2.1))}",
+                        "(50+){5 + 1 * ((e^(0.1 * ((x - 49) / (y - 49))) - 1)/((e^0.1) - 1))}"
                 };
             }
 
             public static class Advancement {
                 @Config.Comment("Function f(x)=? where 'x' is [Next Level] and 'y' is [Max Level], XP Cost is in units [NOT LEVELS]")
                 public String[] upgrade = {
-                        "(0+){(5730 * (1 - (0 ^ (0 ^ x)))) + 7 * x}"
+                        "(0){5730}",
+                        "(1+){7 * x}",
+                        "(100){7 * x + 7 * x * 0.1}"
                 };
             }
         }

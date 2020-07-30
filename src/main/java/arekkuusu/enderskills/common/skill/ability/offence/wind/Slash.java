@@ -114,7 +114,7 @@ public class Slash extends BaseAbility implements IScanEntities, IExpand, IFindE
         int level = getLevel(info);
         int levelMax = getMaxLevel();
         double func = ExpressionHelper.getExpression(this, Configuration.getSyncValues().extra.damage, level, levelMax);
-        double result = (func * CommonConfig.getSyncValues().skill.extra.globalEffectEffectiveness);
+        double result = (func * CommonConfig.getSyncValues().skill.extra.globalNegativeEffect);
         return (result * getEffectiveness());
     }
 
@@ -303,12 +303,15 @@ public class Slash extends BaseAbility implements IScanEntities, IExpand, IFindE
 
             @Config.Comment("Cooldown Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
             public String[] cooldown = {
-                    "(0+){(4 * 20) + (8 * 20) * (1 - ((e^(-2.1 * (x / y)) - 1)/((e^-2.1) - 1)))}"
+                    "(0+){7 * 20 + 5 * 20 * (1 - ((1 - (e^(-2.1 * (x/49)))) / (1 - e^(-2.1))))}",
+                    "(50+){5 * 20 + 2 * 20 * (1- (((e^(0.1 * ((x-49) / (y-49))) - 1)/((e^0.1) - 1))))}",
+                    "(100){(4 * 20)}"
             };
 
             @Config.Comment("Range Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
             public String[] range = {
-                    "(0+){4 + ((e^(-2.1 * (x / y)) - 1)/((e^-2.1) - 1)) * (10 - 4)}"
+                    "(0+){4 + 4 * (1 - (e^(-2.1 * (x/49)))) / (1 - e^(-2.1))}",
+                    "(50+){8 + 2 * ((e^(0.1 * ((x - 49) / (y - 49))) - 1)/((e^0.1) - 1))}"
             };
 
             @Config.Comment("Effectiveness Modifier")
@@ -318,7 +321,7 @@ public class Slash extends BaseAbility implements IScanEntities, IExpand, IFindE
             public static class Extra {
                 @Config.Comment("Damage Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
                 public String[] damage = {
-                        "(0+){4 + ((e^(0.1 * (x / 50)) - 1)/((e^0.1) - 1)) * (7.88 - 4)}",
+                        "(0+){4 + ((e^(0.1 * (x / 49)) - 1)/((e^0.1) - 1)) * (7.88 - 4)}",
                         "(50+){7.88 + ((e^(2.25 * ((x-49) / (y-49))) - 1)/((e^2.25) - 1)) * (18 - 7.88)}",
                         "(100){19}"
                 };

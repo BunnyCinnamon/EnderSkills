@@ -152,7 +152,7 @@ public class Hasten extends BaseAbility implements ISkillAdvancement {
         int level = getLevel(info);
         int levelMax = getMaxLevel();
         double func = ExpressionHelper.getExpression(this, Configuration.getSyncValues().extra.cdr, level, levelMax);
-        double result = (func * CommonConfig.getSyncValues().skill.extra.globalEffectEffectiveness);
+        double result = (func * CommonConfig.getSyncValues().skill.extra.globalPositiveEffect);
         return (result * getEffectiveness());
     }
 
@@ -337,7 +337,9 @@ public class Hasten extends BaseAbility implements ISkillAdvancement {
 
             @Config.Comment("Cooldown Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
             public String[] cooldown = {
-                    "(0+){(60 * 20) * (1 - ((e^(-2.1 * (x / y)) - 1)/((e^-2.1) - 1)))}"
+                    "(0+){30 * 20 + 30 * 20 * (1 - ((1 - (e^(-2.1 * (x/4)))) / (1 - e^(-2.1))))}",
+                    "(5+){15 * 20 + 15 * 20 * (1- (((e^(0.1 * ((x-4) / (y-4))) - 1)/((e^0.1) - 1))))}",
+                    "(10){0}"
             };
 
             @Config.Comment("Duration Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
@@ -357,7 +359,9 @@ public class Hasten extends BaseAbility implements ISkillAdvancement {
             public static class Advancement {
                 @Config.Comment("Function f(x)=? where 'x' is [Next Level] and 'y' is [Max Level], XP Cost is in units [NOT LEVELS]")
                 public String[] upgrade = {
-                        "(0+){(5730 * (1 - (0 ^ (0 ^ x)))) + 7 * x}"
+                        "(0){5730}",
+                        "(1+){7 * x}",
+                        "(100){7 * x + 7 * x * 0.1}"
                 };
             }
         }

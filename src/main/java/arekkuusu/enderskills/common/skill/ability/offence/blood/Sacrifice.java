@@ -131,7 +131,7 @@ public class Sacrifice extends BaseAbility implements ISkillAdvancement {
         int level = getLevel(info);
         int levelMax = getMaxLevel();
         double func = ExpressionHelper.getExpression(this, Configuration.getSyncValues().extra.health, level, levelMax);
-        double result = (func * CommonConfig.getSyncValues().skill.extra.globalEffectEffectiveness);
+        double result = (func * CommonConfig.getSyncValues().skill.extra.globalPositiveEffect);
         return (float) (result * getEffectiveness());
     }
 
@@ -139,7 +139,7 @@ public class Sacrifice extends BaseAbility implements ISkillAdvancement {
         int level = getLevel(info);
         int levelMax = getMaxLevel();
         double func = ExpressionHelper.getExpression(this, Configuration.getSyncValues().extra.power, level, levelMax);
-        double result = (func * CommonConfig.getSyncValues().skill.extra.globalEffectEffectiveness);
+        double result = (func * CommonConfig.getSyncValues().skill.extra.globalPositiveEffect);
         return (float) (result * getEffectiveness());
     }
 
@@ -334,12 +334,16 @@ public class Sacrifice extends BaseAbility implements ISkillAdvancement {
 
             @Config.Comment("Cooldown Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
             public String[] cooldown = {
-                    "(0+){(90 * 20) + (30 * 20) * (1 - ((e^(-2.1 * (x / y)) - 1)/((e^-2.1) - 1)))}"
+                    "(0+){102 * 20 + 18 * 20 * (1 - ((1 - (e^(-2.1 * (x/1)))) / (1 - e^(-2.1))))}",
+                    "(2+){94 * 20 + 8 * 20 * (1- (((e^(0.1 * ((x-1) / (y-1))) - 1)/((e^0.1) - 1))))}",
+                    "(4){(90 * 20)}"
             };
 
             @Config.Comment("Duration Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
             public String[] time = {
-                    "(0+){25 * 20 + ((e^(-2.1 * (x / y)) - 1)/((e^-2.1) - 1)) * (45 * 20 - 25 * 20)}"
+                    "(0+){25 * 20 + 13 * 20 * (1 - (e^(-2.1 * (x/49)))) / (1 - e^(-2.1))}",
+                    "(50+){38 * 20 + 5 * 20 * ((e^(0.1 * ((x - 49) / (y - 49))) - 1)/((e^0.1) - 1))}",
+                    "(100){45 * 20}"
             };
 
             @Config.Comment("Effectiveness Modifier")
@@ -360,7 +364,9 @@ public class Sacrifice extends BaseAbility implements ISkillAdvancement {
             public static class Advancement {
                 @Config.Comment("Function f(x)=? where 'x' is [Next Level] and 'y' is [Max Level], XP Cost is in units [NOT LEVELS]")
                 public String[] upgrade = {
-                        "(0+){(22070 * (1 - (0 ^ (0 ^ x)))) + 7 * x}"
+                        "(0){22070}",
+                        "(1+){7 * x}",
+                        "(100){7 * x + 7 * x * 0.1}"
                 };
             }
         }

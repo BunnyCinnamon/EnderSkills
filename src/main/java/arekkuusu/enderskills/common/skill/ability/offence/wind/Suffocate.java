@@ -159,7 +159,7 @@ public class Suffocate extends BaseAbility implements IImpact, ILoopSound, IScan
         int level = getLevel(info);
         int levelMax = getMaxLevel();
         double func = ExpressionHelper.getExpression(this, Configuration.getSyncValues().extra.suffocateDoT, level, levelMax);
-        double result = (func * CommonConfig.getSyncValues().skill.extra.globalEffectEffectiveness);
+        double result = (func * CommonConfig.getSyncValues().skill.extra.globalNegativeEffect);
         return (result * getEffectiveness());
     }
 
@@ -362,17 +362,22 @@ public class Suffocate extends BaseAbility implements IImpact, ILoopSound, IScan
 
             @Config.Comment("Cooldown Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
             public String[] cooldown = {
-                    "(0+){(80 * 20) + (20 * 20) * (1 - ((e^(-2.1 * (x / y)) - 1)/((e^-2.1) - 1)))}"
+                    "(0+){88 * 20 + 12 * 20 * (1 - ((1 - (e^(-2.1 * (x/49)))) / (1 - e^(-2.1))))}",
+                    "(50+){83 * 20 + 5 * 20 * (1- (((e^(0.1 * ((x-49) / (y-49))) - 1)/((e^0.1) - 1))))}",
+                    "(100){80 * 20}"
             };
 
             @Config.Comment("Duration Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
             public String[] time = {
-                    "(0+){(10 * 20) + ((e^(-2.1 * (x / y)) - 1)/((e^-2.1) - 1)) * ((18 * 20) - (10 * 20))}"
+                    "(0+){10 * 20 + 12 * 20 * (1 - (e^(-2.1 * (x/49)))) / (1 - e^(-2.1))}",
+                    "(50+){22 * 20 + 6 * 20 * ((e^(0.1 * ((x - 49) / (y - 49))) - 1)/((e^0.1) - 1))}",
+                    "(100){28 * 20}"
             };
 
             @Config.Comment("Range Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
             public String[] range = {
-                    "(0+){8 + ((e^(-2.1 * (x / y)) - 1)/((e^-2.1) - 1)) * (16 - 8)}"
+                    "(0+){8 + 5 * (1 - (e^(-2.1 * (x/49)))) / (1 - e^(-2.1))}",
+                    "(50+){13 + 3 * ((e^(0.1 * ((x - 49) / (y - 49))) - 1)/((e^0.1) - 1))}"
             };
 
             @Config.Comment("Effectiveness Modifier")
@@ -382,18 +387,23 @@ public class Suffocate extends BaseAbility implements IImpact, ILoopSound, IScan
             public static class Extra {
                 @Config.Comment("Suffocate Range Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
                 public String[] suffocateRange = {
-                        "(0+){8 + ((e^(-2.1 * (x / y)) - 1)/((e^-2.1) - 1)) * (24 - 8)}"
+                        "(0+){8 + 10 * (1 - (e^(-2.1 * (x/49)))) / (1 - e^(-2.1))}",
+                        "(50+){20 + 6 * ((e^(0.1 * ((x - 49) / (y - 49))) - 1)/((e^0.1) - 1))}"
                 };
                 @Config.Comment("Damage Over Time Range Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
                 public String[] suffocateDoT = {
-                        "(0+){9 + ((e^(-2.1 * (x / y)) - 1)/((e^-2.1) - 1)) * (13 - 9)}"
+                        "(0+){9 + ((e^(0.1 * (x / 49)) - 1)/((e^0.1) - 1)) * (11.96 - 9)}",
+                        "(50+){11.96 + ((e^(2.25 * ((x-49) / (y-49))) - 1)/((e^2.25) - 1)) * (12 - 11.96)}",
+                        "(100){13}"
                 };
             }
 
             public static class Advancement {
                 @Config.Comment("Function f(x)=? where 'x' is [Next Level] and 'y' is [Max Level], XP Cost is in units [NOT LEVELS]")
                 public String[] upgrade = {
-                        "(0+){(22070 * (1 - (0 ^ (0 ^ x)))) + 7 * x}"
+                        "(0){22070}",
+                        "(1+){7 * x}",
+                        "(100){7 * x + 7 * x * 0.1}"
                 };
             }
         }

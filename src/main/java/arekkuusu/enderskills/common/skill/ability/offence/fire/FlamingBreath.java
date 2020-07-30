@@ -128,7 +128,7 @@ public class FlamingBreath extends BaseAbility implements IScanEntities, IExpand
         int level = getLevel(info);
         int levelMax = getMaxLevel();
         double func = ExpressionHelper.getExpression(this, Configuration.getSyncValues().extra.dot, level, levelMax);
-        double result = (func * CommonConfig.getSyncValues().skill.extra.globalEffectEffectiveness);
+        double result = (func * CommonConfig.getSyncValues().skill.extra.globalNegativeEffect);
         return (result * getEffectiveness());
     }
 
@@ -326,7 +326,9 @@ public class FlamingBreath extends BaseAbility implements IScanEntities, IExpand
 
             @Config.Comment("Cooldown Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
             public String[] cooldown = {
-                    "(0+){(16 * 20) + (24 * 20) * (1 - ((e^(-2.1 * (x / y)) - 1)/((e^-2.1) - 1)))}"
+                    "(0+){25 * 20 + 15 * 20 * (1 - ((1 - (e^(-2.1 * (x/49)))) / (1 - e^(-2.1))))}",
+                    "(50+){20 * 20 + 5 * 20 * (1- (((e^(0.1 * ((x-49) / (y-49))) - 1)/((e^0.1) - 1))))}",
+                    "(100){16 * 20}"
             };
 
             @Config.Comment("Duration Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
@@ -336,7 +338,8 @@ public class FlamingBreath extends BaseAbility implements IScanEntities, IExpand
 
             @Config.Comment("Range Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
             public String[] range = {
-                    "(0+){5 + ((e^(-2.1 * (x / y)) - 1)/((e^-2.1) - 1)) * (10 - 5)}"
+                    "(0+){5 + 3 * (1 - (e^(-2.1 * (x/49)))) / (1 - e^(-2.1))}",
+                    "(50+){8 + 2 * ((e^(0.1 * ((x - 49) / (y - 49))) - 1)/((e^0.1) - 1))}"
             };
 
             @Config.Comment("Effectiveness Modifier")
@@ -346,7 +349,7 @@ public class FlamingBreath extends BaseAbility implements IScanEntities, IExpand
             public static class Extra {
                 @Config.Comment("Damage Over Time Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
                 public String[] dot = {
-                        "(0+){16 + ((e^(0.1 * (x / 50)) - 1)/((e^0.1) - 1)) * (22.73 - 16)}",
+                        "(0+){16 + ((e^(0.1 * (x / 49)) - 1)/((e^0.1) - 1)) * (22.73 - 16)}",
                         "(50+){22.73 + ((e^(2.25 * ((x-49) / (y-49))) - 1)/((e^2.25) - 1)) * (39 - 22.73)}",
                         "(100){42}"
                 };
@@ -355,7 +358,9 @@ public class FlamingBreath extends BaseAbility implements IScanEntities, IExpand
             public static class Advancement {
                 @Config.Comment("Function f(x)=? where 'x' is [Next Level] and 'y' is [Max Level], XP Cost is in units [NOT LEVELS]")
                 public String[] upgrade = {
-                        "(0+){(825 * (1 - (0 ^ (0 ^ x)))) + 7 * x}"
+                        "(0){825}",
+                        "(1+){7 * x}",
+                        "(100){7 * x + 7 * x * 0.1}"
                 };
             }
         }

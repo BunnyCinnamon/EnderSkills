@@ -1,7 +1,6 @@
 package arekkuusu.enderskills.common;
 
 import arekkuusu.enderskills.api.EnderSkillsAPI;
-import arekkuusu.enderskills.api.helper.ExpressionHelper;
 import arekkuusu.enderskills.api.helper.NBTHelper;
 import arekkuusu.enderskills.api.registry.Skill;
 import arekkuusu.enderskills.common.lib.LibMod;
@@ -44,7 +43,9 @@ public final class CommonConfig {
         CommonConfig.getSyncValues().skill.globalTime = CommonConfig.getValues().skill.globalTime;
         CommonConfig.getSyncValues().skill.globalRange = CommonConfig.getValues().skill.globalRange;
         CommonConfig.getSyncValues().skill.globalEffectiveness = CommonConfig.getValues().skill.globalEffectiveness;
-        CommonConfig.getSyncValues().skill.extra.globalEffectEffectiveness = CommonConfig.getValues().skill.extra.globalEffectEffectiveness;
+        CommonConfig.getSyncValues().skill.extra.globalNegativeEffect = CommonConfig.getValues().skill.extra.globalNegativeEffect;
+        CommonConfig.getSyncValues().skill.extra.globalPositiveEffect = CommonConfig.getValues().skill.extra.globalPositiveEffect;
+        CommonConfig.getSyncValues().skill.extra.globalNeutralEffect = CommonConfig.getValues().skill.extra.globalNeutralEffect;
         CommonConfig.getSyncValues().advancement.oneTreePerClass = CommonConfig.getValues().advancement.oneTreePerClass;
         CommonConfig.getSyncValues().advancement.xp.globalCostMultiplier = CommonConfig.getValues().advancement.xp.globalCostMultiplier;
         CommonConfig.getSyncValues().advancement.xp.retryXPReturn = CommonConfig.getValues().advancement.xp.retryXPReturn;
@@ -77,7 +78,9 @@ public final class CommonConfig {
         compound.setDouble("globalTime", CommonConfig.getValues().skill.globalTime);
         compound.setDouble("globalRange", CommonConfig.getValues().skill.globalRange);
         compound.setDouble("globalEffectiveness", CommonConfig.getValues().skill.globalEffectiveness);
-        compound.setDouble("extra.globalEffectEffectiveness", CommonConfig.getValues().skill.extra.globalEffectEffectiveness);
+        compound.setDouble("extra.globalHeal", CommonConfig.getValues().skill.extra.globalNegativeEffect);
+        compound.setDouble("extra.globalDamage", CommonConfig.getValues().skill.extra.globalPositiveEffect);
+        compound.setDouble("extra.globalNeutralEffect", CommonConfig.getValues().skill.extra.globalNeutralEffect);
         EnderSkillsAPI.EXPRESSION_FUNCTION_CACHE.clear();
         EnderSkillsAPI.EXPRESSION_CACHE.clear();
     }
@@ -96,7 +99,9 @@ public final class CommonConfig {
         CommonConfig.getSyncValues().skill.globalTime = compound.getDouble("globalTime");
         CommonConfig.getSyncValues().skill.globalRange = compound.getDouble("globalRange");
         CommonConfig.getSyncValues().skill.globalEffectiveness = compound.getDouble("globalEffectiveness");
-        CommonConfig.getSyncValues().skill.extra.globalEffectEffectiveness = compound.getDouble("extra.globalEffectEffectiveness");
+        CommonConfig.getSyncValues().skill.extra.globalNegativeEffect = compound.getDouble("extra.globalHeal");
+        CommonConfig.getSyncValues().skill.extra.globalPositiveEffect = compound.getDouble("extra.globalDamage");
+        CommonConfig.getSyncValues().skill.extra.globalNeutralEffect = compound.getDouble("extra.globalNeutralEffect");
         EnderSkillsAPI.defaultHumanTeam = CommonConfig.getSyncValues().skill.defaultHumanTeam;
         EnderSkillsAPI.EXPRESSION_FUNCTION_CACHE.clear();
         EnderSkillsAPI.EXPRESSION_CACHE.clear();
@@ -126,7 +131,11 @@ public final class CommonConfig {
             public double globalEffectiveness = 1D;
 
             public static class Extra {
-                public double globalEffectEffectiveness = 1D;
+                public double globalPositiveEffect = 1D;
+
+                public double globalNegativeEffect = 1D;
+
+                public double globalNeutralEffect = 1D;
             }
         }
 

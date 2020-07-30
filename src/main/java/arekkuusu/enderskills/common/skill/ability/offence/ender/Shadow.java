@@ -166,7 +166,7 @@ public class Shadow extends BaseAbility implements ISkillAdvancement {
         int level = getLevel(info);
         int levelMax = getMaxLevel();
         double func = ExpressionHelper.getExpression(this, Configuration.getSyncValues().extra.mirror, level, levelMax);
-        double result = (func * CommonConfig.getSyncValues().skill.extra.globalEffectEffectiveness);
+        double result = (func * CommonConfig.getSyncValues().skill.extra.globalNegativeEffect);
         return (float) (result * getEffectiveness());
     }
 
@@ -342,7 +342,9 @@ public class Shadow extends BaseAbility implements ISkillAdvancement {
 
             @Config.Comment("Cooldown Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
             public String[] cooldown = {
-                    "(0+){(5 * 20) + (5 * 20) * (1 - ((e^(-2.1 * (x / y)) - 1)/((e^-2.1) - 1)))}"
+                    "(0+){7.5 * 20 + 2.5 * 20 * (1 - ((1 - (e^(-2.1 * (x/2)))) / (1 - e^(-2.1))))}",
+                    "(3+){6 * 20 + 1.5 * 20 * (1- (((e^(0.1 * ((x-2) / (y-2))) - 1)/((e^0.1) - 1))))}",
+                    "(5){(5 * 20)}"
             };
 
             @Config.Comment("Effectiveness Modifier")
@@ -359,7 +361,9 @@ public class Shadow extends BaseAbility implements ISkillAdvancement {
             public static class Advancement {
                 @Config.Comment("Function f(x)=? where 'x' is [Next Level] and 'y' is [Max Level], XP Cost is in units [NOT LEVELS]")
                 public String[] upgrade = {
-                        "(0+){(170 * (1 - (0 ^ (0 ^ x)))) + 7 * x}"
+                        "(0){170}",
+                        "(1+){7 * x}",
+                        "(100){7 * x + 7 * x * 0.1}"
                 };
             }
         }

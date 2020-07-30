@@ -145,7 +145,7 @@ public class Updraft extends BaseAbility implements IScanEntities, IExpand, IFin
         int level = getLevel(info);
         int levelMax = getMaxLevel();
         double func = ExpressionHelper.getExpression(this, Configuration.getSyncValues().extra.launch, level, levelMax);
-        double result = (func * CommonConfig.getSyncValues().skill.extra.globalEffectEffectiveness);
+        double result = (func * CommonConfig.getSyncValues().skill.extra.globalNeutralEffect);
         return (float) (result * getEffectiveness());
     }
 
@@ -335,12 +335,15 @@ public class Updraft extends BaseAbility implements IScanEntities, IExpand, IFin
 
             @Config.Comment("Cooldown Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
             public String[] cooldown = {
-                    "(0+){(14 * 20) + (6 * 20) * (1 - ((e^(-2.1 * (x / y)) - 1)/((e^-2.1) - 1)))}"
+                    "(0+){16.5 * 20 + 3.5 * 20 * (1 - ((1 - (e^(-2.1 * (x/49)))) / (1 - e^(-2.1))))}",
+                    "(50+){15 * 20 + 1.5 * 20 * (1- (((e^(0.1 * ((x-49) / (y-49))) - 1)/((e^0.1) - 1))))}",
+                    "(100){14 * 20}"
             };
 
             @Config.Comment("Range Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
             public String[] range = {
-                    "(0+){8 + ((e^(-2.1 * (x / y)) - 1)/((e^-2.1) - 1)) * (16 - 8)}"
+                    "(0+){8 + 5 * (1 - (e^(-2.1 * (x/49)))) / (1 - e^(-2.1))}",
+                    "(50+){13 + 3 * ((e^(0.1 * ((x - 49) / (y - 49))) - 1)/((e^0.1) - 1))}"
             };
 
             @Config.Comment("Effectiveness Modifier")
@@ -350,18 +353,22 @@ public class Updraft extends BaseAbility implements IScanEntities, IExpand, IFin
             public static class Extra {
                 @Config.Comment("Lift Range Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
                 public String[] liftRange = {
-                        "(0+){2 + ((e^(-2.1 * (x / y)) - 1)/((e^-2.1) - 1)) * (8 - 2)}"
+                        "(0+){2 + 4 * (1 - (e^(-2.1 * (x/49)))) / (1 - e^(-2.1))}",
+                        "(50+){6 + 2 * ((e^(0.1 * ((x - 49) / (y - 49))) - 1)/((e^0.1) - 1))}"
                 };
                 @Config.Comment("Lift Launch Force Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
                 public String[] launch = {
-                        "(0+){6 + ((e^(-2.1 * (x / y)) - 1)/((e^-2.1) - 1)) * (40 - 6)}"
+                        "(0+){6 + 24 * (1 - (e^(-2.1 * (x/49)))) / (1 - e^(-2.1))}",
+                        "(50+){30 + 10 * ((e^(0.1 * ((x - 49) / (y - 49))) - 1)/((e^0.1) - 1))}"
                 };
             }
 
             public static class Advancement {
                 @Config.Comment("Function f(x)=? where 'x' is [Next Level] and 'y' is [Max Level], XP Cost is in units [NOT LEVELS]")
                 public String[] upgrade = {
-                        "(0+){(5730 * (1 - (0 ^ (0 ^ x)))) + 7 * x}"
+                        "(0){5730}",
+                        "(1+){7 * x}",
+                        "(100){7 * x + 7 * x * 0.1}"
                 };
             }
         }

@@ -410,17 +410,22 @@ public class Smash extends BaseAbility implements IScanEntities, IExpand, IFindE
 
             @Config.Comment("Cooldown Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
             public String[] cooldown = {
-                    "(0+){(28 * 20) + (18 * 20) * (1 - ((e^(-2.1 * (x / y)) - 1)/((e^-2.1) - 1)))}"
+                    "(0+){36 * 20 + 10 * 20 * (1 - ((1 - (e^(-2.1 * (x/2)))) / (1 - e^(-2.1))))}",
+                    "(3+){32 * 20 + 4 * 20 * (1- (((e^(0.1 * ((x-2) / (y-2))) - 1)/((e^0.1) - 1))))}",
+                    "(5){(28 * 20)}"
             };
 
             @Config.Comment("Duration Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
             public String[] time = {
-                    "(0+){3 * 20 + ((e^(-2.1 * (x / y)) - 1)/((e^-2.1) - 1)) * ((8 * 20) - (3 * 20))}"
+                    "(0+){3 * 20 + 3 * 20 * (1 - (e^(-2.1 * (x/49)))) / (1 - e^(-2.1))}",
+                    "(50+){6 * 20 + 1 * 20 * ((e^(0.1 * ((x - 49) / (y - 49))) - 1)/((e^0.1) - 1))}",
+                    "(100){8 * 20}"
             };
 
             @Config.Comment("Range Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
             public String[] range = {
-                    "(0+){4 + ((e^(-2.1 * (x / y)) - 1)/((e^-2.1) - 1)) * (10 - 4)}"
+                    "(0+){4 + 4 * (1 - (e^(-2.1 * (x/49)))) / (1 - e^(-2.1))}",
+                    "(50+){8 + 2 * ((e^(0.1 * ((x - 49) / (y - 49))) - 1)/((e^0.1) - 1))}"
             };
 
             @Config.Comment("Effectiveness Modifier")
@@ -430,7 +435,9 @@ public class Smash extends BaseAbility implements IScanEntities, IExpand, IFindE
             public static class Advancement {
                 @Config.Comment("Function f(x)=? where 'x' is [Next Level] and 'y' is [Max Level], XP Cost is in units [NOT LEVELS]")
                 public String[] upgrade = {
-                        "(0+){(5730 * (1 - (0 ^ (0 ^ x)))) + 7 * x}"
+                        "(0){5730}",
+                        "(1+){7 * x}",
+                        "(100){7 * x + 7 * x * 0.1}"
                 };
             }
         }

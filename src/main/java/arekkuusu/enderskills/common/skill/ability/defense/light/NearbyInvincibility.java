@@ -347,7 +347,9 @@ public class NearbyInvincibility extends BaseAbility implements ISkillAdvancemen
             public static class Advancement {
                 @Config.Comment("Function f(x)=? where 'x' is [Next Level] and 'y' is [Max Level], XP Cost is in units [NOT LEVELS]")
                 public String[] upgrade = {
-                        "(0+){(22070 * (1 - (0 ^ (0 ^ x)))) + 7 * x}"
+                        "(0){22070}",
+                        "(1+){7 * x}",
+                        "(100){7 * x + 7 * x * 0.1}"
                 };
             }
         }

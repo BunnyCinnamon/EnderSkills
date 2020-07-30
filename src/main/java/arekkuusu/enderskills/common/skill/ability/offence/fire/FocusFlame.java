@@ -174,7 +174,7 @@ public class FocusFlame extends BaseAbility implements IImpact, ILoopSound, ISca
         int level = getLevel(info);
         int levelMax = getMaxLevel();
         double func = ExpressionHelper.getExpression(this, Gloom.Configuration.getSyncValues().extra.dot, level, levelMax);
-        double result = (func * CommonConfig.getSyncValues().skill.extra.globalEffectEffectiveness);
+        double result = (func * CommonConfig.getSyncValues().skill.extra.globalNegativeEffect);
         return (result * getEffectiveness());
     }
 
@@ -182,7 +182,7 @@ public class FocusFlame extends BaseAbility implements IImpact, ILoopSound, ISca
         int level = getLevel(info);
         int levelMax = getMaxLevel();
         double func = ExpressionHelper.getExpression(this, Configuration.getSyncValues().extra.damage, level, levelMax);
-        double result = (func * CommonConfig.getSyncValues().skill.extra.globalEffectEffectiveness);
+        double result = (func * CommonConfig.getSyncValues().skill.extra.globalNegativeEffect);
         return (result * getEffectiveness());
     }
 
@@ -393,7 +393,9 @@ public class FocusFlame extends BaseAbility implements IImpact, ILoopSound, ISca
 
             @Config.Comment("Cooldown Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
             public String[] cooldown = {
-                    "(0+){(22 * 20) + (48 * 20) * (1 - ((e^(-2.1 * (x / y)) - 1)/((e^-2.1) - 1)))}"
+                    "(0+){40 * 20 + 30 * 20 * (1 - ((1 - (e^(-2.1 * (x/49)))) / (1 - e^(-2.1))))}",
+                    "(50+){27 * 20 + 13 * 20 * (1- (((e^(0.1 * ((x-49) / (y-49))) - 1)/((e^0.1) - 1))))}",
+                    "(100){22 * 20}"
             };
 
             @Config.Comment("Duration Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
@@ -403,7 +405,8 @@ public class FocusFlame extends BaseAbility implements IImpact, ILoopSound, ISca
 
             @Config.Comment("Range Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
             public String[] range = {
-                    "(0+){12 + ((e^(-2.1 * (x / y)) - 1)/((e^-2.1) - 1)) * (22 - 12)}"
+                    "(0+){12 + 7 * (1 - (e^(-2.1 * (x/49)))) / (1 - e^(-2.1))}",
+                    "(50+){19 + 3 * ((e^(0.1 * ((x - 49) / (y - 49))) - 1)/((e^0.1) - 1))}"
             };
 
             @Config.Comment("Effectiveness Modifier")
@@ -421,13 +424,13 @@ public class FocusFlame extends BaseAbility implements IImpact, ILoopSound, ISca
                 };
                 @Config.Comment("Damage Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
                 public String[] damage = {
-                        "(0+){40 + ((e^(0.1 * (x / 50)) - 1)/((e^0.1) - 1)) * (52.96 - 40)}",
+                        "(0+){40 + ((e^(0.1 * (x / 49)) - 1)/((e^0.1) - 1)) * (52.96 - 40)}",
                         "(50+){52.96 + ((e^(2.25 * ((x-49) / (y-49))) - 1)/((e^2.25) - 1)) * (85 - 52.96)}",
                         "(100){90}"
                 };
                 @Config.Comment("Damage Over Time Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
                 public String[] dot = {
-                        "(0+){14 + ((e^(0.1 * (x / 50)) - 1)/((e^0.1) - 1)) * (20.73 - 14)}",
+                        "(0+){14 + ((e^(0.1 * (x / 49)) - 1)/((e^0.1) - 1)) * (20.73 - 14)}",
                         "(50+){20.73 + ((e^(2.25 * ((x-49) / (y-49))) - 1)/((e^2.25) - 1)) * (38 - 20.73)}",
                         "(100){40}"
                 };
@@ -436,7 +439,9 @@ public class FocusFlame extends BaseAbility implements IImpact, ILoopSound, ISca
             public static class Advancement {
                 @Config.Comment("Function f(x)=? where 'x' is [Next Level] and 'y' is [Max Level], XP Cost is in units [NOT LEVELS]")
                 public String[] upgrade = {
-                        "(0+){(5730 * (1 - (0 ^ (0 ^ x)))) + 7 * x}"
+                        "(0){5730}",
+                        "(1+){7 * x}",
+                        "(100){7 * x + 7 * x * 0.1}"
                 };
             }
         }
