@@ -78,8 +78,8 @@ public final class CommonConfig {
         compound.setDouble("globalTime", CommonConfig.getValues().skill.globalTime);
         compound.setDouble("globalRange", CommonConfig.getValues().skill.globalRange);
         compound.setDouble("globalEffectiveness", CommonConfig.getValues().skill.globalEffectiveness);
-        compound.setDouble("extra.globalHeal", CommonConfig.getValues().skill.extra.globalNegativeEffect);
-        compound.setDouble("extra.globalDamage", CommonConfig.getValues().skill.extra.globalPositiveEffect);
+        compound.setDouble("extra.globalNegativeEffect", CommonConfig.getValues().skill.extra.globalNegativeEffect);
+        compound.setDouble("extra.globalPositiveEffect", CommonConfig.getValues().skill.extra.globalPositiveEffect);
         compound.setDouble("extra.globalNeutralEffect", CommonConfig.getValues().skill.extra.globalNeutralEffect);
         EnderSkillsAPI.EXPRESSION_FUNCTION_CACHE.clear();
         EnderSkillsAPI.EXPRESSION_CACHE.clear();
@@ -99,8 +99,8 @@ public final class CommonConfig {
         CommonConfig.getSyncValues().skill.globalTime = compound.getDouble("globalTime");
         CommonConfig.getSyncValues().skill.globalRange = compound.getDouble("globalRange");
         CommonConfig.getSyncValues().skill.globalEffectiveness = compound.getDouble("globalEffectiveness");
-        CommonConfig.getSyncValues().skill.extra.globalNegativeEffect = compound.getDouble("extra.globalHeal");
-        CommonConfig.getSyncValues().skill.extra.globalPositiveEffect = compound.getDouble("extra.globalDamage");
+        CommonConfig.getSyncValues().skill.extra.globalNegativeEffect = compound.getDouble("extra.globalNegativeEffect");
+        CommonConfig.getSyncValues().skill.extra.globalPositiveEffect = compound.getDouble("extra.globalPositiveEffect");
         CommonConfig.getSyncValues().skill.extra.globalNeutralEffect = compound.getDouble("extra.globalNeutralEffect");
         EnderSkillsAPI.defaultHumanTeam = CommonConfig.getSyncValues().skill.defaultHumanTeam;
         EnderSkillsAPI.EXPRESSION_FUNCTION_CACHE.clear();
