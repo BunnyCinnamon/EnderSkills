@@ -69,6 +69,7 @@ public final class CommonConfig {
     public static void writeSyncConfig(NBTTagCompound compound) {
         compound.setBoolean("advancement.oneTreePerClass", CommonConfig.getValues().advancement.oneTreePerClass);
         compound.setDouble("advancement.xp.globalCostMultiplier", CommonConfig.getValues().advancement.xp.globalCostMultiplier);
+        compound.setDouble("advancement.xp.costIncrement", CommonConfig.getValues().advancement.xp.costIncrement);
         compound.setDouble("advancement.xp.retryXPReturn", CommonConfig.getValues().advancement.xp.retryXPReturn);
         compound.setInteger("advancement.maxRetries", CommonConfig.getValues().advancement.maxRetries);
         NBTHelper.setArray(compound, "advancement.levels.function", CommonConfig.getValues().advancement.levels.function);
@@ -90,6 +91,7 @@ public final class CommonConfig {
     public static void readSyncConfig(NBTTagCompound compound) {
         CommonConfig.getSyncValues().advancement.oneTreePerClass = compound.getBoolean("advancement.xp.oneTreePerClass");
         CommonConfig.getSyncValues().advancement.xp.globalCostMultiplier = compound.getDouble("advancement.xp.globalCostMultiplier");
+        CommonConfig.getSyncValues().advancement.xp.costIncrement = compound.getDouble("advancement.xp.costIncrement");
         CommonConfig.getSyncValues().advancement.xp.retryXPReturn = compound.getDouble("advancement.xp.retryXPReturn");
         CommonConfig.getSyncValues().advancement.maxRetries = compound.getInteger("advancement.maxRetries");
         CommonConfig.getSyncValues().advancement.levels.function = NBTHelper.getArray(compound, "advancement.levels.function");
@@ -150,7 +152,8 @@ public final class CommonConfig {
 
             public static class Experience {
                 public double globalCostMultiplier = 1D;
-                public double retryXPReturn = 0.8;
+                public double costIncrement = 0.5D;
+                public double retryXPReturn = 0.8D;
             }
 
             public static class Levels {

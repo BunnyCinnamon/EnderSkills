@@ -335,7 +335,7 @@ public class Grasp extends BaseAbility implements IImpact, IExpand, ILoopSound, 
             if (index == -1) {
                 index = advancement.skillUnlockOrder.length;
             }
-            return (int) (total * (1D + index * 0.5D));
+            return (int) (total * (1D + index * CommonConfig.getSyncValues().advancement.xp.costIncrement));
         }
         return total;
     }

@@ -231,7 +231,7 @@ public class ExtraJump extends BaseAbility implements ISkillAdvancement {
             if (index == -1) {
                 index = advancement.skillUnlockOrder.length;
             }
-            return (int) (total * (1D + index * 0.5D));
+            return (int) (total * (1D + index * CommonConfig.getSyncValues().advancement.xp.costIncrement));
         }
         return total;
     }
