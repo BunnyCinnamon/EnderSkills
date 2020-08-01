@@ -95,7 +95,7 @@ public class EntityWall extends Entity {
             IBlockState[] states = new IBlockState[height];
             for (int j = height - 1; j >= 0; j--) {
                 IBlockState stateSeg = world.getBlockState(mPos);
-                boolean solid = stateSeg.isOpaqueCube() && stateSeg.isFullBlock();
+                boolean solid = isSolid(world, mPos);
                 if (!solid) {
                     stateSeg = !foundLand ? Blocks.AIR.getDefaultState() : states[j + 1];
                 } else if (!foundLand) {

@@ -27,7 +27,6 @@ import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.registries.IForgeRegistry;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -202,12 +201,12 @@ public final class PacketHandler {
         });
     }));
 
-    public static final List<Runnable> GUI_SYNC_QUEUE = new ArrayList<>();
+    public static Runnable GUI_SYNC_QUEUE;
 
     public static final IPacketHandler GUI_SYNC = (((compound, context) -> {
-        if (!GUI_SYNC_QUEUE.isEmpty()) {
-            GUI_SYNC_QUEUE.forEach(Runnable::run);
-            GUI_SYNC_QUEUE.clear();
+        if (GUI_SYNC_QUEUE != null) {
+            GUI_SYNC_QUEUE.run();
+            GUI_SYNC_QUEUE = null;
         }
     }));
 

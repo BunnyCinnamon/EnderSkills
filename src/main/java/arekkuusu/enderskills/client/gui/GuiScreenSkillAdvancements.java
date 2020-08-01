@@ -10,6 +10,7 @@ import arekkuusu.enderskills.client.util.helper.RenderMisc;
 import arekkuusu.enderskills.client.util.helper.TextHelper;
 import arekkuusu.enderskills.common.CommonConfig;
 import arekkuusu.enderskills.common.lib.LibMod;
+import arekkuusu.enderskills.common.network.PacketHandler;
 import arekkuusu.enderskills.common.network.PacketHelper;
 import arekkuusu.enderskills.common.sound.ModSounds;
 import com.google.common.collect.Lists;
@@ -115,8 +116,8 @@ public class GuiScreenSkillAdvancements extends GuiScreen {
             this.selectedTab.selectedPage = this.selectedTab.pages.get(this.selectedTab.tabPage);
         }
 
-        if (confirmation != null) {
-            confirmation.initGui();
+        if (GuiScreenSkillAdvancements.confirmation != null) {
+            GuiScreenSkillAdvancements.confirmation.initGui();
         }
     }
 
@@ -136,8 +137,8 @@ public class GuiScreenSkillAdvancements extends GuiScreen {
                 guiButton.enabled = Capabilities.advancement(this.mc.player).map(c -> c.resetCount < CommonConfig.getValues().advancement.maxRetries).orElse(false);
             }
         }
-        if(confirmation != null) {
-            confirmation.update();
+        if(GuiScreenSkillAdvancements.confirmation != null) {
+            GuiScreenSkillAdvancements.confirmation.update();
         }
     }
 
@@ -181,12 +182,12 @@ public class GuiScreenSkillAdvancements extends GuiScreen {
                 label.drawLabel(this.mc, mouseX, mouseY);
             }
         }
-        if (confirmation == null) {
+        if (GuiScreenSkillAdvancements.confirmation == null) {
             int i = (this.width - this.guiWidth) / 2;
             int j = (this.height - this.guiHeight) / 2;
             this.renderToolTips(mouseX, mouseY, i, j, partialTicks);
         } else {
-            confirmation.drawGui(mouseX, mouseY, partialTicks);
+            GuiScreenSkillAdvancements.confirmation.drawGui(mouseX, mouseY, partialTicks);
         }
         if (!this.allowUserInput) {
             this.drawGradientRect(0, 0, this.mc.displayWidth, this.mc.displayHeight, -1072689136, -804253680);
@@ -346,7 +347,7 @@ public class GuiScreenSkillAdvancements extends GuiScreen {
     }
 
     public void drawEntityOnScreen(int posX, int posY, float mouseX, float mouseY) {
-        if (confirmation != null) return;
+        if (GuiScreenSkillAdvancements.confirmation != null) return;
         EntityLivingBase ent = this.mc.player;
         GlStateManager.pushMatrix();
         RenderHelper.enableStandardItemLighting();
@@ -415,7 +416,7 @@ public class GuiScreenSkillAdvancements extends GuiScreen {
 
     @Override
     protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException {
-        if (confirmation == null) {
+        if (GuiScreenSkillAdvancements.confirmation == null) {
             super.mouseClicked(mouseX, mouseY, mouseButton);
             if (mouseButton == 0) {
                 int width = (this.width - this.guiWidth) / 2;
@@ -451,7 +452,7 @@ public class GuiScreenSkillAdvancements extends GuiScreen {
                 }
             }
         } else {
-            confirmation.mouseClicked(mouseX, mouseY, mouseButton);
+            GuiScreenSkillAdvancements.confirmation.mouseClicked(mouseX, mouseY, mouseButton);
         }
         isShifting = false;
     }
@@ -459,14 +460,16 @@ public class GuiScreenSkillAdvancements extends GuiScreen {
     @Override
     protected void keyTyped(char typedChar, int keyCode) {
         if (keyCode == 1) {
-            if (confirmation == null) {
+            PacketHandler.GUI_SYNC_QUEUE = null;
+            if (GuiScreenSkillAdvancements.confirmation == null) {
                 this.mc.displayGuiScreen(null);
 
                 if (this.mc.currentScreen == null) {
                     this.mc.setIngameFocus();
                 }
             } else {
-                confirmation = null;
+                this.allowUserInput = true;
+                GuiScreenSkillAdvancements.confirmation = null;
             }
         } else if (keyCode == 203) {
             this.selectedTab.tabPage = Math.max(this.selectedTab.tabPage - 1, 0);

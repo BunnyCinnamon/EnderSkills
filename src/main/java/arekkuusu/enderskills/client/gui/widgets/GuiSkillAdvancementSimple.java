@@ -302,11 +302,11 @@ public class GuiSkillAdvancementSimple extends GuiSkillAdvancement {
                         boolean success = this.advancement.upgrade();
                         if (g.isShifting && success) {
                             this.gui.gui.allowUserInput = false;
-                            PacketHandler.GUI_SYNC_QUEUE.add(() -> {
+                            PacketHandler.GUI_SYNC_QUEUE = () -> {
                                 this.gui.gui.isShifting = true;
                                 this.gui.gui.allowUserInput = true;
                                 this.actionPerformed(button);
-                            });
+                            };
                         }
                     }, true, true, this.gui.gui.isShifting);
                     this.gui.gui.isShifting = false;

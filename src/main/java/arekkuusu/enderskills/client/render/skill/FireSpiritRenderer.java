@@ -13,7 +13,9 @@ import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.opengl.GL11;
@@ -27,6 +29,14 @@ public class FireSpiritRenderer extends SkillRenderer<FireSpirit> {
     public void render(Entity entity, double x, double y, double z, float partialTicks, SkillHolder skillHolder) {
         Entity owner = NBTHelper.getEntity(EntityLivingBase.class, skillHolder.data.nbt, "user");
         if (owner == entity) {
+            if (entity.ticksExisted % 5 == 0 && entity.world.rand.nextDouble() < 0.2D) {
+                Vec3d vec = entity.getPositionVector();
+                double posX = vec.x + entity.world.rand.nextDouble() - 0.5D;
+                double posY = vec.y + entity.world.rand.nextDouble() * entity.height;
+                double posZ = vec.z + entity.world.rand.nextDouble() - 0.5D;
+                entity.world.spawnParticle(EnumParticleTypes.SMOKE_NORMAL, posX, posY, posZ, 0.0D, 0.0D, 0.0D);
+                entity.world.spawnParticle(EnumParticleTypes.FLAME, posX, posY, posZ, 0.0D, 0.0D, 0.0D);
+            }
             GlStateManager.pushMatrix();
             GLHelper.BLEND_SRC_ALPHA$ONE.blend();
             ShaderLibrary.BRIGHT.begin();

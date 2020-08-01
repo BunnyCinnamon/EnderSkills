@@ -26,6 +26,7 @@ import arekkuusu.enderskills.common.lib.LibMod;
 import arekkuusu.enderskills.common.lib.LibNames;
 import arekkuusu.enderskills.common.skill.ModAbilities;
 import arekkuusu.enderskills.common.skill.ModAttributes;
+import arekkuusu.enderskills.common.skill.SkillHelper;
 import arekkuusu.enderskills.common.skill.ability.AbilityInfo;
 import arekkuusu.enderskills.common.skill.ability.BaseAbility;
 import arekkuusu.enderskills.common.sound.ModSounds;
@@ -132,13 +133,13 @@ public class Shockwave extends BaseAbility implements IScanEntities, IExpand, IF
 
     @Override
     public void end(EntityLivingBase target, SkillData data) {
-        if (isClientWorld(target)) return;
         EntityLivingBase user = NBTHelper.getEntity(EntityLivingBase.class, data.nbt, "user");
         if (target != user) {
+            target.getEntityData().setBoolean("enderskills:stun_indicator", false);
+            if (isClientWorld(target)) return;
             if (target instanceof EntityLiving) {
                 ((EntityLiving) target).tasks.removeTask(AIOverride.INSTANCE);
             }
-            target.getEntityData().setBoolean("enderskills:stun_indicator", false);
         }
     }
 
@@ -186,20 +187,16 @@ public class Shockwave extends BaseAbility implements IScanEntities, IExpand, IF
     @SubscribeEvent
     @SideOnly(Side.CLIENT)
     public void inputListener(InputUpdateEvent event) {
-        Capabilities.get(event.getEntityLiving()).flatMap(c -> c.getActive(this)).ifPresent(holder -> {
-            Optional.ofNullable(NBTHelper.getEntity(EntityLivingBase.class, holder.data.nbt, "user")).ifPresent(user -> {
-                if (event.getEntityLiving() != user) {
-                    event.getMovementInput().forwardKeyDown = false;
-                    event.getMovementInput().rightKeyDown = false;
-                    event.getMovementInput().backKeyDown = false;
-                    event.getMovementInput().leftKeyDown = false;
-                    event.getMovementInput().sneak = false;
-                    event.getMovementInput().jump = false;
-                    event.getMovementInput().moveForward = 0;
-                    event.getMovementInput().moveStrafe = 0;
-                }
-            });
-        });
+        if (SkillHelper.isActiveNotOwner(event.getEntityLiving(), this)) {
+            event.getMovementInput().forwardKeyDown = false;
+            event.getMovementInput().rightKeyDown = false;
+            event.getMovementInput().backKeyDown = false;
+            event.getMovementInput().leftKeyDown = false;
+            event.getMovementInput().sneak = false;
+            event.getMovementInput().jump = false;
+            event.getMovementInput().moveForward = 0;
+            event.getMovementInput().moveStrafe = 0;
+        }
     }
 
     @SubscribeEvent

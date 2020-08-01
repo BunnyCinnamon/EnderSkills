@@ -138,6 +138,7 @@ public final class RenderMisc {
     }
 
     public static void renderEntityOnFire(Entity entity, double x, double y, double z) {
+        if(!entity.canRenderOnFire() || entity.isBurning()) return;
         GlStateManager.disableLighting();
         TextureMap texturemap = Minecraft.getMinecraft().getTextureMapBlocks();
         TextureAtlasSprite textureatlassprite = texturemap.getAtlasSprite("minecraft:blocks/fire_layer_0");

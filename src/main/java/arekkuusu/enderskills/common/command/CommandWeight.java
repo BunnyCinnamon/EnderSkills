@@ -105,19 +105,19 @@ public class CommandWeight extends CommandBase {
                     weightToSet = args.length > 3 ? parseInt(args[3]) : 0; //We want to 'get'
                     weightToSet = MathHelper.clamp(weightToSet, Integer.MIN_VALUE, Integer.MAX_VALUE);
                     capability.putWeight(skill, weightToSet);
-                    message(sender, "weight.set.value", args[1], weight);
+                    message(sender, "weight.set.value", args[1], weightToSet);
                     break;
                 case "add":
                     weightToSet = args.length > 3 ? parseInt(args[3]) : 0; //We want to 'get'
                     int sum = MathHelper.clamp(weight + weightToSet, Integer.MIN_VALUE, Integer.MAX_VALUE);
                     capability.putWeight(skill, sum);
-                    message(sender, "weight.set.value", args[1], weight);
+                    message(sender, "weight.set.value", args[1], weightToSet);
                     break;
                 case "sub":
                     weightToSet = args.length > 3 ? parseInt(args[3]) : 0; //We want to 'get'
                     int sub = MathHelper.clamp(weight - weightToSet, Integer.MIN_VALUE, Integer.MAX_VALUE);
                     capability.putWeight(skill, sub);
-                    message(sender, "weight.set.value", args[1], weight);
+                    message(sender, "weight.set.value", args[1], weightToSet);
                     break;
                 case "get":
                     message(sender, "weight.get.value", args[1], weight);

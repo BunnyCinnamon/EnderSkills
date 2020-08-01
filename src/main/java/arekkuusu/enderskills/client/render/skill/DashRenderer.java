@@ -25,7 +25,7 @@ public class DashRenderer extends SkillRenderer<Dash> {
                     double posX = vec.x + entity.world.rand.nextDouble() - 0.5D;
                     double posY = vec.y + entity.world.rand.nextDouble() * entity.height;
                     double posZ = vec.z + entity.world.rand.nextDouble() - 0.5D;
-                    ParticleVanilla vanilla = new ParticleVanilla(entity.world, new Vec3d(posX, posY, posZ), new Vec3d(-entity.motionX, -entity.motionY, -entity.motionZ), 3F, 18, 0xFFFFFF, 0);
+                    ParticleVanilla vanilla = new ParticleVanilla(entity.world, new Vec3d(posX, posY, posZ), new Vec3d(0, 0, 0), 3F, 18, 0xFFFFFF, 0);
                     Minecraft.getMinecraft().effectRenderer.addEffect(vanilla);
                 }
             }

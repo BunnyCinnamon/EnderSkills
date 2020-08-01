@@ -147,11 +147,11 @@ public class Pull extends BaseAbility implements IImpact, ISkillAdvancement {
 
     @Override
     public void end(EntityLivingBase target, SkillData data) {
+        target.getEntityData().setBoolean("enderskills:stun_indicator", false);
         if (isClientWorld(target)) return;
         if (target instanceof EntityLiving) {
             ((EntityLiving) target).tasks.removeTask(AIOverride.INSTANCE);
         }
-        target.getEntityData().setBoolean("enderskills:stun_indicator", false);
     }
 
     public void moveEntity(Vec3d pullerPos, Vec3d pushedPos, Entity pulled) {

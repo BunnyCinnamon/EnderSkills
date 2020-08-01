@@ -62,9 +62,12 @@ command.enderskills.advancement.set.retries=Success! Retries are at %1$s
 command.enderskills.advancement.invalid.level=Level %1$s not assignable
 command.enderskills.advancement.get.level=Advancement is at %1$s lvl(s)
 command.enderskills.advancement.set.level=Success! Advancement is at %1$s lvl(s)
+command.enderskills.advancement.invalid=Invalid argument
 command.enderskills.invalid.number=Must be a valid number
 command.enderskills.cooldown.reset=Success! Cooldowns are no more
 command.enderskills.cooldown.invalid=Invalid! Must have reset
+command.enderskills.endurance.reset=Success! Endurance is no more
+command.enderskills.endurance.invalid=Invalid! Must have reset
 command.enderskills.config.reload.success=Success! Realoaded config files
 #UI
 enderskills.potion_ability_power_effect=Ability Power Effect
