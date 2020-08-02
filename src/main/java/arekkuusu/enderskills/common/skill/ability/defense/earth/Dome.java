@@ -154,7 +154,7 @@ public class Dome extends BaseAbility implements ISkillAdvancement {
                         description.add("Cooldown: " + TextHelper.format2FloatPoint(getCooldown(abilityInfo) / 20D) + "s");
                         description.add("Range: " + TextHelper.format2FloatPoint(getRange(abilityInfo)) + " Blocks");
                         description.add("Duration: " + TextHelper.format2FloatPoint(getTime(abilityInfo) / 20D) + "s");
-                        description.add("Launch Force: " + getLaunch(abilityInfo) + " m/s");
+                        description.add("Launch Force: " + TextHelper.format2FloatPoint(getLaunch(abilityInfo)) + " m/s");
                         if (abilityInfo.getLevel() < getMaxLevel()) { //Copy info and set a higher level...
                             AbilityInfo infoNew = new AbilityInfo(abilityInfo.serializeNBT());
                             infoNew.setLevel(infoNew.getLevel() + 1);
@@ -163,7 +163,7 @@ public class Dome extends BaseAbility implements ISkillAdvancement {
                             description.add("Cooldown: " + TextHelper.format2FloatPoint(getCooldown(infoNew) / 20D) + "s");
                             description.add("Range: " + TextHelper.format2FloatPoint(getRange(infoNew)) + " Blocks");
                             description.add("Duration: " + TextHelper.format2FloatPoint(getTime(infoNew) / 20D) + "s");
-                            description.add("Launch Force: " + getLaunch(infoNew) + " m/s");
+                            description.add("Launch Force: " + TextHelper.format2FloatPoint(getLaunch(infoNew)) + " m/s");
                         }
                     });
                 }

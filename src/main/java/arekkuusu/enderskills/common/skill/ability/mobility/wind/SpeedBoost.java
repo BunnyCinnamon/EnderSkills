@@ -171,7 +171,7 @@ public class SpeedBoost extends BaseAbility implements ISkillAdvancement {
                         }
                         description.add("Cooldown: " + TextHelper.format2FloatPoint(getCooldown(abilityInfo) / 20D) + "s");
                         description.add("Duration: " + TextHelper.format2FloatPoint(getTime(abilityInfo) / 20D) + "s");
-                        description.add("Boost: +" + TextHelper.format2FloatPoint(getSpeed(abilityInfo) * 100) + " %");
+                        description.add("Boost: +" + TextHelper.format2FloatPoint(getSpeed(abilityInfo) * 100) + "%");
                         if (abilityInfo.getLevel() < getMaxLevel()) { //Copy info and set a higher level...
                             AbilityInfo infoNew = new AbilityInfo(abilityInfo.serializeNBT());
                             infoNew.setLevel(infoNew.getLevel() + 1);
@@ -179,7 +179,7 @@ public class SpeedBoost extends BaseAbility implements ISkillAdvancement {
                             description.add("Next Level:");
                             description.add("Cooldown: " + TextHelper.format2FloatPoint(getCooldown(infoNew) / 20D) + "s");
                             description.add("Duration: " + TextHelper.format2FloatPoint(getTime(infoNew) / 20D) + "s");
-                            description.add("Boost: +" + TextHelper.format2FloatPoint(getSpeed(infoNew) * 100) + " %");
+                            description.add("Boost: +" + TextHelper.format2FloatPoint(getSpeed(infoNew) * 100) + "%");
                         }
                     });
                 }
@@ -329,7 +329,7 @@ public class SpeedBoost extends BaseAbility implements ISkillAdvancement {
             public static class Extra {
                 @Config.Comment("Speed Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
                 public String[] speed = {
-                        "1 + ((e^(2.1 * (x / y)) - 1)/((e^2.1) - 1)) * (4 - 1)}"
+                        "(0+){1 + ((e^(2.1 * (x / y)) - 1)/((e^2.1) - 1)) * (4 - 1)}"
                 };
             }
 

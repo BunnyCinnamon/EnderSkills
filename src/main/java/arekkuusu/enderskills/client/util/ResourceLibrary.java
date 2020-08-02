@@ -28,6 +28,7 @@ public class ResourceLibrary {
     //* GUI textures *//
     public static final ResourceLocation POTION_TEXTURES = new ResourceLocation(LibMod.MOD_ID, "textures/gui/potions.png");
     public static final ResourceLocation ENDURANCE_BACKGROUND = new ResourceLocation(LibMod.MOD_ID, "textures/gui/endurance_background.png");
+    public static final ResourceLocation ENDURANCE_BACKGROUND_ = new ResourceLocation(LibMod.MOD_ID, "textures/gui/endurance_background_.png");
     public static final ResourceLocation SKILL_BACKGROUND = new ResourceLocation(LibMod.MOD_ID, "textures/gui/skill_background.png");
     //Attributes
     public static final ResourceLocation ATTRIBUTE_0_0 = createAtlasTexture("gui", "attribute_0_0");

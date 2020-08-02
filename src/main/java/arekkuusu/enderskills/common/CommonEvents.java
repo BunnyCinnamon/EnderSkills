@@ -19,7 +19,10 @@ import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionType;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundEvent;
+import net.minecraftforge.common.config.Config;
+import net.minecraftforge.common.config.ConfigManager;
 import net.minecraftforge.event.RegistryEvent;
+import net.minecraftforge.fml.client.event.ConfigChangedEvent;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.registry.EntityEntry;
@@ -139,5 +142,12 @@ public final class CommonEvents {
     @SubscribeEvent
     public static void registerSerializer(RegistryEvent.Register<DataSerializerEntry> event) {
         ModSerializer.init(event.getRegistry());
+    }
+
+    @SubscribeEvent
+    public static void configChange(ConfigChangedEvent.OnConfigChangedEvent event) {
+        if (event.getModID().equals(LibMod.MOD_ID) && event.getConfigID() != null && event.getConfigID().equals(LibMod.MOD_ID + ".config.render")) {
+            ConfigManager.sync(LibMod.MOD_ID, Config.Type.INSTANCE);
+        }
     }
 }

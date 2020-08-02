@@ -105,7 +105,7 @@ public class Damage extends BaseAttribute implements ISkillAdvancement {
                             description.add("Current Level:");
                         }
                         if (Configuration.getSyncValues().extra.multiplyDamage) {
-                            description.add("Dmg: +" + TextHelper.format2FloatPoint(getModifierMultiplication(attributeInfo) * 100) + " %");
+                            description.add("Dmg: +" + TextHelper.format2FloatPoint(getModifierMultiplication(attributeInfo) * 100) + "%");
                         } else {
                             description.add("Dmg: +" + getModifierAddition(attributeInfo));
                         }
@@ -115,7 +115,7 @@ public class Damage extends BaseAttribute implements ISkillAdvancement {
                             description.add("");
                             description.add("Next Level:");
                             if (Configuration.getSyncValues().extra.multiplyDamage) {
-                                description.add("Dmg: +" + TextHelper.format2FloatPoint(getModifierMultiplication(infoNew) * 100) + " %");
+                                description.add("Dmg: +" + TextHelper.format2FloatPoint(getModifierMultiplication(infoNew) * 100) + "%");
                             } else {
                                 description.add("Dmg: +" + getModifierAddition(infoNew));
                             }

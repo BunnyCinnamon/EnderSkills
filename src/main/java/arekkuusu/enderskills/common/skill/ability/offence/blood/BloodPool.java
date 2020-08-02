@@ -409,14 +409,14 @@ public class BloodPool extends BaseAbility implements IImpact, ILoopSound, IExpa
                 };
                 @Config.Comment("Pool Duration Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
                 public String[] poolDuration = {
-                        "(0+){6 * 20 + 9 * 20 * (1 - (e^(-2.1 * (x/49)))) / (1 - e^(-2.1))}",
-                        "(50+){15 * 20 + 4 * 20 * ((e^(0.1 * ((x - 49) / (y - 49))) - 1)/((e^0.1) - 1))}",
-                        "(100){20 * 20}"
+                        "(0+){6 * 20 + 9 * 20 * (1 - (e^(-2.1 * (x/2)))) / (1 - e^(-2.1))}",
+                        "(3+){15 * 20 + 4 * 20 * ((e^(0.1 * ((x - 2) / (y - 2))) - 1)/((e^0.1) - 1))}",
+                        "(5){20 * 20}"
                 };
                 @Config.Comment("Pool Range Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
                 public String[] poolRange = {
-                        "(0+){2 + 1 * (1 - (e^(-2.1 * (x/49)))) / (1 - e^(-2.1))}",
-                        "(50+){3 + 1 * ((e^(0.1 * ((x - 49) / (y - 49))) - 1)/((e^0.1) - 1))}"
+                        "(0+){2 + 1 * (1 - (e^(-2.1 * (x/2)))) / (1 - e^(-2.1))}",
+                        "(3+){3 + 1 * ((e^(0.1 * ((x - 2) / (y - 2))) - 1)/((e^0.1) - 1))}"
                 };
             }
 

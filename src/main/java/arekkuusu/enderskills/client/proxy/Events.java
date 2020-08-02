@@ -112,28 +112,27 @@ public class Events {
             int posY = CommonConfig.RENDER_CONFIG.skillGroup.posY + 1;
             int i = CommonConfig.RENDER_CONFIG.skillGroup.inverse ? display.size() : 0;
             int step = CommonConfig.RENDER_CONFIG.skillGroup.step;
-            int x = (int) ((horizontal ? -posY : posX) / scale);
-            int y = (int) ((horizontal ? -posX : posY) / scale);
+            int x = (int) (posX / scale);
+            int y = (int) (posY / scale);
             //Skill group Background
             GlStateManager.pushMatrix();
-            /*if (horizontal) { //TODO: HORIZONTAL
-                GlStateManager.translate(posX - 1 + size / 2F, posY - 3 - size - size / 2F, 0);
-                GlStateManager.rotate(270, 0, 0, 1);
-            }*/
             GlStateManager.scale(scale, scale, scale);
             mc.getTextureManager().bindTexture(ResourceLibrary.SKILL_BACKGROUND);
-            drawTexturedRectangle(x, y, 0, 0, size * 2, 5, 32, 5, 32);
-            drawTexturedRectangle(x, y + 5, 0, 6, size * 2, (display.size() * step) - 3, 32, 20, 32);
-            drawTexturedRectangle(x, (display.size() * step) + y + 2, 0, 27, size * 2, 5, 32, 5, 32);
+            if(horizontal) {
+                drawTexturedRectangle(x, y, 24, 0, 5, size * 2, 5, 32, 64);
+                drawTexturedRectangle(x + 5, y, 30, 0, (display.size() * step) - 3, size * 2, 20, 32, 64);
+                drawTexturedRectangle((display.size() * step) + x + 2, y, 51, 0, 5, size * 2, 5, 32, 64);
+            } else {
+                drawTexturedRectangle(x, y, 0, 0, size * 2, 5, 32, 5, 32);
+                drawTexturedRectangle(x, y + 5, 0, 6, size * 2, (display.size() * step) - 3, 32, 20, 64);
+                drawTexturedRectangle(x, (display.size() * step) + y + 2, 0, 27, size * 2, 5, 32, 5, 64);
+            }
             //Skill group title
             renderText(TextHelper.translate("skill_group.title"), x, y - 2, 0.5D, 0xFFFFFF);
             GlStateManager.scale(mSize, mSize, mSize);
-            /*if (horizontal) {
-                GlStateManager.translate(0, 0, 0);
-            }*/
             GlStateManager.popMatrix();
-            x = posX + 4 + (horizontal ? (int) ((float) step / size) : 0);
-            y = posY + 4 + (horizontal ? 0 : (int) ((float) step / size));
+            x = posX + 4;
+            y = posY + 4;
             //Skills
             for (; CommonConfig.RENDER_CONFIG.skillGroup.inverse ? i > 0 : i < display.size(); i++) {
                 Map.Entry<Skill, SkillInfo> entry = display.get(i);
@@ -258,7 +257,7 @@ public class Events {
             GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
             int endurance = capability.getEndurance();
             int enduranceMax = capability.getEnduranceMax();
-            boolean vertical = CommonConfig.RENDER_CONFIG.endurance.orientation == CommonConfig.RenderValues.Orientation.VERTICAL;
+            boolean horizontal = CommonConfig.RENDER_CONFIG.endurance.orientation == CommonConfig.RenderValues.Orientation.HORIZONTAL;
             double scale = CommonConfig.RENDER_CONFIG.endurance.scale;
             double mSize = Math.pow(scale, -1D);
             int posX = CommonConfig.RENDER_CONFIG.endurance.posX + 1;
@@ -266,29 +265,44 @@ public class Events {
             int width = CommonConfig.RENDER_CONFIG.endurance.size;
             int fillWidth = (int) (((float) endurance / (float) enduranceMax) * (float) width + 1);
             int fill = (int) (((float) endurance / (float) enduranceMax) * (float) 182 + 1);
-            int x = (int) ((vertical ? -posY : posX) / scale);
-            int y = (int) ((vertical ? -posX : posY) / scale);
+            int x = (int) (posX / scale);
+            int y = (int) (posY / scale);
             GlStateManager.pushMatrix();
-            /*if (vertical) { //TODO: VERTICAL
-                GlStateManager.translate(posX, posY, 0);
-                GlStateManager.rotate(90, 0, 0, 1);
-            }*/
             GlStateManager.scale(scale, scale, scale);
-            mc.getTextureManager().bindTexture(ResourceLibrary.ENDURANCE_BACKGROUND);
+            mc.getTextureManager().bindTexture(horizontal ? ResourceLibrary.ENDURANCE_BACKGROUND : ResourceLibrary.ENDURANCE_BACKGROUND_);
             GlStateManager.pushMatrix();
             //Endurance Background
-            drawTexturedRectangle(x, y, 0, 245, width + 8, 11, 182 + 8, 11, 256);
+            if(horizontal) {
+                drawTexturedRectangle(x, y, 0, 245, width + 8, 11, 182 + 8, 11, 256);
+            } else {
+                drawTexturedRectangle(x, y, 245, 0, 11, width + 8, 11, 182 + 8, 256);
+            }
             //Endurance Bar
-            x += 4;
-            y += 3;
-            drawTexturedRectangle(x, y, 0, CommonConfig.RENDER_CONFIG.endurance.color.ordinal() * 5 * 2, width, 5, 182, 5, 256);
-            if (fill > 0) {
-                drawTexturedRectangle(x, y, 0, CommonConfig.RENDER_CONFIG.endurance.color.ordinal() * 5 * 2 + 5, fillWidth, 5, fill, 5, 256);
-                drawTexturedRectangle(x, y, 0, 80 + (CommonConfig.RENDER_CONFIG.endurance.overlay.ordinal() - 1) * 5 * 2 + 5, fillWidth, 5, fill, 5, 256);
+            x += horizontal ? 4 : 3;
+            y += horizontal ? 3 : 4;
+            if(horizontal) {
+                drawTexturedRectangle(x, y, 0, CommonConfig.RENDER_CONFIG.endurance.color.ordinal() * 5 * 2, width, 5, 182, 5, 256);
+                if (fill > 0) {
+                    drawTexturedRectangle(x, y, 0, CommonConfig.RENDER_CONFIG.endurance.color.ordinal() * 5 * 2 + 5, fillWidth, 5, fill, 5, 256);
+                    drawTexturedRectangle(x, y, 0, 80 + (CommonConfig.RENDER_CONFIG.endurance.overlay.ordinal() - 1) * 5 * 2 + 5, fillWidth, 5, fill, 5, 256);
+                }
+            } else {
+                drawTexturedRectangle(x, y, CommonConfig.RENDER_CONFIG.endurance.color.ordinal() * 5 * 2, 0, 5, width, 5, 182, 256);
+                if (fill > 0) {
+                    drawTexturedRectangle(x, y, CommonConfig.RENDER_CONFIG.endurance.color.ordinal() * 5 * 2 + 5, 0, 5, fillWidth, 5, fill, 256);
+                    drawTexturedRectangle(x, y, 80 + (CommonConfig.RENDER_CONFIG.endurance.overlay.ordinal() - 1) * 5 * 2 + 5, 0, 5, fillWidth, 5, fill, 256);
+                }
             }
             //Endurance title
-            renderText(TextHelper.translate("endurance.title", endurance, enduranceMax), x - 4, y - 5, 0.5D, 0xFFFFFF);
-            renderText(TextHelper.translate("endurance.amount", endurance, enduranceMax), x + width / 2, y, 0.8D, 0xFFFFFF);
+            if(horizontal) {
+                renderText(TextHelper.translate("endurance.title", endurance, enduranceMax), x - 4, y - 5, 0.5D, 0xFFFFFF);
+                String text = TextHelper.translate("endurance.amount", endurance, enduranceMax);
+                renderText(TextHelper.translate("endurance.amount", endurance, enduranceMax), x - mc.fontRenderer.getStringWidth(text) / 2  + width / 2, y, 0.8D, 0xFFFFFF);
+            } else {
+                renderText(TextHelper.translate("endurance.title", endurance, enduranceMax), x - 4, y - 5, 0.5D, 0xFFFFFF);
+                String text = TextHelper.translate("endurance.amount", endurance, enduranceMax);
+                renderText(text, x, y - mc.fontRenderer.FONT_HEIGHT / 2 + width / 2, 0.8D, 0xFFFFFF);
+            }
             GlStateManager.popMatrix();
             //Fix scale
             GlStateManager.scale(mSize, mSize, mSize);

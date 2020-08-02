@@ -74,6 +74,7 @@ public class BloodPoolRenderer extends SkillRenderer<BloodPool> {
                 Tessellator tessellator = Tessellator.getInstance();
                 BufferBuilder buffer = tessellator.getBuffer();
                 buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.BLOCK);
+                float fading = 1F - (float) (entity.getPosition().getDistance(pos.getX(), entity.getPosition().getY(), pos.getZ()) / (entity.getRadius() * 1.5D));
                 double yOffset = 0.005D;
                 double xPos = pos.getX();
                 double yPos = pos.getY() + 1;
@@ -83,7 +84,7 @@ public class BloodPoolRenderer extends SkillRenderer<BloodPool> {
                 double uMax = sprite.getMaxU();
                 double vMax = sprite.getMaxV();
                 int color = 0xFFFFFFFF;
-                int a = color >> 24 & 0xFF;
+                int a = (int) ((color >> 24 & 0xFF) * fading);
                 int r = color >> 16 & 0xFF;
                 int g = color >> 8 & 0xFF;
                 int b = color & 0xFF;

@@ -99,13 +99,13 @@ public class SwimSpeed extends BaseAttribute implements ISkillAdvancement {
                         } else {
                             description.add("Current Level:");
                         }
-                        description.add("Boost: +" + TextHelper.format2FloatPoint(getModifier(attributeInfo) * 100) + " %");
+                        description.add("Boost: +" + TextHelper.format2FloatPoint(getModifier(attributeInfo) * 100) + "%");
                         if (attributeInfo.getLevel() < getMaxLevel()) { //Copy info and set a higher level...
                             AttributeInfo infoNew = new AttributeInfo(attributeInfo.serializeNBT());
                             infoNew.setLevel(infoNew.getLevel() + 1);
                             description.add("");
                             description.add("Next Level:");
-                            description.add("Boost: +" + TextHelper.format2FloatPoint(getModifier(infoNew) * 100) + " %");
+                            description.add("Boost: +" + TextHelper.format2FloatPoint(getModifier(infoNew) * 100) + "%");
                         }
                     });
                 }

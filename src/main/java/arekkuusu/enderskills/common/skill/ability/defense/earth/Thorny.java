@@ -161,7 +161,7 @@ public class Thorny extends BaseAbility implements ISkillAdvancement {
                         }
                         description.add("Cooldown: " + TextHelper.format2FloatPoint(getCooldown(abilityInfo) / 20D) + "s");
                         description.add("Duration: " + TextHelper.format2FloatPoint(getTime(abilityInfo) / 20D) + "s");
-                        description.add("Thorns Dmg: +" + TextHelper.format2FloatPoint(getDamage(abilityInfo) * 100) + " %");
+                        description.add("Thorns Dmg: +" + TextHelper.format2FloatPoint(getDamage(abilityInfo) * 100) + "%");
                         if (abilityInfo.getLevel() < getMaxLevel()) { //Copy info and set a higher level...
                             AbilityInfo infoNew = new AbilityInfo(abilityInfo.serializeNBT());
                             infoNew.setLevel(infoNew.getLevel() + 1);
@@ -169,7 +169,7 @@ public class Thorny extends BaseAbility implements ISkillAdvancement {
                             description.add("Next Level:");
                             description.add("Cooldown: " + TextHelper.format2FloatPoint(getCooldown(infoNew) / 20D) + "s");
                             description.add("Duration: " + TextHelper.format2FloatPoint(getTime(infoNew) / 20D) + "s");
-                            description.add("Thorns Dmg: +" + TextHelper.format2FloatPoint(getDamage(infoNew) * 100) + " %");
+                            description.add("Thorns Dmg: +" + TextHelper.format2FloatPoint(getDamage(infoNew) * 100) + "%");
                         }
                     });
                 }

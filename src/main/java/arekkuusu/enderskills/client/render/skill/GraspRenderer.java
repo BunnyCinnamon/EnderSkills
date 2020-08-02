@@ -115,6 +115,7 @@ public class GraspRenderer extends SkillRenderer<Grasp> {
                 }
                 GlStateManager.enableBlend();
                 if (!CommonConfig.RENDER_CONFIG.rendering.helpMyFramesAreDying) {
+                    float fading = 1F - (float) (entity.getPosition().getDistance(pos.getX(), entity.getPosition().getY(), pos.getZ()) / (entity.getRadius() * 1.5D));
                     if (!CommonConfig.RENDER_CONFIG.rendering.vanilla) {
                         ShaderLibrary.UNIVERSE.begin();
                         ShaderLibrary.UNIVERSE.set("dimensions", Minecraft.getMinecraft().displayWidth, Minecraft.getMinecraft().displayHeight);
@@ -122,13 +123,13 @@ public class GraspRenderer extends SkillRenderer<Grasp> {
                         ShaderLibrary.UNIVERSE.set("pitch", -(Minecraft.getMinecraft().player.rotationPitch * 2F * 3.141592653589793F / 360.0F));
                         ShaderLibrary.UNIVERSE.set("color", 0.36F, 0.12F, 0.4F);
                         ShaderLibrary.UNIVERSE.set("ticks", RenderMisc.getRenderPlayerTime());
-                        ShaderLibrary.UNIVERSE.set("alpha", 0.9F);
+                        ShaderLibrary.UNIVERSE.set("alpha", 0.9F * fading);
                     } else {
                         ShaderLibrary.UNIVERSE_DEFAULT.begin();
                         ShaderLibrary.UNIVERSE_DEFAULT.set("yaw", (Minecraft.getMinecraft().player.rotationYaw * 2F * 3.141592653589793F / 360F));
                         ShaderLibrary.UNIVERSE_DEFAULT.set("pitch", -(Minecraft.getMinecraft().player.rotationPitch * 2F * 3.141592653589793F / 360.0F));
                         ShaderLibrary.UNIVERSE_DEFAULT.set("time", RenderMisc.getRenderPlayerTime());
-                        ShaderLibrary.UNIVERSE_DEFAULT.set("alpha", 0.9F);
+                        ShaderLibrary.UNIVERSE_DEFAULT.set("alpha", 0.9F * fading);
                     }
                 }
                 double yOffset = 0.005D;

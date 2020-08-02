@@ -198,7 +198,7 @@ public class Hasten extends BaseAbility implements ISkillAdvancement {
                         }
                         description.add("Cooldown: " + TextHelper.format2FloatPoint(getCooldown(abilityInfo) / 20D) + "s");
                         description.add("Duration: " + TextHelper.format2FloatPoint(getTime(abilityInfo) / 20D) + "s");
-                        description.add("Cooldown Reduction: +" + TextHelper.format2FloatPoint(getCDR(abilityInfo) * 100) + " %");
+                        description.add("Cooldown Reduction: +" + TextHelper.format2FloatPoint(getCDR(abilityInfo) * 100) + "%");
                         if (abilityInfo.getLevel() < getMaxLevel()) { //Copy info and set a higher level...
                             AbilityInfo infoNew = new AbilityInfo(abilityInfo.serializeNBT());
                             infoNew.setLevel(infoNew.getLevel() + 1);
@@ -206,7 +206,7 @@ public class Hasten extends BaseAbility implements ISkillAdvancement {
                             description.add("Next Level:");
                             description.add("Cooldown: " + TextHelper.format2FloatPoint(getCooldown(infoNew) / 20D) + "s");
                             description.add("Duration: " + TextHelper.format2FloatPoint(getTime(infoNew) / 20D) + "s");
-                            description.add("Cooldown Reduction: +" + TextHelper.format2FloatPoint(getCDR(infoNew) * 100) + " %");
+                            description.add("Cooldown Reduction: +" + TextHelper.format2FloatPoint(getCDR(infoNew) * 100) + "%");
                         }
                     });
                 }
@@ -292,7 +292,7 @@ public class Hasten extends BaseAbility implements ISkillAdvancement {
         NBTHelper.setArray(compound, "cooldown", Configuration.getValues().cooldown);
         NBTHelper.setArray(compound, "time", Configuration.getValues().time);
         compound.setDouble("effectiveness", Configuration.getValues().effectiveness);
-        compound.setString("extra.cdr", Configuration.getValues().extra.cdr);
+        NBTHelper.setArray(compound, "extra.cdr", Configuration.getValues().extra.cdr);
         NBTHelper.setArray(compound, "advancement.upgrade", Configuration.getValues().advancement.upgrade);
     }
 
@@ -303,7 +303,7 @@ public class Hasten extends BaseAbility implements ISkillAdvancement {
         Configuration.getSyncValues().cooldown = NBTHelper.getArray(compound, "cooldown");
         Configuration.getSyncValues().time = NBTHelper.getArray(compound, "time");
         Configuration.getSyncValues().effectiveness = compound.getDouble("effectiveness");
-        Configuration.getSyncValues().extra.cdr = compound.getString("extra.cdr");
+        Configuration.getSyncValues().extra.cdr = NBTHelper.getArray(compound, "extra.cdr");
         Configuration.getSyncValues().advancement.upgrade = NBTHelper.getArray(compound, "advancement.upgrade");
     }
 
@@ -353,7 +353,9 @@ public class Hasten extends BaseAbility implements ISkillAdvancement {
 
             public static class Extra {
                 @Config.Comment("Damage Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
-                public String cdr = "(0+){0.5 + (x / y) * (0.9 - 0.5)";
+                public String[] cdr = {
+                        "(0+){0.5 + (x / y) * (0.9 - 0.5)}"
+                };
             }
 
             public static class Advancement {

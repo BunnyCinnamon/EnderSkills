@@ -57,7 +57,7 @@ public class CommandSkill extends CommandBase {
                     .map(ResourceLocation::toString).toArray(String[]::new);
             return getListOfStringsMatchingLastWord(args, skills);
         } else if (args.length == 3) {
-            return getListOfStringsMatchingLastWord(args, "set", "add", "sub", "get");
+            return getListOfStringsMatchingLastWord(args, "set", "add", "sub", "get", "unlock", "lock");
         }
         return super.getTabCompletions(server, sender, args, targetPos);
     }
@@ -85,6 +85,29 @@ public class CommandSkill extends CommandBase {
                 message(sender, "skill.invalid", args[1]);
                 return;
             }
+            //Lock/Unlock
+            String action = args[2];
+            switch (action) {
+                case "unlock":
+                case "lock":
+                    if (action.equals("lock")) {
+                        capability.remove(skill);
+                        message(sender, "skill.lock", args[1]);
+                    } else {
+                        capability.add(skill);
+                        message(sender, "skill.unlock", args[1]);
+                    }
+                    if (entity instanceof EntityPlayerMP) {
+                        PacketHelper.sendSkillSync((EntityPlayerMP) entity, skill);
+                    }
+                    return;
+            }
+            //Level set/add/sub/get
+            int levelToSet = args.length > 3 ? parseInt(args[3]) : 0; //We want to 'get'
+            if (levelToSet < 0) {
+                message(sender, "skill.invalid.level", levelToSet);
+                return;
+            }
             SkillInfo info = capability.get(skill).orElse(null);
             if (info == null) {
                 message(sender, "skill.invalid", args[1]);
@@ -94,14 +117,7 @@ public class CommandSkill extends CommandBase {
                 message(sender, "skill.invalid", args[1]);
                 return;
             }
-            int levelToSet = args.length > 3 ? parseInt(args[3]) : 0; //We want to 'get'
-            if (levelToSet < 0) {
-                message(sender, "skill.invalid.level", levelToSet);
-                return;
-            }
-
             IInfoUpgradeable skillLevel = (IInfoUpgradeable) info;
-            String action = args[2];
             switch (action) {
                 case "set":
                     if (levelToSet > skill.getMaxLevel()) {
@@ -142,7 +158,6 @@ public class CommandSkill extends CommandBase {
 
     private void message(ICommandSender sender, String type, Object... args) {
         String key = "command." + LibMod.MOD_ID + "." + type;
-        /*sender.sendMessage(new TextComponentTranslation(key, args));*/
         notifyCommandListener(sender, this, key, args);
     }
 }
