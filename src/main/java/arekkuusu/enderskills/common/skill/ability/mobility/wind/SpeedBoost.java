@@ -123,7 +123,6 @@ public class SpeedBoost extends BaseAbility implements ISkillAdvancement {
                         SPEED_ATTRIBUTE.remove(entity);
                     }
 
-                    entity.getEntityData().setBoolean(NBT_STEP, false);
                     entity.stepHeight = 0.6F;
                     STEP_LIST.remove(key);
                 }
