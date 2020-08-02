@@ -24,6 +24,7 @@ import arekkuusu.enderskills.common.skill.ability.BaseAbility;
 import arekkuusu.enderskills.common.sound.ModSounds;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.player.EntityPlayer;
@@ -39,6 +40,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 import javax.annotation.Nullable;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -87,29 +89,53 @@ public class SpeedBoost extends BaseAbility implements ISkillAdvancement {
         }
     }
 
+    public static final String NBT_STEP = LibMod.MOD_ID + ".stepHeight";
+    public static final float STEP_HEIGHT = 0.60001F;
+    public static final float STEP_HEIGHT_SNEAK = 1.25F;
+
+    public static final List<String> STEP_LIST = new ArrayList<>();
+
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public void onEntityUpdate(LivingEvent.LivingUpdateEvent event) {
         EntityLivingBase entity = event.getEntityLiving();
         Capabilities.get(entity).ifPresent(capability -> {
-            if (capability.isActive(this)) {
-                capability.get(this).ifPresent(skillInfo -> {
+            String key = entityToString(entity);
+            if (STEP_LIST.contains(key)) {
+                if (capability.isActive(this)) {
+                    capability.get(this).ifPresent(skillInfo -> {
+                        if (!isClientWorld(event.getEntityLiving())) {
+                            AbilityInfo abilityInfo = (AbilityInfo) skillInfo;
+                            SPEED_ATTRIBUTE.apply(entity, getSpeed(abilityInfo));
+                        }
+
+                        if (entity.getEntityData().getFloat(NBT_STEP) == 0.6F) {
+                            if (entity.isSneaking()) {
+                                entity.stepHeight = STEP_HEIGHT;
+                            } else {
+                                entity.stepHeight = STEP_HEIGHT_SNEAK;
+                            }
+                        } else if(entity.stepHeight == 0.6F) {
+                            entity.getEntityData().setFloat(NBT_STEP, entity.stepHeight);
+                        }
+                    });
+                } else {
                     if (!isClientWorld(event.getEntityLiving())) {
-                        AbilityInfo abilityInfo = (AbilityInfo) skillInfo;
-                        SPEED_ATTRIBUTE.apply(entity, getSpeed(abilityInfo));
+                        SPEED_ATTRIBUTE.remove(entity);
                     }
-                    if (entity.isSneaking()) {
-                        entity.stepHeight = 0.60001F;
-                    } else {
-                        entity.stepHeight = 1.25F;
-                    }
-                });
-            } else {
-                if (!isClientWorld(event.getEntityLiving())) {
-                    SPEED_ATTRIBUTE.remove(entity);
+
+                    entity.getEntityData().setBoolean(NBT_STEP, false);
+                    entity.stepHeight = 0.6F;
+                    STEP_LIST.remove(key);
                 }
-                entity.stepHeight = 0.6F;
+            } else if (capability.isActive(this)) {
+                STEP_LIST.add(key);
+                entity.getEntityData().setFloat(NBT_STEP, entity.stepHeight);
             }
         });
+    }
+
+    public String entityToString(Entity entity) {
+        return entity.getUniqueID().toString() + ":" + entity.world.isRemote;
     }
 
     public int getLevel(IInfoUpgradeable info) {
