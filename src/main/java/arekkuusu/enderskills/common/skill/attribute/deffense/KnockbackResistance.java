@@ -1,11 +1,10 @@
 package arekkuusu.enderskills.common.skill.attribute.deffense;
 
 import arekkuusu.enderskills.api.capability.Capabilities;
-import arekkuusu.enderskills.api.capability.data.IInfoUpgradeable;
+import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoUpgradeable;
 import arekkuusu.enderskills.api.helper.ExpressionHelper;
 import arekkuusu.enderskills.api.helper.NBTHelper;
 import arekkuusu.enderskills.client.gui.data.ISkillAdvancement;
-import arekkuusu.enderskills.client.util.ResourceLibrary;
 import arekkuusu.enderskills.client.util.helper.TextHelper;
 import arekkuusu.enderskills.common.CommonConfig;
 import arekkuusu.enderskills.common.lib.LibMod;
@@ -38,9 +37,9 @@ public class KnockbackResistance extends BaseAttribute implements ISkillAdvancem
     );
 
     public KnockbackResistance() {
-        super(LibNames.KNOCKBACK_RESISTANCE);
+        super(LibNames.KNOCKBACK_RESISTANCE, new BaseProperties());
         MinecraftForge.EVENT_BUS.register(this);
-        setTexture(ResourceLibrary.ATTRIBUTE_0_0);
+        ((BaseProperties) getProperties()).setMaxLevelGetter(this::getMaxLevel);
     }
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
@@ -49,8 +48,8 @@ public class KnockbackResistance extends BaseAttribute implements ISkillAdvancem
         EntityLivingBase entity = event.getEntityLiving();
         if (entity.ticksExisted % 20 != 0) return; //Slowdown cowboy! yee-haw!
         Capabilities.get(entity).ifPresent(capability -> {
-            if (capability.owns(this)) {
-                capability.get(this).ifPresent(skillInfo -> {
+            if (capability.isOwned(this)) {
+                capability.getOwned(this).ifPresent(skillInfo -> {
                     AttributeInfo attributeInfo = (AttributeInfo) skillInfo;
                     KNOCKBACK_ATTRIBUTE.apply(entity, getModifier(attributeInfo));
                 });
@@ -64,7 +63,6 @@ public class KnockbackResistance extends BaseAttribute implements ISkillAdvancem
         return info.getLevel();
     }
 
-    @Override
     public int getMaxLevel() {
         return Configuration.getSyncValues().maxLevel;
     }
@@ -85,12 +83,12 @@ public class KnockbackResistance extends BaseAttribute implements ISkillAdvancem
     @SideOnly(Side.CLIENT)
     public void addDescription(List<String> description) {
         Capabilities.get(Minecraft.getMinecraft().player).ifPresent(c -> {
-            if (c.owns(this)) {
+            if (c.isOwned(this)) {
                 if (!GuiScreen.isShiftKeyDown()) {
                     description.add("");
                     description.add("Hold SHIFT for stats.");
                 } else {
-                    c.get(this).ifPresent(skillInfo -> {
+                    c.getOwned(this).ifPresent(skillInfo -> {
                         AttributeInfo attributeInfo = (AttributeInfo) skillInfo;
                         description.clear();
                         if (attributeInfo.getLevel() >= getMaxLevel()) {
@@ -134,7 +132,7 @@ public class KnockbackResistance extends BaseAttribute implements ISkillAdvancem
 
     @Override
     public Requirement getRequirement(EntityLivingBase entity) {
-        AttributeInfo info = (AttributeInfo) Capabilities.get(entity).flatMap(a -> a.get(this)).orElse(null);
+        AttributeInfo info = (AttributeInfo) Capabilities.get(entity).flatMap(a -> a.getOwned(this)).orElse(null);
         return new DefaultRequirement(0, getUpgradeCost(info));
     }
 
@@ -209,7 +207,7 @@ public class KnockbackResistance extends BaseAttribute implements ISkillAdvancem
             public static class Advancement {
                 @Config.Comment("Function f(x)=? where 'x' is [Next Level] and 'y' is [Max Level], XP Cost is in units [NOT LEVELS]")
                 public String[] upgrade = {
-                        "(0+){(170 * (1 - (0 ^ (0 ^ x)))) + 7 * x}"
+                        "(0+){(65 * (1 - (0 ^ (0 ^ x)))) + 14 * x}"
                 };
             }
         }

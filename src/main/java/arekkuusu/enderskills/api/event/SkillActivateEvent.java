@@ -4,12 +4,12 @@ import arekkuusu.enderskills.api.registry.Skill;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraftforge.fml.common.eventhandler.Event;
 
-public class SkillUseEvent extends Event {
+public class SkillActivateEvent extends Event {
 
     private final EntityLivingBase entity;
     private final Skill skill;
 
-    public SkillUseEvent(EntityLivingBase entity, Skill skill) {
+    public SkillActivateEvent(EntityLivingBase entity, Skill skill) {
         this.entity = entity;
         this.skill = skill;
     }

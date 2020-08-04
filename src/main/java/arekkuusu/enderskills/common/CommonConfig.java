@@ -4,6 +4,7 @@ import arekkuusu.enderskills.api.EnderSkillsAPI;
 import arekkuusu.enderskills.api.helper.NBTHelper;
 import arekkuusu.enderskills.api.registry.Skill;
 import arekkuusu.enderskills.common.lib.LibMod;
+import arekkuusu.enderskills.common.skill.IConfigSync;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.BossInfo;
@@ -21,9 +22,6 @@ public final class CommonConfig {
     @Config.Comment("Global Values")
     @Config.LangKey(LibMod.MOD_ID + ".config.global")
     public static Values CONFIG = new Values();
-    @Config.Comment("Render Values")
-    @Config.LangKey(LibMod.MOD_ID + ".config.render")
-    public static RenderValues RENDER_CONFIG = new RenderValues();
     @Config.Ignore
     protected static Values CONFIG_SYNC = new Values();
 
@@ -61,7 +59,9 @@ public final class CommonConfig {
         CommonConfig.getSyncValues().worldGen.enderOreItemDropsMax = CommonConfig.getValues().worldGen.enderOreItemDropsMax;
         IForgeRegistry<Skill> registry = GameRegistry.findRegistry(Skill.class);
         for (Map.Entry<ResourceLocation, Skill> entry : registry.getEntries()) {
-            entry.getValue().initSyncConfig();
+            if(entry.getValue() instanceof IConfigSync) {
+                ((IConfigSync) entry.getValue()).initSyncConfig();
+            }
         }
     }
 
@@ -133,9 +133,9 @@ public final class CommonConfig {
             public double globalEffectiveness = 1D;
 
             public static class Extra {
-                public double globalPositiveEffect = 1D;
+                public double globalPositiveEffect = 0.5D;
 
-                public double globalNegativeEffect = 1D;
+                public double globalNegativeEffect = 0.4D;
 
                 public double globalNeutralEffect = 1D;
             }
@@ -163,11 +163,11 @@ public final class CommonConfig {
                         "(2+){x/2}",
                         "(3+){x/4}",
                         "(4+){x/6}",
-                        "(5+){x/12}",
-                        "(6+){x/24}",
-                        "(7+){x/48}",
-                        "(8+){x/96}",
-                        "(9+){x/(2 ^ x) * 0.3}"
+                        "(5+){x/8}",
+                        "(6+){x/10}",
+                        "(7+){x/12}",
+                        "(8+){x/14}",
+                        "(9+){x/(2 ^ x) * 0.1}"
                 };
                 public int defaultLevel = 1;
             }
@@ -206,49 +206,6 @@ public final class CommonConfig {
             @Config.Comment("Max number of dust dropped?")
             @Config.RangeInt(min = 0)
             public int enderOreItemDropsMax = 4;
-        }
-    }
-
-    public static class RenderValues {
-        public final SkillGroup skillGroup = new SkillGroup();
-        public final Endurance endurance = new Endurance();
-        public final Rendering rendering = new Rendering();
-
-        public static class SkillGroup {
-            public boolean renderUnowned = false;
-            public boolean weightUnowned = true;
-            public boolean renderOverlay = true;
-            public boolean renderControls = true;
-            public int overlayIcons = 6;
-            public double scale = 1D;
-            public int posX = 5;
-            public int posY = 50;
-            public int step = 17;
-            public boolean inverse = false;
-            public Orientation orientation = Orientation.VERTICAL;
-        }
-
-        public static class Endurance {
-            public boolean renderOverlay = true;
-            public double scale = 1D;
-            public int size = 182;
-            public int posX = 5;
-            public int posY = 5;
-            public BossInfo.Color color = BossInfo.Color.BLUE;
-            public BossInfo.Overlay overlay = BossInfo.Overlay.NOTCHED_20;
-            public Orientation orientation = Orientation.HORIZONTAL;
-        }
-
-        public static class Rendering {
-            @Config.Comment("Use vanilla render effects on the more fancy renders (for low end graphics cards)")
-            public boolean vanilla = false;
-            @Config.Comment("Check this if even the vanilla renders are killing your fps")
-            public boolean helpMyFramesAreDying = false;
-        }
-
-        public enum Orientation {
-            VERTICAL,
-            HORIZONTAL
         }
     }
 }

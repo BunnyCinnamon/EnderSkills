@@ -1,7 +1,7 @@
 package arekkuusu.enderskills.common.command;
 
 import arekkuusu.enderskills.api.capability.Capabilities;
-import arekkuusu.enderskills.api.capability.SkilledEntityCapability;
+import arekkuusu.enderskills.api.capability.SkillGroupCapability;
 import arekkuusu.enderskills.api.registry.Skill;
 import arekkuusu.enderskills.common.lib.LibMod;
 import arekkuusu.enderskills.common.network.PacketHelper;
@@ -34,7 +34,7 @@ public class CommandWeight extends CommandBase {
 
     @Override
     public String getUsage(ICommandSender sender) {
-        return "Usage: /" + getName() + "[entity/player/@p] [modid:skillname] [set/add/sub] [weight]";
+        return "Usage: /" + getName() + "[entity/player/@p] [modid:skillname/hide_all] [Group-Name] [set/add/sub/query/before/after/hide] [weight]";
     }
 
     @Override
@@ -59,10 +59,12 @@ public class CommandWeight extends CommandBase {
         } else if (args.length == 2) {
             String[] skills = GameRegistry.findRegistry(Skill.class).getKeys().stream()
                     .map(ResourceLocation::toString).toArray(String[]::new);
-            return getListOfStringsMatchingLastWord(args, skills);
-        } else if (args.length == 3) {
-            return getListOfStringsMatchingLastWord(args, "set", "add", "sub", "get", "before", "after");
-        } else if (args.length == 4 && args[2].matches("before|after")) {
+            List<String> list = getListOfStringsMatchingLastWord(args, skills);
+            list.add("hide_all");
+            return list;
+        } else if (args.length == 4 && !args[1].matches("hide_all")) {
+            return getListOfStringsMatchingLastWord(args, "set", "add", "sub", "query", "before", "after", "hide");
+        } else if (args.length == 5 && args[3].matches("before|after")) {
             String[] skills = GameRegistry.findRegistry(Skill.class).getKeys().stream()
                     .map(ResourceLocation::toString).toArray(String[]::new);
             return getListOfStringsMatchingLastWord(args, skills);
@@ -73,7 +75,7 @@ public class CommandWeight extends CommandBase {
     @Override
     public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
         EntityLivingBase entity = getEntity(server, sender, args[0], EntityLivingBase.class);
-        if(sender.getCommandSenderEntity() != entity && !sender.canUseCommand(2, this.getName())) {
+        if (sender.getCommandSenderEntity() != entity && !sender.canUseCommand(2, this.getName())) {
             message(sender, "not_found.player");
         }
         if (entity == null) {
@@ -86,50 +88,65 @@ public class CommandWeight extends CommandBase {
         }
 
         try {
-            SkilledEntityCapability capability = Capabilities.get(entity).orElse(null);
+            SkillGroupCapability capability = Capabilities.weight(entity).orElse(null);
             if (capability == null) {
                 message(sender, "not_found.player");
                 return;
             }
-            Skill skill = GameRegistry.findRegistry(Skill.class).getValue(new ResourceLocation(args[1]));
-            if (skill == null) {
-                message(sender, "skill.invalid.skill", args[1]);
+
+            Skill skill;
+            if(!args[1].matches("hide_all")) {
+                skill = GameRegistry.findRegistry(Skill.class).getValue(new ResourceLocation(args[1]));
+                if (skill == null) {
+                    message(sender, "skill.invalid.skill", args[1]);
+                    return;
+                }
+            } else {
+                capability.clearWeight();
+                if (entity instanceof EntityPlayerMP) {
+                    PacketHelper.sendWeightSync((EntityPlayerMP) entity);
+                }
                 return;
             }
-            int weight = capability.getWeight(skill);
-            int weightToSet = 0;
 
-            String action = args[2];
+            int weight = 0;
+            int weightToSet = 0;
+            String name = args[2];
+            String action = args[3];
             switch (action) {
                 case "set":
-                    weightToSet = args.length > 3 ? parseInt(args[3]) : 0; //We want to 'get'
+                    weightToSet = args.length > 4 ? parseInt(args[3]) : 0;
                     weightToSet = MathHelper.clamp(weightToSet, Integer.MIN_VALUE, Integer.MAX_VALUE);
-                    capability.putWeight(skill, weightToSet);
+                    capability.putWeight(name, skill, weightToSet);
                     message(sender, "weight.set.value", args[1], weightToSet);
                     break;
                 case "add":
-                    weightToSet = args.length > 3 ? parseInt(args[3]) : 0; //We want to 'get'
+                    weight = capability.getWeight(name, skill);
+                    weightToSet = args.length > 4 ? parseInt(args[3]) : 0;
                     int sum = MathHelper.clamp(weight + weightToSet, Integer.MIN_VALUE, Integer.MAX_VALUE);
-                    capability.putWeight(skill, sum);
+                    capability.putWeight(name, skill, sum);
                     message(sender, "weight.set.value", args[1], weightToSet);
                     break;
                 case "sub":
-                    weightToSet = args.length > 3 ? parseInt(args[3]) : 0; //We want to 'get'
+                    weight = capability.getWeight(name, skill);
+                    weightToSet = args.length > 4 ? parseInt(args[3]) : 0;
                     int sub = MathHelper.clamp(weight - weightToSet, Integer.MIN_VALUE, Integer.MAX_VALUE);
-                    capability.putWeight(skill, sub);
+                    capability.putWeight(name, skill, sub);
                     message(sender, "weight.set.value", args[1], weightToSet);
                     break;
-                case "get":
+                case "query":
+                    weight = capability.getWeight(name, skill);
                     message(sender, "weight.get.value", args[1], weight);
                     return;
                 case "before":
                 case "after":
+                    weight = capability.getWeight(name, skill);
                     Skill skillOther = GameRegistry.findRegistry(Skill.class).getValue(new ResourceLocation(args[3]));
                     if (skillOther == null) {
                         message(sender, "skill.invalid.skill", args[3]);
                         return;
                     }
-                    int weightOther = capability.getWeight(skillOther);
+                    int weightOther = capability.getWeight(name, skillOther);
                     int weightNew = 0;
                     int weightNewOther = 0;
 
@@ -156,23 +173,32 @@ public class CommandWeight extends CommandBase {
                     if (weightNew == weight) {
                         return;
                     }
-                    capability.putWeight(skill, weightNew);
-                    capability.putWeight(skillOther, weightNewOther);
-                    for (Skill s : GameRegistry.findRegistry(Skill.class).getValuesCollection()) {
-                        if (capability.hasWeight(s)) {
-                            int w = capability.getWeight(s);
+                    capability.putWeight(name, skill, weightNew);
+                    capability.putWeight(name, skillOther, weightNewOther);
+                    for (Skill s : capability.getGroup(name).map.keySet()) {
+                        if (capability.hasWeight(name, s)) {
+                            int w = capability.getWeight(name, s);
                             if ((wasBefore ? (w < weightNew && w > weight) : (w > weightNewOther && w < weight)) && s != skill && s != skillOther) {
-                                capability.putWeight(s, wasBefore ? w - 1 : w + 1);
-                                PacketHelper.sendWeightSync((EntityPlayerMP) entity, s, capability.getWeight(s));
+                                capability.putWeight(name, s, wasBefore ? w - 1 : w + 1);
                             }
                         }
                     }
-                    PacketHelper.sendWeightSync((EntityPlayerMP) entity, skillOther, capability.getWeight(skillOther));
-                    break;
+                    if (entity instanceof EntityPlayerMP) {
+                        PacketHelper.sendWeightSync((EntityPlayerMP) entity);
+                    }
+                    return;
+                case "hide":
+                    if (capability.hasWeight(name, skill)) {
+                        capability.removeWeight(name, skill);
+                    }
+                    if (entity instanceof EntityPlayerMP) {
+                        PacketHelper.sendWeightRemovePacket((EntityPlayerMP) entity, skill);
+                    }
+                    return;
                 default:
             }
             if (entity instanceof EntityPlayerMP) {
-                PacketHelper.sendWeightSync((EntityPlayerMP) entity, skill, capability.getWeight(skill));
+                PacketHelper.sendWeightSetPacket((EntityPlayerMP) entity, skill, capability.getWeight(name, skill));
             }
         } catch (NumberFormatException ex) {
             message(sender, "invalid.number");

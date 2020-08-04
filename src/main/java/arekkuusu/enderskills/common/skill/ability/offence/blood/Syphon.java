@@ -2,8 +2,8 @@ package arekkuusu.enderskills.common.skill.ability.offence.blood;
 
 import arekkuusu.enderskills.api.capability.AdvancementCapability;
 import arekkuusu.enderskills.api.capability.Capabilities;
-import arekkuusu.enderskills.api.capability.data.IInfoCooldown;
-import arekkuusu.enderskills.api.capability.data.IInfoUpgradeable;
+import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoCooldown;
+import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoUpgradeable;
 import arekkuusu.enderskills.api.capability.data.SkillData;
 import arekkuusu.enderskills.api.capability.data.SkillInfo;
 import arekkuusu.enderskills.api.capability.data.nbt.UUIDWatcher;
@@ -12,7 +12,6 @@ import arekkuusu.enderskills.api.helper.ExpressionHelper;
 import arekkuusu.enderskills.api.helper.NBTHelper;
 import arekkuusu.enderskills.api.registry.Skill;
 import arekkuusu.enderskills.client.gui.data.ISkillAdvancement;
-import arekkuusu.enderskills.client.util.ResourceLibrary;
 import arekkuusu.enderskills.client.util.helper.TextHelper;
 import arekkuusu.enderskills.common.CommonConfig;
 import arekkuusu.enderskills.common.entity.data.IImpact;
@@ -46,8 +45,8 @@ import java.util.Optional;
 public class Syphon extends BaseAbility implements IImpact, ISkillAdvancement {
 
     public Syphon() {
-        super(LibNames.SYPHON);
-        setTexture(ResourceLibrary.SYPHON);
+        super(LibNames.SYPHON, new AbilityProperties());
+        ((AbilityProperties) getProperties()).setCooldownGetter(this::getCooldown).setMaxLevelGetter(this::getMaxLevel);
     }
 
     @Override
@@ -56,7 +55,7 @@ public class Syphon extends BaseAbility implements IImpact, ISkillAdvancement {
         AbilityInfo abilityInfo = (AbilityInfo) skillInfo;
         double distance = getRange(abilityInfo);
 
-        if (shouldUse(user) && canUse(user)) {
+        if (isActionable(user) && canActivate(user)) {
             if (!(user instanceof EntityPlayer) || !((EntityPlayer) user).capabilities.isCreativeMode) {
                 abilityInfo.setCooldown(getCooldown(abilityInfo));
             }
@@ -81,7 +80,7 @@ public class Syphon extends BaseAbility implements IImpact, ISkillAdvancement {
         if (isClientWorld(target)) return;
         Optional.ofNullable(NBTHelper.getEntity(EntityLivingBase.class, data.nbt, "user")).ifPresent(user -> {
             if (target instanceof EntityLiving) {
-                Capabilities.get(user).flatMap(c -> c.get(this)).ifPresent(skillInfo -> {
+                Capabilities.get(user).flatMap(c -> c.getOwned(this)).ifPresent(skillInfo -> {
                     AbilityInfo abilityInfo = (AbilityInfo) skillInfo;
                     float heal = getHeal(abilityInfo);
                     float healed = target.getMaxHealth() * heal;
@@ -115,7 +114,6 @@ public class Syphon extends BaseAbility implements IImpact, ISkillAdvancement {
         return info.getLevel();
     }
 
-    @Override
     public int getMaxLevel() {
         return Configuration.getSyncValues().maxLevel;
     }
@@ -153,12 +151,12 @@ public class Syphon extends BaseAbility implements IImpact, ISkillAdvancement {
     @SideOnly(Side.CLIENT)
     public void addDescription(List<String> description) {
         Capabilities.get(Minecraft.getMinecraft().player).ifPresent(c -> {
-            if (c.owns(this)) {
+            if (c.isOwned(this)) {
                 if (!GuiScreen.isShiftKeyDown()) {
                     description.add("");
                     description.add("Hold SHIFT for stats.");
                 } else {
-                    c.get(this).ifPresent(skillInfo -> {
+                    c.getOwned(this).ifPresent(skillInfo -> {
                         AbilityInfo abilityInfo = (AbilityInfo) skillInfo;
                         description.clear();
                         description.add("Endurance Drain: " + ModAttributes.ENDURANCE.getEnduranceDrain(this));
@@ -182,46 +180,6 @@ public class Syphon extends BaseAbility implements IImpact, ISkillAdvancement {
                 }
             }
         });
-    }
-
-    @Override
-    public boolean canUpgrade(EntityLivingBase entity) {
-        return Capabilities.advancement(entity).map(c -> {
-            Requirement requirement = getRequirement(entity);
-            int tokens = requirement.getLevels();
-            int xp = requirement.getXp();
-            return c.level >= tokens && c.getExperienceTotal(entity) >= xp;
-        }).orElse(false);
-    }
-
-    @Override
-    public void onUpgrade(EntityLivingBase entity) {
-        Capabilities.advancement(entity).ifPresent(c -> {
-            Requirement requirement = getRequirement(entity);
-            int tokens = requirement.getLevels();
-            int xp = requirement.getXp();
-            if (c.level >= tokens && c.getExperienceTotal(entity) >= xp) {
-                //c.tokensLevel -= tokens;
-                c.consumeExperienceFromTotal(entity, xp);
-            }
-        });
-    }
-
-    @Override
-    public Requirement getRequirement(EntityLivingBase entity) {
-        AbilityInfo info = (AbilityInfo) Capabilities.get(entity).flatMap(a -> a.get(this)).orElse(null);
-        int tokensNeeded = 0;
-        int xpNeeded;
-        if (info == null) {
-            int abilities = Capabilities.get(entity).map(c -> (int) c.getAll().keySet().stream().filter(s -> s instanceof BaseAbility).count()).orElse(0);
-            if (abilities > 0) {
-                tokensNeeded = abilities + 1;
-            } else {
-                tokensNeeded = 1;
-            }
-        }
-        xpNeeded = getUpgradeCost(info);
-        return new DefaultRequirement(tokensNeeded, getCostIncrement(entity, xpNeeded));
     }
 
     public int getCostIncrement(EntityLivingBase entity, int total) {
@@ -314,8 +272,8 @@ public class Syphon extends BaseAbility implements IImpact, ISkillAdvancement {
 
             @Config.Comment("Range Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
             public String[] range = {
-                    "(0+){5 + 2 * (1 - (e^(-2.1 * (x/49)))) / (1 - e^(-2.1))}",
-                    "(50+){7 + 1 * ((e^(0.1 * ((x - 49) / (y - 49))) - 1)/((e^0.1) - 1))}"
+                    "(0+){5 + 2 * (1 - (e^(-2.1 * (x/24)))) / (1 - e^(-2.1))}",
+                    "(25+){7 + 1 * ((e^(0.1 * ((x - 24) / (y - 24))) - 1)/((e^0.1) - 1))}"
             };
 
             @Config.Comment("Effectiveness Modifier")
@@ -332,9 +290,9 @@ public class Syphon extends BaseAbility implements IImpact, ISkillAdvancement {
             public static class Advancement {
                 @Config.Comment("Function f(x)=? where 'x' is [Next Level] and 'y' is [Max Level], XP Cost is in units [NOT LEVELS]")
                 public String[] upgrade = {
-                        "(0){5730}",
-                        "(1+){7 * x}",
-                        "(100){7 * x + 7 * x * 0.1}"
+                        "(0){600}",
+                        "(1+){4 * x}",
+                        "(50){4 * x + 4 * x * 0.1}"
                 };
             }
         }

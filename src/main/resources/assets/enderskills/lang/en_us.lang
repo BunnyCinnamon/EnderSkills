@@ -76,7 +76,7 @@ enderskills.potion_ability_power_effect=Ability Power Effect
 enderskills.potion_cooldown_effect=Cooldown Effect
 enderskills.potion_endurance_effect=Endurance Effect
 #----------------------------------------------------------------------------------------------------------------------#
-ui.enderskills.rotate_skill_group=Skill Group %s Selected
+ui.enderskills.rotate_skill_group=§4Selected §4%s §4Group
 ui.enderskills.altar_drop_line_0=Drop Ender Matrix
 ui.enderskills.altar_drop_line_1=on top to upgrade
 #----------------------------------------------------------------------------------------------------------------------#
@@ -86,6 +86,11 @@ ui.enderskills.gui.take_xp=§lTake XP§r
 ui.enderskills.gui.xp=%s XP
 ui.enderskills.gui.xp_level=%s
 ui.enderskills.gui.levels=%s EL
+ui.enderskills.gui.pin=Pin Page
+ui.enderskills.gui.unpin=Unpin Page
+ui.enderskills.gui.back=Go Back
+ui.enderskills.gui.prevPage=Prev Page
+ui.enderskills.gui.nextPage=Next Page
 ui.enderskills.gui.reset_unlocks_title=Confirm Reset of all progress?
 ui.enderskills.gui.reset_unlocks_description=\n§4This action cannot be undone.§r
 ui.enderskills.gui.altar_power_0=0/4 Altar Power

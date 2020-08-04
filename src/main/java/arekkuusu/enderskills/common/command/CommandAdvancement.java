@@ -31,7 +31,7 @@ public class CommandAdvancement extends CommandBase {
 
     @Override
     public String getUsage(ICommandSender sender) {
-        return "Usage: /" + getName() + "[entity/player/@p] [retries/level] [set/add/sub/get] [value]";
+        return "Usage: /" + getName() + "[entity/player/@p] [retries/level] [set/add/sub/query] [value]";
     }
 
     @Override
@@ -51,7 +51,7 @@ public class CommandAdvancement extends CommandBase {
         } else if (args.length == 2) {
             return getListOfStringsMatchingLastWord(args, "retries", "level");
         } else if (args.length == 3) {
-            return getListOfStringsMatchingLastWord(args, "set", "add", "sub", "get");
+            return getListOfStringsMatchingLastWord(args, "set", "add", "sub", "query");
         }
         return super.getTabCompletions(server, sender, args, targetPos);
     }
@@ -104,7 +104,7 @@ public class CommandAdvancement extends CommandBase {
                             }
                             capability.resetCount = sub;
                             break;
-                        case "get":
+                        case "query":
                             message(sender, "advancement.get.retries", capability.resetCount);
                             return;
                         default:
@@ -142,7 +142,7 @@ public class CommandAdvancement extends CommandBase {
                             }
                             capability.level = sub;
                             break;
-                        case "get":
+                        case "query":
                             message(sender, "advancement.get.level", capability.level);
                             return;
                         default:

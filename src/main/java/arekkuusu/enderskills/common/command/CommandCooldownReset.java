@@ -2,7 +2,7 @@ package arekkuusu.enderskills.common.command;
 
 import arekkuusu.enderskills.api.capability.Capabilities;
 import arekkuusu.enderskills.api.capability.SkilledEntityCapability;
-import arekkuusu.enderskills.api.capability.data.IInfoCooldown;
+import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoCooldown;
 import arekkuusu.enderskills.common.lib.LibMod;
 import arekkuusu.enderskills.common.network.PacketHelper;
 import com.google.common.collect.ImmutableList;
@@ -70,7 +70,7 @@ public class CommandCooldownReset extends CommandBase {
 
         switch (args[1]) {
             case "reset":
-                capability.getAll().values().stream().filter(i -> i instanceof IInfoCooldown).map(i -> (IInfoCooldown) i).forEach(i -> i.setCooldown(0));
+                capability.getAllOwned().values().stream().filter(i -> i instanceof IInfoCooldown).map(i -> (IInfoCooldown) i).forEach(i -> i.setCooldown(0));
                 message(sender, "cooldown.reset");
                 break;
             default:

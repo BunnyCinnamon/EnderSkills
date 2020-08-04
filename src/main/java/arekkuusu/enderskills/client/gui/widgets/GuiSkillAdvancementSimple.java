@@ -2,16 +2,16 @@ package arekkuusu.enderskills.client.gui.widgets;
 
 import arekkuusu.enderskills.api.capability.Capabilities;
 import arekkuusu.enderskills.api.capability.SkilledEntityCapability;
-import arekkuusu.enderskills.api.capability.data.IInfoUpgradeable;
 import arekkuusu.enderskills.api.capability.data.SkillInfo;
 import arekkuusu.enderskills.client.gui.GuiScreenSkillAdvancements;
 import arekkuusu.enderskills.client.gui.GuiSkillAdvancementPage;
 import arekkuusu.enderskills.client.gui.data.ISkillAdvancement;
 import arekkuusu.enderskills.client.gui.data.SkillAdvancementConditionSimple;
 import arekkuusu.enderskills.client.gui.data.SkillAdvancementInfo;
+import arekkuusu.enderskills.client.util.ResourceLibrary;
 import arekkuusu.enderskills.client.util.helper.RenderMisc;
 import arekkuusu.enderskills.client.util.helper.TextHelper;
-import arekkuusu.enderskills.common.network.PacketHandler;
+import arekkuusu.enderskills.common.skill.BaseSkill;
 import com.google.common.collect.Lists;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.advancements.AdvancementState;
@@ -94,15 +94,15 @@ public class GuiSkillAdvancementSimple extends GuiSkillAdvancement {
 
     public void drawSkillIcon() {
         mc.getTextureManager().bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
-        TextureAtlasSprite sprite = mc.getTextureMapBlocks().getAtlasSprite(advancement.info.skill.getTexture().toString());
+        TextureAtlasSprite sprite = mc.getTextureMapBlocks().getAtlasSprite(ResourceLibrary.getSkillTexture(advancement.info.skill).toString());
         drawTexturedModalRect(this.xOffset + 5, this.yOffset + 5, sprite, width - 10, height - 10);
-        Capabilities.get(mc.player).flatMap(c -> c.get(advancement.info.skill)).ifPresent(skillInfo -> {
-            if (skillInfo instanceof IInfoUpgradeable) {
-                int skillTier = ((IInfoUpgradeable) skillInfo).getLevel();
+        Capabilities.get(mc.player).flatMap(c -> c.getOwned(advancement.info.skill)).ifPresent(skillInfo -> {
+            if (advancement.info.skill.getProperties() instanceof BaseSkill.BaseProperties && skillInfo instanceof SkillInfo.IInfoUpgradeable) {
+                int skillTier = ((SkillInfo.IInfoUpgradeable) skillInfo).getLevel();
                 if (skillTier > 0) {
                     String tier = String.valueOf(skillTier);
                     if (skillTier > 9999) tier = "9999+";
-                    if (skillTier >= advancement.info.skill.getMaxLevel()) tier = "MAX";
+                    if (skillTier >= ((BaseSkill.BaseProperties) advancement.info.skill.getProperties()).getMaxLevel()) tier = "MAX";
                     drawString(mc.fontRenderer, tier, this.xOffset + 18 + 10 - mc.fontRenderer.getStringWidth(tier),
                             this.yOffset + 18 + mc.fontRenderer.FONT_HEIGHT / 2, -1);
                 }
@@ -125,7 +125,7 @@ public class GuiSkillAdvancementSimple extends GuiSkillAdvancement {
 
     @Override
     public boolean isUnlocked() {
-        return Capabilities.get(this.mc.player).filter(c -> c.owns(this.advancement.info.skill)).isPresent();
+        return Capabilities.get(this.mc.player).filter(c -> c.isOwned(this.advancement.info.skill)).isPresent();
     }
 
     @Override
@@ -204,7 +204,7 @@ public class GuiSkillAdvancementSimple extends GuiSkillAdvancement {
         }
         //Render Icon
         this.mc.getTextureManager().bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
-        TextureAtlasSprite sprite = mc.getTextureMapBlocks().getAtlasSprite(advancement.info.skill.getTexture().toString());
+        TextureAtlasSprite sprite = mc.getTextureMapBlocks().getAtlasSprite(ResourceLibrary.getSkillTexture(advancement.info.skill).toString());
         drawTexturedModalRect(this.xOffset + 5, this.yOffset + 5, sprite, 16, 16);
         //Render Title
         if (fitsTitle) {
@@ -247,10 +247,10 @@ public class GuiSkillAdvancementSimple extends GuiSkillAdvancement {
     public boolean canUpgrade() {
         boolean upgrade = true;
         SkilledEntityCapability c = Capabilities.get(this.mc.player).orElse(null);
-        if (c != null && c.owns(advancement.info.skill)) {
-            SkillInfo info = c.get(advancement.info.skill).orElse(null);
-            if (info instanceof IInfoUpgradeable) {
-                if (((IInfoUpgradeable) info).getLevel() >= advancement.info.skill.getMaxLevel()) {
+        if (c != null && c.isOwned(advancement.info.skill)) {
+            SkillInfo info = c.getOwned(advancement.info.skill).orElse(null);
+            if (advancement.info.skill.getProperties() instanceof BaseSkill.BaseProperties && info instanceof SkillInfo.IInfoUpgradeable) {
+                if (((SkillInfo.IInfoUpgradeable) info).getLevel() >= ((BaseSkill.BaseProperties) advancement.info.skill.getProperties()).getMaxLevel()) {
                     upgrade = false;
                 }
             }
@@ -281,10 +281,10 @@ public class GuiSkillAdvancementSimple extends GuiSkillAdvancement {
                         ISkillAdvancement.Requirement requirement = ((ISkillAdvancement) advancement.info.skill).getRequirement(this.mc.player);
                         int levels = requirement.getLevels();
                         int xp = requirement.getXp();
-                        Optional<SkillInfo> optional = c.get(advancement.info.skill).filter(i -> i instanceof IInfoUpgradeable);
+                        Optional<SkillInfo> optional = c.getOwned(advancement.info.skill).filter(i -> i instanceof SkillInfo.IInfoUpgradeable);
                         if (optional.isPresent()) {
                             SkillInfo info = optional.get();
-                            int lvl = ((IInfoUpgradeable) info).getLevel();
+                            int lvl = ((SkillInfo.IInfoUpgradeable) info).getLevel();
                             description += TextHelper.translate("gui.advancement.description", lvl, lvl + 1);
                         }
                         if (levels > 0 || (xp > 0)) {
@@ -302,7 +302,7 @@ public class GuiSkillAdvancementSimple extends GuiSkillAdvancement {
                         boolean success = this.advancement.upgrade();
                         if (g.isShifting && success) {
                             this.gui.gui.allowUserInput = false;
-                            PacketHandler.GUI_SYNC_QUEUE = () -> {
+                            GuiScreenSkillAdvancements.onSkillUpgradeRunnable = () -> {
                                 this.gui.gui.isShifting = true;
                                 this.gui.gui.allowUserInput = true;
                                 this.actionPerformed(button);

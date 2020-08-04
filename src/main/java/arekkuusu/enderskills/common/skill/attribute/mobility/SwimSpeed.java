@@ -1,11 +1,10 @@
 package arekkuusu.enderskills.common.skill.attribute.mobility;
 
 import arekkuusu.enderskills.api.capability.Capabilities;
-import arekkuusu.enderskills.api.capability.data.IInfoUpgradeable;
+import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoUpgradeable;
 import arekkuusu.enderskills.api.helper.ExpressionHelper;
 import arekkuusu.enderskills.api.helper.NBTHelper;
 import arekkuusu.enderskills.client.gui.data.ISkillAdvancement;
-import arekkuusu.enderskills.client.util.ResourceLibrary;
 import arekkuusu.enderskills.client.util.helper.TextHelper;
 import arekkuusu.enderskills.common.CommonConfig;
 import arekkuusu.enderskills.common.lib.LibMod;
@@ -39,9 +38,9 @@ public class SwimSpeed extends BaseAttribute implements ISkillAdvancement {
     );
 
     public SwimSpeed() {
-        super(LibNames.SWIM_SPEED);
+        super(LibNames.SWIM_SPEED, new BaseProperties());
         MinecraftForge.EVENT_BUS.register(this);
-        setTexture(ResourceLibrary.ATTRIBUTE_1_1);
+        ((BaseProperties) getProperties()).setMaxLevelGetter(this::getMaxLevel);
     }
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
@@ -50,8 +49,8 @@ public class SwimSpeed extends BaseAttribute implements ISkillAdvancement {
         EntityLivingBase entity = event.getEntityLiving();
         if (entity.ticksExisted % 20 != 0) return; //Slowdown cowboy! yee-haw!
         Capabilities.get(entity).ifPresent(capability -> {
-            if (capability.owns(this) && entity.isWet()) {
-                capability.get(this).ifPresent(skillInfo -> {
+            if (capability.isOwned(this) && entity.isWet()) {
+                capability.getOwned(this).ifPresent(skillInfo -> {
                     AttributeInfo attributeInfo = (AttributeInfo) skillInfo;
                     SPEED_ATTRIBUTE.apply(entity, getModifier(attributeInfo));
                 });
@@ -65,7 +64,6 @@ public class SwimSpeed extends BaseAttribute implements ISkillAdvancement {
         return info.getLevel();
     }
 
-    @Override
     public int getMaxLevel() {
         return Configuration.getSyncValues().maxLevel;
     }
@@ -86,12 +84,12 @@ public class SwimSpeed extends BaseAttribute implements ISkillAdvancement {
     @SideOnly(Side.CLIENT)
     public void addDescription(List<String> description) {
         Capabilities.get(Minecraft.getMinecraft().player).ifPresent(c -> {
-            if (c.owns(this)) {
+            if (c.isOwned(this)) {
                 if (!GuiScreen.isShiftKeyDown()) {
                     description.add("");
                     description.add("Hold SHIFT for stats.");
                 } else {
-                    c.get(this).ifPresent(skillInfo -> {
+                    c.getOwned(this).ifPresent(skillInfo -> {
                         AttributeInfo attributeInfo = (AttributeInfo) skillInfo;
                         description.clear();
                         if (attributeInfo.getLevel() >= getMaxLevel()) {
@@ -135,7 +133,7 @@ public class SwimSpeed extends BaseAttribute implements ISkillAdvancement {
 
     @Override
     public Requirement getRequirement(EntityLivingBase entity) {
-        AttributeInfo info = (AttributeInfo) Capabilities.get(entity).flatMap(a -> a.get(this)).orElse(null);
+        AttributeInfo info = (AttributeInfo) Capabilities.get(entity).flatMap(a -> a.getOwned(this)).orElse(null);
         return new DefaultRequirement(0, getUpgradeCost(info));
     }
 
@@ -210,7 +208,7 @@ public class SwimSpeed extends BaseAttribute implements ISkillAdvancement {
             public static class Advancement {
                 @Config.Comment("Function f(x)=? where 'x' is [Next Level] and 'y' is [Max Level], XP Cost is in units [NOT LEVELS]")
                 public String[] upgrade = {
-                        "(0+){3395 * 2 * (x / y)}"
+                        "(0+){160 * 2 * (x / y)}"
                 };
             }
         }

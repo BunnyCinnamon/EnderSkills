@@ -1,10 +1,9 @@
 package arekkuusu.enderskills.common.skill.attribute;
 
-import arekkuusu.enderskills.api.capability.data.IInfoUpgradeable;
 import arekkuusu.enderskills.api.capability.data.SkillInfo;
 import net.minecraft.nbt.NBTTagCompound;
 
-public class AttributeInfo extends SkillInfo implements IInfoUpgradeable {
+public class AttributeInfo extends SkillInfo implements SkillInfo.IInfoUpgradeable {
 
     private int level;
 

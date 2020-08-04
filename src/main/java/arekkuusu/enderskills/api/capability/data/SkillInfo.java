@@ -28,4 +28,24 @@ public class SkillInfo implements INBTSerializable<NBTTagCompound> {
     public void readNBT(NBTTagCompound compound) {
         //For Rent
     }
+
+    public interface IInfoCooldown {
+
+        String COOL_DOWN = "cooldown";
+
+        void setCooldown(int cooldown);
+
+        int getCooldown();
+
+        boolean hasCooldown();
+    }
+
+    public interface IInfoUpgradeable {
+
+        String LEVEL = "level";
+
+        int getLevel();
+
+        void setLevel(int level);
+    }
 }

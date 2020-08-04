@@ -1,12 +1,11 @@
 package arekkuusu.enderskills.common.skill.attribute.offense;
 
 import arekkuusu.enderskills.api.capability.Capabilities;
-import arekkuusu.enderskills.api.capability.data.IInfoUpgradeable;
+import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoUpgradeable;
 import arekkuusu.enderskills.api.event.SkillDamageEvent;
 import arekkuusu.enderskills.api.helper.ExpressionHelper;
 import arekkuusu.enderskills.api.helper.NBTHelper;
 import arekkuusu.enderskills.client.gui.data.ISkillAdvancement;
-import arekkuusu.enderskills.client.util.ResourceLibrary;
 import arekkuusu.enderskills.client.util.helper.TextHelper;
 import arekkuusu.enderskills.common.CommonConfig;
 import arekkuusu.enderskills.common.lib.LibMod;
@@ -31,9 +30,9 @@ import java.util.List;
 public class AbilityPower extends BaseAttribute implements ISkillAdvancement {
 
     public AbilityPower() {
-        super(LibNames.ABILITY_POWER);
+        super(LibNames.ABILITY_POWER, new BaseProperties());
         MinecraftForge.EVENT_BUS.register(this);
-        setTexture(ResourceLibrary.ATTRIBUTE_2_1);
+        ((BaseProperties) getProperties()).setMaxLevelGetter(this::getMaxLevel);
     }
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
@@ -43,8 +42,8 @@ public class AbilityPower extends BaseAttribute implements ISkillAdvancement {
         if (event.getAmount() <= 0) return;
         EntityLivingBase entity = event.getEntityLiving();
         Capabilities.get(entity).ifPresent(capability -> {
-            if (capability.owns(this)) {
-                capability.get(this).ifPresent(skillInfo -> {
+            if (capability.isOwned(this)) {
+                capability.getOwned(this).ifPresent(skillInfo -> {
                     AttributeInfo attributeInfo = (AttributeInfo) skillInfo;
                     if (Configuration.getSyncValues().extra.multiplyDamage) {
                         event.setAmount(event.getAmount() + event.getAmount() * getModifierMultiplication(attributeInfo));
@@ -60,7 +59,6 @@ public class AbilityPower extends BaseAttribute implements ISkillAdvancement {
         return info.getLevel();
     }
 
-    @Override
     public int getMaxLevel() {
         return Configuration.getSyncValues().maxLevel;
     }
@@ -88,12 +86,12 @@ public class AbilityPower extends BaseAttribute implements ISkillAdvancement {
     @SideOnly(Side.CLIENT)
     public void addDescription(List<String> description) {
         Capabilities.get(Minecraft.getMinecraft().player).ifPresent(c -> {
-            if (c.owns(this)) {
+            if (c.isOwned(this)) {
                 if (!GuiScreen.isShiftKeyDown()) {
                     description.add("");
                     description.add("Hold SHIFT for stats.");
                 } else {
-                    c.get(this).ifPresent(skillInfo -> {
+                    c.getOwned(this).ifPresent(skillInfo -> {
                         AttributeInfo attributeInfo = (AttributeInfo) skillInfo;
                         description.clear();
                         if (attributeInfo.getLevel() >= getMaxLevel()) {
@@ -145,7 +143,7 @@ public class AbilityPower extends BaseAttribute implements ISkillAdvancement {
 
     @Override
     public Requirement getRequirement(EntityLivingBase entity) {
-        AttributeInfo info = (AttributeInfo) Capabilities.get(entity).flatMap(a -> a.get(this)).orElse(null);
+        AttributeInfo info = (AttributeInfo) Capabilities.get(entity).flatMap(a -> a.getOwned(this)).orElse(null);
         return new DefaultRequirement(0, getUpgradeCost(info));
     }
 
@@ -230,7 +228,7 @@ public class AbilityPower extends BaseAttribute implements ISkillAdvancement {
             public static class Advancement {
                 @Config.Comment("Function f(x)=? where 'x' is [Next Level] and 'y' is [Max Level], XP Cost is in units [NOT LEVELS]")
                 public String[] upgrade = {
-                        "(0+){(150 * (1 - (0 ^ (0 ^ x)))) + 10 + 40 * x}"
+                        "(0+){(150 * (1 - (0 ^ (0 ^ x)))) + 10 + 7 * x}"
                 };
             }
         }

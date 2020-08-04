@@ -2,7 +2,7 @@ package arekkuusu.enderskills.common.skill.ability.mobility.ender;
 
 import arekkuusu.enderskills.api.capability.AdvancementCapability;
 import arekkuusu.enderskills.api.capability.Capabilities;
-import arekkuusu.enderskills.api.capability.data.IInfoUpgradeable;
+import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoUpgradeable;
 import arekkuusu.enderskills.api.capability.data.SkillData;
 import arekkuusu.enderskills.api.capability.data.SkillInfo;
 import arekkuusu.enderskills.api.capability.data.nbt.UUIDWatcher;
@@ -11,7 +11,6 @@ import arekkuusu.enderskills.api.helper.NBTHelper;
 import arekkuusu.enderskills.api.registry.Skill;
 import arekkuusu.enderskills.client.gui.data.ISkillAdvancement;
 import arekkuusu.enderskills.client.sounds.HoverSound;
-import arekkuusu.enderskills.client.util.ResourceLibrary;
 import arekkuusu.enderskills.client.util.helper.TextHelper;
 import arekkuusu.enderskills.common.CommonConfig;
 import arekkuusu.enderskills.common.lib.LibMod;
@@ -45,14 +44,19 @@ import java.util.Optional;
 public class Hover extends BaseAbility implements ISkillAdvancement {
 
     public Hover() {
-        super(LibNames.HOVER);
-        setTexture(ResourceLibrary.HOVER);
+        super(LibNames.HOVER, new AbilityProperties() {
+            @Override
+            public boolean isKeyBound() {
+                return false;
+            }
+        });
+        ((AbilityProperties) getProperties()).setCooldownGetter(this::getCooldown).setMaxLevelGetter(this::getMaxLevel);
         MinecraftForge.EVENT_BUS.register(this);
     }
 
     @Override
     public void use(EntityLivingBase user, SkillInfo skillInfo) {
-        if (shouldUse(user) && canUse(user)) {
+        if (isActionable(user) && canActivate(user)) {
             AbilityInfo abilityInfo = (AbilityInfo) skillInfo;
             int maxHover = getTime(abilityInfo);
             NBTTagCompound compound = new NBTTagCompound();
@@ -108,7 +112,7 @@ public class Hover extends BaseAbility implements ISkillAdvancement {
     public void onKeyPress(InputEvent.KeyInputEvent event) {
         EntityPlayerSP player = Minecraft.getMinecraft().player;
         if (player.capabilities.isCreativeMode) return;
-        Capabilities.get(player).flatMap(c -> c.get(this)).ifPresent(skillInfo -> {
+        Capabilities.get(player).flatMap(c -> c.getOwned(this)).ifPresent(skillInfo -> {
             AbilityInfo abilityInfo = (AbilityInfo) skillInfo;
             int maxHover = getTime(abilityInfo);
             if (maxHover <= 0) return;
@@ -144,7 +148,7 @@ public class Hover extends BaseAbility implements ISkillAdvancement {
             hoverTime = 0;
             return;
         }
-        Capabilities.get(player).flatMap(c -> c.get(this)).ifPresent(skillInfo -> {
+        Capabilities.get(player).flatMap(c -> c.getOwned(this)).ifPresent(skillInfo -> {
             AbilityInfo abilityInfo = (AbilityInfo) skillInfo;
             int maxHover = getTime(abilityInfo);
             if (maxHover <= 0) return;
@@ -175,12 +179,10 @@ public class Hover extends BaseAbility implements ISkillAdvancement {
         return info.getLevel();
     }
 
-    @Override
     public int getMaxLevel() {
         return Configuration.getSyncValues().maxLevel;
     }
 
-    @Override
     public int getCooldown(AbilityInfo info) {
         return 0;
     }
@@ -197,22 +199,17 @@ public class Hover extends BaseAbility implements ISkillAdvancement {
         return Configuration.getSyncValues().effectiveness * CommonConfig.getSyncValues().skill.globalEffectiveness;
     }
 
-    @Override
-    public boolean isKeyBound() {
-        return false;
-    }
-
     /*Advancement Section*/
     @Override
     @SideOnly(Side.CLIENT)
     public void addDescription(List<String> description) {
         Capabilities.get(Minecraft.getMinecraft().player).ifPresent(c -> {
-            if (c.owns(this)) {
+            if (c.isOwned(this)) {
                 if (!GuiScreen.isShiftKeyDown()) {
                     description.add("");
                     description.add("Hold SHIFT for stats.");
                 } else {
-                    c.get(this).ifPresent(skillInfo -> {
+                    c.getOwned(this).ifPresent(skillInfo -> {
                         AbilityInfo abilityInfo = (AbilityInfo) skillInfo;
                         description.clear();
                         description.add("Endurance Drain: " + ModAttributes.ENDURANCE.getEnduranceDrain(this));
@@ -234,46 +231,6 @@ public class Hover extends BaseAbility implements ISkillAdvancement {
                 }
             }
         });
-    }
-
-    @Override
-    public boolean canUpgrade(EntityLivingBase entity) {
-        return Capabilities.advancement(entity).map(c -> {
-            Requirement requirement = getRequirement(entity);
-            int tokens = requirement.getLevels();
-            int xp = requirement.getXp();
-            return c.level >= tokens && c.getExperienceTotal(entity) >= xp;
-        }).orElse(false);
-    }
-
-    @Override
-    public void onUpgrade(EntityLivingBase entity) {
-        Capabilities.advancement(entity).ifPresent(c -> {
-            Requirement requirement = getRequirement(entity);
-            int tokens = requirement.getLevels();
-            int xp = requirement.getXp();
-            if (c.level >= tokens && c.getExperienceTotal(entity) >= xp) {
-                //c.tokensLevel -= tokens;
-                c.consumeExperienceFromTotal(entity, xp);
-            }
-        });
-    }
-
-    @Override
-    public Requirement getRequirement(EntityLivingBase entity) {
-        AbilityInfo info = (AbilityInfo) Capabilities.get(entity).flatMap(a -> a.get(this)).orElse(null);
-        int tokensNeeded = 0;
-        int xpNeeded;
-        if (info == null) {
-            int abilities = Capabilities.get(entity).map(c -> (int) c.getAll().keySet().stream().filter(s -> s instanceof BaseAbility).count()).orElse(0);
-            if (abilities > 0) {
-                tokensNeeded = abilities + 1;
-            } else {
-                tokensNeeded = 1;
-            }
-        }
-        xpNeeded = getUpgradeCost(info);
-        return new DefaultRequirement(tokensNeeded, getCostIncrement(entity, xpNeeded));
     }
 
     public int getCostIncrement(EntityLivingBase entity, int total) {
@@ -361,9 +318,9 @@ public class Hover extends BaseAbility implements ISkillAdvancement {
             public static class Advancement {
                 @Config.Comment("Function f(x)=? where 'x' is [Next Level] and 'y' is [Max Level], XP Cost is in units [NOT LEVELS]")
                 public String[] upgrade = {
-                        "(0){825}",
-                        "(1+){7 * x}",
-                        "(100){7 * x + 7 * x * 0.1}"
+                        "(0){300}",
+                        "(1+){4 * x}",
+                        "(50){4 * x + 4 * x * 0.1}"
                 };
             }
         }

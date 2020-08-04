@@ -1,6 +1,7 @@
 package arekkuusu.enderskills.common.entity;
 
 import arekkuusu.enderskills.api.capability.data.SkillData;
+import arekkuusu.enderskills.api.helper.TeamHelper;
 import arekkuusu.enderskills.common.entity.data.SkillExtendedData;
 import arekkuusu.enderskills.common.skill.ModAbilities;
 import arekkuusu.enderskills.common.skill.SkillHelper;
@@ -140,7 +141,7 @@ public class EntityStoneGolem extends EntityGolem {
                 if (owner.getDistance(this) > 10) {
                     this.setPositionAndUpdate(owner.posX, owner.posY, owner.posZ);
                 }
-                if (owner.getLastAttackedEntity() != this) {
+                if (owner.getLastAttackedEntity() != this && (owner.getLastAttackedEntity() == null || TeamHelper.SELECTOR_ENEMY.apply(owner).test(owner.getLastAttackedEntity()))) {
                     setAttackTarget(owner.getLastAttackedEntity());
                 }
             } else {

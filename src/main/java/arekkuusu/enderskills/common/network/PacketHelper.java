@@ -6,6 +6,7 @@ import arekkuusu.enderskills.api.capability.data.SkillHolder;
 import arekkuusu.enderskills.api.helper.NBTHelper;
 import arekkuusu.enderskills.api.registry.Skill;
 import arekkuusu.enderskills.common.CommonConfig;
+import arekkuusu.enderskills.common.skill.IConfigSync;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
@@ -42,7 +43,9 @@ public final class PacketHelper {
     public static void sendConfigReload(EntityPlayerMP player) {
         IForgeRegistry<Skill> registry = GameRegistry.findRegistry(Skill.class);
         for (Map.Entry<ResourceLocation, Skill> entry : registry.getEntries()) {
-            PacketHelper.sendConfigPacket(player, entry.getValue());
+            if (entry.getValue() instanceof IConfigSync) {
+                PacketHelper.sendConfigPacket(player, (Skill & IConfigSync) entry.getValue());
+            }
         }
         PacketHelper.sendGlobalConfigPacket(player);
     }
@@ -53,7 +56,7 @@ public final class PacketHelper {
         PacketHandler.NETWORK.sendTo(new ServerToClientPacket(PacketHandler.SYNC_GLOBAL_CONFIG, compound), player);
     }
 
-    private static void sendConfigPacket(EntityPlayerMP player, Skill skill) {
+    private static <T extends Skill & IConfigSync> void sendConfigPacket(EntityPlayerMP player, T skill) {
         NBTTagCompound compound = new NBTTagCompound();
         NBTHelper.setResourceLocation(compound, "location", Objects.requireNonNull(skill.getRegistryName()));
         skill.writeSyncConfig(compound);
@@ -67,7 +70,7 @@ public final class PacketHelper {
     }
 
     public static void sendSkillSync(EntityPlayerMP player, Skill skill) {
-        Capabilities.get(player).flatMap(s -> s.get(skill)).ifPresent(info -> {
+        Capabilities.get(player).flatMap(s -> s.getOwned(skill)).ifPresent(info -> {
             NBTTagCompound compound = new NBTTagCompound();
             NBTHelper.setResourceLocation(compound, "location", Objects.requireNonNull(skill.getRegistryName()));
             NBTHelper.setNBT(compound, "info", info.serializeNBT());
@@ -75,10 +78,22 @@ public final class PacketHelper {
         });
     }
 
-    public static void sendWeightSync(EntityPlayerMP player, Skill skill, int weight) {
+    public static void sendWeightSync(EntityPlayerMP player) {
+        Capabilities.weight(player).ifPresent(s -> {
+            PacketHandler.NETWORK.sendTo(new ServerToClientPacket(PacketHandler.SYNC_WEIGHT, s.serializeNBT()), player);
+        });
+    }
+
+    public static void sendWeightSetPacket(EntityPlayerMP player, Skill skill, int weight) {
         NBTTagCompound compound = new NBTTagCompound();
         NBTHelper.setResourceLocation(compound, "location", Objects.requireNonNull(skill.getRegistryName()));
         NBTHelper.setInteger(compound, "weight", weight);
+        PacketHandler.NETWORK.sendTo(new ServerToClientPacket(PacketHandler.SYNC_WEIGHT, compound), player);
+    }
+
+    public static void sendWeightRemovePacket(EntityPlayerMP player, Skill skill) {
+        NBTTagCompound compound = new NBTTagCompound();
+        NBTHelper.setResourceLocation(compound, "location", Objects.requireNonNull(skill.getRegistryName()));
         PacketHandler.NETWORK.sendTo(new ServerToClientPacket(PacketHandler.SYNC_WEIGHT, compound), player);
     }
 
@@ -90,8 +105,8 @@ public final class PacketHelper {
         PacketHandler.NETWORK.sendToServer(new ClientToServerPacket(PacketHandler.SKILL_UPGRADE_REQUEST, compound));
     }
 
-    public static void sendGuiSync(EntityPlayerMP player) {
-        PacketHandler.NETWORK.sendTo(new ServerToClientPacket(PacketHandler.GUI_SYNC, new NBTTagCompound()), player);
+    public static void sendSkillUpgradeSync(EntityPlayerMP player) {
+        PacketHandler.NETWORK.sendTo(new ServerToClientPacket(PacketHandler.SKILL_UPGRADE_SYNC, new NBTTagCompound()), player);
     }
 
     @SideOnly(Side.CLIENT)
@@ -155,6 +170,15 @@ public final class PacketHelper {
             compound.setFloat("lvl_total", player.experienceTotal);
             PacketHandler.NETWORK.sendTo(new ServerToClientPacket(PacketHandler.SYNC_ADVANCEMENT, compound), player);
         });
+    }
+
+    @SideOnly(Side.CLIENT)
+    public static void sendPinRequestPacket(EntityPlayerSP entity, int tabPin, int tabPagePin) {
+        NBTTagCompound compound = new NBTTagCompound();
+        NBTHelper.setEntity(compound, entity, "user");
+        compound.setInteger("tabPin", tabPin);
+        compound.setInteger("tabPagePin", tabPagePin);
+        PacketHandler.NETWORK.sendToServer(new ClientToServerPacket(PacketHandler.GUI_PIN, compound));
     }
 
     @SideOnly(Side.CLIENT)

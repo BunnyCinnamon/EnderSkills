@@ -73,7 +73,7 @@ public class SpeedBoostRenderer extends SkillRenderer<SpeedBoost> {
                 GlStateManager.depthMask(false);
                 GlStateManager.alphaFunc(516, 0.003921569f);
                 GlStateManager.enableBlend();
-                GLHelper.BLEND_SRC_ALPHA$ONE_MINUS_SRC_ALPHA.blend();
+                GlStateManager.blendFunc(GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
                 EntityPlayerSP playerEntity = Minecraft.getMinecraft().player;
                 double x = playerEntity.lastTickPosX + (playerEntity.posX - playerEntity.lastTickPosX) * 1F;
                 double y = playerEntity.lastTickPosY + (playerEntity.posY - playerEntity.lastTickPosY) * 1F;
@@ -107,9 +107,6 @@ public class SpeedBoostRenderer extends SkillRenderer<SpeedBoost> {
         public void render() {
             EntityLivingBase entity = reference.get();
             if (entity == null) return;
-            GlStateManager.pushMatrix();
-            GlStateManager.translate(positionVector.x, positionVector.y, positionVector.z);
-
             int i = entity.getBrightnessForRender();
             if (entity.isBurning()) {
                 i = 15728880;
@@ -118,11 +115,10 @@ public class SpeedBoostRenderer extends SkillRenderer<SpeedBoost> {
             int k = i / 65536;
             OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, (float) j, (float) k);
 
+            GlStateManager.pushMatrix();
+            GlStateManager.translate(positionVector.x, positionVector.y, positionVector.z);
             GlStateManager.color(1F, 1F, 1F, 0.3F * (1F - ((float) lifeTime / (float) maxLifeTime)));
-            Render<Entity> render = Minecraft.getMinecraft().getRenderManager().getEntityRenderObject(entity);
-            if (render != null) {
-                render.doRender(entity, 0, 0, 0, entity.rotationYaw, 1F);
-            }
+            Minecraft.getMinecraft().getRenderManager().renderEntity(entity, 0, 0, 0, entity.rotationYaw, 0F, false);
             GlStateManager.popMatrix();
         }
     }

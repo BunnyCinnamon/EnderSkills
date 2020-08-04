@@ -2,8 +2,8 @@ package arekkuusu.enderskills.common.skill.ability.offence.fire;
 
 import arekkuusu.enderskills.api.capability.AdvancementCapability;
 import arekkuusu.enderskills.api.capability.Capabilities;
-import arekkuusu.enderskills.api.capability.data.IInfoCooldown;
-import arekkuusu.enderskills.api.capability.data.IInfoUpgradeable;
+import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoCooldown;
+import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoUpgradeable;
 import arekkuusu.enderskills.api.capability.data.SkillData;
 import arekkuusu.enderskills.api.capability.data.SkillInfo;
 import arekkuusu.enderskills.api.capability.data.nbt.UUIDWatcher;
@@ -11,11 +11,11 @@ import arekkuusu.enderskills.api.event.SkillDamageEvent;
 import arekkuusu.enderskills.api.event.SkillDamageSource;
 import arekkuusu.enderskills.api.helper.ExpressionHelper;
 import arekkuusu.enderskills.api.helper.NBTHelper;
+import arekkuusu.enderskills.api.helper.TeamHelper;
 import arekkuusu.enderskills.api.registry.Skill;
 import arekkuusu.enderskills.client.gui.data.ISkillAdvancement;
 import arekkuusu.enderskills.client.sounds.FireSpiritSound;
 import arekkuusu.enderskills.client.sounds.FireSpiritSound2;
-import arekkuusu.enderskills.client.util.ResourceLibrary;
 import arekkuusu.enderskills.client.util.helper.TextHelper;
 import arekkuusu.enderskills.common.CommonConfig;
 import arekkuusu.enderskills.common.lib.LibMod;
@@ -50,19 +50,19 @@ import java.util.Optional;
 public class FireSpirit extends BaseAbility implements ISkillAdvancement {
 
     public FireSpirit() {
-        super(LibNames.FIRE_SPIRIT);
-        setTexture(ResourceLibrary.FIRE_SPIRIT);
+        super(LibNames.FIRE_SPIRIT, new AbilityProperties());
+        ((AbilityProperties) getProperties()).setCooldownGetter(this::getCooldown).setMaxLevelGetter(this::getMaxLevel);
         MinecraftForge.EVENT_BUS.register(this);
     }
 
     @Override
     public void use(EntityLivingBase user, SkillInfo skillInfo) {
-        if (isClientWorld(user) || !shouldUse(user)) return;
+        if (isClientWorld(user) || !isActionable(user)) return;
         AbilityInfo abilityInfo = (AbilityInfo) skillInfo;
 
         Capabilities.get(user).ifPresent(capability -> {
             if (!SkillHelper.isActiveOwner(user, this)) {
-                if (!((IInfoCooldown) skillInfo).hasCooldown() && canUse(user)) {
+                if (!((IInfoCooldown) skillInfo).hasCooldown() && canActivate(user)) {
                     if (!(user instanceof EntityPlayer) || !((EntityPlayer) user).capabilities.isCreativeMode) {
                         abilityInfo.setCooldown(getCooldown(abilityInfo));
                     }
@@ -143,20 +143,22 @@ public class FireSpirit extends BaseAbility implements ISkillAdvancement {
         EntityLivingBase target = event.getEntityLiving();
         SkillHelper.getActiveOwner(attacker, this, holder -> {
             Capabilities.get(target).ifPresent(c -> {
-                if (isActiveOwner(attacker, target)) {
-                    unapply(target, holder.data);
-                    async(target, holder.data);
-                }
-                SkillData data = SkillData.of(this)
-                        .with(holder.data.nbt.getInteger("time"))
-                        .put(holder.data.nbt, holder.data.watcher.copy())
-                        .overrides(holder.data.overrides)
-                        .create();
-                apply(target, data);
-                sync(target, data);
+                if(TeamHelper.SELECTOR_ENEMY.apply(attacker).test(target)) {
+                    if (isActiveOwner(attacker, target)) {
+                        unapply(target, holder.data);
+                        async(target, holder.data);
+                    }
+                    SkillData data = SkillData.of(this)
+                            .with(holder.data.nbt.getInteger("time"))
+                            .put(holder.data.nbt, holder.data.watcher.copy())
+                            .overrides(holder.data.overrides)
+                            .create();
+                    apply(target, data);
+                    sync(target, data);
 
-                if (target.world instanceof WorldServer) {
-                    ((WorldServer) target.world).playSound(null, target.posX, target.posY, target.posZ, ModSounds.FIRE_HIT, SoundCategory.PLAYERS, 1.0F, (1.0F + (target.world.rand.nextFloat() - target.world.rand.nextFloat()) * 0.2F) * 0.7F);
+                    if (target.world instanceof WorldServer) {
+                        ((WorldServer) target.world).playSound(null, target.posX, target.posY, target.posZ, ModSounds.FIRE_HIT, SoundCategory.PLAYERS, 1.0F, (1.0F + (target.world.rand.nextFloat() - target.world.rand.nextFloat()) * 0.2F) * 0.7F);
+                    }
                 }
             });
         });
@@ -170,7 +172,6 @@ public class FireSpirit extends BaseAbility implements ISkillAdvancement {
         return info.getLevel();
     }
 
-    @Override
     public int getMaxLevel() {
         return Configuration.getSyncValues().maxLevel;
     }
@@ -208,12 +209,12 @@ public class FireSpirit extends BaseAbility implements ISkillAdvancement {
     @SideOnly(Side.CLIENT)
     public void addDescription(List<String> description) {
         Capabilities.get(Minecraft.getMinecraft().player).ifPresent(c -> {
-            if (c.owns(this)) {
+            if (c.isOwned(this)) {
                 if (!GuiScreen.isShiftKeyDown()) {
                     description.add("");
                     description.add("Hold SHIFT for stats.");
                 } else {
-                    c.get(this).ifPresent(skillInfo -> {
+                    c.getOwned(this).ifPresent(skillInfo -> {
                         AbilityInfo abilityInfo = (AbilityInfo) skillInfo;
                         description.clear();
                         description.add("Endurance Drain: " + ModAttributes.ENDURANCE.getEnduranceDrain(this));
@@ -258,7 +259,7 @@ public class FireSpirit extends BaseAbility implements ISkillAdvancement {
             int tokens = requirement.getLevels();
             int xp = requirement.getXp();
             if (c.level >= tokens && c.getExperienceTotal(entity) >= xp) {
-                Capabilities.get(entity).filter(a -> !a.owns(this)).ifPresent(a -> {
+                Capabilities.get(entity).filter(a -> !a.isOwned(this)).ifPresent(a -> {
                     Skill[] skillUnlockOrder = Arrays.copyOf(c.skillUnlockOrder, c.skillUnlockOrder.length + 1);
                     skillUnlockOrder[skillUnlockOrder.length - 1] = this;
                     c.skillUnlockOrder = skillUnlockOrder;
@@ -270,11 +271,11 @@ public class FireSpirit extends BaseAbility implements ISkillAdvancement {
 
     @Override
     public Requirement getRequirement(EntityLivingBase entity) {
-        AbilityInfo info = (AbilityInfo) Capabilities.get(entity).flatMap(a -> a.get(this)).orElse(null);
+        AbilityInfo info = (AbilityInfo) Capabilities.get(entity).flatMap(a -> a.getOwned(this)).orElse(null);
         int tokensNeeded = 0;
         int xpNeeded;
         if (info == null) {
-            int abilities = Capabilities.get(entity).map(c -> (int) c.getAll().keySet().stream().filter(s -> s instanceof BaseAbility).count()).orElse(0);
+            int abilities = Capabilities.get(entity).map(c -> (int) c.getAllOwned().keySet().stream().filter(s -> s instanceof BaseAbility).count()).orElse(0);
             if (abilities > 0) {
                 tokensNeeded = abilities + 1;
             } else {
@@ -364,13 +365,13 @@ public class FireSpirit extends BaseAbility implements ISkillAdvancement {
 
             @Config.Comment("Max level obtainable")
             @Config.RangeInt(min = 0)
-            public int maxLevel = 100;
+            public int maxLevel = 50;
 
             @Config.Comment("Cooldown Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
             public String[] cooldown = {
-                    "(0+){7 * 20 + 3 * 20 * (1 - ((1 - (e^(-2.1 * (x/49)))) / (1 - e^(-2.1))))}",
-                    "(50+){6 * 20 + 1 * 20 * (1- (((e^(0.1 * ((x-49) / (y-49))) - 1)/((e^0.1) - 1))))}",
-                    "(100){5 * 20}"
+                    "(0+){7 * 20 + 3 * 20 * (1 - ((1 - (e^(-2.1 * (x/24)))) / (1 - e^(-2.1))))}",
+                    "(25+){6 * 20 + 1 * 20 * (1- (((e^(0.1 * ((x-24) / (y-24))) - 1)/((e^0.1) - 1))))}",
+                    "(50){5 * 20}"
             };
 
             @Config.Comment("Duration Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
@@ -386,8 +387,8 @@ public class FireSpirit extends BaseAbility implements ISkillAdvancement {
                 @Config.Comment("Damage Over Time Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
                 public String[] dot = {
                         "(0+){6 + ((e^(0.1 * (x / 49)) - 1)/((e^0.1) - 1)) * (10.66 - 6)}",
-                        "(50+){10.66 + ((e^(2.25 * ((x-49) / (y-49))) - 1)/((e^2.25) - 1)) * (22 - 10.66)}",
-                        "(100){24}"
+                        "(25+){10.66 + ((e^(2.25 * ((x-24) / (y-24))) - 1)/((e^2.25) - 1)) * (22 - 10.66)}",
+                        "(50){24}"
                 };
             }
 
@@ -395,8 +396,8 @@ public class FireSpirit extends BaseAbility implements ISkillAdvancement {
                 @Config.Comment("Function f(x)=? where 'x' is [Next Level] and 'y' is [Max Level], XP Cost is in units [NOT LEVELS]")
                 public String[] upgrade = {
                         "(0){170}",
-                        "(1+){7 * x}",
-                        "(100){7 * x + 7 * x * 0.1}"
+                        "(1+){4 * x}",
+                        "(50){4 * x + 4 * x * 0.1}"
                 };
             }
         }

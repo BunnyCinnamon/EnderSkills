@@ -2,8 +2,8 @@ package arekkuusu.enderskills.common.skill.ability.offence.wind;
 
 import arekkuusu.enderskills.api.capability.AdvancementCapability;
 import arekkuusu.enderskills.api.capability.Capabilities;
-import arekkuusu.enderskills.api.capability.data.IInfoCooldown;
-import arekkuusu.enderskills.api.capability.data.IInfoUpgradeable;
+import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoCooldown;
+import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoUpgradeable;
 import arekkuusu.enderskills.api.capability.data.SkillData;
 import arekkuusu.enderskills.api.capability.data.SkillInfo;
 import arekkuusu.enderskills.api.event.SkillDamageEvent;
@@ -14,7 +14,6 @@ import arekkuusu.enderskills.api.helper.RayTraceHelper;
 import arekkuusu.enderskills.api.helper.TeamHelper;
 import arekkuusu.enderskills.api.registry.Skill;
 import arekkuusu.enderskills.client.gui.data.ISkillAdvancement;
-import arekkuusu.enderskills.client.util.ResourceLibrary;
 import arekkuusu.enderskills.client.util.helper.TextHelper;
 import arekkuusu.enderskills.common.CommonConfig;
 import arekkuusu.enderskills.common.entity.data.IExpand;
@@ -49,8 +48,8 @@ import java.util.Optional;
 public class Slash extends BaseAbility implements IScanEntities, IExpand, IFindEntity, ISkillAdvancement {
 
     public Slash() {
-        super(LibNames.SLASH);
-        setTexture(ResourceLibrary.SLASH);
+        super(LibNames.SLASH, new AbilityProperties());
+        ((AbilityProperties) getProperties()).setCooldownGetter(this::getCooldown).setMaxLevelGetter(this::getMaxLevel);
     }
 
     @Override
@@ -58,7 +57,7 @@ public class Slash extends BaseAbility implements IScanEntities, IExpand, IFindE
         if (((IInfoCooldown) skillInfo).hasCooldown() || isClientWorld(user)) return;
         AbilityInfo abilityInfo = (AbilityInfo) skillInfo;
 
-        if (shouldUse(user) && canUse(user)) {
+        if (isActionable(user) && canActivate(user)) {
             if (!(user instanceof EntityPlayer) || !((EntityPlayer) user).capabilities.isCreativeMode) {
                 abilityInfo.setCooldown(getCooldown(abilityInfo));
             }
@@ -87,7 +86,7 @@ public class Slash extends BaseAbility implements IScanEntities, IExpand, IFindE
 
     @Override
     public void onFound(Entity source, @Nullable EntityLivingBase owner, EntityLivingBase target, SkillData skillData) {
-        Capabilities.get(owner).flatMap(c -> c.get(this)).ifPresent(skillInfo -> {
+        Capabilities.get(owner).flatMap(c -> c.getOwned(this)).ifPresent(skillInfo -> {
             AbilityInfo abilityInfo = (AbilityInfo) skillInfo;
             SkillDamageSource damageSource = new SkillDamageSource(BaseAbility.DAMAGE_HIT_TYPE, owner);
             SkillDamageEvent event = new SkillDamageEvent(owner, this, damageSource, getDamage(abilityInfo));
@@ -105,7 +104,6 @@ public class Slash extends BaseAbility implements IScanEntities, IExpand, IFindE
         return info.getLevel();
     }
 
-    @Override
     public int getMaxLevel() {
         return Configuration.getSyncValues().maxLevel;
     }
@@ -143,12 +141,12 @@ public class Slash extends BaseAbility implements IScanEntities, IExpand, IFindE
     @SideOnly(Side.CLIENT)
     public void addDescription(List<String> description) {
         Capabilities.get(Minecraft.getMinecraft().player).ifPresent(c -> {
-            if (c.owns(this)) {
+            if (c.isOwned(this)) {
                 if (!GuiScreen.isShiftKeyDown()) {
                     description.add("");
                     description.add("Hold SHIFT for stats.");
                 } else {
-                    c.get(this).ifPresent(skillInfo -> {
+                    c.getOwned(this).ifPresent(skillInfo -> {
                         AbilityInfo abilityInfo = (AbilityInfo) skillInfo;
                         description.clear();
                         description.add("Endurance Drain: " + ModAttributes.ENDURANCE.getEnduranceDrain(this));
@@ -193,7 +191,7 @@ public class Slash extends BaseAbility implements IScanEntities, IExpand, IFindE
             int tokens = requirement.getLevels();
             int xp = requirement.getXp();
             if (c.level >= tokens && c.getExperienceTotal(entity) >= xp) {
-                Capabilities.get(entity).filter(a -> !a.owns(this)).ifPresent(a -> {
+                Capabilities.get(entity).filter(a -> !a.isOwned(this)).ifPresent(a -> {
                     Skill[] skillUnlockOrder = Arrays.copyOf(c.skillUnlockOrder, c.skillUnlockOrder.length + 1);
                     skillUnlockOrder[skillUnlockOrder.length - 1] = this;
                     c.skillUnlockOrder = skillUnlockOrder;
@@ -205,11 +203,11 @@ public class Slash extends BaseAbility implements IScanEntities, IExpand, IFindE
 
     @Override
     public Requirement getRequirement(EntityLivingBase entity) {
-        AbilityInfo info = (AbilityInfo) Capabilities.get(entity).flatMap(a -> a.get(this)).orElse(null);
+        AbilityInfo info = (AbilityInfo) Capabilities.get(entity).flatMap(a -> a.getOwned(this)).orElse(null);
         int tokensNeeded = 0;
         int xpNeeded;
         if (info == null) {
-            int abilities = Capabilities.get(entity).map(c -> (int) c.getAll().keySet().stream().filter(s -> s instanceof BaseAbility).count()).orElse(0);
+            int abilities = Capabilities.get(entity).map(c -> (int) c.getAllOwned().keySet().stream().filter(s -> s instanceof BaseAbility).count()).orElse(0);
             if (abilities > 0) {
                 tokensNeeded = abilities + 1;
             } else {
@@ -299,19 +297,19 @@ public class Slash extends BaseAbility implements IScanEntities, IExpand, IFindE
 
             @Config.Comment("Max level obtainable")
             @Config.RangeInt(min = 0)
-            public int maxLevel = 100;
+            public int maxLevel = 50;
 
             @Config.Comment("Cooldown Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
             public String[] cooldown = {
-                    "(0+){7 * 20 + 5 * 20 * (1 - ((1 - (e^(-2.1 * (x/49)))) / (1 - e^(-2.1))))}",
-                    "(50+){5 * 20 + 2 * 20 * (1- (((e^(0.1 * ((x-49) / (y-49))) - 1)/((e^0.1) - 1))))}",
-                    "(100){(4 * 20)}"
+                    "(0+){7 * 20 + 5 * 20 * (1 - ((1 - (e^(-2.1 * (x/24)))) / (1 - e^(-2.1))))}",
+                    "(25+){5 * 20 + 2 * 20 * (1- (((e^(0.1 * ((x-24) / (y-24))) - 1)/((e^0.1) - 1))))}",
+                    "(50){(4 * 20)}"
             };
 
             @Config.Comment("Range Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
             public String[] range = {
-                    "(0+){4 + 4 * (1 - (e^(-2.1 * (x/49)))) / (1 - e^(-2.1))}",
-                    "(50+){8 + 2 * ((e^(0.1 * ((x - 49) / (y - 49))) - 1)/((e^0.1) - 1))}"
+                    "(0+){4 + 4 * (1 - (e^(-2.1 * (x/24)))) / (1 - e^(-2.1))}",
+                    "(25+){8 + 2 * ((e^(0.1 * ((x - 24) / (y - 24))) - 1)/((e^0.1) - 1))}"
             };
 
             @Config.Comment("Effectiveness Modifier")
@@ -322,15 +320,15 @@ public class Slash extends BaseAbility implements IScanEntities, IExpand, IFindE
                 @Config.Comment("Damage Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
                 public String[] damage = {
                         "(0+){4 + ((e^(0.1 * (x / 49)) - 1)/((e^0.1) - 1)) * (7.88 - 4)}",
-                        "(50+){7.88 + ((e^(2.25 * ((x-49) / (y-49))) - 1)/((e^2.25) - 1)) * (18 - 7.88)}",
-                        "(100){19}"
+                        "(25+){7.88 + ((e^(2.25 * ((x-24) / (y-24))) - 1)/((e^2.25) - 1)) * (18 - 7.88)}",
+                        "(50){19}"
                 };
             }
 
             public static class Advancement {
                 @Config.Comment("Function f(x)=? where 'x' is [Next Level] and 'y' is [Max Level], XP Cost is in units [NOT LEVELS]")
                 public String[] upgrade = {
-                        "(0+){(170 * (1 - (0 ^ (0 ^ x)))) + 7 * x}"
+                        "(0+){(170 * (1 - (0 ^ (0 ^ x)))) + 4 * x}"
                 };
             }
         }

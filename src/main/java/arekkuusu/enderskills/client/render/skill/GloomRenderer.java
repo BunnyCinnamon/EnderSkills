@@ -7,7 +7,7 @@ import arekkuusu.enderskills.client.util.ResourceLibrary;
 import arekkuusu.enderskills.client.util.ShaderLibrary;
 import arekkuusu.enderskills.client.util.helper.GLHelper;
 import arekkuusu.enderskills.client.util.helper.RenderMisc;
-import arekkuusu.enderskills.common.CommonConfig;
+import arekkuusu.enderskills.client.ClientConfig;
 import arekkuusu.enderskills.common.skill.ModAbilities;
 import arekkuusu.enderskills.common.skill.ability.offence.ender.Gloom;
 import com.google.common.collect.Lists;
@@ -73,8 +73,8 @@ public class GloomRenderer extends SkillRenderer<Gloom> {
 
             GlStateManager.pushMatrix();
             GlStateManager.translate(-tx, -ty, -tz);
-            if (!CommonConfig.RENDER_CONFIG.rendering.helpMyFramesAreDying) {
-                if (!CommonConfig.RENDER_CONFIG.rendering.vanilla) {
+            if (!ClientConfig.RENDER_CONFIG.rendering.helpMyFramesAreDying) {
+                if (!ClientConfig.RENDER_CONFIG.rendering.vanilla) {
                     Minecraft.getMinecraft().getRenderManager().renderEngine.bindTexture(ResourceLibrary.DARK_BACKGROUND);
                 } else {
                     Minecraft.getMinecraft().getRenderManager().renderEngine.bindTexture(ResourceLibrary.PORTAL_BACKGROUND);
@@ -114,8 +114,8 @@ public class GloomRenderer extends SkillRenderer<Gloom> {
             Entity source = referenceFrom.get();
             Entity entity = referenceTo.get();
             if (source != null && entity != null) {
-                if (!CommonConfig.RENDER_CONFIG.rendering.helpMyFramesAreDying) {
-                    if (!CommonConfig.RENDER_CONFIG.rendering.vanilla) {
+                if (!ClientConfig.RENDER_CONFIG.rendering.helpMyFramesAreDying) {
+                    if (!ClientConfig.RENDER_CONFIG.rendering.vanilla) {
                         ShaderLibrary.UNIVERSE.begin();
                         ShaderLibrary.UNIVERSE.set("dimensions", Minecraft.getMinecraft().displayWidth, Minecraft.getMinecraft().displayHeight);
                         ShaderLibrary.UNIVERSE.set("yaw", (Minecraft.getMinecraft().player.rotationYaw * 2F * 3.141592653589793F / 360F));
@@ -142,8 +142,8 @@ public class GloomRenderer extends SkillRenderer<Gloom> {
                 renderTextureAroundAxis(buffer, from, to, 0F, partial);
                 renderTextureAroundAxis(buffer, from, to, 90F * Math.PI / 180F, partial);
                 tessellator.draw();
-                if (!CommonConfig.RENDER_CONFIG.rendering.helpMyFramesAreDying) {
-                    if (!CommonConfig.RENDER_CONFIG.rendering.vanilla) {
+                if (!ClientConfig.RENDER_CONFIG.rendering.helpMyFramesAreDying) {
+                    if (!ClientConfig.RENDER_CONFIG.rendering.vanilla) {
                         ShaderLibrary.UNIVERSE.end();
                     } else {
                         ShaderLibrary.UNIVERSE_DEFAULT.end();

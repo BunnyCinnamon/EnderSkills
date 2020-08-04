@@ -22,6 +22,7 @@ import net.minecraft.server.management.PreYggdrasilConverter;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
@@ -116,61 +117,69 @@ public class EntityBlackHole extends Entity {
         if (world.isRemote && getRadius() != 0 && points.isEmpty()) {
             this.setupShape(new Random(this.getSeed()));
         }
-        if (getLifeTime() > this.tick) {
-            if (tick == 0) {
-                world.playSound(posX, posY, posZ, SoundEvents.ENTITY_ENDERMEN_TELEPORT, SoundCategory.HOSTILE, 8.0F, 1.0F, true);
-            }
-            EntityLivingBase owner = getOwner();
-            double radius = getRadius();
-            double suckRange = radius * 2;
-            List<Entity> succ = getEntityWorld().getEntitiesWithinAABB(Entity.class, getEntityBoundingBox(), TeamHelper.SELECTOR_ENEMY.apply(owner));
-            if (!succ.isEmpty()) {
-                for (Entity entity : succ) {
-                    if (entity instanceof EntityLivingBase && entity != owner && (!world.isRemote || entity instanceof EntityPlayer)) {
-                        double dx = posX - entity.posX;
-                        double dy = posY - entity.posY;
-                        double dz = posZ - entity.posZ;
+        if(getRadius() > 0) {
+            if (getLifeTime() > this.tick) {
+                if (tick == 0) {
+                    world.playSound(posX, posY, posZ, SoundEvents.ENTITY_ENDERMEN_TELEPORT, SoundCategory.HOSTILE, 8.0F, 1.0F, true);
+                }
+                EntityLivingBase owner = getOwner();
+                double radius = getRadius();
+                double suckRange = radius * 2;
+                AxisAlignedBB suckzone = new AxisAlignedBB(this.posX - suckRange, this.posY - suckRange, this.posZ - suckRange, this.posX + suckRange, this.posY + suckRange, this.posZ + suckRange);
+                List<Entity> succ = getEntityWorld().getEntitiesWithinAABB(Entity.class, suckzone, TeamHelper.SELECTOR_ENEMY.apply(owner));
+                if (!succ.isEmpty()) {
+                    for (Entity entity : succ) {
+                        if (entity instanceof EntityLivingBase && entity != owner && (!world.isRemote || entity instanceof EntityPlayer)) {
+                            double dx = posX - entity.posX;
+                            double dy = posY - entity.posY;
+                            double dz = posZ - entity.posZ;
 
-                        double lensquared = dx * dx + dy * dy + dz * dz;
-                        double len = Math.sqrt(lensquared);
-                        double lenn = len / suckRange;
+                            double lensquared = dx * dx + dy * dy + dz * dz;
+                            double len = Math.sqrt(lensquared);
+                            double lenn = len / suckRange;
 
-                        if (len <= suckRange) {
-                            double strength = (1 - lenn) * (1 - lenn);
-                            double power = 0.075 * radius;
+                            if (len <= suckRange) {
+                                double strength = (1 - lenn) * (1 - lenn);
+                                double power = 0.075 * radius;
 
-                            entity.motionX += (dx / len) * strength * power;
-                            entity.motionY += (dy / len) * strength * power;
-                            entity.motionZ += (dz / len) * strength * power;
+                                double motionX = entity.motionX + (dx / len) * strength * power;
+                                double motionY = entity.motionY + (dy / len) * strength * power;
+                                double motionZ = entity.motionZ + (dz / len) * strength * power;
+                                if(Double.isFinite(motionX) && Double.isFinite(motionY) && Double.isFinite(motionZ)) {
+                                    entity.motionX = motionX;
+                                    entity.motionY = motionY;
+                                    entity.motionZ = motionZ;
+                                }
+                            }
+                        }
+                        if (entity instanceof EntityLivingBase && entity != owner && !world.isRemote) {
+                            ModAbilities.BLACK_HOLE.apply((EntityLivingBase) entity, data.copy());
+                            ModAbilities.BLACK_HOLE.sync((EntityLivingBase) entity, data.copy());
                         }
                     }
-                    if (entity instanceof EntityLivingBase && entity != owner && !world.isRemote) {
-                        ModAbilities.BLACK_HOLE.apply((EntityLivingBase) entity, data.copy());
-                        ModAbilities.BLACK_HOLE.sync((EntityLivingBase) entity, data.copy());
+                }
+                float size = (float) getScale(tick) * getRadius();
+                AxisAlignedBB bb = new AxisAlignedBB(posX - size, posY - size, posZ - size, posX + size, posY + size, posZ + size);
+                setEntityBoundingBox(bb);
+            } else {
+                this.world.playSound(null, posX, posY, posZ, SoundEvents.ENTITY_GENERIC_EXPLODE, SoundCategory.BLOCKS, 4.0F, (1.0F + (this.world.rand.nextFloat() - this.world.rand.nextFloat()) * 0.2F) * 0.7F);
+                this.world.spawnParticle(EnumParticleTypes.EXPLOSION_HUGE, posX, posY, posZ, 1.0D, 0.0D, 0.0D);
+                if (!world.isRemote) {
+                    EntityLivingBase owner = getOwner();
+                    List<Entity> fucc = getEntityWorld().getEntitiesWithinAABB(Entity.class, getEntityBoundingBox(), TeamHelper.SELECTOR_ENEMY.apply(owner));
+                    for (Entity entity : fucc) {
+                        if (entity instanceof EntityLivingBase && entity != owner) {
+                            double damage = data.nbt.getDouble("damage");
+                            SkillDamageSource source = new SkillDamageSource("skill", owner);
+                            source.setExplosion();
+                            SkillDamageEvent event = new SkillDamageEvent(owner, ModAbilities.BLACK_HOLE, source, damage);
+                            MinecraftForge.EVENT_BUS.post(event);
+                            entity.attackEntityFrom(event.getSource(), event.toFloat());
+                        }
                     }
                 }
+                setDead();
             }
-            float size = (float) getScale(tick) * getRadius();
-            AxisAlignedBB bb = new AxisAlignedBB(posX - size, posY - size, posZ - size, posX + size, posY + size, posZ + size);
-            setEntityBoundingBox(bb);
-        } else {
-            this.world.playSound(null, posX, posY, posZ, SoundEvents.ENTITY_GENERIC_EXPLODE, SoundCategory.BLOCKS, 4.0F, (1.0F + (this.world.rand.nextFloat() - this.world.rand.nextFloat()) * 0.2F) * 0.7F);
-            this.world.spawnParticle(EnumParticleTypes.EXPLOSION_HUGE, posX, posY, posZ, 1.0D, 0.0D, 0.0D);
-            if (!world.isRemote) {
-                EntityLivingBase owner = getOwner();
-                List<Entity> fucc = getEntityWorld().getEntitiesWithinAABB(Entity.class, getEntityBoundingBox(), TeamHelper.SELECTOR_ENEMY.apply(owner));
-                for (Entity entity : fucc) {
-                    if (entity instanceof EntityLivingBase && entity != owner) {
-                        double damage = data.nbt.getDouble("damage");
-                        SkillDamageSource source = new SkillDamageSource("skill", owner);
-                        source.setExplosion();
-                        SkillDamageEvent event = new SkillDamageEvent(owner, ModAbilities.BLACK_HOLE, source, damage);
-                        MinecraftForge.EVENT_BUS.post(event);
-                        entity.attackEntityFrom(event.getSource(), event.toFloat());
-                    }
-                }
-            }
-            setDead();
         }
         if (world.isRemote) {
             Vec3d pos = getPositionVector();

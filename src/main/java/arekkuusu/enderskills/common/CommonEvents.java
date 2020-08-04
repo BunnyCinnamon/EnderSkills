@@ -77,17 +77,7 @@ public final class CommonEvents {
         builder.setType(Skill.class).set(new IForgeRegistry.DummyFactory<Skill>() {
             @Override
             public Skill createDummy(ResourceLocation resourceLocation) {
-                return new Skill() {
-                    @Override
-                    public void readSyncConfig(NBTTagCompound compound) {
-
-                    }
-
-                    @Override
-                    public void writeSyncConfig(NBTTagCompound compound) {
-
-                    }
-
+                return new Skill(new Skill.Properties()) {
                     @Nonnull
                     @Override
                     public SkillInfo createInfo(NBTTagCompound compound) {
@@ -108,17 +98,7 @@ public final class CommonEvents {
         }).set(new IForgeRegistry.MissingFactory<Skill>() {
             @Override
             public Skill createMissing(ResourceLocation resourceLocation, boolean b) {
-                return new Skill() {
-                    @Override
-                    public void readSyncConfig(NBTTagCompound compound) {
-
-                    }
-
-                    @Override
-                    public void writeSyncConfig(NBTTagCompound compound) {
-
-                    }
-
+                return new Skill(new Skill.Properties()) {
                     @Nonnull
                     @Override
                     public SkillInfo createInfo(NBTTagCompound compound) {
@@ -146,7 +126,7 @@ public final class CommonEvents {
 
     @SubscribeEvent
     public static void configChange(ConfigChangedEvent.OnConfigChangedEvent event) {
-        if (event.getModID().equals(LibMod.MOD_ID) && event.getConfigID() != null && event.getConfigID().equals(LibMod.MOD_ID + ".config.render")) {
+        if (event.getModID().equals(LibMod.MOD_ID)) {
             ConfigManager.sync(LibMod.MOD_ID, Config.Type.INSTANCE);
         }
     }

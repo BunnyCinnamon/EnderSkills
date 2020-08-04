@@ -2,17 +2,16 @@ package arekkuusu.enderskills.common.skill.ability.mobility.wind;
 
 import arekkuusu.enderskills.api.capability.AdvancementCapability;
 import arekkuusu.enderskills.api.capability.Capabilities;
-import arekkuusu.enderskills.api.capability.data.IInfoCooldown;
-import arekkuusu.enderskills.api.capability.data.IInfoUpgradeable;
 import arekkuusu.enderskills.api.capability.data.SkillData;
 import arekkuusu.enderskills.api.capability.data.SkillInfo;
+import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoCooldown;
+import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoUpgradeable;
 import arekkuusu.enderskills.api.capability.data.nbt.UUIDWatcher;
-import arekkuusu.enderskills.api.event.SkillUseEvent;
+import arekkuusu.enderskills.api.event.SkillActivateEvent;
 import arekkuusu.enderskills.api.helper.ExpressionHelper;
 import arekkuusu.enderskills.api.helper.NBTHelper;
 import arekkuusu.enderskills.api.registry.Skill;
 import arekkuusu.enderskills.client.gui.data.ISkillAdvancement;
-import arekkuusu.enderskills.client.util.ResourceLibrary;
 import arekkuusu.enderskills.client.util.helper.TextHelper;
 import arekkuusu.enderskills.common.CommonConfig;
 import arekkuusu.enderskills.common.lib.LibMod;
@@ -45,9 +44,9 @@ import java.util.*;
 public class Hasten extends BaseAbility implements ISkillAdvancement {
 
     public Hasten() {
-        super(LibNames.HASTEN);
-        setTexture(ResourceLibrary.HASTEN);
+        super(LibNames.HASTEN, new AbilityProperties());
         MinecraftForge.EVENT_BUS.register(this);
+        ((AbilityProperties) getProperties()).setCooldownGetter(this::getCooldown).setMaxLevelGetter(this::getMaxLevel);
     }
 
     @Override
@@ -55,7 +54,7 @@ public class Hasten extends BaseAbility implements ISkillAdvancement {
         if (((IInfoCooldown) skillInfo).hasCooldown() || isClientWorld(user)) return;
         AbilityInfo abilityInfo = (AbilityInfo) skillInfo;
 
-        if (shouldUse(user) && canUse(user)) {
+        if (isActionable(user) && canActivate(user)) {
             if (!(user instanceof EntityPlayer) || !((EntityPlayer) user).capabilities.isCreativeMode) {
                 abilityInfo.setCooldown(getCooldown(abilityInfo));
             }
@@ -84,7 +83,7 @@ public class Hasten extends BaseAbility implements ISkillAdvancement {
     @Override
     public void update(EntityLivingBase entity, SkillData data, int tick) {
         if (isClientWorld(entity)) return;
-        Capabilities.get(entity).flatMap(s -> s.get(this)).ifPresent(skillInfo -> {
+        Capabilities.get(entity).flatMap(s -> s.getOwned(this)).ifPresent(skillInfo -> {
             AbilityInfo abilityInfo = (AbilityInfo) skillInfo;
             NBTHelper.getNBTList(data.nbt, "list").ifPresent(list -> {
                 List<ResourceLocation> locations = new ArrayList<>();
@@ -92,16 +91,16 @@ public class Hasten extends BaseAbility implements ISkillAdvancement {
                     locations.add(NBTHelper.getResourceLocation((NBTTagCompound) nbt, "location"));
                 });
                 double crd = getCDR(abilityInfo);
-                Capabilities.get(entity).map(c -> c.getAll().entrySet()).ifPresent(entries -> {
+                Capabilities.get(entity).map(c -> c.getAllOwned().entrySet()).ifPresent(entries -> {
                     for (Map.Entry<Skill, SkillInfo> entry : entries) {
                         SkillInfo info = entry.getValue();
                         Skill skill = entry.getKey();
                         ResourceLocation location = skill.getRegistryName();
-                        if (skill instanceof BaseAbility && !locations.contains(location)
-                                && info instanceof AbilityInfo && location != null && skill != this) {
-                            if (((IInfoCooldown) info).hasCooldown()) {
-                                ((IInfoCooldown) info).setCooldown(
-                                        Math.max(0, ((IInfoCooldown) info).getCooldown() - (int) (((BaseAbility) skill).getCooldown((AbilityInfo) info) * crd))
+                        if (skill.getProperties() instanceof BaseAbility.AbilityProperties && !locations.contains(location)
+                                && info instanceof SkillInfo.IInfoCooldown && location != null && skill != this) {
+                            if (((SkillInfo.IInfoCooldown) info).hasCooldown()) {
+                                ((SkillInfo.IInfoCooldown) info).setCooldown(
+                                        Math.max(0, ((SkillInfo.IInfoCooldown) info).getCooldown() - (int) (((BaseAbility.AbilityProperties) skill.getProperties()).getCooldown((AbilityInfo) info) * crd))
                                 );
                                 if (entity instanceof EntityPlayer) {
                                     PacketHelper.sendSkillSync((EntityPlayerMP) entity, skill);
@@ -118,7 +117,7 @@ public class Hasten extends BaseAbility implements ISkillAdvancement {
     }
 
     @SubscribeEvent
-    public void onSkillUse(SkillUseEvent event) {
+    public void onSkillUse(SkillActivateEvent event) {
         if (isClientWorld(event.getEntityLiving())) return;
         Capabilities.get(event.getEntityLiving()).flatMap(s -> s.getActive(this)).ifPresent(holder -> {
             NBTHelper.getNBTList(holder.data.nbt, "list").ifPresent(list -> {
@@ -143,7 +142,6 @@ public class Hasten extends BaseAbility implements ISkillAdvancement {
         return info.getLevel();
     }
 
-    @Override
     public int getMaxLevel() {
         return Configuration.getSyncValues().maxLevel;
     }
@@ -181,12 +179,12 @@ public class Hasten extends BaseAbility implements ISkillAdvancement {
     @SideOnly(Side.CLIENT)
     public void addDescription(List<String> description) {
         Capabilities.get(Minecraft.getMinecraft().player).ifPresent(c -> {
-            if (c.owns(this)) {
+            if (c.isOwned(this)) {
                 if (!GuiScreen.isShiftKeyDown()) {
                     description.add("");
                     description.add("Hold SHIFT for stats.");
                 } else {
-                    c.get(this).ifPresent(skillInfo -> {
+                    c.getOwned(this).ifPresent(skillInfo -> {
                         AbilityInfo abilityInfo = (AbilityInfo) skillInfo;
                         description.clear();
                         description.add("Endurance Drain: " + ModAttributes.ENDURANCE.getEnduranceDrain(this));
@@ -212,46 +210,6 @@ public class Hasten extends BaseAbility implements ISkillAdvancement {
                 }
             }
         });
-    }
-
-    @Override
-    public boolean canUpgrade(EntityLivingBase entity) {
-        return Capabilities.advancement(entity).map(c -> {
-            Requirement requirement = getRequirement(entity);
-            int tokens = requirement.getLevels();
-            int xp = requirement.getXp();
-            return c.level >= tokens && c.getExperienceTotal(entity) >= xp;
-        }).orElse(false);
-    }
-
-    @Override
-    public void onUpgrade(EntityLivingBase entity) {
-        Capabilities.advancement(entity).ifPresent(c -> {
-            Requirement requirement = getRequirement(entity);
-            int tokens = requirement.getLevels();
-            int xp = requirement.getXp();
-            if (c.level >= tokens && c.getExperienceTotal(entity) >= xp) {
-                //c.tokensLevel -= tokens;
-                c.consumeExperienceFromTotal(entity, xp);
-            }
-        });
-    }
-
-    @Override
-    public Requirement getRequirement(EntityLivingBase entity) {
-        AbilityInfo info = (AbilityInfo) Capabilities.get(entity).flatMap(a -> a.get(this)).orElse(null);
-        int tokensNeeded = 0;
-        int xpNeeded;
-        if (info == null) {
-            int abilities = Capabilities.get(entity).map(c -> (int) c.getAll().keySet().stream().filter(s -> s instanceof BaseAbility).count()).orElse(0);
-            if (abilities > 0) {
-                tokensNeeded = abilities + 1;
-            } else {
-                tokensNeeded = 1;
-            }
-        }
-        xpNeeded = getUpgradeCost(info);
-        return new DefaultRequirement(tokensNeeded, getCostIncrement(entity, xpNeeded));
     }
 
     public int getCostIncrement(EntityLivingBase entity, int total) {
@@ -361,9 +319,9 @@ public class Hasten extends BaseAbility implements ISkillAdvancement {
             public static class Advancement {
                 @Config.Comment("Function f(x)=? where 'x' is [Next Level] and 'y' is [Max Level], XP Cost is in units [NOT LEVELS]")
                 public String[] upgrade = {
-                        "(0){5730}",
-                        "(1+){7 * x}",
-                        "(100){7 * x + 7 * x * 0.1}"
+                        "(0){600}",
+                        "(1+){4 * x}",
+                        "(50){4 * x + 4 * x * 0.1}"
                 };
             }
         }

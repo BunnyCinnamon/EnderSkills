@@ -2,18 +2,17 @@ package arekkuusu.enderskills.common.skill.ability.mobility.wind;
 
 import arekkuusu.enderskills.api.capability.AdvancementCapability;
 import arekkuusu.enderskills.api.capability.Capabilities;
-import arekkuusu.enderskills.api.capability.data.IInfoCooldown;
-import arekkuusu.enderskills.api.capability.data.IInfoUpgradeable;
+import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoCooldown;
+import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoUpgradeable;
 import arekkuusu.enderskills.api.capability.data.SkillData;
 import arekkuusu.enderskills.api.capability.data.SkillInfo;
 import arekkuusu.enderskills.api.capability.data.nbt.UUIDWatcher;
 import arekkuusu.enderskills.api.event.SkillDamageSource;
-import arekkuusu.enderskills.api.event.SkillUseEvent;
+import arekkuusu.enderskills.api.event.SkillActivateEvent;
 import arekkuusu.enderskills.api.helper.ExpressionHelper;
 import arekkuusu.enderskills.api.helper.NBTHelper;
 import arekkuusu.enderskills.api.registry.Skill;
 import arekkuusu.enderskills.client.gui.data.ISkillAdvancement;
-import arekkuusu.enderskills.client.util.ResourceLibrary;
 import arekkuusu.enderskills.client.util.helper.TextHelper;
 import arekkuusu.enderskills.common.CommonConfig;
 import arekkuusu.enderskills.common.lib.LibMod;
@@ -50,8 +49,8 @@ import java.util.Optional;
 public class Fog extends BaseAbility implements ISkillAdvancement {
 
     public Fog() {
-        super(LibNames.FOG);
-        setTexture(ResourceLibrary.FOG);
+        super(LibNames.FOG, new AbilityProperties());
+        ((AbilityProperties) getProperties()).setCooldownGetter(this::getCooldown).setMaxLevelGetter(this::getMaxLevel);
         MinecraftForge.EVENT_BUS.register(this);
     }
 
@@ -60,7 +59,7 @@ public class Fog extends BaseAbility implements ISkillAdvancement {
         if (((IInfoCooldown) skillInfo).hasCooldown() || isClientWorld(user)) return;
         AbilityInfo abilityInfo = (AbilityInfo) skillInfo;
 
-        if (shouldUse(user) && canUse(user)) {
+        if (isActionable(user) && canActivate(user)) {
             if (!(user instanceof EntityPlayer) || !((EntityPlayer) user).capabilities.isCreativeMode) {
                 abilityInfo.setCooldown(getCooldown(abilityInfo));
             }
@@ -117,7 +116,7 @@ public class Fog extends BaseAbility implements ISkillAdvancement {
     }
 
     @SubscribeEvent
-    public void onSkillUse(SkillUseEvent event) {
+    public void onSkillUse(SkillActivateEvent event) {
         if (isClientWorld(event.getEntityLiving())) return;
         SkillHelper.getActiveOwner(event.getEntityLiving(), this, holder -> {
             unapply(event.getEntityLiving(), holder.data);
@@ -129,7 +128,6 @@ public class Fog extends BaseAbility implements ISkillAdvancement {
         return info.getLevel();
     }
 
-    @Override
     public int getMaxLevel() {
         return Configuration.getSyncValues().maxLevel;
     }
@@ -159,12 +157,12 @@ public class Fog extends BaseAbility implements ISkillAdvancement {
     @SideOnly(Side.CLIENT)
     public void addDescription(List<String> description) {
         Capabilities.get(Minecraft.getMinecraft().player).ifPresent(c -> {
-            if (c.owns(this)) {
+            if (c.isOwned(this)) {
                 if (!GuiScreen.isShiftKeyDown()) {
                     description.add("");
                     description.add("Hold SHIFT for stats.");
                 } else {
-                    c.get(this).ifPresent(skillInfo -> {
+                    c.getOwned(this).ifPresent(skillInfo -> {
                         AbilityInfo abilityInfo = (AbilityInfo) skillInfo;
                         description.clear();
                         description.add("Endurance Drain: " + ModAttributes.ENDURANCE.getEnduranceDrain(this));
@@ -188,46 +186,6 @@ public class Fog extends BaseAbility implements ISkillAdvancement {
                 }
             }
         });
-    }
-
-    @Override
-    public boolean canUpgrade(EntityLivingBase entity) {
-        return Capabilities.advancement(entity).map(c -> {
-            Requirement requirement = getRequirement(entity);
-            int tokens = requirement.getLevels();
-            int xp = requirement.getXp();
-            return c.level >= tokens && c.getExperienceTotal(entity) >= xp;
-        }).orElse(false);
-    }
-
-    @Override
-    public void onUpgrade(EntityLivingBase entity) {
-        Capabilities.advancement(entity).ifPresent(c -> {
-            Requirement requirement = getRequirement(entity);
-            int tokens = requirement.getLevels();
-            int xp = requirement.getXp();
-            if (c.level >= tokens && c.getExperienceTotal(entity) >= xp) {
-                //c.tokensLevel -= tokens;
-                c.consumeExperienceFromTotal(entity, xp);
-            }
-        });
-    }
-
-    @Override
-    public Requirement getRequirement(EntityLivingBase entity) {
-        AbilityInfo info = (AbilityInfo) Capabilities.get(entity).flatMap(a -> a.get(this)).orElse(null);
-        int tokensNeeded = 0;
-        int xpNeeded;
-        if (info == null) {
-            int abilities = Capabilities.get(entity).map(c -> (int) c.getAll().keySet().stream().filter(s -> s instanceof BaseAbility).count()).orElse(0);
-            if (abilities > 0) {
-                tokensNeeded = abilities + 1;
-            } else {
-                tokensNeeded = 1;
-            }
-        }
-        xpNeeded = getUpgradeCost(info);
-        return new DefaultRequirement(tokensNeeded, getCostIncrement(entity, xpNeeded));
     }
 
     public int getCostIncrement(EntityLivingBase entity, int total) {
@@ -323,8 +281,8 @@ public class Fog extends BaseAbility implements ISkillAdvancement {
             public static class Advancement {
                 @Config.Comment("Function f(x)=? where 'x' is [Next Level] and 'y' is [Max Level], XP Cost is in units [NOT LEVELS]")
                 public String[] upgrade = {
-                        "(0){825}",
-                        "(1+){7 * x}"
+                        "(0){300}",
+                        "(1+){4 * x}"
                 };
             }
         }

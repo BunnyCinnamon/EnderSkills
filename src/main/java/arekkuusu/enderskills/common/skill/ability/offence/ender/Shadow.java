@@ -2,8 +2,8 @@ package arekkuusu.enderskills.common.skill.ability.offence.ender;
 
 import arekkuusu.enderskills.api.capability.AdvancementCapability;
 import arekkuusu.enderskills.api.capability.Capabilities;
-import arekkuusu.enderskills.api.capability.data.IInfoCooldown;
-import arekkuusu.enderskills.api.capability.data.IInfoUpgradeable;
+import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoCooldown;
+import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoUpgradeable;
 import arekkuusu.enderskills.api.capability.data.SkillData;
 import arekkuusu.enderskills.api.capability.data.SkillInfo;
 import arekkuusu.enderskills.api.capability.data.nbt.UUIDWatcher;
@@ -13,7 +13,6 @@ import arekkuusu.enderskills.api.helper.ExpressionHelper;
 import arekkuusu.enderskills.api.helper.NBTHelper;
 import arekkuusu.enderskills.api.registry.Skill;
 import arekkuusu.enderskills.client.gui.data.ISkillAdvancement;
-import arekkuusu.enderskills.client.util.ResourceLibrary;
 import arekkuusu.enderskills.client.util.helper.TextHelper;
 import arekkuusu.enderskills.common.CommonConfig;
 import arekkuusu.enderskills.common.entity.EntityShadow;
@@ -49,8 +48,8 @@ import java.util.Optional;
 public class Shadow extends BaseAbility implements ISkillAdvancement {
 
     public Shadow() {
-        super(LibNames.SHADOW);
-        setTexture(ResourceLibrary.SHADOW);
+        super(LibNames.SHADOW, new AbilityProperties());
+        ((AbilityProperties) getProperties()).setCooldownGetter(this::getCooldown).setMaxLevelGetter(this::getMaxLevel);
         MinecraftForge.EVENT_BUS.register(this);
     }
 
@@ -61,7 +60,7 @@ public class Shadow extends BaseAbility implements ISkillAdvancement {
 
         Capabilities.get(user).ifPresent(capability -> {
             if (!SkillHelper.isActiveOwner(user, this)) {
-                if (!((IInfoCooldown) skillInfo).hasCooldown() && shouldUse(user) && canUse(user)) {
+                if (!((IInfoCooldown) skillInfo).hasCooldown() && isActionable(user) && canActivate(user)) {
                     if (!(user instanceof EntityPlayer) || !((EntityPlayer) user).capabilities.isCreativeMode) {
                         abilityInfo.setCooldown(getCooldown(abilityInfo));
                     }
@@ -126,7 +125,7 @@ public class Shadow extends BaseAbility implements ISkillAdvancement {
         EntityLivingBase attacker = (EntityLivingBase) source.getTrueSource();
         Capabilities.get(attacker).ifPresent(capability -> {
             //Do Damage
-            if (capability.owns(this)) {
+            if (capability.isOwned(this)) {
                 SkillHelper.getActiveOwner(attacker, this, holder -> {
                     Optional.ofNullable(NBTHelper.getEntity(EntityShadow.class, holder.data.nbt, "shadow")).ifPresent(shadow -> {
                         if (shadow != event.getEntity()) {
@@ -145,7 +144,7 @@ public class Shadow extends BaseAbility implements ISkillAdvancement {
         if (isClientWorld(event.getEntityLiving()) || !SkillHelper.isSkillDamage(event.getSource())) return;
         EntityLivingBase entity = event.getEntityLiving();
         Capabilities.get(entity).ifPresent(capability -> {
-            if (capability.owns(this)) {
+            if (capability.isOwned(this)) {
                 SkillHelper.getActiveOwner(entity, this, holder -> {
                     event.setAmount((float) (event.getAmount() + (event.getAmount() * holder.data.nbt.getDouble("mirror"))));
                 });
@@ -157,7 +156,6 @@ public class Shadow extends BaseAbility implements ISkillAdvancement {
         return info.getLevel();
     }
 
-    @Override
     public int getMaxLevel() {
         return Configuration.getSyncValues().maxLevel;
     }
@@ -187,12 +185,12 @@ public class Shadow extends BaseAbility implements ISkillAdvancement {
     @SideOnly(Side.CLIENT)
     public void addDescription(List<String> description) {
         Capabilities.get(Minecraft.getMinecraft().player).ifPresent(c -> {
-            if (c.owns(this)) {
+            if (c.isOwned(this)) {
                 if (!GuiScreen.isShiftKeyDown()) {
                     description.add("");
                     description.add("Hold SHIFT for stats.");
                 } else {
-                    c.get(this).ifPresent(skillInfo -> {
+                    c.getOwned(this).ifPresent(skillInfo -> {
                         AbilityInfo abilityInfo = (AbilityInfo) skillInfo;
                         description.clear();
                         description.add("Endurance Drain: " + ModAttributes.ENDURANCE.getEnduranceDrain(this));
@@ -235,7 +233,7 @@ public class Shadow extends BaseAbility implements ISkillAdvancement {
             int tokens = requirement.getLevels();
             int xp = requirement.getXp();
             if (c.level >= tokens && c.getExperienceTotal(entity) >= xp) {
-                Capabilities.get(entity).filter(a -> !a.owns(this)).ifPresent(a -> {
+                Capabilities.get(entity).filter(a -> !a.isOwned(this)).ifPresent(a -> {
                     Skill[] skillUnlockOrder = Arrays.copyOf(c.skillUnlockOrder, c.skillUnlockOrder.length + 1);
                     skillUnlockOrder[skillUnlockOrder.length - 1] = this;
                     c.skillUnlockOrder = skillUnlockOrder;
@@ -247,11 +245,11 @@ public class Shadow extends BaseAbility implements ISkillAdvancement {
 
     @Override
     public Requirement getRequirement(EntityLivingBase entity) {
-        AbilityInfo info = (AbilityInfo) Capabilities.get(entity).flatMap(a -> a.get(this)).orElse(null);
+        AbilityInfo info = (AbilityInfo) Capabilities.get(entity).flatMap(a -> a.getOwned(this)).orElse(null);
         int tokensNeeded = 0;
         int xpNeeded;
         if (info == null) {
-            int abilities = Capabilities.get(entity).map(c -> (int) c.getAll().keySet().stream().filter(s -> s instanceof BaseAbility).count()).orElse(0);
+            int abilities = Capabilities.get(entity).map(c -> (int) c.getAllOwned().keySet().stream().filter(s -> s instanceof BaseAbility).count()).orElse(0);
             if (abilities > 0) {
                 tokensNeeded = abilities + 1;
             } else {
@@ -362,8 +360,8 @@ public class Shadow extends BaseAbility implements ISkillAdvancement {
                 @Config.Comment("Function f(x)=? where 'x' is [Next Level] and 'y' is [Max Level], XP Cost is in units [NOT LEVELS]")
                 public String[] upgrade = {
                         "(0){170}",
-                        "(1+){7 * x}",
-                        "(100){7 * x + 7 * x * 0.1}"
+                        "(1+){4 * x}",
+                        "(50){4 * x + 4 * x * 0.1}"
                 };
             }
         }

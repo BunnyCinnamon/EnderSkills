@@ -2,8 +2,8 @@ package arekkuusu.enderskills.common.skill.ability.offence.fire;
 
 import arekkuusu.enderskills.api.capability.AdvancementCapability;
 import arekkuusu.enderskills.api.capability.Capabilities;
-import arekkuusu.enderskills.api.capability.data.IInfoCooldown;
-import arekkuusu.enderskills.api.capability.data.IInfoUpgradeable;
+import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoCooldown;
+import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoUpgradeable;
 import arekkuusu.enderskills.api.capability.data.SkillData;
 import arekkuusu.enderskills.api.capability.data.SkillInfo;
 import arekkuusu.enderskills.api.capability.data.nbt.UUIDWatcher;
@@ -13,7 +13,6 @@ import arekkuusu.enderskills.api.helper.ExpressionHelper;
 import arekkuusu.enderskills.api.helper.NBTHelper;
 import arekkuusu.enderskills.api.registry.Skill;
 import arekkuusu.enderskills.client.gui.data.ISkillAdvancement;
-import arekkuusu.enderskills.client.util.ResourceLibrary;
 import arekkuusu.enderskills.client.util.helper.TextHelper;
 import arekkuusu.enderskills.common.CommonConfig;
 import arekkuusu.enderskills.common.entity.data.IExpand;
@@ -51,15 +50,15 @@ import java.util.Optional;
 public class Explode extends BaseAbility implements IScanEntities, IExpand, IFindEntity, ISkillAdvancement {
 
     public Explode() {
-        super(LibNames.EXPLODE);
-        setTexture(ResourceLibrary.EXPLODE);
+        super(LibNames.EXPLODE, new AbilityProperties());
+        ((AbilityProperties) getProperties()).setCooldownGetter(this::getCooldown).setMaxLevelGetter(this::getMaxLevel);
     }
 
     @Override
     public void use(EntityLivingBase user, SkillInfo skillInfo) {
         if (((IInfoCooldown) skillInfo).hasCooldown() || isClientWorld(user)) return;
         AbilityInfo abilityInfo = (AbilityInfo) skillInfo;
-        if (shouldUse(user) && canUse(user)) {
+        if (isActionable(user) && canActivate(user)) {
             if (!(user instanceof EntityPlayer) || !((EntityPlayer) user).capabilities.isCreativeMode) {
                 abilityInfo.setCooldown(getCooldown(abilityInfo));
             }
@@ -130,7 +129,6 @@ public class Explode extends BaseAbility implements IScanEntities, IExpand, IFin
         return info.getLevel();
     }
 
-    @Override
     public int getMaxLevel() {
         return Configuration.getSyncValues().maxLevel;
     }
@@ -184,12 +182,12 @@ public class Explode extends BaseAbility implements IScanEntities, IExpand, IFin
     @SideOnly(Side.CLIENT)
     public void addDescription(List<String> description) {
         Capabilities.get(Minecraft.getMinecraft().player).ifPresent(c -> {
-            if (c.owns(this)) {
+            if (c.isOwned(this)) {
                 if (!GuiScreen.isShiftKeyDown()) {
                     description.add("");
                     description.add("Hold SHIFT for stats.");
                 } else {
-                    c.get(this).ifPresent(skillInfo -> {
+                    c.getOwned(this).ifPresent(skillInfo -> {
                         AbilityInfo abilityInfo = (AbilityInfo) skillInfo;
                         description.clear();
                         description.add("Endurance Drain: " + ModAttributes.ENDURANCE.getEnduranceDrain(this));
@@ -219,46 +217,6 @@ public class Explode extends BaseAbility implements IScanEntities, IExpand, IFin
                 }
             }
         });
-    }
-
-    @Override
-    public boolean canUpgrade(EntityLivingBase entity) {
-        return Capabilities.advancement(entity).map(c -> {
-            Requirement requirement = getRequirement(entity);
-            int tokens = requirement.getLevels();
-            int xp = requirement.getXp();
-            return c.level >= tokens && c.getExperienceTotal(entity) >= xp;
-        }).orElse(false);
-    }
-
-    @Override
-    public void onUpgrade(EntityLivingBase entity) {
-        Capabilities.advancement(entity).ifPresent(c -> {
-            Requirement requirement = getRequirement(entity);
-            int tokens = requirement.getLevels();
-            int xp = requirement.getXp();
-            if (c.level >= tokens && c.getExperienceTotal(entity) >= xp) {
-                //c.tokensLevel -= tokens;
-                c.consumeExperienceFromTotal(entity, xp);
-            }
-        });
-    }
-
-    @Override
-    public Requirement getRequirement(EntityLivingBase entity) {
-        AbilityInfo info = (AbilityInfo) Capabilities.get(entity).flatMap(a -> a.get(this)).orElse(null);
-        int tokensNeeded = 0;
-        int xpNeeded;
-        if (info == null) {
-            int abilities = Capabilities.get(entity).map(c -> (int) c.getAll().keySet().stream().filter(s -> s instanceof BaseAbility).count()).orElse(0);
-            if (abilities > 0) {
-                tokensNeeded = abilities + 1;
-            } else {
-                tokensNeeded = 1;
-            }
-        }
-        xpNeeded = getUpgradeCost(info);
-        return new DefaultRequirement(tokensNeeded, getCostIncrement(entity, xpNeeded));
     }
 
     public int getCostIncrement(EntityLivingBase entity, int total) {
@@ -346,26 +304,26 @@ public class Explode extends BaseAbility implements IScanEntities, IExpand, IFin
 
             @Config.Comment("Max level obtainable")
             @Config.RangeInt(min = 0)
-            public int maxLevel = 100;
+            public int maxLevel = 50;
 
             @Config.Comment("Cooldown Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
             public String[] cooldown = {
-                    "(0+){105 * 20 + 15 * 20 * (1 - ((1 - (e^(-2.1 * (x/49)))) / (1 - e^(-2.1))))}",
-                    "(50+){100 * 20 + 5 * 20 * (1- (((e^(0.1 * ((x-49) / (y-49))) - 1)/((e^0.1) - 1))))}",
-                    "(100){90 * 20}"
+                    "(0+){105 * 20 + 15 * 20 * (1 - ((1 - (e^(-2.1 * (x/24)))) / (1 - e^(-2.1))))}",
+                    "(25+){100 * 20 + 5 * 20 * (1- (((e^(0.1 * ((x-24) / (y-24))) - 1)/((e^0.1) - 1))))}",
+                    "(50){90 * 20}"
             };
 
             @Config.Comment("Duration Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
             public String[] time = {
-                    "(0+){5 * 20 + 4 * 20 * (1 - (e^(-2.1 * (x/49)))) / (1 - e^(-2.1))}",
-                    "(50+){9 * 20 + 2 * 20 * ((e^(0.1 * ((x - 49) / (y - 49))) - 1)/((e^0.1) - 1))}",
-                    "(100){12 * 20}"
+                    "(0+){5 * 20 + 4 * 20 * (1 - (e^(-2.1 * (x/24)))) / (1 - e^(-2.1))}",
+                    "(25+){9 * 20 + 2 * 20 * ((e^(0.1 * ((x - 24) / (y - 24))) - 1)/((e^0.1) - 1))}",
+                    "(50){12 * 20}"
             };
 
             @Config.Comment("Range Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
             public String[] range = {
-                    "(0+){6 + 3 * (1 - (e^(-2.1 * (x/49)))) / (1 - e^(-2.1))}",
-                    "(50+){9 + 1 * ((e^(0.1 * ((x - 49) / (y - 49))) - 1)/((e^0.1) - 1))}"
+                    "(0+){6 + 3 * (1 - (e^(-2.1 * (x/24)))) / (1 - e^(-2.1))}",
+                    "(25+){9 + 1 * ((e^(0.1 * ((x - 24) / (y - 24))) - 1)/((e^0.1) - 1))}"
             };
 
             @Config.Comment("Effectiveness Modifier")
@@ -376,23 +334,23 @@ public class Explode extends BaseAbility implements IScanEntities, IExpand, IFin
                 @Config.Comment("Damage Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
                 public String[] damage = {
                         "(0+){86 + ((e^(0.1 * (x / 49)) - 1)/((e^0.1) - 1)) * (100.24 - 86)}",
-                        "(50+){100.24 + ((e^(3.25 * ((x-49) / (y-49))) - 1)/((e^3.25) - 1)) * (136 - 100.24)}",
-                        "(100){142}"
+                        "(25+){100.24 + ((e^(3.25 * ((x-24) / (y-24))) - 1)/((e^3.25) - 1)) * (136 - 100.24)}",
+                        "(50){142}"
                 };
                 @Config.Comment("Damage Over Time Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
                 public String[] dot = {
                         "(0+){16 + ((e^(0.1 * (x / 49)) - 1)/((e^0.1) - 1)) * (22.73 - 16)}",
-                        "(50+){22.73 + ((e^(2.25 * ((x-49) / (y-49))) - 1)/((e^2.25) - 1)) * (39 - 22.73)}",
-                        "(100){42}"
+                        "(25+){22.73 + ((e^(2.25 * ((x-24) / (y-24))) - 1)/((e^2.25) - 1)) * (39 - 22.73)}",
+                        "(50){42}"
                 };
             }
 
             public static class Advancement {
                 @Config.Comment("Function f(x)=? where 'x' is [Next Level] and 'y' is [Max Level], XP Cost is in units [NOT LEVELS]")
                 public String[] upgrade = {
-                        "(0){22070}",
-                        "(1+){7 * x}",
-                        "(100){7 * x + 7 * x * 0.1}"
+                        "(0){900}",
+                        "(1+){4 * x}",
+                        "(50){4 * x + 4 * x * 0.1}"
                 };
             }
         }

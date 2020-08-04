@@ -31,7 +31,7 @@ public class SkillAdvancementConditionSimple extends SkillAdvancementCondition {
     @Override
     public boolean isUpgraded() {
         return Capabilities.get(Minecraft.getMinecraft().player).filter(c ->
-                c.owns(this.info.skill)
+                c.isOwned(this.info.skill)
         ).isPresent();
     }
 

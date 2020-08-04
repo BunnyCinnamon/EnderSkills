@@ -2,6 +2,7 @@ package arekkuusu.enderskills.common;
 
 import arekkuusu.enderskills.api.capability.AdvancementCapability;
 import arekkuusu.enderskills.api.capability.EnduranceCapability;
+import arekkuusu.enderskills.api.capability.SkillGroupCapability;
 import arekkuusu.enderskills.api.capability.SkilledEntityCapability;
 import arekkuusu.enderskills.common.command.*;
 import arekkuusu.enderskills.common.handler.GuiHandler;
@@ -52,6 +53,7 @@ public class EnderSkills {
     public void preInit(FMLPreInitializationEvent event) {
         proxy.preInit(event);
         SkilledEntityCapability.init();
+        SkillGroupCapability.init();
         EnduranceCapability.init();
         AdvancementCapability.init();
         PacketHandler.init();

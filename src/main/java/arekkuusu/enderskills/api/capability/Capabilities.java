@@ -10,6 +10,8 @@ import java.util.Optional;
 public final class Capabilities {
     @CapabilityInject(SkilledEntityCapability.class)
     public static final Capability<SkilledEntityCapability> SKILLED_ENTITY = null;
+    @CapabilityInject(SkillGroupCapability.class)
+    public static final Capability<SkillGroupCapability> WEIGHT = null;
     @CapabilityInject(EnduranceCapability.class)
     public static final Capability<EnduranceCapability> ENDURANCE = null;
     @CapabilityInject(AdvancementCapability.class)
@@ -17,6 +19,10 @@ public final class Capabilities {
 
     public static Optional<SkilledEntityCapability> get(@Nullable Entity entity) {
         return entity != null ? Optional.ofNullable(entity.getCapability(SKILLED_ENTITY, null)) : Optional.empty();
+    }
+
+    public static Optional<SkillGroupCapability> weight(@Nullable Entity entity) {
+        return entity != null ? Optional.ofNullable(entity.getCapability(WEIGHT, null)) : Optional.empty();
     }
 
     public static Optional<EnduranceCapability> endurance(@Nullable Entity entity) {

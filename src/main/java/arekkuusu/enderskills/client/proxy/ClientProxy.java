@@ -1,5 +1,6 @@
 package arekkuusu.enderskills.client.proxy;
 
+import arekkuusu.enderskills.api.registry.Skill;
 import arekkuusu.enderskills.api.util.Vector;
 import arekkuusu.enderskills.client.keybind.KeyBounds;
 import arekkuusu.enderskills.client.render.ModRenders;
@@ -30,8 +31,11 @@ import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.network.FMLNetworkEvent;
+import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+
+import java.util.Map;
 
 @SideOnly(Side.CLIENT)
 @Mod.EventBusSubscriber(modid = LibMod.MOD_ID, value = Side.CLIENT)
@@ -49,6 +53,11 @@ public class ClientProxy implements IProxy {
     public static void stitchTextures(TextureStitchEvent event) {
         TextureMap map = event.getMap();
         ResourceLibrary.ATLAS_SET.forEach(map::registerSprite);
+        for (Map.Entry<ResourceLocation, Skill> entry : GameRegistry.findRegistry(Skill.class).getEntries()) {
+            if(entry.getValue().getProperties().hasTexture()) {
+                map.registerSprite(ResourceLibrary.createAtlasTexture(entry.getKey().getResourceDomain(), "skills", entry.getKey().getResourcePath()));
+            }
+        }
     }
 
     @Override

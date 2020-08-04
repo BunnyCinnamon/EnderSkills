@@ -2,11 +2,11 @@ package arekkuusu.enderskills.common.command;
 
 import arekkuusu.enderskills.api.capability.Capabilities;
 import arekkuusu.enderskills.api.capability.SkilledEntityCapability;
-import arekkuusu.enderskills.api.capability.data.IInfoUpgradeable;
 import arekkuusu.enderskills.api.capability.data.SkillInfo;
 import arekkuusu.enderskills.api.registry.Skill;
 import arekkuusu.enderskills.common.lib.LibMod;
 import arekkuusu.enderskills.common.network.PacketHelper;
+import arekkuusu.enderskills.common.skill.BaseSkill;
 import com.google.common.collect.ImmutableList;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
@@ -35,7 +35,7 @@ public class CommandSkill extends CommandBase {
 
     @Override
     public String getUsage(ICommandSender sender) {
-        return "Usage: /" + getName() + "[entity/player/@p] [modid:skillname] [set/add/sub/get] [level]";
+        return "Usage: /" + getName() + "[entity/player/@p] [modid:skillname] [set/add/sub/query/unlock/lock] [level]";
     }
 
     @Override
@@ -57,7 +57,7 @@ public class CommandSkill extends CommandBase {
                     .map(ResourceLocation::toString).toArray(String[]::new);
             return getListOfStringsMatchingLastWord(args, skills);
         } else if (args.length == 3) {
-            return getListOfStringsMatchingLastWord(args, "set", "add", "sub", "get", "unlock", "lock");
+            return getListOfStringsMatchingLastWord(args, "set", "add", "sub", "query", "unlock", "lock");
         }
         return super.getTabCompletions(server, sender, args, targetPos);
     }
@@ -91,10 +91,10 @@ public class CommandSkill extends CommandBase {
                 case "unlock":
                 case "lock":
                     if (action.equals("lock")) {
-                        capability.remove(skill);
+                        capability.removeOwned(skill);
                         message(sender, "skill.lock", args[1]);
                     } else {
-                        capability.add(skill);
+                        capability.addOwned(skill);
                         message(sender, "skill.unlock", args[1]);
                     }
                     if (entity instanceof EntityPlayerMP) {
@@ -108,19 +108,20 @@ public class CommandSkill extends CommandBase {
                 message(sender, "skill.invalid.level", levelToSet);
                 return;
             }
-            SkillInfo info = capability.get(skill).orElse(null);
+            SkillInfo info = capability.getOwned(skill).orElse(null);
             if (info == null) {
                 message(sender, "skill.invalid", args[1]);
                 return;
             }
-            if (!(info instanceof IInfoUpgradeable)) {
+            if (!(skill.getProperties() instanceof BaseSkill.BaseProperties) || !(info instanceof SkillInfo.IInfoUpgradeable)) {
                 message(sender, "skill.invalid", args[1]);
                 return;
             }
-            IInfoUpgradeable skillLevel = (IInfoUpgradeable) info;
+            SkillInfo.IInfoUpgradeable skillLevel = (SkillInfo.IInfoUpgradeable) info;
+            BaseSkill.BaseProperties properties = (BaseSkill.BaseProperties) skill.getProperties();
             switch (action) {
                 case "set":
-                    if (levelToSet > skill.getMaxLevel()) {
+                    if (levelToSet > properties.getMaxLevel()) {
                         message(sender, "skill.invalid.level");
                         return;
                     }
@@ -128,7 +129,7 @@ public class CommandSkill extends CommandBase {
                     break;
                 case "add":
                     int sum = Math.min(skillLevel.getLevel() + levelToSet, Integer.MAX_VALUE);
-                    if (sum > skill.getMaxLevel()) {
+                    if (sum > properties.getMaxLevel()) {
                         message(sender, "skill.invalid.level", levelToSet);
                         return;
                     }
@@ -136,13 +137,13 @@ public class CommandSkill extends CommandBase {
                     break;
                 case "sub":
                     int sub = Math.max(skillLevel.getLevel() - levelToSet, 0);
-                    if (sub > skill.getMaxLevel()) {
+                    if (sub > properties.getMaxLevel()) {
                         message(sender, "skill.invalid.level", levelToSet);
                         return;
                     }
                     skillLevel.setLevel(sub);
                     break;
-                case "get":
+                case "query":
                     message(sender, "skill.get.level", args[1], skillLevel.getLevel());
                     return;
                 default:

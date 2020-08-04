@@ -5,7 +5,7 @@ import arekkuusu.enderskills.api.helper.NBTHelper;
 import arekkuusu.enderskills.client.util.ResourceLibrary;
 import arekkuusu.enderskills.client.util.ShaderLibrary;
 import arekkuusu.enderskills.client.util.helper.RenderMisc;
-import arekkuusu.enderskills.common.CommonConfig;
+import arekkuusu.enderskills.client.ClientConfig;
 import arekkuusu.enderskills.common.skill.ModAbilities;
 import arekkuusu.enderskills.common.skill.ability.mobility.ender.Teleport;
 import com.google.common.collect.Lists;
@@ -137,13 +137,13 @@ public class TeleportRenderer extends SkillRenderer<Teleport> {
             if (entity == null) return;
             GlStateManager.pushMatrix();
             GlStateManager.translate(positionVector.x, positionVector.y, positionVector.z);
-            if (!CommonConfig.RENDER_CONFIG.rendering.vanilla || CommonConfig.RENDER_CONFIG.rendering.helpMyFramesAreDying) {
+            if (!ClientConfig.RENDER_CONFIG.rendering.vanilla || ClientConfig.RENDER_CONFIG.rendering.helpMyFramesAreDying) {
                 Minecraft.getMinecraft().getRenderManager().renderEngine.bindTexture(ResourceLibrary.DARK_BACKGROUND);
             } else {
                 Minecraft.getMinecraft().getRenderManager().renderEngine.bindTexture(ResourceLibrary.PORTAL_BACKGROUND);
             }
-            if (!CommonConfig.RENDER_CONFIG.rendering.helpMyFramesAreDying) {
-                if (!CommonConfig.RENDER_CONFIG.rendering.vanilla) {
+            if (!ClientConfig.RENDER_CONFIG.rendering.helpMyFramesAreDying) {
+                if (!ClientConfig.RENDER_CONFIG.rendering.vanilla) {
                     ShaderLibrary.UNIVERSE.begin();
                     ShaderLibrary.UNIVERSE.set("dimensions", Minecraft.getMinecraft().displayWidth, Minecraft.getMinecraft().displayHeight);
                     ShaderLibrary.UNIVERSE.set("yaw", (Minecraft.getMinecraft().player.rotationYaw * 2F * 3.141592653589793F / 360F));
@@ -208,8 +208,8 @@ public class TeleportRenderer extends SkillRenderer<Teleport> {
             }
             GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
             GL11.glDisable(3042);
-            if (!CommonConfig.RENDER_CONFIG.rendering.helpMyFramesAreDying) {
-                if (!CommonConfig.RENDER_CONFIG.rendering.vanilla) {
+            if (!ClientConfig.RENDER_CONFIG.rendering.helpMyFramesAreDying) {
+                if (!ClientConfig.RENDER_CONFIG.rendering.vanilla) {
                     ShaderLibrary.UNIVERSE.end();
                 } else {
                     ShaderLibrary.UNIVERSE_DEFAULT.end();

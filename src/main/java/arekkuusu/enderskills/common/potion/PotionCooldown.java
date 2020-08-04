@@ -1,9 +1,8 @@
 package arekkuusu.enderskills.common.potion;
 
 import arekkuusu.enderskills.api.capability.Capabilities;
-import arekkuusu.enderskills.api.capability.data.IInfoCooldown;
 import arekkuusu.enderskills.api.capability.data.SkillInfo;
-import arekkuusu.enderskills.api.event.SkillUseEvent;
+import arekkuusu.enderskills.api.event.SkillActivateEvent;
 import arekkuusu.enderskills.api.helper.NBTHelper;
 import arekkuusu.enderskills.api.registry.Skill;
 import arekkuusu.enderskills.common.lib.LibNames;
@@ -41,16 +40,16 @@ public class PotionCooldown extends PotionBase {
             locations.add(NBTHelper.getResourceLocation((NBTTagCompound) nbt, "location"));
         });
         double crd = 0.3D * (amplifier + 1);
-        Capabilities.get(entity).map(c -> c.getAll().entrySet()).ifPresent(entries -> {
+        Capabilities.get(entity).map(c -> c.getAllOwned().entrySet()).ifPresent(entries -> {
             for (Map.Entry<Skill, SkillInfo> entry : entries) {
                 SkillInfo info = entry.getValue();
                 Skill skill = entry.getKey();
                 ResourceLocation location = skill.getRegistryName();
-                if (skill instanceof BaseAbility && !locations.contains(location)
-                        && info instanceof AbilityInfo && location != null) {
-                    if (((IInfoCooldown) info).hasCooldown()) {
-                        ((IInfoCooldown) info).setCooldown(
-                                Math.max(0, ((IInfoCooldown) info).getCooldown() - (int) (((BaseAbility) skill).getCooldown((AbilityInfo) info) * crd))
+                if (skill.getProperties() instanceof BaseAbility.AbilityProperties && !locations.contains(location)
+                        && info instanceof SkillInfo.IInfoCooldown && location != null) {
+                    if (((SkillInfo.IInfoCooldown) info).hasCooldown()) {
+                        ((SkillInfo.IInfoCooldown) info).setCooldown(
+                                Math.max(0, ((SkillInfo.IInfoCooldown) info).getCooldown() - (int) (((BaseAbility.AbilityProperties) skill.getProperties()).getCooldown((AbilityInfo) info) * crd))
                         );
                         if (entity instanceof EntityPlayer) {
                             PacketHelper.sendSkillSync((EntityPlayerMP) entity, skill);
@@ -76,7 +75,7 @@ public class PotionCooldown extends PotionBase {
     }
 
     @SubscribeEvent
-    public void onSkillUse(SkillUseEvent event) {
+    public void onSkillUse(SkillActivateEvent event) {
         if (event.getEntityLiving().world.isRemote) return;
         NBTTagList list = event.getEntityLiving().getEntityData().getTagList(getName(), Constants.NBT.TAG_COMPOUND);
         if (list.hasNoTags()) return; //No tags here to remove, go back!

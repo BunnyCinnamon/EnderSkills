@@ -1,12 +1,11 @@
 package arekkuusu.enderskills.common.skill.attribute.offense;
 
 import arekkuusu.enderskills.api.capability.Capabilities;
-import arekkuusu.enderskills.api.capability.data.IInfoUpgradeable;
+import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoUpgradeable;
 import arekkuusu.enderskills.api.event.SkillDamageSource;
 import arekkuusu.enderskills.api.helper.ExpressionHelper;
 import arekkuusu.enderskills.api.helper.NBTHelper;
 import arekkuusu.enderskills.client.gui.data.ISkillAdvancement;
-import arekkuusu.enderskills.client.util.ResourceLibrary;
 import arekkuusu.enderskills.client.util.helper.TextHelper;
 import arekkuusu.enderskills.common.CommonConfig;
 import arekkuusu.enderskills.common.lib.LibMod;
@@ -32,9 +31,9 @@ import java.util.List;
 public class CriticalChance extends BaseAttribute implements ISkillAdvancement {
 
     public CriticalChance() {
-        super(LibNames.CRITICAL_CHANCE);
+        super(LibNames.CRITICAL_CHANCE, new BaseProperties());
         MinecraftForge.EVENT_BUS.register(this);
-        setTexture(ResourceLibrary.ATTRIBUTE_2_1);
+        ((BaseProperties) getProperties()).setMaxLevelGetter(this::getMaxLevel);
     }
 
     @SubscribeEvent(priority = EventPriority.LOW)
@@ -46,8 +45,8 @@ public class CriticalChance extends BaseAttribute implements ISkillAdvancement {
         EntityLivingBase attacker = (EntityLivingBase) source.getTrueSource();
         Capabilities.get(attacker).ifPresent(capability -> {
             //Do Critical
-            if (capability.owns(this)) {
-                capability.get(this).ifPresent(skillInfo -> {
+            if (capability.isOwned(this)) {
+                capability.getOwned(this).ifPresent(skillInfo -> {
                     AttributeInfo attributeInfo = (AttributeInfo) skillInfo;
                     if (attacker.world.rand.nextDouble() < getModifier(attributeInfo)) {
                         event.setAmount(event.getAmount() + (event.getAmount() * 0.1F));
@@ -61,7 +60,6 @@ public class CriticalChance extends BaseAttribute implements ISkillAdvancement {
         return info.getLevel();
     }
 
-    @Override
     public int getMaxLevel() {
         return Configuration.getSyncValues().maxLevel;
     }
@@ -82,12 +80,12 @@ public class CriticalChance extends BaseAttribute implements ISkillAdvancement {
     @SideOnly(Side.CLIENT)
     public void addDescription(List<String> description) {
         Capabilities.get(Minecraft.getMinecraft().player).ifPresent(c -> {
-            if (c.owns(this)) {
+            if (c.isOwned(this)) {
                 if (!GuiScreen.isShiftKeyDown()) {
                     description.add("");
                     description.add("Hold SHIFT for stats.");
                 } else {
-                    c.get(this).ifPresent(skillInfo -> {
+                    c.getOwned(this).ifPresent(skillInfo -> {
                         AttributeInfo attributeInfo = (AttributeInfo) skillInfo;
                         description.clear();
                         if (attributeInfo.getLevel() >= getMaxLevel()) {
@@ -110,31 +108,6 @@ public class CriticalChance extends BaseAttribute implements ISkillAdvancement {
     }
 
     @Override
-    public boolean canUpgrade(EntityLivingBase entity) {
-        return Capabilities.advancement(entity).map(c -> {
-            Requirement requirement = getRequirement(entity);
-            int xp = requirement.getXp();
-            return c.getExperienceTotal(entity) >= xp;
-        }).orElse(false);
-    }
-
-    @Override
-    public void onUpgrade(EntityLivingBase entity) {
-        Capabilities.advancement(entity).ifPresent(c -> {
-            Requirement requirement = getRequirement(entity);
-            int xp = requirement.getXp();
-            if (c.getExperienceTotal(entity) >= xp) {
-                c.consumeExperienceFromTotal(entity, xp);
-            }
-        });
-    }
-
-    @Override
-    public Requirement getRequirement(EntityLivingBase entity) {
-        AttributeInfo info = (AttributeInfo) Capabilities.get(entity).flatMap(a -> a.get(this)).orElse(null);
-        return new DefaultRequirement(0, getUpgradeCost(info));
-    }
-
     public int getUpgradeCost(@Nullable AttributeInfo info) {
         int level = info != null ? getLevel(info) + 1 : 0;
         int levelMax = getMaxLevel();
@@ -206,7 +179,7 @@ public class CriticalChance extends BaseAttribute implements ISkillAdvancement {
             public static class Advancement {
                 @Config.Comment("Function f(x)=? where 'x' is [Next Level] and 'y' is [Max Level], XP Cost is in units [NOT LEVELS]")
                 public String[] upgrade = {
-                        "(0+){(150 * (1 - (0 ^ (0 ^ x)))) + 22070 * (x / y)}"
+                        "(0+){800 * (x / y)}"
                 };
             }
         }

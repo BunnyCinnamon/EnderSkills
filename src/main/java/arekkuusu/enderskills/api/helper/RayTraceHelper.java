@@ -69,7 +69,7 @@ public final class RayTraceHelper {
                 lookVector.z * distance
         );
 
-        RayTraceResult traceBlocks = rayTraceBlocksExcept(world, eyesVector, targetVector);
+        RayTraceResult traceBlocks = rayTraceBlocks(world, eyesVector, targetVector);
         if (traceBlocks != null) {
             distance = traceBlocks.hitVec.distanceTo(eyesVector);
             targetVector = eyesVector.addVector(lookVector.x * distance, lookVector.y * distance, lookVector.z * distance);
@@ -87,7 +87,7 @@ public final class RayTraceHelper {
                 lookVector.z * distance
         );
 
-        RayTraceResult traceBlocks = rayTraceBlocksExcept(world, eyesVector, targetVector);
+        RayTraceResult traceBlocks = rayTraceBlocks(world, eyesVector, targetVector);
         return Optional.of(traceBlocks != null ? traceBlocks.hitVec : targetVector);
     }
 
@@ -101,7 +101,7 @@ public final class RayTraceHelper {
                 lookVector.z * distance
         );
 
-        RayTraceResult traceBlocks = rayTraceBlocksExcept(world, eyesVector, targetVector);
+        RayTraceResult traceBlocks = rayTraceBlocks(world, eyesVector, targetVector);
         return Optional.ofNullable(traceBlocks != null ? traceBlocks.getBlockPos() : null);
     }
 
@@ -201,7 +201,7 @@ public final class RayTraceHelper {
     }
 
     @Nullable
-    public static RayTraceResult rayTraceBlocksExcept(World world, Vec3d vecFrom, Vec3d vecTo) {
+    public static RayTraceResult rayTraceBlocks(World world, Vec3d vecFrom, Vec3d vecTo) {
         if (!Double.isNaN(vecFrom.x) && !Double.isNaN(vecFrom.y) && !Double.isNaN(vecFrom.z)) {
             if (!Double.isNaN(vecTo.x) && !Double.isNaN(vecTo.y) && !Double.isNaN(vecTo.z)) {
                 int i = MathHelper.floor(vecTo.x);

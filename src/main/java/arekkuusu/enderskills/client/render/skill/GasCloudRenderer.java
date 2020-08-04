@@ -7,7 +7,7 @@ import arekkuusu.enderskills.client.util.ResourceLibrary;
 import arekkuusu.enderskills.client.util.ShaderLibrary;
 import arekkuusu.enderskills.client.util.helper.GLHelper;
 import arekkuusu.enderskills.client.util.helper.RenderMisc;
-import arekkuusu.enderskills.common.CommonConfig;
+import arekkuusu.enderskills.client.ClientConfig;
 import arekkuusu.enderskills.common.entity.placeable.EntityPlaceableData;
 import arekkuusu.enderskills.common.lib.LibMod;
 import arekkuusu.enderskills.common.skill.ModAbilities;
@@ -81,8 +81,8 @@ public class GasCloudRenderer extends SkillRenderer<GasCloud> {
             GlStateManager.color(1F, 1F, 1F, 1F);
             GlStateManager.pushMatrix();
             GlStateManager.translate(x, y, z);
-            if (!CommonConfig.RENDER_CONFIG.rendering.helpMyFramesAreDying) {
-                if (!CommonConfig.RENDER_CONFIG.rendering.vanilla) {
+            if (!ClientConfig.RENDER_CONFIG.rendering.helpMyFramesAreDying) {
+                if (!ClientConfig.RENDER_CONFIG.rendering.vanilla) {
                     ShaderLibrary.UNIVERSE.begin();
                     ShaderLibrary.UNIVERSE.set("dimensions", Minecraft.getMinecraft().displayWidth, Minecraft.getMinecraft().displayHeight);
                     ShaderLibrary.UNIVERSE.set("yaw", (Minecraft.getMinecraft().player.rotationYaw * 2F * 3.141592653589793F / 360F));
@@ -164,8 +164,8 @@ public class GasCloudRenderer extends SkillRenderer<GasCloud> {
             tessellator.draw();
             GlStateManager.disableBlend();
             GlStateManager.enableLighting();
-            if (!CommonConfig.RENDER_CONFIG.rendering.helpMyFramesAreDying) {
-                if (!CommonConfig.RENDER_CONFIG.rendering.vanilla) {
+            if (!ClientConfig.RENDER_CONFIG.rendering.helpMyFramesAreDying) {
+                if (!ClientConfig.RENDER_CONFIG.rendering.vanilla) {
                     ShaderLibrary.UNIVERSE.end();
                 } else {
                     ShaderLibrary.UNIVERSE_DEFAULT.end();
@@ -180,8 +180,8 @@ public class GasCloudRenderer extends SkillRenderer<GasCloud> {
         @Override
         @Nonnull
         protected ResourceLocation getEntityTexture(EntityPlaceableData entity) {
-            if (!CommonConfig.RENDER_CONFIG.rendering.helpMyFramesAreDying) {
-                if (!CommonConfig.RENDER_CONFIG.rendering.vanilla) {
+            if (!ClientConfig.RENDER_CONFIG.rendering.helpMyFramesAreDying) {
+                if (!ClientConfig.RENDER_CONFIG.rendering.vanilla) {
                     return ResourceLibrary.DARK_BACKGROUND;
                 } else {
                     return ResourceLibrary.PORTAL_BACKGROUND;

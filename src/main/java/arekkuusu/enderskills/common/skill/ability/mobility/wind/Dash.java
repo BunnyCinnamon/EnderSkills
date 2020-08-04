@@ -2,8 +2,8 @@ package arekkuusu.enderskills.common.skill.ability.mobility.wind;
 
 import arekkuusu.enderskills.api.capability.AdvancementCapability;
 import arekkuusu.enderskills.api.capability.Capabilities;
-import arekkuusu.enderskills.api.capability.data.IInfoCooldown;
-import arekkuusu.enderskills.api.capability.data.IInfoUpgradeable;
+import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoCooldown;
+import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoUpgradeable;
 import arekkuusu.enderskills.api.capability.data.SkillData;
 import arekkuusu.enderskills.api.capability.data.SkillInfo;
 import arekkuusu.enderskills.api.capability.data.nbt.UUIDWatcher;
@@ -11,7 +11,6 @@ import arekkuusu.enderskills.api.helper.ExpressionHelper;
 import arekkuusu.enderskills.api.helper.NBTHelper;
 import arekkuusu.enderskills.api.registry.Skill;
 import arekkuusu.enderskills.client.gui.data.ISkillAdvancement;
-import arekkuusu.enderskills.client.util.ResourceLibrary;
 import arekkuusu.enderskills.client.util.helper.TextHelper;
 import arekkuusu.enderskills.common.CommonConfig;
 import arekkuusu.enderskills.common.lib.LibMod;
@@ -50,15 +49,20 @@ import java.util.Optional;
 public class Dash extends BaseAbility implements ISkillAdvancement {
 
     public Dash() {
-        super(LibNames.DASH);
-        setTexture(ResourceLibrary.DASH);
+        super(LibNames.DASH, new AbilityProperties() {
+            @Override
+            public boolean isKeyBound() {
+                return false;
+            }
+        });
+        ((AbilityProperties) getProperties()).setCooldownGetter(this::getCooldown).setMaxLevelGetter(this::getMaxLevel);
         MinecraftForge.EVENT_BUS.register(this);
     }
 
     public void use(EntityLivingBase user, SkillInfo skillInfo, Vec3d vector) {
         if (((IInfoCooldown) skillInfo).hasCooldown() || isClientWorld(user)) return;
         AbilityInfo abilityInfo = (AbilityInfo) skillInfo;
-        if (shouldUse(user) && canUse(user)) {
+        if (isActionable(user) && canActivate(user)) {
             if (!(user instanceof EntityPlayer) || !((EntityPlayer) user).capabilities.isCreativeMode) {
                 abilityInfo.setCooldown(getCooldown(abilityInfo));
             }
@@ -144,7 +148,7 @@ public class Dash extends BaseAbility implements ISkillAdvancement {
     public void onKeyPress(InputEvent.KeyInputEvent event) {
         EntityPlayerSP player = Minecraft.getMinecraft().player;
         if (!Minecraft.getMinecraft().gameSettings.keyBindSprint.isKeyDown()) return;
-        Capabilities.get(player).flatMap(c -> c.get(this)).ifPresent(skillInfo -> {
+        Capabilities.get(player).flatMap(c -> c.getOwned(this)).ifPresent(skillInfo -> {
             AbilityInfo abilityInfo = (AbilityInfo) skillInfo;
             if (abilityInfo.hasCooldown()) return;
             boolean tapped = Minecraft.getMinecraft().gameSettings.keyBindSprint.isKeyDown();
@@ -205,7 +209,6 @@ public class Dash extends BaseAbility implements ISkillAdvancement {
         return info.getLevel();
     }
 
-    @Override
     public int getMaxLevel() {
         return Configuration.getSyncValues().maxLevel;
     }
@@ -230,22 +233,17 @@ public class Dash extends BaseAbility implements ISkillAdvancement {
         return Configuration.getSyncValues().effectiveness * CommonConfig.getSyncValues().skill.globalEffectiveness;
     }
 
-    @Override
-    public boolean isKeyBound() {
-        return false;
-    }
-
     /*Advancement Section*/
     @Override
     @SideOnly(Side.CLIENT)
     public void addDescription(List<String> description) {
         Capabilities.get(Minecraft.getMinecraft().player).ifPresent(c -> {
-            if (c.owns(this)) {
+            if (c.isOwned(this)) {
                 if (!GuiScreen.isShiftKeyDown()) {
                     description.add("");
                     description.add("Hold SHIFT for stats.");
                 } else {
-                    c.get(this).ifPresent(skillInfo -> {
+                    c.getOwned(this).ifPresent(skillInfo -> {
                         AbilityInfo abilityInfo = (AbilityInfo) skillInfo;
                         description.clear();
                         description.add("Endurance Drain: " + ModAttributes.ENDURANCE.getEnduranceDrain(this));
@@ -288,7 +286,7 @@ public class Dash extends BaseAbility implements ISkillAdvancement {
             int tokens = requirement.getLevels();
             int xp = requirement.getXp();
             if (c.level >= tokens && c.getExperienceTotal(entity) >= xp) {
-                Capabilities.get(entity).filter(a -> !a.owns(this)).ifPresent(a -> {
+                Capabilities.get(entity).filter(a -> !a.isOwned(this)).ifPresent(a -> {
                     Skill[] skillUnlockOrder = Arrays.copyOf(c.skillUnlockOrder, c.skillUnlockOrder.length + 1);
                     skillUnlockOrder[skillUnlockOrder.length - 1] = this;
                     c.skillUnlockOrder = skillUnlockOrder;
@@ -300,11 +298,11 @@ public class Dash extends BaseAbility implements ISkillAdvancement {
 
     @Override
     public Requirement getRequirement(EntityLivingBase entity) {
-        AbilityInfo info = (AbilityInfo) Capabilities.get(entity).flatMap(a -> a.get(this)).orElse(null);
+        AbilityInfo info = (AbilityInfo) Capabilities.get(entity).flatMap(a -> a.getOwned(this)).orElse(null);
         int tokensNeeded = 0;
         int xpNeeded;
         if (info == null) {
-            int abilities = Capabilities.get(entity).map(c -> (int) c.getAll().keySet().stream().filter(s -> s instanceof BaseAbility).count()).orElse(0);
+            int abilities = Capabilities.get(entity).map(c -> (int) c.getAllOwned().keySet().stream().filter(s -> s instanceof BaseAbility).count()).orElse(0);
             if (abilities > 0) {
                 tokensNeeded = abilities + 1;
             } else {
@@ -411,8 +409,8 @@ public class Dash extends BaseAbility implements ISkillAdvancement {
                 @Config.Comment("Function f(x)=? where 'x' is [Next Level] and 'y' is [Max Level], XP Cost is in units [NOT LEVELS]")
                 public String[] upgrade = {
                         "(0){170}",
-                        "(1+){7 * x}",
-                        "(100){7 * x + 7 * x * 0.1}"
+                        "(1+){4 * x}",
+                        "(50){4 * x + 4 * x * 0.1}"
                 };
             }
         }

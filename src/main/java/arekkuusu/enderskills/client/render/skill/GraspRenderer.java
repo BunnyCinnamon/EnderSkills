@@ -6,7 +6,7 @@ import arekkuusu.enderskills.client.render.entity.EntityThrowableDataRenderer;
 import arekkuusu.enderskills.client.util.ResourceLibrary;
 import arekkuusu.enderskills.client.util.ShaderLibrary;
 import arekkuusu.enderskills.client.util.helper.RenderMisc;
-import arekkuusu.enderskills.common.CommonConfig;
+import arekkuusu.enderskills.client.ClientConfig;
 import arekkuusu.enderskills.common.EnderSkills;
 import arekkuusu.enderskills.common.entity.placeable.EntityPlaceableGrasp;
 import arekkuusu.enderskills.common.skill.ModAbilities;
@@ -108,15 +108,15 @@ public class GraspRenderer extends SkillRenderer<Grasp> {
                 }
                 GlStateManager.pushMatrix();
                 GlStateManager.translate(x - originVec.x, y - originVec.y, z - originVec.z);
-                if (!CommonConfig.RENDER_CONFIG.rendering.vanilla || CommonConfig.RENDER_CONFIG.rendering.helpMyFramesAreDying) {
+                if (!ClientConfig.RENDER_CONFIG.rendering.vanilla || ClientConfig.RENDER_CONFIG.rendering.helpMyFramesAreDying) {
                     this.bindTexture(ResourceLibrary.DARK_BACKGROUND);
                 } else {
                     this.bindTexture(ResourceLibrary.PORTAL_BACKGROUND);
                 }
                 GlStateManager.enableBlend();
-                if (!CommonConfig.RENDER_CONFIG.rendering.helpMyFramesAreDying) {
+                if (!ClientConfig.RENDER_CONFIG.rendering.helpMyFramesAreDying) {
                     float fading = 1F - (float) (entity.getPosition().getDistance(pos.getX(), entity.getPosition().getY(), pos.getZ()) / (entity.getRadius() * 1.5D));
-                    if (!CommonConfig.RENDER_CONFIG.rendering.vanilla) {
+                    if (!ClientConfig.RENDER_CONFIG.rendering.vanilla) {
                         ShaderLibrary.UNIVERSE.begin();
                         ShaderLibrary.UNIVERSE.set("dimensions", Minecraft.getMinecraft().displayWidth, Minecraft.getMinecraft().displayHeight);
                         ShaderLibrary.UNIVERSE.set("yaw", (Minecraft.getMinecraft().player.rotationYaw * 2F * 3.141592653589793F / 360F));
@@ -138,8 +138,8 @@ public class GraspRenderer extends SkillRenderer<Grasp> {
                 GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
                 GL11.glDisable(3042);
                 GlStateManager.disableBlend();
-                if (!CommonConfig.RENDER_CONFIG.rendering.helpMyFramesAreDying) {
-                    if (!CommonConfig.RENDER_CONFIG.rendering.vanilla) {
+                if (!ClientConfig.RENDER_CONFIG.rendering.helpMyFramesAreDying) {
+                    if (!ClientConfig.RENDER_CONFIG.rendering.vanilla) {
                         ShaderLibrary.UNIVERSE.end();
                     } else {
                         ShaderLibrary.UNIVERSE_DEFAULT.end();

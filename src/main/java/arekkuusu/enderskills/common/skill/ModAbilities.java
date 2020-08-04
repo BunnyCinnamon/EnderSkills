@@ -143,7 +143,6 @@ public final class ModAbilities {
 
     @SuppressWarnings({"UnusedReturnValue", "WeakerAccess"}) //Shut up
     public static Skill setRegistry(Skill skill, String id) {
-        skill.setUnlocalizedName(id);
         skill.setRegistryName(LibMod.MOD_ID, id);
         return skill;
     }

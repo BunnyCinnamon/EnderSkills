@@ -10,7 +10,6 @@ import arekkuusu.enderskills.client.util.helper.RenderMisc;
 import arekkuusu.enderskills.client.util.helper.TextHelper;
 import arekkuusu.enderskills.common.CommonConfig;
 import arekkuusu.enderskills.common.lib.LibMod;
-import arekkuusu.enderskills.common.network.PacketHandler;
 import arekkuusu.enderskills.common.network.PacketHelper;
 import arekkuusu.enderskills.common.sound.ModSounds;
 import com.google.common.collect.Lists;
@@ -48,6 +47,7 @@ public class GuiScreenSkillAdvancements extends GuiScreen {
     public static int tabPin = -1;
     public static int tabPagePin = -1;
     public static GuiConfirmation confirmation;
+    public static Runnable onSkillUpgradeRunnable;
 
     public GuiSkillAdvancementTab selectedTab = null;
     public int tabPage = -1;
@@ -91,7 +91,7 @@ public class GuiScreenSkillAdvancements extends GuiScreen {
         maxPages = tabs.size();
         if (maxPages > 0) {
             buttonList.add(new GuiCustomButton(101, this.x + this.guiWidth - 20, this.y - 2, 15, 15, "", 36, 67, 15, 15, 0));
-            buttonList.add(new GuiCustomButton(104, this.x - 3, this.y - 4, 10, 10, "", 51, 62, 10, 10, 0));
+            buttonList.add(new GuiCustomButton(104, this.x, this.y - 1, 10, 10, "", 51, 62, 10, 10, 0));
 
             buttonList.add(new GuiCustomButton(102, (this.x) + 2, (this.y - 12) + this.guiHeight, 18, 10, "", 18, 62, 18, 10, 0));
             buttonList.add(new GuiCustomButton(103, (this.x - 20) + this.guiWidth, (this.y - 12) + this.guiHeight, 18, 10, "", 0, 62, 18, 10, 0));
@@ -109,16 +109,20 @@ public class GuiScreenSkillAdvancements extends GuiScreen {
             tab.mc = this.mc;
             tab.initGui();
         }
-        if (tabPin != -1) {
+        //Init pins
+        Capabilities.advancement(this.mc.player).ifPresent(c -> {
+            tabPin = c.tabPin;
+            tabPagePin = c.tabPagePin;
+        });
+        if (tabPin != -1 && tabPagePin != -1) {
             this.tabPage = tabPin;
             this.selectedTab = tabs.get(this.tabPage);
             this.selectedTab.tabPage = tabPagePin;
             this.selectedTab.selectedPage = this.selectedTab.pages.get(this.selectedTab.tabPage);
         }
-
-        if (GuiScreenSkillAdvancements.confirmation != null) {
-            GuiScreenSkillAdvancements.confirmation.initGui();
-        }
+        //Clear static widgets
+        GuiScreenSkillAdvancements.confirmation = null;
+        GuiScreenSkillAdvancements.onSkillUpgradeRunnable = null;
     }
 
     @Override
@@ -134,10 +138,21 @@ public class GuiScreenSkillAdvancements extends GuiScreen {
         }
         for (GuiButton guiButton : alternateButtonList) {
             if (guiButton.id == 105) {
-                guiButton.enabled = Capabilities.advancement(this.mc.player).map(c -> c.resetCount < CommonConfig.getValues().advancement.maxRetries).orElse(false);
+                guiButton.enabled = Capabilities.advancement(this.mc.player).map(c -> c.resetCount < CommonConfig.getSyncValues().advancement.maxRetries).orElse(false);
             }
         }
-        if(GuiScreenSkillAdvancements.confirmation != null) {
+        for (GuiButton guiButton : buttonList) {
+            if (guiButton.id == 104) {
+                boolean tabSelected = tabPin == -1 || (this.selectedTab != null && tabPin == this.tabs.indexOf(this.selectedTab));
+                boolean tabPageSelected = tabPagePin == -1 || (this.selectedTab != null && tabPagePin == this.selectedTab.tabPage);
+                guiButton.enabled = tabSelected && tabPageSelected;
+            } else if(guiButton.id == 102) {
+                guiButton.enabled = this.selectedTab != null && this.selectedTab.pages.indexOf(this.selectedTab.selectedPage) > 0;
+            } else if(guiButton.id == 103) {
+                guiButton.enabled = this.selectedTab != null && this.selectedTab.pages.indexOf(this.selectedTab.selectedPage) < this.selectedTab.maxPages - 1;
+            }
+        }
+        if (GuiScreenSkillAdvancements.confirmation != null) {
             GuiScreenSkillAdvancements.confirmation.update();
         }
     }
@@ -396,6 +411,22 @@ public class GuiScreenSkillAdvancements extends GuiScreen {
         if (maxPages > 0) {
             if (this.selectedTab != null) {
                 this.selectedTab.selectedPage.drawToolTips(mouseX, mouseY, partialTicks);
+                for (GuiButton guiButton : this.buttonList) {
+                    if (guiButton.id == 104 && guiButton.enabled && guiButton.isMouseOver()) {
+                        String pin = TextHelper.translate("gui.pin");
+                        String unpin = TextHelper.translate("gui.unpin");
+                        drawHoveringText(tabPin != -1 ? unpin : pin, mouseX, mouseY);
+                    } else if (guiButton.id == 101 && guiButton.enabled && guiButton.isMouseOver()) {
+                        String text = TextHelper.translate("gui.back");
+                        drawHoveringText(text, mouseX, mouseY);
+                    } else if (guiButton.id == 102 && guiButton.enabled && guiButton.isMouseOver()) {
+                        String text = TextHelper.translate("gui.prevPage");
+                        drawHoveringText(text, mouseX, mouseY);
+                    } else if (guiButton.id == 103 && guiButton.enabled && guiButton.isMouseOver()) {
+                        String text = TextHelper.translate("gui.nextPage");
+                        drawHoveringText(text, mouseX, mouseY);
+                    }
+                }
             }
             for (GuiSkillAdvancementTab tab : this.tabs) {
                 if (tab.isMouseOver(x, y, mouseX, mouseY)) {
@@ -460,7 +491,7 @@ public class GuiScreenSkillAdvancements extends GuiScreen {
     @Override
     protected void keyTyped(char typedChar, int keyCode) {
         if (keyCode == 1) {
-            PacketHandler.GUI_SYNC_QUEUE = null;
+            GuiScreenSkillAdvancements.onSkillUpgradeRunnable = null;
             if (GuiScreenSkillAdvancements.confirmation == null) {
                 this.mc.displayGuiScreen(null);
 
@@ -499,6 +530,7 @@ public class GuiScreenSkillAdvancements extends GuiScreen {
                     tabPin = -1;
                     tabPagePin = -1;
                 }
+                PacketHelper.sendPinRequestPacket(this.mc.player, tabPin, tabPagePin);
             }
         } else {
             if (button.id == 105) {

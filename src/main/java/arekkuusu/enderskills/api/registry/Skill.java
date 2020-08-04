@@ -17,15 +17,18 @@ import javax.annotation.Nonnull;
 
 public class Skill extends IForgeRegistryEntry.Impl<Skill> {
 
-    private ResourceLocation texture;
-    private String name;
+    private final Properties properties;
+
+    public Skill(Properties properties) {
+        this.properties = properties;
+    }
 
     public void use(EntityLivingBase entity, SkillInfo skillInfo) {
         //For Rent
     }
 
     public void begin(EntityLivingBase entity, SkillData data) {
-        update(entity, data, 0);
+        //For Rent
     }
 
     public void update(EntityLivingBase entity, SkillData data, int tick) {
@@ -56,48 +59,8 @@ public class Skill extends IForgeRegistryEntry.Impl<Skill> {
         PacketHelper.sendSkillSync((EntityPlayerMP) entity, this);
     }
 
-    public int getMaxLevel() {
-        return Integer.MAX_VALUE;
-    }
-
-    public void setUnlocalizedName(String name) {
-        this.name = name;
-    }
-
-    public String getUnlocalizedName() {
-        return "skill." + name;
-    }
-
-    public void setTexture(ResourceLocation texture) {
-        this.texture = texture;
-    }
-
-    public ResourceLocation getTexture() {
-        return texture;
-    }
-
-    public boolean hasStatusIcon() {
-        return true;
-    }
-
-    public boolean isKeyBound() {
-        return true;
-    }
-
-    @Deprecated
-    public void initSyncConfig() {
-        //For Rent
-    }
-
-    @Deprecated
-    public void writeSyncConfig(NBTTagCompound compound) {
-        //For Rent
-    }
-
-    @SideOnly(Side.CLIENT)
-    @Deprecated
-    public void readSyncConfig(NBTTagCompound compound) {
-        //For Rent
+    public Properties getProperties() {
+        return properties;
     }
 
     @Nonnull
@@ -105,5 +68,39 @@ public class Skill extends IForgeRegistryEntry.Impl<Skill> {
     @SuppressWarnings("DeprecatedIsStillUsed")
     public SkillInfo createInfo(NBTTagCompound compound) {
         return new SkillInfo(compound);
+    }
+
+    public static class Properties {
+
+        boolean isKeyBound;
+        boolean hasStatusIcon;
+        boolean hasTexture;
+
+        public boolean isKeyBound() {
+            return isKeyBound;
+        }
+
+        public Properties setKeyBound() {
+            isKeyBound = true;
+            return this;
+        }
+
+        public boolean hasStatusIcon() {
+            return hasStatusIcon;
+        }
+
+        public Properties setHasStatusIcon() {
+            this.hasStatusIcon = true;
+            return this;
+        }
+
+        public boolean hasTexture() {
+            return hasTexture;
+        }
+
+        public Properties setHasTexture() {
+            this.hasTexture = true;
+            return this;
+        }
     }
 }

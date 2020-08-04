@@ -128,7 +128,7 @@ public class GuiConfirmation extends Gui {
         drawScaledCustomSizeModalRect(xOffset, yOffset + 3, 5, 103, 1, 26, textureWidth, 26, 256, 256);
         this.drawTexturedModalRect(xOffset + textureWidth, yOffset + 3, 7, 103, 4, 26);
         if (isShifting) {
-            drawScaledCustomSizeModalRect(xOffset - 7, yOffset - 5, 108, 4, 18, 18, 14, 14, 256, 256);
+            drawScaledCustomSizeModalRect(xOffset - 7, yOffset - 5, 82, 4, 18, 18, 14, 14, 256, 256);
             GlStateManager.color(1F, 1F, 1F, 1F);
             GlStateManager.pushMatrix();
             GlStateManager.scale(0.6D, 0.6D, 0.6D);

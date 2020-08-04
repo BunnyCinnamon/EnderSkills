@@ -3,7 +3,7 @@ package arekkuusu.enderskills.client.render.entity;
 import arekkuusu.enderskills.client.util.ResourceLibrary;
 import arekkuusu.enderskills.client.util.ShaderLibrary;
 import arekkuusu.enderskills.client.util.helper.RenderMisc;
-import arekkuusu.enderskills.common.CommonConfig;
+import arekkuusu.enderskills.client.ClientConfig;
 import arekkuusu.enderskills.common.entity.EntityPortal;
 import com.sasmaster.glelwjgl.java.CoreGLE;
 import net.minecraft.client.Minecraft;
@@ -32,8 +32,8 @@ public class EntityPortalRender extends Render<EntityPortal> {
         GL11.glPushMatrix();
         GlStateManager.translate(x, y, z);
         this.bindTexture(getEntityTexture(entity));
-        if (!CommonConfig.RENDER_CONFIG.rendering.helpMyFramesAreDying) {
-            if (!CommonConfig.RENDER_CONFIG.rendering.vanilla) {
+        if (!ClientConfig.RENDER_CONFIG.rendering.helpMyFramesAreDying) {
+            if (!ClientConfig.RENDER_CONFIG.rendering.vanilla) {
                 ShaderLibrary.UNIVERSE.begin();
                 ShaderLibrary.UNIVERSE.set("dimensions", Minecraft.getMinecraft().displayWidth, Minecraft.getMinecraft().displayHeight);
                 ShaderLibrary.UNIVERSE.set("yaw", (Minecraft.getMinecraft().player.rotationYaw * 2F * 3.141592653589793F / 360F));
@@ -93,8 +93,8 @@ public class EntityPortalRender extends Render<EntityPortal> {
         }
         GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
         GL11.glDisable(3042);
-        if (!CommonConfig.RENDER_CONFIG.rendering.helpMyFramesAreDying) {
-            if (!CommonConfig.RENDER_CONFIG.rendering.vanilla) {
+        if (!ClientConfig.RENDER_CONFIG.rendering.helpMyFramesAreDying) {
+            if (!ClientConfig.RENDER_CONFIG.rendering.vanilla) {
                 ShaderLibrary.UNIVERSE.end();
             } else {
                 ShaderLibrary.UNIVERSE_DEFAULT.end();
@@ -106,7 +106,7 @@ public class EntityPortalRender extends Render<EntityPortal> {
     @Override
     @Nonnull
     protected ResourceLocation getEntityTexture(EntityPortal EntityPortal) {
-        if (!CommonConfig.RENDER_CONFIG.rendering.vanilla || CommonConfig.RENDER_CONFIG.rendering.helpMyFramesAreDying) {
+        if (!ClientConfig.RENDER_CONFIG.rendering.vanilla || ClientConfig.RENDER_CONFIG.rendering.helpMyFramesAreDying) {
             return ResourceLibrary.DARK_BACKGROUND;
         } else {
             return ResourceLibrary.PORTAL_BACKGROUND;

@@ -4,7 +4,7 @@ import arekkuusu.enderskills.client.util.ResourceLibrary;
 import arekkuusu.enderskills.client.util.ShaderLibrary;
 import arekkuusu.enderskills.client.util.helper.RenderMisc;
 import arekkuusu.enderskills.client.util.helper.TextHelper;
-import arekkuusu.enderskills.common.CommonConfig;
+import arekkuusu.enderskills.client.ClientConfig;
 import arekkuusu.enderskills.common.block.tile.TileAltar;
 import arekkuusu.enderskills.common.item.ModItems;
 import arekkuusu.enderskills.common.lib.LibMod;
@@ -70,13 +70,13 @@ public class TileAltarRenderer extends TileEntitySpecialRenderer<TileAltar> {
             GlStateManager.pushMatrix();
             GlStateManager.translate(x + 0.5F, y + 0.01F, z + 0.5F);
             GlStateManager.enableBlend();
-            if (!CommonConfig.RENDER_CONFIG.rendering.vanilla || CommonConfig.RENDER_CONFIG.rendering.helpMyFramesAreDying) {
+            if (!ClientConfig.RENDER_CONFIG.rendering.vanilla || ClientConfig.RENDER_CONFIG.rendering.helpMyFramesAreDying) {
                 this.bindTexture(ResourceLibrary.DARK_BACKGROUND);
             } else {
                 this.bindTexture(ResourceLibrary.PORTAL_BACKGROUND);
             }
-            if (!CommonConfig.RENDER_CONFIG.rendering.helpMyFramesAreDying) {
-                if (!CommonConfig.RENDER_CONFIG.rendering.vanilla) {
+            if (!ClientConfig.RENDER_CONFIG.rendering.helpMyFramesAreDying) {
+                if (!ClientConfig.RENDER_CONFIG.rendering.vanilla) {
                     ShaderLibrary.UNIVERSE.begin();
                     ShaderLibrary.UNIVERSE.set("dimensions", Minecraft.getMinecraft().displayWidth, Minecraft.getMinecraft().displayHeight);
                     ShaderLibrary.UNIVERSE.set("yaw", (Minecraft.getMinecraft().player.rotationYaw * 2F * 3.141592653589793F / 360F));
@@ -98,8 +98,8 @@ public class TileAltarRenderer extends TileEntitySpecialRenderer<TileAltar> {
             GlStateManager.scale(scale, scale, scale);
             RenderMisc.drawObj(0xFFFFFF, tile.lastLevelAnimationTimer / 50F, RenderMisc.sphereId);
             GL11.glDisable(3042);
-            if (!CommonConfig.RENDER_CONFIG.rendering.helpMyFramesAreDying) {
-                if (!CommonConfig.RENDER_CONFIG.rendering.vanilla) {
+            if (!ClientConfig.RENDER_CONFIG.rendering.helpMyFramesAreDying) {
+                if (!ClientConfig.RENDER_CONFIG.rendering.vanilla) {
                     ShaderLibrary.UNIVERSE.end();
                 } else {
                     ShaderLibrary.UNIVERSE_DEFAULT.end();

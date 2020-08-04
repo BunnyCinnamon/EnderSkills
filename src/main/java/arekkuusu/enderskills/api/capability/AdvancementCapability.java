@@ -35,6 +35,10 @@ public class AdvancementCapability implements ICapabilitySerializable<NBTTagComp
     public double levelProgress;
     public int level;
     /* Advancement specific */
+    /* Pins specific */
+    public int tabPin = -1;
+    public int tabPagePin = -1;
+    /* Pins specific */
     /* Vanilla specific */
     public double experienceProgress;
     public int experienceLevel;
@@ -116,6 +120,8 @@ public class AdvancementCapability implements ICapabilitySerializable<NBTTagComp
     public static final String LEVEL_PROGRESS_NBT = "level_progress";
     public static final String RESET_COUNT_NBT = "reset_count";
     public static final String SKILL_UNLOCK_ORDER_NBT = "skill_unlock_order";
+    public static final String TAB_PIN_BHT = "tabPin";
+    public static final String TAB_PAGE_PIN_BHT = "tabPagePin";
 
     @Override
     @Nullable
@@ -134,6 +140,8 @@ public class AdvancementCapability implements ICapabilitySerializable<NBTTagComp
             list.appendTag(compound);
         }
         tag.setTag(SKILL_UNLOCK_ORDER_NBT, list);
+        tag.setInteger(TAB_PIN_BHT, instance.tabPin);
+        tag.setInteger(TAB_PAGE_PIN_BHT, instance.tabPagePin);
         return tag;
     }
 
@@ -150,6 +158,12 @@ public class AdvancementCapability implements ICapabilitySerializable<NBTTagComp
         instance.skillUnlockOrder = new Skill[list.tagCount()];
         for (int i = 0; i < list.tagCount(); i++) {
             instance.skillUnlockOrder[i] = NBTHelper.getRegistry(list.getCompoundTagAt(i), "skill", Skill.class);
+        }
+        if(tag.hasKey(TAB_PIN_BHT)) {
+            instance.tabPin = tag.getInteger(TAB_PIN_BHT);
+        }
+        if(tag.hasKey(TAB_PAGE_PIN_BHT)) {
+            instance.tabPagePin = tag.getInteger(TAB_PAGE_PIN_BHT);
         }
     }
 

@@ -2,9 +2,10 @@ package arekkuusu.enderskills.common.network;
 
 import arekkuusu.enderskills.api.capability.Capabilities;
 import arekkuusu.enderskills.api.capability.SkilledEntityCapability;
-import arekkuusu.enderskills.api.capability.data.IInfoUpgradeable;
 import arekkuusu.enderskills.api.capability.data.SkillData;
 import arekkuusu.enderskills.api.capability.data.SkillHolder;
+import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoUpgradeable;
+import arekkuusu.enderskills.api.event.SkillUpgradeSyncEvent;
 import arekkuusu.enderskills.api.helper.NBTHelper;
 import arekkuusu.enderskills.api.helper.XPHelper;
 import arekkuusu.enderskills.api.registry.Skill;
@@ -12,6 +13,8 @@ import arekkuusu.enderskills.client.gui.data.ISkillAdvancement;
 import arekkuusu.enderskills.common.CommonConfig;
 import arekkuusu.enderskills.common.EnderSkills;
 import arekkuusu.enderskills.common.lib.LibMod;
+import arekkuusu.enderskills.common.skill.BaseSkill;
+import arekkuusu.enderskills.common.skill.IConfigSync;
 import arekkuusu.enderskills.common.skill.ModAbilities;
 import com.google.common.collect.Lists;
 import net.minecraft.entity.EntityLivingBase;
@@ -20,6 +23,7 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
@@ -53,7 +57,7 @@ public final class PacketHandler {
         IForgeRegistry<Skill> registry = GameRegistry.findRegistry(Skill.class);
         Skill skill = registry.getValue(NBTHelper.getResourceLocation(compound, "location"));
         assert skill != null;
-        skill.readSyncConfig(compound);
+        ((Skill & IConfigSync) skill).readSyncConfig(compound);
     }));
 
     public static final IPacketHandler SYNC_SKILLS = (((compound, context) -> {
@@ -69,7 +73,7 @@ public final class PacketHandler {
             IForgeRegistry<Skill> registry = GameRegistry.findRegistry(Skill.class);
             Skill skill = registry.getValue(NBTHelper.getResourceLocation(compound, "location"));
             assert skill != null;
-            skills.get(skill).ifPresent(info -> {
+            skills.getOwned(skill).ifPresent(info -> {
                 info.deserializeNBT(NBTHelper.getNBTTag(compound, "info"));
             });
         });
@@ -77,11 +81,23 @@ public final class PacketHandler {
 
     public static final IPacketHandler SYNC_WEIGHT = (((compound, context) -> {
         EntityPlayer player = EnderSkills.getProxy().getPlayer();
-        Capabilities.get(player).ifPresent(skills -> {
+        Capabilities.weight(player).ifPresent(s -> {
+            s.deserializeNBT(compound);
+        });
+    }));
+
+    public static final IPacketHandler CHANGE_WEIGHT = (((compound, context) -> {
+        EntityPlayer player = EnderSkills.getProxy().getPlayer();
+        Capabilities.weight(player).ifPresent(capability -> {
             IForgeRegistry<Skill> registry = GameRegistry.findRegistry(Skill.class);
+            String name = NBTHelper.getString(compound, "name");
             Skill skill = registry.getValue(NBTHelper.getResourceLocation(compound, "location"));
             assert skill != null;
-            skills.putWeight(skill, compound.getInteger("weight"));
+            if (NBTHelper.hasTag(compound, "weight")) {
+                capability.putWeight(name, skill, compound.getInteger("weight"));
+            } else {
+                capability.removeWeight(name, skill);
+            }
         });
     }));
 
@@ -90,7 +106,7 @@ public final class PacketHandler {
         Skill skill = registry.getValue(NBTHelper.getResourceLocation(compound, "location"));
         assert skill != null;
         Optional.ofNullable(NBTHelper.getEntity(EntityLivingBase.class, compound, "user")).ifPresent(e -> {
-            Capabilities.get(e).flatMap(skills -> skills.get(skill)).ifPresent(info -> skill.use(e, info));
+            Capabilities.get(e).flatMap(skills -> skills.getOwned(skill)).ifPresent(info -> skill.use(e, info));
         });
     }));
 
@@ -133,6 +149,58 @@ public final class PacketHandler {
         });
     }));
 
+    public static final IPacketHandler SKILL_UPGRADE_REQUEST = (((compound, context) -> {
+        IForgeRegistry<Skill> registry = GameRegistry.findRegistry(Skill.class);
+        Skill skill = registry.getValue(NBTHelper.getResourceLocation(compound, "location"));
+        assert skill != null;
+        Optional.ofNullable(NBTHelper.getEntity(EntityLivingBase.class, compound, "user")).ifPresent(e -> {
+            Capabilities.get(e).ifPresent(c -> {
+                if (c.isOwned(skill)) {
+                    c.getOwned(skill).ifPresent(info -> {
+                        if (skill.getProperties() instanceof BaseSkill.BaseProperties && info instanceof IInfoUpgradeable) {
+                            int lvl = ((IInfoUpgradeable) info).getLevel() + 1;
+                            if (lvl <= ((BaseSkill.BaseProperties) skill.getProperties()).getMaxLevel()) {
+                                if (skill instanceof ISkillAdvancement) {
+                                    ISkillAdvancement advancement = (ISkillAdvancement) skill;
+                                    if (advancement.canUpgrade(e)) {
+                                        advancement.onUpgrade(e);
+                                        ((IInfoUpgradeable) info).setLevel(lvl);
+                                        PacketHelper.sendSkillsSync((EntityPlayerMP) e);
+                                        PacketHelper.sendAdvancementSync((EntityPlayerMP) e);
+                                        PacketHelper.sendSkillUpgradeSync((EntityPlayerMP) e);
+                                    }
+                                } else {
+                                    ((IInfoUpgradeable) info).setLevel(lvl);
+                                    PacketHelper.sendSkillSync((EntityPlayerMP) e, skill);
+                                    PacketHelper.sendSkillUpgradeSync((EntityPlayerMP) e);
+                                }
+                            }
+                        }
+                    });
+                } else {
+                    if (skill instanceof ISkillAdvancement) {
+                        ISkillAdvancement advancement = (ISkillAdvancement) skill;
+                        if (advancement.canUpgrade(e)) {
+                            advancement.onUpgrade(e);
+                            c.addOwned(skill);
+                            PacketHelper.sendSkillsSync((EntityPlayerMP) e);
+                            PacketHelper.sendAdvancementSync((EntityPlayerMP) e);
+                            PacketHelper.sendSkillUpgradeSync((EntityPlayerMP) e);
+                        }
+                    } else {
+                        c.addOwned(skill);
+                        PacketHelper.sendSkillsSync((EntityPlayerMP) e);
+                        PacketHelper.sendSkillUpgradeSync((EntityPlayerMP) e);
+                    }
+                }
+            });
+        });
+    }));
+
+    public static final IPacketHandler SKILL_UPGRADE_SYNC = (((compound, context) -> {
+        MinecraftForge.EVENT_BUS.post(new SkillUpgradeSyncEvent());
+    }));
+
     //TODO: REMOVE TOO HARDCODED!!
     public static final IPacketHandler SYNC_ENDURANCE = (((compound, context) -> {
         EntityPlayer player = EnderSkills.getProxy().getPlayer();
@@ -153,66 +221,21 @@ public final class PacketHandler {
         });
     }));
 
-    public static final IPacketHandler SKILL_UPGRADE_REQUEST = (((compound, context) -> {
-        IForgeRegistry<Skill> registry = GameRegistry.findRegistry(Skill.class);
-        Skill skill = registry.getValue(NBTHelper.getResourceLocation(compound, "location"));
-        assert skill != null;
+    public static final IPacketHandler GUI_PIN = (((compound, context) -> {
         Optional.ofNullable(NBTHelper.getEntity(EntityLivingBase.class, compound, "user")).ifPresent(e -> {
-            Capabilities.get(e).ifPresent(c -> {
-                if (c.owns(skill)) {
-                    c.get(skill).ifPresent(info -> {
-                        if (info instanceof IInfoUpgradeable) {
-                            int lvl = ((IInfoUpgradeable) info).getLevel() + 1;
-                            if (lvl <= skill.getMaxLevel()) {
-                                if (skill instanceof ISkillAdvancement) {
-                                    ISkillAdvancement advancement = (ISkillAdvancement) skill;
-                                    if (advancement.canUpgrade(e)) {
-                                        advancement.onUpgrade(e);
-                                        ((IInfoUpgradeable) info).setLevel(lvl);
-                                        PacketHelper.sendSkillsSync((EntityPlayerMP) e);
-                                        PacketHelper.sendAdvancementSync((EntityPlayerMP) e);
-                                        PacketHelper.sendGuiSync((EntityPlayerMP) e);
-                                    }
-                                } else {
-                                    ((IInfoUpgradeable) info).setLevel(lvl);
-                                    PacketHelper.sendSkillSync((EntityPlayerMP) e, skill);
-                                    PacketHelper.sendGuiSync((EntityPlayerMP) e);
-                                }
-                            }
-                        }
-                    });
-                } else {
-                    if (skill instanceof ISkillAdvancement) {
-                        ISkillAdvancement advancement = (ISkillAdvancement) skill;
-                        if (advancement.canUpgrade(e)) {
-                            advancement.onUpgrade(e);
-                            c.add(skill);
-                            PacketHelper.sendSkillsSync((EntityPlayerMP) e);
-                            PacketHelper.sendAdvancementSync((EntityPlayerMP) e);
-                            PacketHelper.sendGuiSync((EntityPlayerMP) e);
-                        }
-                    } else {
-                        c.add(skill);
-                        PacketHelper.sendSkillsSync((EntityPlayerMP) e);
-                        PacketHelper.sendGuiSync((EntityPlayerMP) e);
-                    }
+            Capabilities.advancement(e).ifPresent(c -> {
+                c.tabPin = compound.getInteger("tabPin");
+                c.tabPagePin = compound.getInteger("tabPagePin");
+                if (e instanceof EntityPlayerMP) {
+                    PacketHelper.sendAdvancementSync((EntityPlayerMP) e);
                 }
             });
         });
     }));
 
-    public static Runnable GUI_SYNC_QUEUE;
-
-    public static final IPacketHandler GUI_SYNC = (((compound, context) -> {
-        if (GUI_SYNC_QUEUE != null) {
-            GUI_SYNC_QUEUE.run();
-            GUI_SYNC_QUEUE = null;
-        }
-    }));
-
     public static final IPacketHandler USE_DASH_REQUEST = (((compound, context) -> {
         Optional.ofNullable(NBTHelper.getEntity(EntityLivingBase.class, compound, "user")).ifPresent(e -> {
-            Capabilities.get(e).flatMap(skills -> skills.get(ModAbilities.DASH)).ifPresent(info -> ModAbilities.DASH.use(e, info, NBTHelper.getVector(compound, "vector")));
+            Capabilities.get(e).flatMap(skills -> skills.getOwned(ModAbilities.DASH)).ifPresent(info -> ModAbilities.DASH.use(e, info, NBTHelper.getVector(compound, "vector")));
         });
     }));
 
@@ -228,13 +251,13 @@ public final class PacketHandler {
 
     public static final IPacketHandler USE_WARP_REQUEST = (((compound, context) -> {
         Optional.ofNullable(NBTHelper.getEntity(EntityLivingBase.class, compound, "user")).ifPresent(e -> {
-            Capabilities.get(e).flatMap(skills -> skills.get(ModAbilities.WARP)).ifPresent(info -> ModAbilities.WARP.use(e, info, NBTHelper.getVector(compound, "vector")));
+            Capabilities.get(e).flatMap(skills -> skills.getOwned(ModAbilities.WARP)).ifPresent(info -> ModAbilities.WARP.use(e, info, NBTHelper.getVector(compound, "vector")));
         });
     }));
 
     public static final IPacketHandler RESET_SKILLS_REQUEST = (((compound, context) -> {
         Optional.ofNullable(NBTHelper.getEntity(EntityLivingBase.class, compound, "user")).ifPresent(e -> {
-            Capabilities.get(e).ifPresent(SkilledEntityCapability::clear);
+            Capabilities.get(e).ifPresent(SkilledEntityCapability::clearOwned);
             Capabilities.advancement(e).ifPresent(c -> {
                 c.skillUnlockOrder = new Skill[0];
                 c.resetCount++;
@@ -299,16 +322,18 @@ public final class PacketHandler {
         HANDLERS.add(SYNC_SKILLS);
         HANDLERS.add(SYNC_SKILL);
         HANDLERS.add(SYNC_WEIGHT);
+        HANDLERS.add(CHANGE_WEIGHT);
         HANDLERS.add(SKILL_USE_REQUEST);
         HANDLERS.add(SKILL_HOLDER_USE_RESPONSE);
         HANDLERS.add(SKILL_USE_RESPONSE);
         HANDLERS.add(SKILL_REMOVE_RESPONSE);
         HANDLERS.add(SKILL_DATA_REMOVE_RESPONSE);
+        HANDLERS.add(SKILL_UPGRADE_REQUEST);
+        HANDLERS.add(SKILL_UPGRADE_SYNC);
         //TODO: REMOVE TOO HARDCODED!!
         HANDLERS.add(SYNC_ENDURANCE);
         HANDLERS.add(SYNC_ADVANCEMENT);
-        HANDLERS.add(SKILL_UPGRADE_REQUEST);
-        HANDLERS.add(GUI_SYNC);
+        HANDLERS.add(GUI_PIN);
         HANDLERS.add(RESET_SKILLS_REQUEST);
         HANDLERS.add(USE_DASH_REQUEST);
         HANDLERS.add(USE_FOG_REQUEST);

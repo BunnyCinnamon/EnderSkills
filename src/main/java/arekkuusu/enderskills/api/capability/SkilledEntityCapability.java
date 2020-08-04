@@ -1,8 +1,8 @@
 package arekkuusu.enderskills.api.capability;
 
-import arekkuusu.enderskills.api.capability.data.IInfoCooldown;
 import arekkuusu.enderskills.api.capability.data.SkillHolder;
 import arekkuusu.enderskills.api.capability.data.SkillInfo;
+import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoCooldown;
 import arekkuusu.enderskills.api.helper.NBTHelper;
 import arekkuusu.enderskills.api.registry.Skill;
 import arekkuusu.enderskills.common.lib.LibMod;
@@ -39,100 +39,32 @@ import java.util.function.Function;
 public class SkilledEntityCapability implements ICapabilitySerializable<NBTTagCompound>, Capability.IStorage<SkilledEntityCapability> {
 
     private Map<Skill, SkillInfo> skillPlayerInfoMap = Maps.newHashMap();
-    private Object2IntMap<Skill> skillWeightMap = new Object2IntArrayMap<>();
     private List<SkillHolder> skillHolders = Lists.newLinkedList();
 
-    {
-        //Defense-Light
-        int i = 0;
-        putWeight(ModAbilities.CHARM, i + 1);
-        putWeight(ModAbilities.HEAL_AURA, i + 2);
-        putWeight(ModAbilities.POWER_BOOST, i + 3);
-        putWeight(ModAbilities.HEAL_OTHER, i + 4);
-        putWeight(ModAbilities.HEAL_SELF, i + 5);
-        putWeight(ModAbilities.NEARBY_INVINCIBILITY, i + 6);
-        //Defense-Earth
-        i += 6;
-        putWeight(ModAbilities.TAUNT, i + 1);
-        putWeight(ModAbilities.WALL, i + 2);
-        putWeight(ModAbilities.DOME, i + 3);
-        putWeight(ModAbilities.THORNY, i + 4);
-        putWeight(ModAbilities.SHOCKWAVE, i + 5);
-        putWeight(ModAbilities.ANIMATED_STONE_GOLEM, i + 6);
-        //Mobility-Wind
-        i += 6;
-        putWeight(ModAbilities.DASH, i + 1);
-        putWeight(ModAbilities.EXTRA_JUMP, i + 2);
-        putWeight(ModAbilities.FOG, i + 3);
-        putWeight(ModAbilities.SMASH, i + 4);
-        putWeight(ModAbilities.HASTEN, i + 5);
-        putWeight(ModAbilities.SPEED_BOOST, i + 6);
-        //Mobility-Void
-        i += 6;
-        putWeight(ModAbilities.WARP, i + 1);
-        putWeight(ModAbilities.INVISIBILITY, i + 2);
-        putWeight(ModAbilities.HOVER, i + 3);
-        putWeight(ModAbilities.UNSTABLE_PORTAL, i + 4);
-        putWeight(ModAbilities.PORTAL, i + 5);
-        putWeight(ModAbilities.TELEPORT, i + 6);
-        //Offense-Void
-        i += 6;
-        putWeight(ModAbilities.SHADOW, i + 1);
-        putWeight(ModAbilities.GLOOM, i + 2);
-        putWeight(ModAbilities.SHADOW_JAB, i + 3);
-        putWeight(ModAbilities.GAS_CLOUD, i + 4);
-        putWeight(ModAbilities.GRASP, i + 5);
-        putWeight(ModAbilities.BLACK_HOLE, i + 6);
-        //Offense-Blood
-        i += 6;
-        putWeight(ModAbilities.BLEED, i + 1);
-        putWeight(ModAbilities.BLOOD_POOL, i + 2);
-        putWeight(ModAbilities.CONTAMINATE, i + 3);
-        putWeight(ModAbilities.LIFE_STEAL, i + 4);
-        putWeight(ModAbilities.SYPHON, i + 5);
-        putWeight(ModAbilities.SACRIFICE, i + 6);
-        //Offense-Wind
-        i += 6;
-        putWeight(ModAbilities.SLASH, i + 1);
-        putWeight(ModAbilities.PUSH, i + 2);
-        putWeight(ModAbilities.PULL, i + 3);
-        putWeight(ModAbilities.CRUSH, i + 4);
-        putWeight(ModAbilities.UPDRAFT, i + 5);
-        putWeight(ModAbilities.SUFFOCATE, i + 6);
-        //Offense-Fire
-        i += 6;
-        putWeight(ModAbilities.FIRE_SPIRIT, i + 1);
-        putWeight(ModAbilities.FLAMING_BREATH, i + 2);
-        putWeight(ModAbilities.FLAMING_RAIN, i + 3);
-        putWeight(ModAbilities.FOCUS_FLAME, i + 4);
-        putWeight(ModAbilities.FIREBALL, i + 5);
-        putWeight(ModAbilities.EXPLODE, i + 6);
-    }
-
     /* Skill Info */
-    public Map<Skill, SkillInfo> getAll() {
+    public Map<Skill, SkillInfo> getAllOwned() {
         return skillPlayerInfoMap;
     }
 
-    public Optional<SkillInfo> get(Skill skill) {
+    public Optional<SkillInfo> getOwned(Skill skill) {
         return Optional.ofNullable(skillPlayerInfoMap.get(skill));
     }
 
-    public boolean owns(Skill skill) {
+    public boolean isOwned(Skill skill) {
         return skillPlayerInfoMap.containsKey(skill);
     }
 
-    public void add(Skill skill) {
-        if (!owns(skill)) {
+    public void addOwned(Skill skill) {
+        if (!isOwned(skill)) {
             skillPlayerInfoMap.put(skill, skill.createInfo(new NBTTagCompound()));
         }
     }
 
-    public void remove(Skill skill) {
+    public void removeOwned(Skill skill) {
         skillPlayerInfoMap.remove(skill);
     }
 
-    public void clear() {
+    public void clearOwned() {
         skillPlayerInfoMap.clear();
     }
     /* Skill Info */
@@ -177,26 +109,16 @@ public class SkilledEntityCapability implements ICapabilitySerializable<NBTTagCo
             }
         }
     }
+
+    public void clearActive() {
+        skillHolders.forEach(SkillHolder::setDead);
+    }
     /* Skill Holders */
-
-    /* Skill Weights */
-    public boolean hasWeight(Skill skill) {
-        return skillWeightMap.containsKey(skill);
-    }
-
-    public void putWeight(Skill skill, int weight) {
-        skillWeightMap.put(skill, weight);
-    }
-
-    public int getWeight(Skill skill) {
-        return skillWeightMap.getOrDefault(skill, Integer.MAX_VALUE);
-    }
-    /* Skill Weights */
 
     @Deprecated
     public void tick(EntityLivingBase entity) {
         //Iterate Cooldowns
-        for (Map.Entry<Skill, SkillInfo> entry : getAll().entrySet()) {
+        for (Map.Entry<Skill, SkillInfo> entry : getAllOwned().entrySet()) {
             SkillInfo skillInfo = entry.getValue();
             if (skillInfo instanceof IInfoCooldown && ((IInfoCooldown) skillInfo).hasCooldown()) {
                 ((IInfoCooldown) skillInfo).setCooldown(((IInfoCooldown) skillInfo).getCooldown() - 1);
@@ -240,10 +162,8 @@ public class SkilledEntityCapability implements ICapabilitySerializable<NBTTagCo
     //** NBT **//
     public static final String SKILL_LIST_NBT = "skill_list";
     public static final String HOLDER_LIST_NBT = "holder_list";
-    public static final String WEIGHT_LIST_NBT = "weight_info";
     public static final String SKILL_NBT = "skill";
     public static final String SKILL_INFO_NBT = "skill_info";
-    public static final String SKILL_WEIGHT_NBT = "skill_weight";
 
     @Override
     @Nullable
@@ -251,7 +171,6 @@ public class SkilledEntityCapability implements ICapabilitySerializable<NBTTagCo
         NBTTagCompound tag = new NBTTagCompound();
         NBTTagList attributeList = new NBTTagList();
         NBTTagList skillHolderList = new NBTTagList();
-        NBTTagList skillWeightList = new NBTTagList();
         //Write all Skills
         for (Entry<Skill, SkillInfo> set : instance.skillPlayerInfoMap.entrySet()) {
             NBTTagCompound compound = new NBTTagCompound();
@@ -264,17 +183,9 @@ public class SkilledEntityCapability implements ICapabilitySerializable<NBTTagCo
             NBTTagCompound compound = skillHolder.serializeNBT();
             skillHolderList.appendTag(compound);
         }
-        //Write all Weights
-        for (Entry<Skill, Integer> set : instance.skillWeightMap.entrySet()) {
-            NBTTagCompound compound = new NBTTagCompound();
-            NBTHelper.setResourceLocation(compound, SKILL_NBT, set.getKey().getRegistryName());
-            compound.setInteger(SKILL_WEIGHT_NBT, set.getValue());
-            skillWeightList.appendTag(compound);
-        }
         //Write tags
         tag.setTag(SKILL_LIST_NBT, attributeList);
         tag.setTag(HOLDER_LIST_NBT, skillHolderList);
-        tag.setTag(WEIGHT_LIST_NBT, skillWeightList);
         return tag;
     }
 
@@ -282,11 +193,9 @@ public class SkilledEntityCapability implements ICapabilitySerializable<NBTTagCo
     public void readNBT(Capability<SkilledEntityCapability> capability, SkilledEntityCapability instance, EnumFacing side, NBTBase nbt) {
         instance.skillPlayerInfoMap.clear();
         instance.skillHolders.clear();
-        instance.skillWeightMap.clear();
         NBTTagCompound tag = (NBTTagCompound) nbt;
         NBTTagList attributeList = tag.getTagList(SKILL_LIST_NBT, Constants.NBT.TAG_COMPOUND);
         NBTTagList skillHolderList = tag.getTagList(HOLDER_LIST_NBT, Constants.NBT.TAG_COMPOUND);
-        NBTTagList skillWeightList = tag.getTagList(WEIGHT_LIST_NBT, Constants.NBT.TAG_COMPOUND);
         IForgeRegistry<Skill> registry = GameRegistry.findRegistry(Skill.class);
         //Read and add all Skills
         for (int i = 0; i < attributeList.tagCount(); i++) {
@@ -300,13 +209,6 @@ public class SkilledEntityCapability implements ICapabilitySerializable<NBTTagCo
         for (int i = 0; i < skillHolderList.tagCount(); i++) {
             NBTTagCompound compound = skillHolderList.getCompoundTagAt(i);
             instance.skillHolders.add(new SkillHolder(compound));
-        }
-        //Read and add all Weights
-        for (int i = 0; i < skillWeightList.tagCount(); i++) {
-            NBTTagCompound compound = skillWeightList.getCompoundTagAt(i);
-            ResourceLocation location = NBTHelper.getResourceLocation(compound, SKILL_NBT);
-            Skill skill = registry.getValue(location);
-            instance.skillWeightMap.put(skill, compound.getInteger(SKILL_WEIGHT_NBT));
         }
     }
 
