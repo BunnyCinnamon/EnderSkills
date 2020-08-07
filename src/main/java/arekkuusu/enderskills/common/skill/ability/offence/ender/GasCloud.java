@@ -25,6 +25,7 @@ import arekkuusu.enderskills.common.lib.LibMod;
 import arekkuusu.enderskills.common.lib.LibNames;
 import arekkuusu.enderskills.common.skill.ModAbilities;
 import arekkuusu.enderskills.common.skill.ModAttributes;
+import arekkuusu.enderskills.common.skill.SkillHelper;
 import arekkuusu.enderskills.common.skill.ability.AbilityInfo;
 import arekkuusu.enderskills.common.skill.ability.BaseAbility;
 import arekkuusu.enderskills.common.sound.ModSounds;
@@ -151,7 +152,7 @@ public class GasCloud extends BaseAbility implements IImpact, IExpand, IFindEnti
 
     @Override
     public void update(EntityLivingBase entity, SkillData data, int tick) {
-        Optional.ofNullable(NBTHelper.getEntity(EntityLivingBase.class, data.nbt, "user")).ifPresent(user -> {
+        SkillHelper.getOwner(data).ifPresent(user -> {
             if (entity != user) {
                 if (!isClientWorld(entity)) {
                     double damage = data.nbt.getDouble("dot");

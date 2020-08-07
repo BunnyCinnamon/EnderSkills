@@ -14,7 +14,7 @@ public class ExtraJumpRenderer extends SkillRenderer<ExtraJump> {
 
     @Override
     public void render(Entity entity, double x, double y, double z, float partialTicks, SkillHolder skillHolder) {
-        if (skillHolder.tick == 0) {
+        if (skillHolder.tick == 1) {
             for (int i = 0; i < 16; i++) {
                 if (entity.world.rand.nextDouble() < 0.8D) {
                     Vec3d vec = entity.getPositionVector();

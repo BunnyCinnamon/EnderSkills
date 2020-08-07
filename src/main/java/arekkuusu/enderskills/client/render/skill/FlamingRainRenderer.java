@@ -9,6 +9,7 @@ import arekkuusu.enderskills.client.util.helper.RenderMisc;
 import arekkuusu.enderskills.common.EnderSkills;
 import arekkuusu.enderskills.common.entity.placeable.EntityPlaceableFlamingRain;
 import arekkuusu.enderskills.common.skill.ModAbilities;
+import arekkuusu.enderskills.common.skill.SkillHelper;
 import arekkuusu.enderskills.common.skill.ability.offence.fire.FlamingRain;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.entity.Render;
@@ -31,8 +32,7 @@ public class FlamingRainRenderer extends SkillRenderer<FlamingRain> {
 
     @Override
     public void render(Entity entity, double x, double y, double z, float partialTicks, SkillHolder skillHolder) {
-        Entity owner = NBTHelper.getEntity(EntityLivingBase.class, skillHolder.data.nbt, "user");
-        if (owner != entity) {
+        if (SkillHelper.isNotOwner(entity, skillHolder)) {
             RenderMisc.renderEntityOnFire(entity, x, y, z);
         }
     }

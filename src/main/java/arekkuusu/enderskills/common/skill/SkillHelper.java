@@ -1,6 +1,7 @@
 package arekkuusu.enderskills.common.skill;
 
 import arekkuusu.enderskills.api.capability.Capabilities;
+import arekkuusu.enderskills.api.capability.data.SkillData;
 import arekkuusu.enderskills.api.capability.data.SkillHolder;
 import arekkuusu.enderskills.api.helper.NBTHelper;
 import arekkuusu.enderskills.api.registry.Skill;
@@ -19,9 +20,18 @@ public final class SkillHelper {
         return source.getDamageType().matches(BaseAbility.DAMAGE_HIT_TYPE + "|" + BaseAbility.DAMAGE_DOT_TYPE);
     }
 
+    public static Optional<EntityLivingBase> getOwner(SkillData data) {
+        return Optional.ofNullable(NBTHelper.getEntity(EntityLivingBase.class, data.nbt, "user"));
+    }
+
+    public static boolean isNotOwner(Entity entity, SkillHolder holder) {
+        Entity owner = NBTHelper.getEntity(EntityLivingBase.class, holder.data.nbt, "user");
+        return owner == null || entity != owner;
+    }
+
     public static void getActiveOwner(Entity entity, Skill skill, Consumer<SkillHolder> consumer) {
         SkillHelper.getActive(entity, skill, holder -> {
-            Optional.ofNullable(NBTHelper.getEntity(EntityLivingBase.class, holder.data.nbt, "user")).ifPresent(user -> {
+            SkillHelper.getOwner(holder.data).ifPresent(user -> {
                 if (entity == user) {
                     consumer.accept(holder);
                 }
@@ -31,7 +41,7 @@ public final class SkillHelper {
 
     public static void getActiveNotOwner(Entity entity, Skill skill, Consumer<SkillHolder> consumer) {
         SkillHelper.getActive(entity, skill, holder -> {
-            Optional.ofNullable(NBTHelper.getEntity(EntityLivingBase.class, holder.data.nbt, "user")).ifPresent(user -> {
+            SkillHelper.getOwner(holder.data).ifPresent(user -> {
                 if (entity != user) {
                     consumer.accept(holder);
                 }

@@ -11,6 +11,7 @@ import arekkuusu.enderskills.common.potion.ModPotionTypes;
 import arekkuusu.enderskills.common.potion.ModPotions;
 import arekkuusu.enderskills.common.skill.ModAbilities;
 import arekkuusu.enderskills.common.skill.ModAttributes;
+import arekkuusu.enderskills.common.skill.ModStatus;
 import arekkuusu.enderskills.common.sound.ModSounds;
 import net.minecraft.block.Block;
 import net.minecraft.item.Item;
@@ -39,6 +40,7 @@ public final class CommonEvents {
     public static void registerSkills(RegistryEvent.Register<Skill> event) {
         ModAttributes.register(event.getRegistry());
         ModAbilities.register(event.getRegistry());
+        ModStatus.register(event.getRegistry());
     }
 
     @SubscribeEvent

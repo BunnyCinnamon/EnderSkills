@@ -74,7 +74,7 @@ public class HealAuraRenderer extends SkillRenderer<HealAura> {
             GlStateManager.translate(x, y, z);
             GLHelper.BLEND_SRC_ALPHA$ONE.blend();
             ShaderLibrary.BRIGHT.begin();
-            ShaderLibrary.BRIGHT.set("alpha", SkillRenderer.getBlend(entity.tick, entity.getLifeTime(), 0.8F));
+            ShaderLibrary.BRIGHT.set("alpha", SkillRenderer.getDiffuseBlend(entity.tick, entity.getLifeTime(), 0.8F));
             GlStateManager.disableLighting();
             GlStateManager.enableBlend();
             this.bindTexture(getEntityTexture(entity));

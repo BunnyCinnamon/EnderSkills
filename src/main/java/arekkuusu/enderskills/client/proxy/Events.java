@@ -45,6 +45,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import org.lwjgl.opengl.GL11;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -402,11 +403,33 @@ public class Events {
     //----------------Particle Renderer End----------------//
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
-    public static void onEntityTick(LivingEvent.LivingUpdateEvent event) {
+    public static void onEntityTickActive(LivingEvent.LivingUpdateEvent event) {
         if (event.getEntityLiving().getEntityWorld().isRemote) {
             EntityLivingBase entity = event.getEntityLiving();
             Capabilities.get(entity).ifPresent(skills -> {
-                skills.tick(entity);
+                //Iterate Entity-level SkillHolders
+                Iterator<SkillHolder> iterator = skills.getActives().iterator();
+                while (iterator.hasNext()) {
+                    SkillHolder holder = iterator.next();
+                    holder.tick(entity);
+                    if (holder.isDead()) iterator.remove();
+                }
+            });
+        }
+    }
+
+    @SubscribeEvent(priority = EventPriority.LOWEST)
+    public static void onEntityTickCooldown(LivingEvent.LivingUpdateEvent event) {
+        if (event.getEntityLiving().getEntityWorld().isRemote) {
+            EntityLivingBase entity = event.getEntityLiving();
+            Capabilities.get(entity).ifPresent(skills -> {
+                //Iterate Cooldowns
+                for (Map.Entry<Skill, SkillInfo> entry : skills.getAllOwned().entrySet()) {
+                    SkillInfo skillInfo = entry.getValue();
+                    if (skillInfo instanceof SkillInfo.IInfoCooldown && ((SkillInfo.IInfoCooldown) skillInfo).hasCooldown()) {
+                        ((SkillInfo.IInfoCooldown) skillInfo).setCooldown(((SkillInfo.IInfoCooldown) skillInfo).getCooldown() - 1);
+                    }
+                }
             });
         }
     }

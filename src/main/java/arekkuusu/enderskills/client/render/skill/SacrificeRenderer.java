@@ -28,7 +28,7 @@ public class SacrificeRenderer extends SkillRenderer<Sacrifice> {
 
     @Override
     public void render(Entity entity, double x, double y, double z, float partialTicks, SkillHolder skillHolder) {
-        if (skillHolder.tick == 0) {
+        if (skillHolder.tick == 1) {
             Vec3d vec = entity.getPositionVector();
             double posX = vec.x;
             double posY = vec.y + entity.height / 2;

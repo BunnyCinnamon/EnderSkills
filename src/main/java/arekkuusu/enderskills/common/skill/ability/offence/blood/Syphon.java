@@ -20,6 +20,7 @@ import arekkuusu.enderskills.common.lib.LibMod;
 import arekkuusu.enderskills.common.lib.LibNames;
 import arekkuusu.enderskills.common.skill.ModAbilities;
 import arekkuusu.enderskills.common.skill.ModAttributes;
+import arekkuusu.enderskills.common.skill.SkillHelper;
 import arekkuusu.enderskills.common.skill.ability.AbilityInfo;
 import arekkuusu.enderskills.common.skill.ability.BaseAbility;
 import arekkuusu.enderskills.common.sound.ModSounds;
@@ -78,7 +79,7 @@ public class Syphon extends BaseAbility implements IImpact, ISkillAdvancement {
     @Override
     public void begin(EntityLivingBase target, SkillData data) {
         if (isClientWorld(target)) return;
-        Optional.ofNullable(NBTHelper.getEntity(EntityLivingBase.class, data.nbt, "user")).ifPresent(user -> {
+        SkillHelper.getOwner(data).ifPresent(user -> {
             if (target instanceof EntityLiving) {
                 Capabilities.get(user).flatMap(c -> c.getOwned(this)).ifPresent(skillInfo -> {
                     AbilityInfo abilityInfo = (AbilityInfo) skillInfo;

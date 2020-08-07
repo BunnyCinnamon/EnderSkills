@@ -100,7 +100,7 @@ public class Charm extends BaseAbility implements IImpact, ISkillAdvancement {
     public void update(EntityLivingBase target, SkillData data, int tick) {
         if (isClientWorld(target) && !(target instanceof EntityPlayer)) return;
         if (isStunnedByAbility(target)) return;
-        Optional.ofNullable(NBTHelper.getEntity(EntityLivingBase.class, data.nbt, "user")).ifPresent(user -> {
+        SkillHelper.getOwner(data).ifPresent(user -> {
             if (target instanceof EntityLiving) {
                 ((EntityLiving) target).getNavigator().clearPath();
             }

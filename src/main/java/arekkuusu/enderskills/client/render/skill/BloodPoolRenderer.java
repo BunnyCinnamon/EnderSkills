@@ -20,6 +20,7 @@ import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -74,7 +75,7 @@ public class BloodPoolRenderer extends SkillRenderer<BloodPool> {
                 Tessellator tessellator = Tessellator.getInstance();
                 BufferBuilder buffer = tessellator.getBuffer();
                 buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.BLOCK);
-                float fading = 1F - (float) (entity.getPosition().getDistance(pos.getX(), entity.getPosition().getY(), pos.getZ()) / (entity.getRadius() * 1.5D));
+                float fading = MathHelper.clamp(1F - (float) (entity.getPosition().getDistance(pos.getX(), pos.getY(), pos.getZ()) / (entity.getRadius() * 1.5D)), 0F, 1F);
                 double yOffset = 0.005D;
                 double xPos = pos.getX();
                 double yPos = pos.getY() + 1;

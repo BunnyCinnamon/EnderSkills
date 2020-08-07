@@ -48,7 +48,7 @@ public class EntityCrushRenderer extends Render<EntityCrush> {
             GlStateManager.translate(x, y, z);
             GLHelper.BLEND_NORMAL.blend();
             ShaderLibrary.BRIGHT.begin();
-            ShaderLibrary.BRIGHT.set("alpha", SkillRenderer.getBlend(22 - entity.lifeTicks, 22, 0.4F));
+            ShaderLibrary.BRIGHT.set("alpha", SkillRenderer.getDiffuseBlend(22 - entity.lifeTicks, 22, 0.4F));
             GlStateManager.disableLighting();
             GlStateManager.enableBlend();
             GlStateManager.translate(-0.5, 0, -0.5);

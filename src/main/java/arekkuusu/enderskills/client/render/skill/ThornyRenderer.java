@@ -25,7 +25,7 @@ public class ThornyRenderer extends SkillRenderer<Thorny> {
         GlStateManager.pushMatrix();
         GlStateManager.translate(x, y, z);
         ShaderLibrary.BRIGHT.begin();
-        ShaderLibrary.BRIGHT.set("alpha", SkillRenderer.getBlend(skillHolder.tick, skillHolder.data.time, 1F));
+        ShaderLibrary.BRIGHT.set("alpha", SkillRenderer.getDiffuseBlend(skillHolder.tick, skillHolder.data.time, 1F));
         GlStateManager.disableLighting();
         this.bindTexture(FOLLOWING);
         double width = entity.width / 2;

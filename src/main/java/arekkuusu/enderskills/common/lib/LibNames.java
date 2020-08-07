@@ -78,6 +78,8 @@ public class LibNames {
     public static final String FOCUS_FLAME = "focus_flame";
     public static final String FIREBALL = "fireball";
     public static final String EXPLODE = "explode";
+    //Status
+    public static final String OVER_HEAL = "over_heal";
     //Misc
     public static final String BOOK = "book";
     public static final String ALTAR = "altar";

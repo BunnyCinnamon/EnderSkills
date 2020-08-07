@@ -6,6 +6,7 @@ import arekkuusu.enderskills.client.render.entity.EntityThrowableDataRenderer;
 import arekkuusu.enderskills.client.util.ResourceLibrary;
 import arekkuusu.enderskills.common.EnderSkills;
 import arekkuusu.enderskills.common.skill.ModAbilities;
+import arekkuusu.enderskills.common.skill.SkillHelper;
 import arekkuusu.enderskills.common.skill.ability.offence.blood.Syphon;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
@@ -22,7 +23,7 @@ public class SyphonRenderer extends SkillRenderer<Syphon> {
 
     @Override
     public void render(Entity entity, double x, double y, double z, float partialTicks, SkillHolder skillHolder) {
-        if (skillHolder.tick == 0) {
+        if (skillHolder.tick == 1) {
             Entity source = NBTHelper.getEntity(EntityLivingBase.class, skillHolder.data.nbt, "user");
             if (source != null) {
                 for (int i = 0; i < 6; i++) {

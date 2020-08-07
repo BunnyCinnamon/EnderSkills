@@ -35,7 +35,7 @@ public class NearbyInvincibilityRenderer extends SkillRenderer<NearbyInvincibili
         GlStateManager.rotate(entity.ticksExisted * 0.75F % 360F, 0F, 1F, 0F);
         GLHelper.BLEND_SRC_ALPHA$ONE.blend();
         ShaderLibrary.BRIGHT.begin();
-        ShaderLibrary.BRIGHT.set("alpha", SkillRenderer.getBlend(skillHolder.tick, skillHolder.data.time, 0.5F));
+        ShaderLibrary.BRIGHT.set("alpha", SkillRenderer.getDiffuseBlend(skillHolder.tick, skillHolder.data.time, 0.5F));
         GlStateManager.disableLighting();
         GlStateManager.enableBlend();
         //Get Owner

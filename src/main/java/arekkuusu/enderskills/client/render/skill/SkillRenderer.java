@@ -22,10 +22,15 @@ public abstract class SkillRenderer<T extends Skill> {
         //For Rent
     }
 
-    public static float getBlend(int tick, int maxTick, float blend) {
+    public static float getDiffuseBlend(int tick, int maxTick, float blend) {
         float startBlend = maxTick * 0.8F;
         float endBlend = maxTick * 0.2F;
         return tick < startBlend ? blend : blend * (1F - ((tick - startBlend) / endBlend));
+    }
+
+    public static float getSmoothBlend(int tick, int maxTick, float blend) {
+        float midBlend = maxTick * 0.5F;
+        return tick < midBlend ? blend * (tick / midBlend) : blend * (1F - ((tick - midBlend) / midBlend));
     }
 
     public void bindTexture(ResourceLocation location) {

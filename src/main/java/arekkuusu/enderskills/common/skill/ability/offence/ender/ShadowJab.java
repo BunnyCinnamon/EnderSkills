@@ -80,7 +80,7 @@ public class ShadowJab extends BaseAbility implements ISkillAdvancement {
     @Override
     public void begin(EntityLivingBase entity, SkillData data) {
         if (isClientWorld(entity)) {
-            Optional.ofNullable(NBTHelper.getEntity(EntityLivingBase.class, data.nbt, "user")).ifPresent(user -> {
+        SkillHelper.getOwner(data).ifPresent(user -> {
                 if (entity == user) {
                     makeSound(entity);
                 }
@@ -95,7 +95,7 @@ public class ShadowJab extends BaseAbility implements ISkillAdvancement {
 
     @Override
     public void update(EntityLivingBase entity, SkillData data, int tick) {
-        Optional.ofNullable(NBTHelper.getEntity(EntityLivingBase.class, data.nbt, "user")).ifPresent(user -> {
+        SkillHelper.getOwner(data).ifPresent(user -> {
             if (!isClientWorld(entity)) {
                 if (entity == user) {
                     NBTHelper.getNBTList(data.nbt, "list").ifPresent(list -> {

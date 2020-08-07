@@ -120,7 +120,7 @@ public class Smash extends BaseAbility implements IScanEntities, IExpand, IFindE
     @Override
     public void update(EntityLivingBase target, SkillData data, int tick) {
         if (isClientWorld(target) && !(target instanceof EntityPlayer)) return;
-        Optional.ofNullable(NBTHelper.getEntity(EntityLivingBase.class, data.nbt, "user")).ifPresent(user -> {
+        SkillHelper.getOwner(data).ifPresent(user -> {
             if (target != user) {
                 if (target instanceof EntityLiving) {
                     ((EntityLiving) target).getNavigator().clearPath();

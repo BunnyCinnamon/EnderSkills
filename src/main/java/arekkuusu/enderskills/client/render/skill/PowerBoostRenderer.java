@@ -51,7 +51,7 @@ public class PowerBoostRenderer extends SkillRenderer<PowerBoost> {
         GlStateManager.pushMatrix();
         GLHelper.BLEND_SRC_ALPHA$ONE.blend();
         ShaderLibrary.BRIGHT.begin();
-        ShaderLibrary.BRIGHT.set("alpha", SkillRenderer.getBlend(skillHolder.tick, skillHolder.data.time, 0.5F));
+        ShaderLibrary.BRIGHT.set("alpha", SkillRenderer.getDiffuseBlend(skillHolder.tick, skillHolder.data.time, 0.5F));
         GlStateManager.disableLighting();
         GlStateManager.enableBlend();
         this.bindTexture(FOLLOWING);

@@ -79,7 +79,8 @@ public class FireballRenderer extends SkillRenderer<Fireball> {
 
         @Override
         public void doRender(EntityThrowableData entity, double x, double y, double z, float entityYaw, float partialTicks) {
-            float particleScale = 0.5F + 5F * ((float) entity.ticksExisted / ((float) entity.getLifeTime() / 5F));
+            float particleProgress = Math.min(((float) entity.ticksExisted / ((float) entity.getLifeTime() / 5F)), 1F);
+            float particleScale = 0.5F + 5F * particleProgress;
             for (int i = 0; i < 6; i++) {
                 Vec3d vec = entity.getPositionEyes(1F);
                 Vec3d motion = new Vec3d(entity.prevPosX, entity.prevPosY + entity.getEyeHeight(), entity.prevPosZ).subtract(vec);

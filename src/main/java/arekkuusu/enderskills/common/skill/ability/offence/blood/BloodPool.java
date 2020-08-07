@@ -28,6 +28,7 @@ import arekkuusu.enderskills.common.lib.LibMod;
 import arekkuusu.enderskills.common.lib.LibNames;
 import arekkuusu.enderskills.common.skill.ModAbilities;
 import arekkuusu.enderskills.common.skill.ModAttributes;
+import arekkuusu.enderskills.common.skill.SkillHelper;
 import arekkuusu.enderskills.common.skill.ability.AbilityInfo;
 import arekkuusu.enderskills.common.skill.ability.BaseAbility;
 import arekkuusu.enderskills.common.sound.ModSounds;
@@ -150,7 +151,7 @@ public class BloodPool extends BaseAbility implements IImpact, ILoopSound, IExpa
     @Override
     public void update(EntityLivingBase entity, SkillData data, int tick) {
         if (isClientWorld(entity)) return;
-        Optional.ofNullable(NBTHelper.getEntity(EntityLivingBase.class, data.nbt, "user")).ifPresent(user -> {
+        SkillHelper.getOwner(data).ifPresent(user -> {
             if (entity != user) {
                 double damage = data.nbt.getDouble("dot");
                 double time = data.nbt.getInteger("dotDuration");

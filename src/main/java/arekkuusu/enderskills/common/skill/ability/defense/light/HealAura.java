@@ -2,10 +2,10 @@ package arekkuusu.enderskills.common.skill.ability.defense.light;
 
 import arekkuusu.enderskills.api.capability.AdvancementCapability;
 import arekkuusu.enderskills.api.capability.Capabilities;
-import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoCooldown;
-import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoUpgradeable;
 import arekkuusu.enderskills.api.capability.data.SkillData;
 import arekkuusu.enderskills.api.capability.data.SkillInfo;
+import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoCooldown;
+import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoUpgradeable;
 import arekkuusu.enderskills.api.capability.data.nbt.UUIDWatcher;
 import arekkuusu.enderskills.api.helper.ExpressionHelper;
 import arekkuusu.enderskills.api.helper.NBTHelper;
@@ -22,8 +22,10 @@ import arekkuusu.enderskills.common.lib.LibMod;
 import arekkuusu.enderskills.common.lib.LibNames;
 import arekkuusu.enderskills.common.skill.ModAbilities;
 import arekkuusu.enderskills.common.skill.ModAttributes;
+import arekkuusu.enderskills.common.skill.SkillHelper;
 import arekkuusu.enderskills.common.skill.ability.AbilityInfo;
 import arekkuusu.enderskills.common.skill.ability.BaseAbility;
+import arekkuusu.enderskills.common.skill.status.OverHeal;
 import arekkuusu.enderskills.common.sound.ModSounds;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
@@ -98,11 +100,11 @@ public class HealAura extends BaseAbility implements IScanEntities, IExpand, IFi
     @Override
     public void begin(EntityLivingBase target, SkillData data) {
         if (isClientWorld(target)) return;
-        Optional.ofNullable(NBTHelper.getEntity(EntityLivingBase.class, data.nbt, "user")).ifPresent(user -> {
+        SkillHelper.getOwner(data).ifPresent(user -> {
             Capabilities.get(user).flatMap(s -> s.getOwned(this)).ifPresent(skillInfo -> {
                 AbilityInfo abilityInfo = (AbilityInfo) skillInfo;
                 double healing = getHeal(abilityInfo);
-                target.heal((float) (target.getMaxHealth() * healing));
+                OverHeal.heal(target, (float) (target.getMaxHealth() * healing));
             });
         });
     }

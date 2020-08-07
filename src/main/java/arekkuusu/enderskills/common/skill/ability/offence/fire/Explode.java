@@ -24,6 +24,7 @@ import arekkuusu.enderskills.common.lib.LibMod;
 import arekkuusu.enderskills.common.lib.LibNames;
 import arekkuusu.enderskills.common.skill.ModAbilities;
 import arekkuusu.enderskills.common.skill.ModAttributes;
+import arekkuusu.enderskills.common.skill.SkillHelper;
 import arekkuusu.enderskills.common.skill.ability.AbilityInfo;
 import arekkuusu.enderskills.common.skill.ability.BaseAbility;
 import arekkuusu.enderskills.common.skill.ability.offence.ender.Gloom;
@@ -101,7 +102,7 @@ public class Explode extends BaseAbility implements IScanEntities, IExpand, IFin
     @Override
     public void begin(EntityLivingBase entity, SkillData data) {
         if (isClientWorld(entity)) return;
-        Optional.ofNullable(NBTHelper.getEntity(EntityLivingBase.class, data.nbt, "user")).ifPresent(user -> {
+        SkillHelper.getOwner(data).ifPresent(user -> {
             double damage = data.nbt.getDouble("damage");
             SkillDamageSource source = new SkillDamageSource(BaseAbility.DAMAGE_HIT_TYPE, user);
             source.setExplosion();
@@ -114,7 +115,7 @@ public class Explode extends BaseAbility implements IScanEntities, IExpand, IFin
     @Override
     public void update(EntityLivingBase entity, SkillData data, int tick) {
         if (isClientWorld(entity)) return;
-        Optional.ofNullable(NBTHelper.getEntity(EntityLivingBase.class, data.nbt, "user")).ifPresent(user -> {
+        SkillHelper.getOwner(data).ifPresent(user -> {
             double damage = data.nbt.getDouble("dot");
             double time = data.nbt.getInteger("dotDuration");
             SkillDamageSource source = new SkillDamageSource(BaseAbility.DAMAGE_DOT_TYPE, user);

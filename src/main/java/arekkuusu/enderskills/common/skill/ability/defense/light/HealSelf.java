@@ -18,6 +18,7 @@ import arekkuusu.enderskills.common.skill.ModAbilities;
 import arekkuusu.enderskills.common.skill.ModAttributes;
 import arekkuusu.enderskills.common.skill.ability.AbilityInfo;
 import arekkuusu.enderskills.common.skill.ability.BaseAbility;
+import arekkuusu.enderskills.common.skill.status.OverHeal;
 import arekkuusu.enderskills.common.sound.ModSounds;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
@@ -41,7 +42,6 @@ public class HealSelf extends BaseAbility implements ISkillAdvancement {
     public HealSelf() {
         super(LibNames.HEAL_SELF, new AbilityProperties());
         ((AbilityProperties) getProperties()).setCooldownGetter(this::getCooldown).setMaxLevelGetter(this::getMaxLevel);
-        MinecraftForge.EVENT_BUS.register(this);
     }
 
     @Override
@@ -69,7 +69,7 @@ public class HealSelf extends BaseAbility implements ISkillAdvancement {
         Capabilities.get(entity).flatMap(s -> s.getOwned(this)).ifPresent(skillInfo -> {
             AbilityInfo abilityInfo = (AbilityInfo) skillInfo;
             double healing = getHeal(abilityInfo);
-            entity.heal((float) (entity.getMaxHealth() * healing));
+            OverHeal.heal(entity, (float) (entity.getMaxHealth() * healing));
         });
     }
 

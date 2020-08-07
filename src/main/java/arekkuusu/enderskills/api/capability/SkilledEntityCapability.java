@@ -2,15 +2,11 @@ package arekkuusu.enderskills.api.capability;
 
 import arekkuusu.enderskills.api.capability.data.SkillHolder;
 import arekkuusu.enderskills.api.capability.data.SkillInfo;
-import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoCooldown;
 import arekkuusu.enderskills.api.helper.NBTHelper;
 import arekkuusu.enderskills.api.registry.Skill;
 import arekkuusu.enderskills.common.lib.LibMod;
-import arekkuusu.enderskills.common.skill.ModAbilities;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import it.unimi.dsi.fastutil.objects.Object2IntArrayMap;
-import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.nbt.NBTBase;
@@ -31,9 +27,13 @@ import net.minecraftforge.registries.IForgeRegistry;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.function.Function;
+import java.util.stream.Stream;
 
 @SuppressWarnings("ConstantConditions")
 public class SkilledEntityCapability implements ICapabilitySerializable<NBTTagCompound>, Capability.IStorage<SkilledEntityCapability> {
@@ -85,8 +85,7 @@ public class SkilledEntityCapability implements ICapabilitySerializable<NBTTagCo
     public void activate(SkillHolder holder) {
         if (holder.data.overrides.length > 0) {
             for (SkillHolder skillHolder : skillHolders) {
-                boolean remove = Arrays.stream(holder.data.overrides).anyMatch(s -> s == skillHolder.data.skill);
-                if (remove) {
+                if (Arrays.stream(holder.data.overrides).anyMatch(s -> s == skillHolder.data.skill)) { //Remove Override!
                     skillHolder.setDead();
                 }
             }
@@ -114,24 +113,6 @@ public class SkilledEntityCapability implements ICapabilitySerializable<NBTTagCo
         skillHolders.forEach(SkillHolder::setDead);
     }
     /* Skill Holders */
-
-    @Deprecated
-    public void tick(EntityLivingBase entity) {
-        //Iterate Cooldowns
-        for (Map.Entry<Skill, SkillInfo> entry : getAllOwned().entrySet()) {
-            SkillInfo skillInfo = entry.getValue();
-            if (skillInfo instanceof IInfoCooldown && ((IInfoCooldown) skillInfo).hasCooldown()) {
-                ((IInfoCooldown) skillInfo).setCooldown(((IInfoCooldown) skillInfo).getCooldown() - 1);
-            }
-        }
-        //Iterate Entity-level SkillHolders
-        Iterator<SkillHolder> iterator = getActives().iterator();
-        while (iterator.hasNext()) {
-            SkillHolder holder = iterator.next();
-            holder.tick(entity);
-            if (holder.isDead()) iterator.remove();
-        }
-    }
 
     public static void init() {
         CapabilityManager.INSTANCE.register(SkilledEntityCapability.class, new SkilledEntityCapability(), SkilledEntityCapability::new);

@@ -21,6 +21,7 @@ import arekkuusu.enderskills.common.skill.ModAbilities;
 import arekkuusu.enderskills.common.skill.ModAttributes;
 import arekkuusu.enderskills.common.skill.ability.AbilityInfo;
 import arekkuusu.enderskills.common.skill.ability.BaseAbility;
+import arekkuusu.enderskills.common.skill.status.OverHeal;
 import arekkuusu.enderskills.common.sound.ModSounds;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
@@ -46,7 +47,6 @@ public class HealOther extends BaseAbility implements IImpact, ISkillAdvancement
     public HealOther() {
         super(LibNames.HEAL_OTHER, new AbilityProperties());
         ((AbilityProperties) getProperties()).setCooldownGetter(this::getCooldown).setMaxLevelGetter(this::getMaxLevel);
-        MinecraftForge.EVENT_BUS.register(this);
     }
 
     @Override
@@ -80,7 +80,7 @@ public class HealOther extends BaseAbility implements IImpact, ISkillAdvancement
     public void begin(EntityLivingBase entity, SkillData data) {
         if (isClientWorld(entity)) return;
         double healing = NBTHelper.getDouble(data.nbt, "healing");
-        entity.heal((float) (entity.getMaxHealth() * healing));
+        OverHeal.heal(entity, (float) (entity.getMaxHealth() * healing));
     }
 
     //* Entity *//

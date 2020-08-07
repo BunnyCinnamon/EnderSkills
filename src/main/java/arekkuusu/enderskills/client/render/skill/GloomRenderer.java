@@ -44,7 +44,7 @@ public class GloomRenderer extends SkillRenderer<Gloom> {
 
     @Override
     public void render(Entity entity, double x, double y, double z, float partialTicks, SkillHolder skillHolder) {
-        if (skillHolder.tick == 0) {
+        if (skillHolder.tick == 1) {
             Entity source = NBTHelper.getEntity(EntityLivingBase.class, skillHolder.data.nbt, "user");
             if (source != null) {
                 BEAMS.add(new Beam(entity, source));
@@ -114,6 +114,7 @@ public class GloomRenderer extends SkillRenderer<Gloom> {
             Entity source = referenceFrom.get();
             Entity entity = referenceTo.get();
             if (source != null && entity != null) {
+                float blend = SkillRenderer.getSmoothBlend(lifeTime, maxLifeTime, 1F);
                 if (!ClientConfig.RENDER_CONFIG.rendering.helpMyFramesAreDying) {
                     if (!ClientConfig.RENDER_CONFIG.rendering.vanilla) {
                         ShaderLibrary.UNIVERSE.begin();
@@ -122,17 +123,17 @@ public class GloomRenderer extends SkillRenderer<Gloom> {
                         ShaderLibrary.UNIVERSE.set("pitch", -(Minecraft.getMinecraft().player.rotationPitch * 2F * 3.141592653589793F / 360.0F));
                         ShaderLibrary.UNIVERSE.set("color", 0.36F, 0.12F, 0.4F);
                         ShaderLibrary.UNIVERSE.set("ticks", RenderMisc.getRenderPlayerTime());
-                        ShaderLibrary.UNIVERSE.set("alpha", SkillRenderer.getBlend(lifeTime, maxLifeTime, 0.6F));
+                        ShaderLibrary.UNIVERSE.set("alpha", SkillRenderer.getDiffuseBlend(lifeTime, maxLifeTime, 0.6F * blend));
                     } else {
                         ShaderLibrary.UNIVERSE_DEFAULT.begin();
                         ShaderLibrary.UNIVERSE_DEFAULT.set("yaw", (Minecraft.getMinecraft().player.rotationYaw * 2F * 3.141592653589793F / 360F));
                         ShaderLibrary.UNIVERSE_DEFAULT.set("pitch", -(Minecraft.getMinecraft().player.rotationPitch * 2F * 3.141592653589793F / 360.0F));
                         ShaderLibrary.UNIVERSE_DEFAULT.set("time", RenderMisc.getRenderPlayerTime());
-                        ShaderLibrary.UNIVERSE_DEFAULT.set("alpha", SkillRenderer.getBlend(lifeTime, maxLifeTime, 0.6F));
+                        ShaderLibrary.UNIVERSE_DEFAULT.set("alpha", SkillRenderer.getDiffuseBlend(lifeTime, maxLifeTime, 0.6F * blend));
                     }
                 } else {
                     ShaderLibrary.BRIGHT.begin();
-                    ShaderLibrary.BRIGHT.set("alpha", SkillRenderer.getBlend(lifeTime, maxLifeTime, 0.6F));
+                    ShaderLibrary.BRIGHT.set("alpha", SkillRenderer.getDiffuseBlend(lifeTime, maxLifeTime, 0.6F * blend));
                 }
                 Tessellator tessellator = Tessellator.getInstance();
                 BufferBuilder buffer = tessellator.getBuffer();

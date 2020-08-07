@@ -113,7 +113,7 @@ public class AnimatedStoneGolem extends BaseAbility implements ISkillAdvancement
     @Override
     public void update(EntityLivingBase target, SkillData data, int tick) {
         if (isClientWorld(target) && !(target instanceof EntityPlayer)) return;
-        Optional.ofNullable(NBTHelper.getEntity(EntityLivingBase.class, data.nbt, "user")).ifPresent(user -> {
+        SkillHelper.getOwner(data).ifPresent(user -> {
             if (target != user && !(user instanceof EntityStoneGolem)) {
                 if (target instanceof EntityLiving) {
                     ((EntityLiving) target).getNavigator().clearPath();

@@ -84,7 +84,7 @@ public class SuffocateRenderer extends SkillRenderer<Suffocate> {
             GlStateManager.translate(x, y, z);
             GLHelper.BLEND_NORMAL.blend();
             ShaderLibrary.BRIGHT.begin();
-            ShaderLibrary.BRIGHT.set("alpha", SkillRenderer.getBlend(entity.tick, entity.getLifeTime(), 0.4F));
+            ShaderLibrary.BRIGHT.set("alpha", SkillRenderer.getDiffuseBlend(entity.tick, entity.getLifeTime(), 0.4F));
             GlStateManager.disableLighting();
             GlStateManager.enableBlend();
             this.bindTexture(getEntityTexture(entity));

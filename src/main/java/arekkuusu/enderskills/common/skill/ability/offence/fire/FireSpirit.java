@@ -91,7 +91,7 @@ public class FireSpirit extends BaseAbility implements ISkillAdvancement {
     @Override
     public void begin(EntityLivingBase entity, SkillData data) {
         if (isClientWorld(entity)) {
-            Optional.ofNullable(NBTHelper.getEntity(EntityLivingBase.class, data.nbt, "user")).ifPresent(user -> {
+        SkillHelper.getOwner(data).ifPresent(user -> {
                 if (entity == user) {
                     makeSound(entity);
                 }
@@ -108,7 +108,7 @@ public class FireSpirit extends BaseAbility implements ISkillAdvancement {
     @Override
     public void update(EntityLivingBase entity, SkillData data, int tick) {
         if (isClientWorld(entity)) return;
-        Optional.ofNullable(NBTHelper.getEntity(EntityLivingBase.class, data.nbt, "user")).ifPresent(user -> {
+        SkillHelper.getOwner(data).ifPresent(user -> {
             if (entity == user) {
                 if (tick % 20 == 0 && (!(user instanceof EntityPlayer) || !((EntityPlayer) user).capabilities.isCreativeMode)) {
                     Capabilities.endurance(user).ifPresent(capability -> {

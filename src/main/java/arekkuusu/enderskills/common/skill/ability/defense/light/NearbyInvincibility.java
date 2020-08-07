@@ -88,7 +88,7 @@ public class NearbyInvincibility extends BaseAbility implements ISkillAdvancemen
     @Override
     public void update(EntityLivingBase entity, SkillData data, int tick) {
         if (isClientWorld(entity)) return;
-        Optional.ofNullable(NBTHelper.getEntity(EntityLivingBase.class, data.nbt, "user")).ifPresent(user -> {
+        SkillHelper.getOwner(data).ifPresent(user -> {
             double distance = NBTHelper.getDouble(data.nbt, "range") * ((double) tick / (double) NBTHelper.getInteger(data.nbt, "time"));
             if (user != entity) {
                 if (distance >= user.getDistance(entity)) {

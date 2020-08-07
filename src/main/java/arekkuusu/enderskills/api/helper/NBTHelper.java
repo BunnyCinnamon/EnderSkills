@@ -23,6 +23,7 @@ import javax.annotation.Nullable;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.WeakHashMap;
 import java.util.stream.Stream;
 
 public final class NBTHelper {
@@ -220,16 +221,15 @@ public final class NBTHelper {
         setNBT(compound, "entity", nbt);
     }
 
+    public static final WeakHashMap<String, Entity> entityWeakHashMap = new WeakHashMap<>(); //Suck my programmer dick
+
     @Nullable
     public static <T extends Entity> T getEntity(Class<T> ent, NBTTagCompound compound, String subtag) {
         NBTTagCompound nbt = getNBTTag(compound, "entity");
         NBTTagCompound tag = getNBTTag(nbt, subtag);
         UUID u = getUUID(tag, "uuid");
         World w = getWorld(tag, "world");
-        for (Entity entity : w.loadedEntityList) {
-            if (ent.isAssignableFrom(ent) && entity.getUniqueID().equals(u)) return ent.cast(entity);
-        }
-        return null;
+        return WorldHelper.getEntity(ent, w, u);
     }
 
     public static boolean hasUniqueID(NBTTagCompound compound, String tag) {

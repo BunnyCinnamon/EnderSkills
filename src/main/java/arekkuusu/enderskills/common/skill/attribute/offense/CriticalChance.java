@@ -20,6 +20,8 @@ import net.minecraft.util.DamageSource;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Config;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
+import net.minecraftforge.event.entity.player.CriticalHitEvent;
+import net.minecraftforge.fml.common.eventhandler.Event;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
@@ -38,18 +40,36 @@ public class CriticalChance extends BaseAttribute implements ISkillAdvancement {
 
     @SubscribeEvent(priority = EventPriority.LOW)
     public void onEntityDamage(LivingHurtEvent event) {
-        if (isClientWorld(event.getEntityLiving()) || event.getSource().getDamageType().equals("ability")) return;
+        if (isClientWorld(event.getEntityLiving())) return;
         DamageSource source = event.getSource();
-        if (!(source.getTrueSource() instanceof EntityLivingBase) || source instanceof SkillDamageSource) return;
-        EntityLivingBase target = event.getEntityLiving();
         EntityLivingBase attacker = (EntityLivingBase) source.getTrueSource();
+        if(attacker != null && source.getDamageType().equals("mob")) {
+            Capabilities.get(attacker).ifPresent(capability -> {
+                //Do Critical
+                if (capability.isOwned(this)) {
+                    capability.getOwned(this).ifPresent(skillInfo -> {
+                        AttributeInfo attributeInfo = (AttributeInfo) skillInfo;
+                        if (attacker.world.rand.nextDouble() < getModifier(attributeInfo)) {
+                            event.setAmount(event.getAmount() * 1.5F);
+                        }
+                    });
+                }
+            });
+        }
+    }
+
+    @SubscribeEvent(priority = EventPriority.LOW)
+    public void onEntityCritical(CriticalHitEvent event) {
+        if (event.getDamageModifier() > 1F || isClientWorld(event.getEntityLiving())) return;
+        EntityLivingBase attacker = event.getEntityLiving();
         Capabilities.get(attacker).ifPresent(capability -> {
             //Do Critical
             if (capability.isOwned(this)) {
                 capability.getOwned(this).ifPresent(skillInfo -> {
                     AttributeInfo attributeInfo = (AttributeInfo) skillInfo;
                     if (attacker.world.rand.nextDouble() < getModifier(attributeInfo)) {
-                        event.setAmount(event.getAmount() + (event.getAmount() * 0.1F));
+                        event.setDamageModifier(1.5F);
+                        event.setResult(Event.Result.ALLOW);
                     }
                 });
             }
@@ -179,7 +199,7 @@ public class CriticalChance extends BaseAttribute implements ISkillAdvancement {
             public static class Advancement {
                 @Config.Comment("Function f(x)=? where 'x' is [Next Level] and 'y' is [Max Level], XP Cost is in units [NOT LEVELS]")
                 public String[] upgrade = {
-                        "(0+){800 * (x / y)}"
+                        "(0+){(75 * (1 - (0 ^ (0 ^ x)))) + 800 * (x / y)}"
                 };
             }
         }

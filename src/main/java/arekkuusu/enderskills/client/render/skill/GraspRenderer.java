@@ -24,6 +24,7 @@ import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
@@ -115,7 +116,7 @@ public class GraspRenderer extends SkillRenderer<Grasp> {
                 }
                 GlStateManager.enableBlend();
                 if (!ClientConfig.RENDER_CONFIG.rendering.helpMyFramesAreDying) {
-                    float fading = 1F - (float) (entity.getPosition().getDistance(pos.getX(), entity.getPosition().getY(), pos.getZ()) / (entity.getRadius() * 1.5D));
+                    float fading = MathHelper.clamp(1F - (float) (entity.getPosition().getDistance(pos.getX(), pos.getY(), pos.getZ()) / (entity.getRadius() * 1.5D)), 0F, 1F);
                     if (!ClientConfig.RENDER_CONFIG.rendering.vanilla) {
                         ShaderLibrary.UNIVERSE.begin();
                         ShaderLibrary.UNIVERSE.set("dimensions", Minecraft.getMinecraft().displayWidth, Minecraft.getMinecraft().displayHeight);
