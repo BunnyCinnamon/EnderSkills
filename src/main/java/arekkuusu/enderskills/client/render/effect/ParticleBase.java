@@ -24,7 +24,7 @@ public class ParticleBase extends Particle {
         this.motionX = speed.x;
         this.motionY = speed.y;
         this.motionZ = speed.z;
-        this.particleAngle = 0/*rand.nextBoolean() ? 2F : -2F * (float) Math.PI*/;
+        this.particleAngle = 0;
         this.particleMaxAge = age;
         this.particleScale = scale;
         this.initScale = particleScale;

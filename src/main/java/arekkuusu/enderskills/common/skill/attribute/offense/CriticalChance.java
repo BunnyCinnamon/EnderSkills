@@ -2,7 +2,6 @@ package arekkuusu.enderskills.common.skill.attribute.offense;
 
 import arekkuusu.enderskills.api.capability.Capabilities;
 import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoUpgradeable;
-import arekkuusu.enderskills.api.event.SkillDamageSource;
 import arekkuusu.enderskills.api.helper.ExpressionHelper;
 import arekkuusu.enderskills.api.helper.NBTHelper;
 import arekkuusu.enderskills.client.gui.data.ISkillAdvancement;
@@ -40,10 +39,11 @@ public class CriticalChance extends BaseAttribute implements ISkillAdvancement {
 
     @SubscribeEvent(priority = EventPriority.LOW)
     public void onEntityDamage(LivingHurtEvent event) {
-        if (isClientWorld(event.getEntityLiving())) return;
+        if (!(event.getEntity() instanceof EntityLivingBase) || !(event.getSource().getTrueSource() instanceof EntityLivingBase) || isClientWorld(event.getEntityLiving()))
+            return;
         DamageSource source = event.getSource();
         EntityLivingBase attacker = (EntityLivingBase) source.getTrueSource();
-        if(attacker != null && source.getDamageType().equals("mob")) {
+        if (attacker != null && source.getDamageType().equals("mob")) {
             Capabilities.get(attacker).ifPresent(capability -> {
                 //Do Critical
                 if (capability.isOwned(this)) {
@@ -60,7 +60,8 @@ public class CriticalChance extends BaseAttribute implements ISkillAdvancement {
 
     @SubscribeEvent(priority = EventPriority.LOW)
     public void onEntityCritical(CriticalHitEvent event) {
-        if (event.getDamageModifier() > 1F || isClientWorld(event.getEntityLiving())) return;
+        if (event.getDamageModifier() > 1F || !(event.getEntity() instanceof EntityLivingBase) || isClientWorld(event.getEntityLiving()))
+            return;
         EntityLivingBase attacker = event.getEntityLiving();
         Capabilities.get(attacker).ifPresent(capability -> {
             //Do Critical

@@ -46,6 +46,11 @@ public class ServerProxy implements IProxy {
     }
 
     @Override
+    public void addToQueue(Runnable runnable) {
+        Events.QUEUE.add(runnable);
+    }
+
+    @Override
     public void playSound(World world, Vec3d vec, SoundEvent event, SoundCategory category, float volume) {
         float pitch = (1.0F + (world.rand.nextFloat() - world.rand.nextFloat()) * 0.2F) * 0.7F;
         ((WorldServer) world).getMinecraftServer().getPlayerList().sendToAllNearExcept(null, vec.x, vec.y, vec.z, volume > 1.0F ? (double) (16.0F * volume) : 16.0D, world.provider.getDimension(), new SPacketSoundEffect(event, category, vec.x, vec.y, vec.z, volume, pitch));

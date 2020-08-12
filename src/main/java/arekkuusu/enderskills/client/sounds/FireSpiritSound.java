@@ -19,7 +19,8 @@ public class FireSpiritSound extends MovingSound {
 
     public final NoiseGeneratorPerlin noiseGeneratorPerlin = new NoiseGeneratorPerlin(new Random(), 1);
     public final WeakReference<EntityLivingBase> reference;
-    public int tick;
+    public int noiseTick;
+    public int tick = 10;
 
     public FireSpiritSound(EntityLivingBase entity) {
         super(ModSounds.FIRE_SPIRIT_ACTIVE, SoundCategory.PLAYERS);
@@ -34,35 +35,33 @@ public class FireSpiritSound extends MovingSound {
     public void update() {
         EntityLivingBase entity = reference.get();
         if (entity != null && !entity.isDead) {
-            if (SkillHelper.isActiveOwner(entity, ModAbilities.FIRE_SPIRIT)) {
+            if (SkillHelper.isActiveFrom(entity, ModAbilities.FIRE_SPIRIT)) {
                 this.xPosF = (float) entity.posX;
                 this.yPosF = (float) entity.posY;
                 this.zPosF = (float) entity.posZ;
             } else {
-                donePlaying = true;
+                if (--tick < 0) {
+                    donePlaying = true;
+                }
             }
         } else {
             donePlaying = true;
         }
-        tick++;
-    }
-
-    @Override
-    public float getVolume() {
-        return super.getVolume() * (1F - getProgress());
+        noiseTick++;
     }
 
     @Override
     public float getPitch() {
-        return MathHelper.clamp((float) noiseGeneratorPerlin.getValue(super.getPitch(), tick), 0.2F, 1F);
+        return MathHelper.clamp((float) noiseGeneratorPerlin.getValue(super.getPitch(), noiseTick), 0.2F, 1F);
+    }
+
+
+    @Override
+    public float getVolume() {
+        return super.getVolume() * getProgress();
     }
 
     public float getProgress() {
-        float[] data = new float[1];
-        EntityLivingBase entity = reference.get();
-        if (entity != null && !entity.isDead) {
-            SkillHelper.getActiveOwner(entity, ModAbilities.FIRE_SPIRIT, h -> data[0] = (float) h.tick / (float) h.data.time);
-        }
-        return data[0];
+        return tick / 10F;
     }
 }

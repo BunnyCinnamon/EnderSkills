@@ -2,16 +2,15 @@ package arekkuusu.enderskills.common.skill.ability.defense.earth;
 
 import arekkuusu.enderskills.api.capability.AdvancementCapability;
 import arekkuusu.enderskills.api.capability.Capabilities;
-import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoCooldown;
-import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoUpgradeable;
 import arekkuusu.enderskills.api.capability.data.SkillData;
 import arekkuusu.enderskills.api.capability.data.SkillInfo;
+import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoCooldown;
+import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoUpgradeable;
 import arekkuusu.enderskills.api.capability.data.nbt.UUIDWatcher;
 import arekkuusu.enderskills.api.event.SkillsActionableEvent;
 import arekkuusu.enderskills.api.helper.ExpressionHelper;
 import arekkuusu.enderskills.api.helper.NBTHelper;
 import arekkuusu.enderskills.api.registry.Skill;
-import arekkuusu.enderskills.client.gui.data.ISkillAdvancement;
 import arekkuusu.enderskills.client.util.helper.TextHelper;
 import arekkuusu.enderskills.common.CommonConfig;
 import arekkuusu.enderskills.common.entity.data.IExpand;
@@ -22,6 +21,7 @@ import arekkuusu.enderskills.common.lib.LibMod;
 import arekkuusu.enderskills.common.lib.LibNames;
 import arekkuusu.enderskills.common.skill.ModAbilities;
 import arekkuusu.enderskills.common.skill.ModAttributes;
+import arekkuusu.enderskills.common.skill.ModEffects;
 import arekkuusu.enderskills.common.skill.SkillHelper;
 import arekkuusu.enderskills.common.skill.ability.AbilityInfo;
 import arekkuusu.enderskills.common.skill.ability.BaseAbility;
@@ -46,8 +46,11 @@ import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
-public class Taunt extends BaseAbility implements IScanEntities, IExpand, IFindEntity, ISkillAdvancement {
+public class Taunt extends BaseAbility implements IScanEntities, IExpand, IFindEntity {
+
+    public static final UUID TAUNT_UUID = UUID.fromString("c0fef459-78da-47df-8c6c-62c95c2f5609");
 
     public Taunt() {
         super(LibNames.TAUNT, new AbilityProperties());
@@ -56,31 +59,32 @@ public class Taunt extends BaseAbility implements IScanEntities, IExpand, IFindE
     }
 
     @Override
-    public void use(EntityLivingBase user, SkillInfo skillInfo) {
-        if (((IInfoCooldown) skillInfo).hasCooldown() || isClientWorld(user)) return;
+    public void use(EntityLivingBase owner, SkillInfo skillInfo) {
+        if (((IInfoCooldown) skillInfo).hasCooldown() || isClientWorld(owner)) return;
         AbilityInfo abilityInfo = (AbilityInfo) skillInfo;
 
-        if (isActionable(user) && canActivate(user)) {
-            if (!(user instanceof EntityPlayer) || !((EntityPlayer) user).capabilities.isCreativeMode) {
+        if (isActionable(owner) && canActivate(owner)) {
+            if (!(owner instanceof EntityPlayer) || !((EntityPlayer) owner).capabilities.isCreativeMode) {
                 abilityInfo.setCooldown(getCooldown(abilityInfo));
             }
             double range = getRange(abilityInfo);
             int time = getTime(abilityInfo);
             NBTTagCompound compound = new NBTTagCompound();
-            NBTHelper.setEntity(compound, user, "user");
+            NBTHelper.setEntity(compound, owner, "owner");
             SkillData data = SkillData.of(this)
+                    .by(TAUNT_UUID)
                     .with(time)
                     .put(compound, UUIDWatcher.INSTANCE)
-                    .overrides(this, ModAbilities.CHARM)
+                    .overrides(SkillData.Overrides.ID)
                     .create();
-            EntityPlaceableData spawn = new EntityPlaceableData(user.world, user, data, EntityPlaceableData.MIN_TIME);
-            spawn.setPosition(user.posX, user.posY + user.height / 2, user.posZ);
+            EntityPlaceableData spawn = new EntityPlaceableData(owner.world, owner, data, EntityPlaceableData.MIN_TIME);
+            spawn.setPosition(owner.posX, owner.posY + owner.height / 2, owner.posZ);
             spawn.setRadius(range);
-            user.world.spawnEntity(spawn);
-            sync(user);
+            owner.world.spawnEntity(spawn);
+            sync(owner);
 
-            if (user.world instanceof WorldServer) {
-                ((WorldServer) user.world).playSound(null, user.posX, user.posY, user.posZ, ModSounds.TAUNT, SoundCategory.PLAYERS, 5.0F, (1.0F + (user.world.rand.nextFloat() - user.world.rand.nextFloat()) * 0.2F) * 0.7F);
+            if (owner.world instanceof WorldServer) {
+                ((WorldServer) owner.world).playSound(null, owner.posX, owner.posY, owner.posZ, ModSounds.TAUNT, SoundCategory.PLAYERS, 5.0F, (1.0F + (owner.world.rand.nextFloat() - owner.world.rand.nextFloat()) * 0.2F) * 0.7F);
             }
         }
     }
@@ -97,19 +101,19 @@ public class Taunt extends BaseAbility implements IScanEntities, IExpand, IFindE
     public void update(EntityLivingBase target, SkillData data, int tick) {
         if (isClientWorld(target) && !(target instanceof EntityPlayer)) return;
         if (isStunnedByAbility(target)) return;
-        SkillHelper.getOwner(data).ifPresent(user -> {
+        Optional.ofNullable(SkillHelper.getOwner(data)).ifPresent(owner -> {
             if (target instanceof EntityLiving) {
                 ((EntityLiving) target).getNavigator().clearPath();
-                if (((EntityLiving) target).getAttackTarget() != user)
-                    ((EntityLiving) target).setAttackTarget(user);
+                if (((EntityLiving) target).getAttackTarget() != owner)
+                    ((EntityLiving) target).setAttackTarget(owner);
             }
             if (target.collidedHorizontally) {
                 if (target.onGround) {
                     target.motionY = 0.4F;
                 }
             }
-            target.motionX += (Math.signum(user.posX - target.posX) * 0.5D - target.motionX) * 0.100000000372529;
-            target.motionZ += (Math.signum(user.posZ - target.posZ) * 0.5D - target.motionZ) * 0.100000000372529;
+            target.motionX += (Math.signum(owner.posX - target.posX) * 0.5D - target.motionX) * 0.100000000372529;
+            target.motionZ += (Math.signum(owner.posZ - target.posZ) * 0.5D - target.motionZ) * 0.100000000372529;
             if (target.isRiding()) {
                 target.dismountRidingEntity();
             }
@@ -117,13 +121,13 @@ public class Taunt extends BaseAbility implements IScanEntities, IExpand, IFindE
     }
 
     public boolean isStunnedByAbility(EntityLivingBase entity) {
-        return entity.getEntityData().hasKey("enderskills:stun_indicator") && entity.getEntityData().getBoolean("enderskills:stun_indicator");
+        return Capabilities.get(entity).map(c -> c.isActive(ModEffects.STUNNED)).orElse(false);
     }
 
     @SubscribeEvent
     public void onSkillShouldUse(SkillsActionableEvent event) {
         if (isClientWorld(event.getEntityLiving())) return;
-        if (SkillHelper.isActiveNotOwner(event.getEntityLiving(), this)) {
+        if (SkillHelper.isActive(event.getEntityLiving(), this)) {
             event.setCanceled(true);
         }
     }
@@ -131,7 +135,7 @@ public class Taunt extends BaseAbility implements IScanEntities, IExpand, IFindE
     @SubscribeEvent
     @SideOnly(Side.CLIENT)
     public void inputListener(InputUpdateEvent event) {
-        if (SkillHelper.isActiveNotOwner(event.getEntityLiving(), this)) {
+        if (SkillHelper.isActive(event.getEntityLiving(), this)) {
             event.getMovementInput().forwardKeyDown = false;
             event.getMovementInput().rightKeyDown = false;
             event.getMovementInput().backKeyDown = false;
@@ -218,16 +222,6 @@ public class Taunt extends BaseAbility implements IScanEntities, IExpand, IFindE
     }
 
     @Override
-    public boolean canUpgrade(EntityLivingBase entity) {
-        return Capabilities.advancement(entity).map(c -> {
-            Requirement requirement = getRequirement(entity);
-            int tokens = requirement.getLevels();
-            int xp = requirement.getXp();
-            return c.level >= tokens && c.getExperienceTotal(entity) >= xp;
-        }).orElse(false);
-    }
-
-    @Override
     public void onUpgrade(EntityLivingBase entity) {
         Capabilities.advancement(entity).ifPresent(c -> {
             Requirement requirement = getRequirement(entity);
@@ -245,22 +239,6 @@ public class Taunt extends BaseAbility implements IScanEntities, IExpand, IFindE
     }
 
     @Override
-    public Requirement getRequirement(EntityLivingBase entity) {
-        AbilityInfo info = (AbilityInfo) Capabilities.get(entity).flatMap(a -> a.getOwned(this)).orElse(null);
-        int tokensNeeded = 0;
-        int xpNeeded;
-        if (info == null) {
-            int abilities = Capabilities.get(entity).map(c -> (int) c.getAllOwned().keySet().stream().filter(s -> s instanceof BaseAbility).count()).orElse(0);
-            if (abilities > 0) {
-                tokensNeeded = abilities + 1;
-            } else {
-                tokensNeeded = 1;
-            }
-        }
-        xpNeeded = getUpgradeCost(info);
-        return new DefaultRequirement(tokensNeeded, getCostIncrement(entity, xpNeeded));
-    }
-
     public int getCostIncrement(EntityLivingBase entity, int total) {
         Optional<AdvancementCapability> optional = Capabilities.advancement(entity);
         if (optional.isPresent()) {
@@ -275,6 +253,7 @@ public class Taunt extends BaseAbility implements IScanEntities, IExpand, IFindE
         return total;
     }
 
+    @Override
     public int getUpgradeCost(@Nullable AbilityInfo info) {
         int level = info != null ? getLevel(info) + 1 : 0;
         int levelMax = getMaxLevel();

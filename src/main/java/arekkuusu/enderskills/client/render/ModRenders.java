@@ -3,6 +3,7 @@ package arekkuusu.enderskills.client.render;
 import arekkuusu.enderskills.api.registry.Skill;
 import arekkuusu.enderskills.client.render.entity.*;
 import arekkuusu.enderskills.client.render.skill.*;
+import arekkuusu.enderskills.client.render.skill.status.*;
 import arekkuusu.enderskills.client.render.tile.TileAltarRenderer;
 import arekkuusu.enderskills.common.block.tile.TileAltar;
 import arekkuusu.enderskills.common.entity.*;
@@ -18,6 +19,7 @@ import arekkuusu.enderskills.common.skill.ability.offence.blood.*;
 import arekkuusu.enderskills.common.skill.ability.offence.ender.*;
 import arekkuusu.enderskills.common.skill.ability.offence.fire.*;
 import arekkuusu.enderskills.common.skill.ability.offence.wind.*;
+import arekkuusu.enderskills.common.skill.effect.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
 import net.minecraft.entity.Entity;
@@ -52,6 +54,7 @@ public final class ModRenders {
     }
 
     public static void init() {
+        //Abilities
         registerSkill(Skill.class, new SkillRenderer<Skill>() {
         }); //Fallback
         registerSkill(Charm.class, new CharmRenderer());
@@ -96,6 +99,13 @@ public final class ModRenders {
         registerSkill(Push.class, new PushRenderer());
         registerSkill(Suffocate.class, new SuffocateRenderer());
         registerSkill(Slash.class, new SlashRenderer());
+        registerSkill(Crush.class, new CrushRenderer());
+        //Effects
+        registerSkill(Bleeding.class, new BleedingRenderer());
+        registerSkill(Blinded.class, new BlindedRenderer());
+        registerSkill(Burning.class, new BurningRenderer());
+        registerSkill(Invulnerable.class, new InvulnerableRenderer());
+        registerSkill(Stunned.class, new StunnedRenderer());
     }
 
     public static void postInit() {

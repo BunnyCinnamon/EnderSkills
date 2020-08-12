@@ -2,12 +2,11 @@ package arekkuusu.enderskills.common.skill.ability.offence.wind;
 
 import arekkuusu.enderskills.api.capability.AdvancementCapability;
 import arekkuusu.enderskills.api.capability.Capabilities;
-import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoCooldown;
-import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoUpgradeable;
 import arekkuusu.enderskills.api.capability.data.SkillData;
 import arekkuusu.enderskills.api.capability.data.SkillInfo;
+import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoCooldown;
+import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoUpgradeable;
 import arekkuusu.enderskills.api.capability.data.nbt.UUIDWatcher;
-import arekkuusu.enderskills.api.event.SkillsActionableEvent;
 import arekkuusu.enderskills.api.helper.ExpressionHelper;
 import arekkuusu.enderskills.api.helper.NBTHelper;
 import arekkuusu.enderskills.api.helper.RayTraceHelper;
@@ -16,7 +15,7 @@ import arekkuusu.enderskills.api.registry.Skill;
 import arekkuusu.enderskills.client.gui.data.ISkillAdvancement;
 import arekkuusu.enderskills.client.util.helper.TextHelper;
 import arekkuusu.enderskills.common.CommonConfig;
-import arekkuusu.enderskills.common.entity.AIOverride;
+import arekkuusu.enderskills.common.EnderSkills;
 import arekkuusu.enderskills.common.entity.data.IExpand;
 import arekkuusu.enderskills.common.entity.data.IFindEntity;
 import arekkuusu.enderskills.common.entity.data.IImpact;
@@ -27,14 +26,13 @@ import arekkuusu.enderskills.common.lib.LibMod;
 import arekkuusu.enderskills.common.lib.LibNames;
 import arekkuusu.enderskills.common.skill.ModAbilities;
 import arekkuusu.enderskills.common.skill.ModAttributes;
+import arekkuusu.enderskills.common.skill.ModEffects;
 import arekkuusu.enderskills.common.skill.ability.AbilityInfo;
 import arekkuusu.enderskills.common.skill.ability.BaseAbility;
 import arekkuusu.enderskills.common.sound.ModSounds;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
@@ -42,11 +40,8 @@ import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.WorldServer;
-import net.minecraftforge.client.event.InputUpdateEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Config;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.InputEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -64,32 +59,34 @@ public class Push extends BaseAbility implements IImpact, IScanEntities, IExpand
     }
 
     @Override
-    public void use(EntityLivingBase user, SkillInfo skillInfo) {
-        if (((IInfoCooldown) skillInfo).hasCooldown() || isClientWorld(user)) return;
+    public void use(EntityLivingBase owner, SkillInfo skillInfo) {
+        if (((IInfoCooldown) skillInfo).hasCooldown() || isClientWorld(owner)) return;
         AbilityInfo abilityInfo = (AbilityInfo) skillInfo;
         double distance = getRange(abilityInfo);
 
-        if (isActionable(user) && canActivate(user)) {
-            if (!(user instanceof EntityPlayer) || !((EntityPlayer) user).capabilities.isCreativeMode) {
+        if (isActionable(owner) && canActivate(owner)) {
+            if (!(owner instanceof EntityPlayer) || !((EntityPlayer) owner).capabilities.isCreativeMode) {
                 abilityInfo.setCooldown(getCooldown(abilityInfo));
             }
             double range = getPushRange(abilityInfo);
             double force = getPush(abilityInfo);
             int time = getTime(abilityInfo);
             NBTTagCompound compound = new NBTTagCompound();
-            NBTHelper.setEntity(compound, user, "user");
+            NBTHelper.setEntity(compound, owner, "owner");
             NBTHelper.setDouble(compound, "range", range);
             NBTHelper.setDouble(compound, "force", force);
+            NBTHelper.setInteger(compound, "time", time);
             SkillData data = SkillData.of(this)
-                    .with(time + 10)
+                    .by(owner)
+                    .with(10)
                     .put(compound, UUIDWatcher.INSTANCE)
-                    .overrides(this)
+                    .overrides(SkillData.Overrides.EQUAL)
                     .create();
-            EntityThrowableData.throwFor(user, distance, data, false);
-            sync(user);
+            EntityThrowableData.throwFor(owner, distance, data, false);
+            sync(owner);
 
-            if (user.world instanceof WorldServer) {
-                ((WorldServer) user.world).playSound(null, user.posX, user.posY, user.posZ, ModSounds.PUSH, SoundCategory.PLAYERS, 1.0F, (1.0F + (user.world.rand.nextFloat() - user.world.rand.nextFloat()) * 0.2F) * 0.7F);
+            if (owner.world instanceof WorldServer) {
+                ((WorldServer) owner.world).playSound(null, owner.posX, owner.posY, owner.posZ, ModSounds.PUSH, SoundCategory.PLAYERS, 1.0F, (1.0F + (owner.world.rand.nextFloat() - owner.world.rand.nextFloat()) * 0.2F) * 0.7F);
             }
         }
     }
@@ -102,8 +99,10 @@ public class Push extends BaseAbility implements IImpact, IScanEntities, IExpand
         spawn.rotationPitch = -source.rotationPitch;
         spawn.rotationYaw = source.rotationYaw;
         Vec3d hitVector = trace.hitVec;
-        if (trace.typeOfHit == RayTraceResult.Type.ENTITY) {
+        if (RayTraceHelper.isEntityTrace(trace, TeamHelper.SELECTOR_ENEMY.apply(owner))) {
             hitVector = new Vec3d(hitVector.x, hitVector.y + trace.entityHit.getEyeHeight(), hitVector.z);
+            apply((EntityLivingBase) trace.entityHit, skillData);
+            sync((EntityLivingBase) trace.entityHit, skillData);
         }
         Vec3d lookVector = source.getLook(1F);
         Vec3d targetVector = hitVector.subtract(
@@ -114,10 +113,6 @@ public class Push extends BaseAbility implements IImpact, IScanEntities, IExpand
         spawn.setPosition(targetVector.x, targetVector.y, targetVector.z);
         spawn.setRadius(radius);
         source.world.spawnEntity(spawn); //MANIFEST B L O O D!!
-        if (trace.entityHit != null) {
-            apply((EntityLivingBase) trace.entityHit, skillData);
-            sync((EntityLivingBase) trace.entityHit, skillData);
-        }
 
         if (source.world instanceof WorldServer) {
             ((WorldServer) source.world).playSound(null, source.posX, source.posY, source.posZ, ModSounds.WIND_ON_HIT, SoundCategory.PLAYERS, 1.0F, (1.0F + (source.world.rand.nextFloat() - source.world.rand.nextFloat()) * 0.2F) * 0.7F);
@@ -145,35 +140,24 @@ public class Push extends BaseAbility implements IImpact, IScanEntities, IExpand
     @Override
     public void update(EntityLivingBase target, SkillData data, int tick) {
         if (isClientWorld(target) && !(target instanceof EntityPlayer)) return;
-        if (tick > 10) {
-            if (target instanceof EntityLiving) {
-                ((EntityLiving) target).getNavigator().clearPath();
-                ((EntityLiving) target).tasks.addTask(0, AIOverride.INSTANCE);
-            }
-            target.getEntityData().setBoolean("enderskills:stun_indicator", true);
-        } else {
-            Vec3d vector = NBTHelper.getVector(data.nbt, "vector");
-            double distance = NBTHelper.getDouble(data.nbt, "force");
-            Vec3d from = target.getPositionVector();
-            Vec3d to = from.addVector(
-                    vector.x * distance,
-                    vector.y * distance,
-                    vector.z * distance
-            );
-            moveEntity(to, from, target);
-            if (target.collidedHorizontally) {
-                target.motionY = 0;
-            }
+        Vec3d vector = NBTHelper.getVector(data.nbt, "vector");
+        double distance = NBTHelper.getDouble(data.nbt, "force");
+        Vec3d from = target.getPositionVector();
+        Vec3d to = from.addVector(
+                vector.x * distance,
+                vector.y * distance,
+                vector.z * distance
+        );
+        moveEntity(to, from, target);
+        if (target.collidedHorizontally) {
+            target.motionY = 0;
         }
     }
 
     @Override
-    public void end(EntityLivingBase target, SkillData data) {
-        target.getEntityData().setBoolean("enderskills:stun_indicator", false);
-        if (isClientWorld(target)) return;
-        if (target instanceof EntityLiving) {
-            ((EntityLiving) target).tasks.removeTask(AIOverride.INSTANCE);
-        }
+    public void end(EntityLivingBase entity, SkillData data) {
+        if(isClientWorld(entity)) return;
+        EnderSkills.getProxy().addToQueue(() -> ModEffects.STUNNED.set(entity, data, data.nbt.getInteger("time")));
     }
 
     public void moveEntity(Vec3d pullerPos, Vec3d pushedPos, Entity pulled) {
@@ -182,51 +166,6 @@ public class Push extends BaseAbility implements IImpact, IScanEntities, IExpand
         pulled.motionX = -motion.x;
         pulled.motionY = -motion.y;
         pulled.motionZ = -motion.z;
-    }
-
-    @SubscribeEvent
-    public void onSkillShouldUse(SkillsActionableEvent event) {
-        if (isClientWorld(event.getEntityLiving()) || event.isCanceled()) return;
-        Capabilities.get(event.getEntityLiving()).flatMap(c -> c.getActive(this)).ifPresent(holder -> {
-            Optional.ofNullable(NBTHelper.getEntity(EntityLivingBase.class, holder.data.nbt, "user")).ifPresent(user -> {
-                if (event.getEntityLiving() != user) {
-                    event.setCanceled(true);
-                }
-            });
-        });
-    }
-
-    @SubscribeEvent
-    @SideOnly(Side.CLIENT)
-    public void inputListener(InputUpdateEvent event) {
-        Capabilities.get(event.getEntityLiving()).flatMap(c -> c.getActive(this)).ifPresent(holder -> {
-            Optional.ofNullable(NBTHelper.getEntity(EntityLivingBase.class, holder.data.nbt, "user")).ifPresent(user -> {
-                if (event.getEntityLiving() != user) {
-                    event.getMovementInput().forwardKeyDown = false;
-                    event.getMovementInput().rightKeyDown = false;
-                    event.getMovementInput().backKeyDown = false;
-                    event.getMovementInput().leftKeyDown = false;
-                    event.getMovementInput().sneak = false;
-                    event.getMovementInput().jump = false;
-                    event.getMovementInput().moveForward = 0;
-                    event.getMovementInput().moveStrafe = 0;
-                }
-            });
-        });
-    }
-
-    @SubscribeEvent
-    @SideOnly(Side.CLIENT)
-    public void onMouseClick(InputEvent.MouseInputEvent event) {
-        Capabilities.get(Minecraft.getMinecraft().player).flatMap(c -> c.getActive(this)).ifPresent(holder -> {
-            Optional.ofNullable(NBTHelper.getEntity(EntityLivingBase.class, holder.data.nbt, "user")).ifPresent(user -> {
-                if (Minecraft.getMinecraft().player != user) {
-                    if (Minecraft.getMinecraft().gameSettings.keyBindAttack.isPressed()) {
-                        KeyBinding.setKeyBindState(Minecraft.getMinecraft().gameSettings.keyBindAttack.getKeyCode(), false);
-                    }
-                }
-            });
-        });
     }
 
     public int getLevel(IInfoUpgradeable info) {
@@ -321,6 +260,7 @@ public class Push extends BaseAbility implements IImpact, IScanEntities, IExpand
         });
     }
 
+    @Override
     public int getCostIncrement(EntityLivingBase entity, int total) {
         Optional<AdvancementCapability> optional = Capabilities.advancement(entity);
         if (optional.isPresent()) {
@@ -335,6 +275,7 @@ public class Push extends BaseAbility implements IImpact, IScanEntities, IExpand
         return total;
     }
 
+    @Override
     public int getUpgradeCost(@Nullable AbilityInfo info) {
         int level = info != null ? getLevel(info) + 1 : 0;
         int levelMax = getMaxLevel();

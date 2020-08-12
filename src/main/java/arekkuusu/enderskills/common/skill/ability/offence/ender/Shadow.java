@@ -2,13 +2,11 @@ package arekkuusu.enderskills.common.skill.ability.offence.ender;
 
 import arekkuusu.enderskills.api.capability.AdvancementCapability;
 import arekkuusu.enderskills.api.capability.Capabilities;
-import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoCooldown;
-import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoUpgradeable;
 import arekkuusu.enderskills.api.capability.data.SkillData;
 import arekkuusu.enderskills.api.capability.data.SkillInfo;
+import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoCooldown;
+import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoUpgradeable;
 import arekkuusu.enderskills.api.capability.data.nbt.UUIDWatcher;
-import arekkuusu.enderskills.api.event.SkillDamageEvent;
-import arekkuusu.enderskills.api.event.SkillDamageSource;
 import arekkuusu.enderskills.api.helper.ExpressionHelper;
 import arekkuusu.enderskills.api.helper.NBTHelper;
 import arekkuusu.enderskills.api.registry.Skill;
@@ -54,101 +52,82 @@ public class Shadow extends BaseAbility implements ISkillAdvancement {
     }
 
     @Override
-    public void use(EntityLivingBase user, SkillInfo skillInfo) {
-        if (isClientWorld(user)) return;
+    public void use(EntityLivingBase owner, SkillInfo skillInfo) {
+        if (isClientWorld(owner)) return;
         AbilityInfo abilityInfo = (AbilityInfo) skillInfo;
 
-        Capabilities.get(user).ifPresent(capability -> {
-            if (!SkillHelper.isActiveOwner(user, this)) {
-                if (!((IInfoCooldown) skillInfo).hasCooldown() && isActionable(user) && canActivate(user)) {
-                    if (!(user instanceof EntityPlayer) || !((EntityPlayer) user).capabilities.isCreativeMode) {
-                        abilityInfo.setCooldown(getCooldown(abilityInfo));
-                    }
-                    EntityShadow shadow = new EntityShadow(user.world);
-                    shadow.setPosition(user.posX, user.posY, user.posZ);
-                    shadow.setOwnerId(user.getUniqueID());
-                    shadow.setMirrorDamage(getMirror(abilityInfo));
-                    user.world.spawnEntity(shadow); //MANIFEST ELDRITCH A B O M I N A T I O N!!
-                    NBTTagCompound compound = new NBTTagCompound();
-                    NBTHelper.setEntity(compound, user, "user");
-                    NBTHelper.setEntity(compound, shadow, "shadow");
-                    NBTHelper.setDouble(compound, "mirror", getMirror(abilityInfo));
-                    SkillData data = SkillData.of(this)
-                            .with(INDEFINITE)
-                            .put(compound, UUIDWatcher.INSTANCE)
-                            .overrides(this)
-                            .create();
-                    apply(user, data);
-                    sync(user, data);
-                    sync(user);
-
-                    if (user.world instanceof WorldServer) {
-                        ((WorldServer) user.world).playSound(null, user.posX, user.posY, user.posZ, ModSounds.SHADOW, SoundCategory.PLAYERS, 1.0F, (1.0F + (user.world.rand.nextFloat() - user.world.rand.nextFloat()) * 0.2F) * 0.7F);
-                    }
+        if (!SkillHelper.isActiveFrom(owner, this)) {
+            if (!((IInfoCooldown) skillInfo).hasCooldown() && isActionable(owner) && canActivate(owner)) {
+                if (!(owner instanceof EntityPlayer) || !((EntityPlayer) owner).capabilities.isCreativeMode) {
+                    abilityInfo.setCooldown(getCooldown(abilityInfo));
                 }
-            } else {
-                SkillHelper.getActiveOwner(user, this, holder -> {
-                    unapply(user, holder.data);
-                    async(user, holder.data);
-                });
+                EntityShadow shadow = new EntityShadow(owner.world);
+                shadow.setPosition(owner.posX, owner.posY, owner.posZ);
+                shadow.setOwnerId(owner.getUniqueID());
+                shadow.setMirrorDamage(getMirror(abilityInfo));
+                owner.world.spawnEntity(shadow);
+                float mirror = getMirror(abilityInfo);
+                NBTTagCompound compound = new NBTTagCompound();
+                NBTHelper.setEntity(compound, owner, "owner");
+                NBTHelper.setEntity(compound, shadow, "shadow");
+                NBTHelper.setFloat(compound, "mirror", mirror);
+                SkillData data = SkillData.of(this)
+                        .by(owner)
+                        .with(INDEFINITE)
+                        .put(compound, UUIDWatcher.INSTANCE)
+                        .overrides(SkillData.Overrides.EQUAL)
+                        .create();
+                apply(owner, data);
+                sync(owner, data);
+                sync(owner);
+
+                if (owner.world instanceof WorldServer) {
+                    ((WorldServer) owner.world).playSound(null, owner.posX, owner.posY, owner.posZ, ModSounds.SHADOW, SoundCategory.PLAYERS, 1.0F, (1.0F + (owner.world.rand.nextFloat() - owner.world.rand.nextFloat()) * 0.2F) * 0.7F);
+                }
             }
-        });
+        } else {
+            SkillHelper.getActiveFrom(owner, this).ifPresent(data -> {
+                unapply(owner, data);
+                async(owner, data);
+            });
+        }
     }
 
     @Override
-    public void update(EntityLivingBase user, SkillData data, int tick) {
+    public void update(EntityLivingBase owner, SkillData data, int tick) {
         EntityShadow shadow = NBTHelper.getEntity(EntityShadow.class, data.nbt, "shadow");
         if (shadow != null) {
-            if (tick % 20 == 0 && (!(user instanceof EntityPlayer) || !((EntityPlayer) user).capabilities.isCreativeMode)) {
-                Capabilities.endurance(user).ifPresent(capability -> {
+            if (tick % 20 == 0 && (!(owner instanceof EntityPlayer) || !((EntityPlayer) owner).capabilities.isCreativeMode)) {
+                Capabilities.endurance(owner).ifPresent(capability -> {
                     int drain = ModAttributes.ENDURANCE.getEnduranceDrain(this);
                     if (capability.getEndurance() - drain >= 0) {
                         capability.setEndurance(capability.getEndurance() - drain);
                         capability.setEnduranceDelay(30);
                     } else {
-                        unapply(user, data);
-                        async(user, data);
+                        unapply(owner, data);
+                        async(owner, data);
                     }
                 });
             }
         } else {
-            unapply(user, data);
-            async(user, data);
+            unapply(owner, data);
+            async(owner, data);
         }
     }
 
     @SubscribeEvent(priority = EventPriority.HIGH)
     public void onEntityDamage(LivingHurtEvent event) {
-        if (isClientWorld(event.getEntityLiving()) || event.getSource().getDamageType().equals("shadow")) return;
+        if (isClientWorld(event.getEntityLiving())) return;
         DamageSource source = event.getSource();
-        if (!(source.getTrueSource() instanceof EntityLivingBase) || source instanceof SkillDamageSource || event.getAmount() <= 0) return;
+        if (source.getDamageType().equals("shadow") || source.getDamageType().equals(DAMAGE_DOT_TYPE)) return;
+        if (!(source.getTrueSource() instanceof EntityLivingBase) || event.getAmount() <= 0) return;
         EntityLivingBase attacker = (EntityLivingBase) source.getTrueSource();
-        Capabilities.get(attacker).ifPresent(capability -> {
-            //Do Damage
-            if (capability.isOwned(this)) {
-                SkillHelper.getActiveOwner(attacker, this, holder -> {
-                    Optional.ofNullable(NBTHelper.getEntity(EntityShadow.class, holder.data.nbt, "shadow")).ifPresent(shadow -> {
-                        if (shadow != event.getEntity()) {
-                            shadow.addAttack(event.getEntityLiving(), (float) (event.getAmount() + (event.getAmount() * holder.data.nbt.getDouble("mirror"))));
-                            shadow.teleportNextToOwner();
-                        }
-                    });
-                });
-            }
-        });
-    }
-
-    @SubscribeEvent(priority = EventPriority.HIGH)
-    public void onSkillDamage(SkillDamageEvent event) {
-        if (event.getEntityLiving() == null) return;
-        if (isClientWorld(event.getEntityLiving()) || !SkillHelper.isSkillDamage(event.getSource())) return;
-        EntityLivingBase entity = event.getEntityLiving();
-        Capabilities.get(entity).ifPresent(capability -> {
-            if (capability.isOwned(this)) {
-                SkillHelper.getActiveOwner(entity, this, holder -> {
-                    event.setAmount((float) (event.getAmount() + (event.getAmount() * holder.data.nbt.getDouble("mirror"))));
-                });
-            }
+        SkillHelper.getActiveFrom(attacker, this).ifPresent(data -> {
+            Optional.ofNullable(NBTHelper.getEntity(EntityShadow.class, data.nbt, "shadow")).ifPresent(shadow -> {
+                float mirror = NBTHelper.getFloat(data.nbt, "mirror");
+                shadow.addAttack(event.getEntityLiving(), event.getAmount() + (event.getAmount() * mirror));
+                shadow.teleportNextToOwner();
+            });
         });
     }
 
@@ -217,16 +196,6 @@ public class Shadow extends BaseAbility implements ISkillAdvancement {
     }
 
     @Override
-    public boolean canUpgrade(EntityLivingBase entity) {
-        return Capabilities.advancement(entity).map(c -> {
-            Requirement requirement = getRequirement(entity);
-            int tokens = requirement.getLevels();
-            int xp = requirement.getXp();
-            return c.level >= tokens && c.getExperienceTotal(entity) >= xp;
-        }).orElse(false);
-    }
-
-    @Override
     public void onUpgrade(EntityLivingBase entity) {
         Capabilities.advancement(entity).ifPresent(c -> {
             Requirement requirement = getRequirement(entity);
@@ -244,22 +213,6 @@ public class Shadow extends BaseAbility implements ISkillAdvancement {
     }
 
     @Override
-    public Requirement getRequirement(EntityLivingBase entity) {
-        AbilityInfo info = (AbilityInfo) Capabilities.get(entity).flatMap(a -> a.getOwned(this)).orElse(null);
-        int tokensNeeded = 0;
-        int xpNeeded;
-        if (info == null) {
-            int abilities = Capabilities.get(entity).map(c -> (int) c.getAllOwned().keySet().stream().filter(s -> s instanceof BaseAbility).count()).orElse(0);
-            if (abilities > 0) {
-                tokensNeeded = abilities + 1;
-            } else {
-                tokensNeeded = 1;
-            }
-        }
-        xpNeeded = getUpgradeCost(info);
-        return new DefaultRequirement(tokensNeeded, getCostIncrement(entity, xpNeeded));
-    }
-
     public int getCostIncrement(EntityLivingBase entity, int total) {
         Optional<AdvancementCapability> optional = Capabilities.advancement(entity);
         if (optional.isPresent()) {
@@ -274,6 +227,7 @@ public class Shadow extends BaseAbility implements ISkillAdvancement {
         return total;
     }
 
+    @Override
     public int getUpgradeCost(@Nullable AbilityInfo info) {
         int level = info != null ? getLevel(info) + 1 : 0;
         int levelMax = getMaxLevel();

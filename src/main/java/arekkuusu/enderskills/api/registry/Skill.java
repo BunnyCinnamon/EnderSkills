@@ -44,15 +44,23 @@ public class Skill extends IForgeRegistryEntry.Impl<Skill> {
     }
 
     public void unapply(EntityLivingBase entity) {
-        Capabilities.get(entity).ifPresent(skills -> skills.deactivate(this)); //Remove from entity Server Side
+        Capabilities.get(entity).ifPresent(skills -> skills.deactivate(this)); //Remove all from entity Server Side
+    }
+
+    public void unapply(EntityLivingBase entity, SkillData data) {
+        Capabilities.get(entity).ifPresent(skills -> skills.deactivate(this, data)); //Remove from entity Server Side
     }
 
     public void sync(EntityLivingBase entity, SkillData data) {
-        PacketHelper.sendSkillUseResponsePacket(entity, data); //Send to Client
+        PacketHelper.sendSkillUseResponsePacket(entity, data); //Add to entity Client Side
     }
 
     public void async(EntityLivingBase entity) {
-        PacketHelper.sendSkillRemoveResponsePacket(entity, this); //Send to Client
+        PacketHelper.sendSkillRemoveResponsePacket(entity, this); //Remove from all entity Client Side
+    }
+
+    public void async(EntityLivingBase entity, SkillData data) {
+        PacketHelper.sendSkillDataRemoveResponsePacket(entity, data); //Remove from entity Client Side
     }
 
     public void sync(EntityLivingBase entity) {

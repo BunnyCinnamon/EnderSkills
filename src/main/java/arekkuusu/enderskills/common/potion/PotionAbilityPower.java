@@ -2,6 +2,7 @@ package arekkuusu.enderskills.common.potion;
 
 import arekkuusu.enderskills.api.event.SkillDamageEvent;
 import arekkuusu.enderskills.common.lib.LibNames;
+import arekkuusu.enderskills.common.skill.ability.BaseAbility;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.potion.PotionEffect;
 import net.minecraftforge.common.MinecraftForge;
@@ -18,8 +19,8 @@ public class PotionAbilityPower extends PotionBase {
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public void onSkillDamage(SkillDamageEvent event) {
         if (event.getEntityLiving() == null) return;
-        if (event.getEntityLiving().world.isRemote || !event.getSource().getDamageType().equals("skill")) return;
-        if (event.getAmount() <= 0) return;
+        if (event.getEntityLiving().world.isRemote) return;
+        if (event.getAmount() <= 0 || !event.getSource().getDamageType().equals(BaseAbility.DAMAGE_HIT_TYPE)) return;
         EntityLivingBase entity = event.getEntityLiving();
         if (entity.isPotionActive(ModPotions.POTION_ABILITY_POWER_EFFECT)) {
             PotionEffect effect = entity.getActivePotionEffect(ModPotions.POTION_ABILITY_POWER_EFFECT);

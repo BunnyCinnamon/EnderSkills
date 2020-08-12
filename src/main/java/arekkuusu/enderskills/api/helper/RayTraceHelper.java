@@ -6,6 +6,7 @@ import com.google.common.collect.Lists;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.*;
 import net.minecraft.world.World;
@@ -16,6 +17,14 @@ import java.util.Optional;
 
 @SuppressWarnings("Guava")
 public final class RayTraceHelper {
+
+    public static boolean isBlockTrace(RayTraceResult result) {
+        return result.typeOfHit == RayTraceResult.Type.BLOCK;
+    }
+
+    public static boolean isEntityTrace(@Nullable RayTraceResult result, Predicate<Entity> predicate) {
+        return result != null && result.typeOfHit == RayTraceResult.Type.ENTITY && result.entityHit instanceof EntityLivingBase && predicate.test(result.entityHit);
+    }
 
     public static List<Entity> getEntitiesInCone(Entity source, double distance, double degrees, Predicate<Entity> predicate) {
         Vec3d eyesVector = source.getPositionEyes(1F);
@@ -123,12 +132,10 @@ public final class RayTraceHelper {
             }
 
             Entity entity = null;
-            List<Entity> list = world.getEntitiesInAABBexcluding(projectile, projectile.getEntityBoundingBox().expand(d3, d4, d5).grow(1.0D), TeamHelper.SELECTOR_ENEMY.apply(excludedEntity));
+            List<Entity> list = world.getEntitiesInAABBexcluding(projectile, projectile.getEntityBoundingBox().expand(d3, d4, d5).grow(1.0D), Predicates.and(TeamHelper.NOT_CREATIVE, e -> e != excludedEntity));
             double d6 = 0.0D;
 
-            for (int i = 0; i < list.size(); ++i) {
-                Entity entity1 = list.get(i);
-
+            for (Entity entity1 : list) {
                 if (entity1.canBeCollidedWith() && (ignoreExcludedEntity || !entity1.isEntityEqual(excludedEntity)) && !entity1.noClip) {
                     AxisAlignedBB axisalignedbb = entity1.getEntityBoundingBox().grow(0.30000001192092896D);
                     RayTraceResult raytraceresult1 = axisalignedbb.calculateIntercept(vec3d, vec3d1);

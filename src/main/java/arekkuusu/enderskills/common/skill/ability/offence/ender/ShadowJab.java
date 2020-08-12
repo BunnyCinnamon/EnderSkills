@@ -2,10 +2,10 @@ package arekkuusu.enderskills.common.skill.ability.offence.ender;
 
 import arekkuusu.enderskills.api.capability.AdvancementCapability;
 import arekkuusu.enderskills.api.capability.Capabilities;
-import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoCooldown;
-import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoUpgradeable;
 import arekkuusu.enderskills.api.capability.data.SkillData;
 import arekkuusu.enderskills.api.capability.data.SkillInfo;
+import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoCooldown;
+import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoUpgradeable;
 import arekkuusu.enderskills.api.capability.data.nbt.UUIDWatcher;
 import arekkuusu.enderskills.api.event.SkillDamageEvent;
 import arekkuusu.enderskills.api.event.SkillDamageSource;
@@ -22,7 +22,7 @@ import arekkuusu.enderskills.common.lib.LibMod;
 import arekkuusu.enderskills.common.lib.LibNames;
 import arekkuusu.enderskills.common.skill.ModAbilities;
 import arekkuusu.enderskills.common.skill.ModAttributes;
-import arekkuusu.enderskills.common.skill.SkillHelper;
+import arekkuusu.enderskills.common.skill.ModEffects;
 import arekkuusu.enderskills.common.skill.ability.AbilityInfo;
 import arekkuusu.enderskills.common.skill.ability.BaseAbility;
 import arekkuusu.enderskills.common.sound.ModSounds;
@@ -51,40 +51,43 @@ public class ShadowJab extends BaseAbility implements ISkillAdvancement {
     }
 
     @Override
-    public void use(EntityLivingBase user, SkillInfo skillInfo) {
-        if (((IInfoCooldown) skillInfo).hasCooldown() || isClientWorld(user)) return;
+    public void use(EntityLivingBase owner, SkillInfo skillInfo) {
+        if (((IInfoCooldown) skillInfo).hasCooldown() || isClientWorld(owner)) return;
         AbilityInfo abilityInfo = (AbilityInfo) skillInfo;
 
-        if (isActionable(user) && canActivate(user)) {
-            if (!(user instanceof EntityPlayer) || !((EntityPlayer) user).capabilities.isCreativeMode) {
+        if (isActionable(owner) && canActivate(owner)) {
+            if (!(owner instanceof EntityPlayer) || !((EntityPlayer) owner).capabilities.isCreativeMode) {
                 abilityInfo.setCooldown(getCooldown(abilityInfo));
             }
+            int time = getTime(abilityInfo);
+            double range = getRange(abilityInfo);
+            double damage = getDamage(abilityInfo);
+            double dot = getDoT(abilityInfo);
+            int dotDuration = getTime(abilityInfo);
+
             NBTTagCompound compound = new NBTTagCompound();
-            NBTHelper.setEntity(compound, user, "user");
+            NBTHelper.setEntity(compound, owner, "owner");
             NBTHelper.setNBT(compound, "list", new NBTTagList());
-            NBTHelper.setDouble(compound, "dot", getDoT(abilityInfo));
-            NBTHelper.setInteger(compound, "time", getTime(abilityInfo));
-            NBTHelper.setDouble(compound, "range", getRange(abilityInfo));
-            NBTHelper.setDouble(compound, "damage", getDamage(abilityInfo));
+            NBTHelper.setDouble(compound, "dot", dot);
+            NBTHelper.setDouble(compound, "dotDuration", dotDuration);
+            NBTHelper.setDouble(compound, "range", range);
+            NBTHelper.setDouble(compound, "damage", damage);
             SkillData data = SkillData.of(this)
-                    .with(getTime(abilityInfo))
+                    .by(owner)
+                    .with(time)
                     .put(compound, UUIDWatcher.INSTANCE)
-                    .overrides(this)
+                    .overrides(SkillData.Overrides.EQUAL)
                     .create();
-            apply(user, data);
-            sync(user, data);
-            sync(user);
+            apply(owner, data);
+            sync(owner, data);
+            sync(owner);
         }
     }
 
     @Override
     public void begin(EntityLivingBase entity, SkillData data) {
         if (isClientWorld(entity)) {
-        SkillHelper.getOwner(data).ifPresent(user -> {
-                if (entity == user) {
-                    makeSound(entity);
-                }
-            });
+            makeSound(entity);
         }
     }
 
@@ -94,67 +97,38 @@ public class ShadowJab extends BaseAbility implements ISkillAdvancement {
     }
 
     @Override
-    public void update(EntityLivingBase entity, SkillData data, int tick) {
-        SkillHelper.getOwner(data).ifPresent(user -> {
-            if (!isClientWorld(entity)) {
-                if (entity == user) {
-                    NBTHelper.getNBTList(data.nbt, "list").ifPresent(list -> {
-                        double range = data.nbt.getDouble("range");
-                        List<UUID> uuids = new ArrayList<>();
-                        list.iterator().forEachRemaining(nbt -> {
-                            uuids.add(((NBTTagCompound) nbt).getUniqueId("uuid"));
-                        });
-                        RayTraceHelper.getEntitiesInCone(user, range, 40, TeamHelper.SELECTOR_ENEMY.apply(user)).forEach(target -> {
-                            if (target instanceof EntityLivingBase) {
-                                if (!uuids.contains(target.getUniqueID())) {
-                                    //Apply initial damage
-                                    double damage = data.nbt.getDouble("damage");
-                                    SkillDamageSource source = new SkillDamageSource(BaseAbility.DAMAGE_HIT_TYPE, user);
-                                    SkillDamageEvent event = new SkillDamageEvent(user, this, source, damage);
-                                    MinecraftForge.EVENT_BUS.post(event);
-                                    target.attackEntityFrom(source, event.toFloat());
-                                    // Add entity to exception list
-                                    NBTTagCompound nbt = new NBTTagCompound();
-                                    nbt.setUniqueId("uuid", target.getUniqueID());
-                                    list.appendTag(nbt);
+    public void update(EntityLivingBase owner, SkillData data, int tick) {
+        if (isClientWorld(owner)) return;
+        NBTHelper.getNBTList(data.nbt, "list").ifPresent(list -> {
+            double range = data.nbt.getDouble("range");
+            List<UUID> uuids = new ArrayList<>();
+            list.iterator().forEachRemaining(nbt -> {
+                uuids.add(((NBTTagCompound) nbt).getUniqueId("uuid"));
+            });
+            RayTraceHelper.getEntitiesInCone(owner, range, 40, TeamHelper.SELECTOR_ENEMY.apply(owner)).forEach(target -> {
+                if (target instanceof EntityLivingBase) {
+                    if (!uuids.contains(target.getUniqueID())) {
+                        //Apply initial damage
+                        double damage = data.nbt.getDouble("damage");
+                        SkillDamageSource source = new SkillDamageSource(BaseAbility.DAMAGE_HIT_TYPE, owner);
+                        SkillDamageEvent event = new SkillDamageEvent(owner, this, source, damage);
+                        MinecraftForge.EVENT_BUS.post(event);
+                        target.attackEntityFrom(event.getSource(), event.toFloat());
+                        // Add entity to exception list
+                        NBTTagCompound nbt = new NBTTagCompound();
+                        nbt.setUniqueId("uuid", target.getUniqueID());
+                        list.appendTag(nbt);
 
-                                    if (user.world instanceof WorldServer) {
-                                        ((WorldServer) user.world).playSound(null, user.posX, user.posY, user.posZ, ModSounds.VOID_HIT, SoundCategory.PLAYERS, 1.0F, (1.0F + (user.world.rand.nextFloat() - user.world.rand.nextFloat()) * 0.2F) * 0.7F);
-                                    }
-                                }
-                                //Remove effect
-                                if (isActiveOwner(user, (EntityLivingBase) target)) {
-                                    unapply((EntityLivingBase) target, data);
-                                    async((EntityLivingBase) target, data);
-                                }
-                                //Add effect
-                                SkillData override = SkillData.of(this)
-                                        .with(data.nbt.getInteger("time"))
-                                        .put(data.nbt, data.watcher.copy())
-                                        .create();
-                                apply((EntityLivingBase) target, override);
-                                sync((EntityLivingBase) target, override);
-                            }
-                        });
-                    });
-                } else {
-                    double damage = data.nbt.getDouble("dot");
-                    double time = data.nbt.getInteger("time");
-                    SkillDamageSource source = new SkillDamageSource(BaseAbility.DAMAGE_DOT_TYPE, user);
-                    SkillDamageEvent event = new SkillDamageEvent(user, this, source, damage);
-                    MinecraftForge.EVENT_BUS.post(event);
-                    entity.attackEntityFrom(source, (float) (event.toFloat() / time));
+                        if (owner.world instanceof WorldServer) {
+                            ((WorldServer) owner.world).playSound(null, owner.posX, owner.posY, owner.posZ, ModSounds.VOID_HIT, SoundCategory.PLAYERS, 1.0F, (1.0F + (owner.world.rand.nextFloat() - owner.world.rand.nextFloat()) * 0.2F) * 0.7F);
+                        }
+                    }
+                    //Add effect
+                    ModEffects.VOIDED.set((EntityLivingBase) target, data);
+                    ModEffects.SLOWED.set((EntityLivingBase) target, data, 0.6D);
                 }
-            }
-            if (!isClientWorld(entity) || (entity instanceof EntityPlayer) && entity != user) {
-                entity.motionX *= 0.6;
-                entity.motionZ *= 0.6;
-            }
+            });
         });
-    }
-
-    public boolean isActiveOwner(EntityLivingBase attacker, EntityLivingBase target) {
-        return SkillHelper.isActive(target, this, h -> Optional.ofNullable(NBTHelper.getEntity(EntityLivingBase.class, h.data.nbt, "user")).map(e -> e == attacker).orElse(false));
     }
 
     public int getLevel(IInfoUpgradeable info) {
@@ -251,6 +225,7 @@ public class ShadowJab extends BaseAbility implements ISkillAdvancement {
         });
     }
 
+    @Override
     public int getCostIncrement(EntityLivingBase entity, int total) {
         Optional<AdvancementCapability> optional = Capabilities.advancement(entity);
         if (optional.isPresent()) {
@@ -265,6 +240,7 @@ public class ShadowJab extends BaseAbility implements ISkillAdvancement {
         return total;
     }
 
+    @Override
     public int getUpgradeCost(@Nullable AbilityInfo info) {
         int level = info != null ? getLevel(info) + 1 : 0;
         int levelMax = getMaxLevel();

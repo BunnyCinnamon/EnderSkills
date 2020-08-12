@@ -2,19 +2,16 @@ package arekkuusu.enderskills.common.skill.ability.offence.blood;
 
 import arekkuusu.enderskills.api.capability.AdvancementCapability;
 import arekkuusu.enderskills.api.capability.Capabilities;
-import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoCooldown;
-import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoUpgradeable;
 import arekkuusu.enderskills.api.capability.data.SkillData;
 import arekkuusu.enderskills.api.capability.data.SkillInfo;
+import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoCooldown;
+import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoUpgradeable;
 import arekkuusu.enderskills.api.capability.data.nbt.UUIDWatcher;
-import arekkuusu.enderskills.api.event.SkillDamageEvent;
-import arekkuusu.enderskills.api.event.SkillDamageSource;
 import arekkuusu.enderskills.api.helper.ExpressionHelper;
 import arekkuusu.enderskills.api.helper.NBTHelper;
 import arekkuusu.enderskills.api.helper.TeamHelper;
 import arekkuusu.enderskills.api.registry.Skill;
 import arekkuusu.enderskills.client.gui.data.ISkillAdvancement;
-import arekkuusu.enderskills.client.sounds.BleedSound;
 import arekkuusu.enderskills.client.util.helper.TextHelper;
 import arekkuusu.enderskills.common.CommonConfig;
 import arekkuusu.enderskills.common.lib.LibMod;
@@ -22,6 +19,7 @@ import arekkuusu.enderskills.common.lib.LibNames;
 import arekkuusu.enderskills.common.network.PacketHelper;
 import arekkuusu.enderskills.common.skill.ModAbilities;
 import arekkuusu.enderskills.common.skill.ModAttributes;
+import arekkuusu.enderskills.common.skill.ModEffects;
 import arekkuusu.enderskills.common.skill.SkillHelper;
 import arekkuusu.enderskills.common.skill.ability.AbilityInfo;
 import arekkuusu.enderskills.common.skill.ability.BaseAbility;
@@ -56,103 +54,70 @@ public class Bleed extends BaseAbility implements ISkillAdvancement {
     }
 
     @Override
-    public void use(EntityLivingBase user, SkillInfo skillInfo) {
-        if (isClientWorld(user) || !isActionable(user)) return;
+    public void use(EntityLivingBase owner, SkillInfo skillInfo) {
+        if (isClientWorld(owner) || !isActionable(owner)) return;
         AbilityInfo abilityInfo = (AbilityInfo) skillInfo;
 
-        Capabilities.get(user).ifPresent(capability -> {
-            if (!SkillHelper.isActiveOwner(user, this)) {
-                if (!((IInfoCooldown) skillInfo).hasCooldown() && canActivate(user)) {
-                    if (!(user instanceof EntityPlayer) || !((EntityPlayer) user).capabilities.isCreativeMode) {
-                        abilityInfo.setCooldown(getCooldown(abilityInfo));
-                    }
-                    NBTTagCompound compound = new NBTTagCompound();
-                    NBTHelper.setEntity(compound, user, "user");
-                    NBTHelper.setDouble(compound, "dot", getDoT(abilityInfo));
-                    NBTHelper.setInteger(compound, "dotDuration", getTime(abilityInfo));
-                    SkillData data = SkillData.of(this)
-                            .with(INDEFINITE)
-                            .put(compound, UUIDWatcher.INSTANCE)
-                            .create();
-                    apply(user, data);
-                    sync(user, data);
-                    sync(user);
-
-                    if (user.world instanceof WorldServer) {
-                        ((WorldServer) user.world).playSound(null, user.posX, user.posY, user.posZ, ModSounds.BLEED, SoundCategory.PLAYERS, 1.0F, (1.0F + (user.world.rand.nextFloat() - user.world.rand.nextFloat()) * 0.2F) * 0.7F);
-                    }
+        if (!SkillHelper.isActiveFrom(owner, this)) {
+            if (!((IInfoCooldown) skillInfo).hasCooldown() && canActivate(owner)) {
+                if (!(owner instanceof EntityPlayer) || !((EntityPlayer) owner).capabilities.isCreativeMode) {
+                    abilityInfo.setCooldown(getCooldown(abilityInfo));
                 }
-            } else {
-                SkillHelper.getActiveOwner(user, this, holder -> {
-                    unapply(user, holder.data);
-                    async(user, holder.data);
-                });
+                NBTTagCompound compound = new NBTTagCompound();
+                NBTHelper.setEntity(compound, owner, "owner");
+                NBTHelper.setDouble(compound, "dot", getDoT(abilityInfo));
+                NBTHelper.setInteger(compound, "dotDuration", getTime(abilityInfo));
+                SkillData data = SkillData.of(this)
+                        .by(owner)
+                        .with(INDEFINITE)
+                        .put(compound, UUIDWatcher.INSTANCE)
+                        .overrides(SkillData.Overrides.EQUAL)
+                        .create();
+                apply(owner, data);
+                sync(owner, data);
+                sync(owner);
+
+                if (owner.world instanceof WorldServer) {
+                    ((WorldServer) owner.world).playSound(null, owner.posX, owner.posY, owner.posZ, ModSounds.BLEED, SoundCategory.PLAYERS, 1.0F, (1.0F + (owner.world.rand.nextFloat() - owner.world.rand.nextFloat()) * 0.2F) * 0.7F);
+                }
             }
-        });
+        } else {
+            SkillHelper.getActiveFrom(owner, this).ifPresent(data -> {
+                unapply(owner, data);
+                async(owner, data);
+            });
+        }
     }
 
     @Override
-    public void update(EntityLivingBase entity, SkillData data, int tick) {
-        if (isClientWorld(entity)) return;
-        SkillHelper.getOwner(data).ifPresent(user -> {
-            if (entity == user) {
-                if (tick % 20 == 0 && (!(user instanceof EntityPlayer) || !((EntityPlayer) user).capabilities.isCreativeMode)) {
-                    Capabilities.endurance(user).ifPresent(capability -> {
-                        int drain = ModAttributes.ENDURANCE.getEnduranceDrain(this);
-                        if (capability.getEndurance() - drain >= 0) {
-                            capability.setEndurance(capability.getEndurance() - drain);
-                            capability.setEnduranceDelay(30);
-                        } else {
-                            unapply(user, data);
-                            async(user, data);
-                        }
-                    });
+    public void update(EntityLivingBase owner, SkillData data, int tick) {
+        if (isClientWorld(owner)) return;
+        if (tick % 20 == 0 && (!(owner instanceof EntityPlayer) || !((EntityPlayer) owner).capabilities.isCreativeMode)) {
+            Capabilities.endurance(owner).ifPresent(capability -> {
+                int drain = ModAttributes.ENDURANCE.getEnduranceDrain(this);
+                if (capability.getEndurance() - drain >= 0) {
+                    capability.setEndurance(capability.getEndurance() - drain);
+                    capability.setEnduranceDelay(30);
+                } else {
+                    unapply(owner, data);
+                    async(owner, data);
                 }
-            } else {
-                double damage = data.nbt.getDouble("dot");
-                SkillDamageSource source = new SkillDamageSource(BaseAbility.DAMAGE_DOT_TYPE, user);
-                source.setMagicDamage();
-                SkillDamageEvent event = new SkillDamageEvent(user, this, source, damage);
-                MinecraftForge.EVENT_BUS.post(event);
-                entity.attackEntityFrom(event.getSource(), (float) (event.getAmount() / data.time));
-            }
-        });
+            });
+        }
     }
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public void onEntityDamage(LivingHurtEvent event) {
+        if (isClientWorld(event.getEntityLiving()) || SkillHelper.isSkillDamage(event.getSource())) return;
         DamageSource source = event.getSource();
-        if (!(source.getTrueSource() instanceof EntityLivingBase) || source instanceof SkillDamageSource || event.getAmount() <= 0) return;
+        if (!(source.getTrueSource() instanceof EntityLivingBase) || event.getAmount() <= 0) return;
         EntityLivingBase attacker = (EntityLivingBase) source.getTrueSource();
         EntityLivingBase target = event.getEntityLiving();
-        SkillHelper.getActiveOwner(attacker, this, holder -> {
-            Capabilities.get(target).ifPresent(c -> {
-                if(TeamHelper.SELECTOR_ENEMY.apply(attacker).test(target)) {
-                    if (isActiveOwner(attacker, target)) {
-                        unapply(target, holder.data);
-                        async(target, holder.data);
-                    } else {
-                        PacketHelper.sendBleedSoundEffectResponsePacket(target);
-                    }
-                    SkillData data = SkillData.of(this)
-                            .with(holder.data.nbt.getInteger("dotDuration"))
-                            .put(holder.data.nbt, holder.data.watcher.copy())
-                            .overrides(holder.data.overrides)
-                            .create();
-                    apply(target, data);
-                    sync(target, data);
-                }
+        if (TeamHelper.SELECTOR_ENEMY.apply(attacker).test(target)) {
+            SkillHelper.getActiveFrom(attacker, this).ifPresent(data -> {
+                ModEffects.BLEEDING.set(target, data);
             });
-        });
-    }
-
-    @SideOnly(Side.CLIENT)
-    public void makeSound(EntityLivingBase entity) {
-        Minecraft.getMinecraft().getSoundHandler().playSound(new BleedSound(entity));
-    }
-
-    public boolean isActiveOwner(EntityLivingBase attacker, EntityLivingBase target) {
-        return SkillHelper.isActive(target, this, h -> Optional.ofNullable(NBTHelper.getEntity(EntityLivingBase.class, h.data.nbt, "user")).map(e -> e == attacker).orElse(false));
+        }
     }
 
     public int getLevel(IInfoUpgradeable info) {
@@ -230,16 +195,6 @@ public class Bleed extends BaseAbility implements ISkillAdvancement {
     }
 
     @Override
-    public boolean canUpgrade(EntityLivingBase entity) {
-        return Capabilities.advancement(entity).map(c -> {
-            Requirement requirement = getRequirement(entity);
-            int tokens = requirement.getLevels();
-            int xp = requirement.getXp();
-            return c.level >= tokens && c.getExperienceTotal(entity) >= xp;
-        }).orElse(false);
-    }
-
-    @Override
     public void onUpgrade(EntityLivingBase entity) {
         Capabilities.advancement(entity).ifPresent(c -> {
             Requirement requirement = getRequirement(entity);
@@ -257,22 +212,6 @@ public class Bleed extends BaseAbility implements ISkillAdvancement {
     }
 
     @Override
-    public Requirement getRequirement(EntityLivingBase entity) {
-        AbilityInfo info = (AbilityInfo) Capabilities.get(entity).flatMap(a -> a.getOwned(this)).orElse(null);
-        int tokensNeeded = 0;
-        int xpNeeded;
-        if (info == null) {
-            int abilities = Capabilities.get(entity).map(c -> (int) c.getAllOwned().keySet().stream().filter(s -> s instanceof BaseAbility).count()).orElse(0);
-            if (abilities > 0) {
-                tokensNeeded = abilities + 1;
-            } else {
-                tokensNeeded = 1;
-            }
-        }
-        xpNeeded = getUpgradeCost(info);
-        return new DefaultRequirement(tokensNeeded, getCostIncrement(entity, xpNeeded));
-    }
-
     public int getCostIncrement(EntityLivingBase entity, int total) {
         Optional<AdvancementCapability> optional = Capabilities.advancement(entity);
         if (optional.isPresent()) {
@@ -287,6 +226,7 @@ public class Bleed extends BaseAbility implements ISkillAdvancement {
         return total;
     }
 
+    @Override
     public int getUpgradeCost(@Nullable AbilityInfo info) {
         int level = info != null ? getLevel(info) + 1 : 0;
         int levelMax = getMaxLevel();

@@ -2,10 +2,10 @@ package arekkuusu.enderskills.common.skill.ability.defense.light;
 
 import arekkuusu.enderskills.api.capability.AdvancementCapability;
 import arekkuusu.enderskills.api.capability.Capabilities;
-import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoCooldown;
-import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoUpgradeable;
 import arekkuusu.enderskills.api.capability.data.SkillData;
 import arekkuusu.enderskills.api.capability.data.SkillInfo;
+import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoCooldown;
+import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoUpgradeable;
 import arekkuusu.enderskills.api.capability.data.nbt.UUIDWatcher;
 import arekkuusu.enderskills.api.helper.ExpressionHelper;
 import arekkuusu.enderskills.api.helper.NBTHelper;
@@ -14,31 +14,26 @@ import arekkuusu.enderskills.api.registry.Skill;
 import arekkuusu.enderskills.client.gui.data.ISkillAdvancement;
 import arekkuusu.enderskills.client.util.helper.TextHelper;
 import arekkuusu.enderskills.common.CommonConfig;
+import arekkuusu.enderskills.common.EnderSkills;
 import arekkuusu.enderskills.common.lib.LibMod;
 import arekkuusu.enderskills.common.lib.LibNames;
 import arekkuusu.enderskills.common.skill.ModAbilities;
 import arekkuusu.enderskills.common.skill.ModAttributes;
+import arekkuusu.enderskills.common.skill.ModEffects;
 import arekkuusu.enderskills.common.skill.SkillHelper;
 import arekkuusu.enderskills.common.skill.ability.AbilityInfo;
 import arekkuusu.enderskills.common.skill.ability.BaseAbility;
 import arekkuusu.enderskills.common.sound.ModSounds;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Items;
-import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.WorldServer;
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Config;
-import net.minecraftforge.event.entity.living.LivingHurtEvent;
-import net.minecraftforge.fml.common.eventhandler.EventPriority;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -52,80 +47,52 @@ public class NearbyInvincibility extends BaseAbility implements ISkillAdvancemen
     public NearbyInvincibility() {
         super(LibNames.NEARBY_INVINCIBILITY, new AbilityProperties());
         ((AbilityProperties) getProperties()).setCooldownGetter(this::getCooldown).setMaxLevelGetter(this::getMaxLevel);
-        MinecraftForge.EVENT_BUS.register(this);
     }
 
     @Override
-    public void use(EntityLivingBase user, SkillInfo skillInfo) {
-        if (((IInfoCooldown) skillInfo).hasCooldown() || isClientWorld(user)) return;
+    public void use(EntityLivingBase owner, SkillInfo skillInfo) {
+        if (((IInfoCooldown) skillInfo).hasCooldown() || isClientWorld(owner)) return;
         AbilityInfo abilityInfo = (AbilityInfo) skillInfo;
 
-        if (isActionable(user) && canActivate(user)) {
-            if (!(user instanceof EntityPlayer) || !((EntityPlayer) user).capabilities.isCreativeMode) {
+        if (isActionable(owner) && canActivate(owner)) {
+            if (!(owner instanceof EntityPlayer) || !((EntityPlayer) owner).capabilities.isCreativeMode) {
                 abilityInfo.setCooldown(getCooldown(abilityInfo));
             }
             double range = getRange(abilityInfo);
             int time = getTime(abilityInfo);
             NBTTagCompound compound = new NBTTagCompound();
-            NBTHelper.setEntity(compound, user, "user");
+            NBTHelper.setEntity(compound, owner, "owner");
             NBTHelper.setDouble(compound, "range", range);
             SkillData data = SkillData.of(this)
+                    .by(owner)
                     .with(time)
                     .put(compound, UUIDWatcher.INSTANCE)
-                    .overrides(this)
+                    .overrides(SkillData.Overrides.EQUAL)
                     .create();
-            apply(user, data);
-            sync(user, data);
-            sync(user);
+            apply(owner, data);
+            sync(owner, data);
+            sync(owner);
 
-
-            if (user.world instanceof WorldServer) {
-                ((WorldServer) user.world).playSound(null, user.posX, user.posY, user.posZ, ModSounds.NEARBY_INVINCIBILITY, SoundCategory.PLAYERS, 5.0F, (1.0F + (user.world.rand.nextFloat() - user.world.rand.nextFloat()) * 0.2F) * 0.7F);
+            if (owner.world instanceof WorldServer) {
+                ((WorldServer) owner.world).playSound(null, owner.posX, owner.posY, owner.posZ, ModSounds.NEARBY_INVINCIBILITY, SoundCategory.PLAYERS, 5.0F, (1.0F + (owner.world.rand.nextFloat() - owner.world.rand.nextFloat()) * 0.2F) * 0.7F);
             }
         }
     }
 
     @Override
-    public void update(EntityLivingBase entity, SkillData data, int tick) {
-        if (isClientWorld(entity)) return;
-        SkillHelper.getOwner(data).ifPresent(user -> {
-            double distance = NBTHelper.getDouble(data.nbt, "range") * ((double) tick / (double) NBTHelper.getInteger(data.nbt, "time"));
-            if (user != entity) {
-                if (distance >= user.getDistance(entity)) {
-                    unapply(entity, data);
-                    async(entity, data);
-                }
-                return;
-            }
-            Vec3d pos = entity.getPositionVector();
-            pos = new Vec3d(pos.x, pos.y + user.height / 2, pos.z);
-            Vec3d min = pos.subtract(0.5D, 0.5D, 0.5D);
-            Vec3d max = pos.addVector(0.5D, 0.5D, 0.5D);
-            AxisAlignedBB bb = new AxisAlignedBB(min.x, min.y, min.z, max.x, max.y, max.z);
-            entity.world.getEntitiesWithinAABB(EntityLivingBase.class, bb.grow(distance), TeamHelper.SELECTOR_ALLY.apply(user)).forEach(target -> {
-                Capabilities.get(target).ifPresent(s -> {
-                    if (!s.isActive(this)) {
-                        apply(target, data.copy());
-                        sync(target, data.copy());
-                    }
+    public void update(EntityLivingBase owner, SkillData data, int tick) {
+        if (isClientWorld(owner)) return;
+        double distance = NBTHelper.getDouble(data.nbt, "range") * ((double) tick / (double) data.time);
+        Vec3d pos = owner.getPositionVector();
+        pos = new Vec3d(pos.x, pos.y + owner.height / 2, pos.z);
+        Vec3d min = pos.subtract(0.5D, 0.5D, 0.5D);
+        Vec3d max = pos.addVector(0.5D, 0.5D, 0.5D);
+        AxisAlignedBB bb = new AxisAlignedBB(min.x, min.y, min.z, max.x, max.y, max.z);
+        owner.world.getEntitiesWithinAABB(EntityLivingBase.class, bb.grow(distance), TeamHelper.SELECTOR_ALLY.apply(owner)).forEach(target -> {
+            if (!SkillHelper.isActive(target, ModEffects.INVULNERABLE)) {
+                EnderSkills.getProxy().addToQueue(() -> {
+                    ModEffects.INVULNERABLE.set(target, data);
                 });
-                if (target.isBurning()) {
-                    target.extinguish();
-                }
-                target.curePotionEffects(new ItemStack(Items.MILK_BUCKET));
-            });
-        });
-    }
-
-    @SubscribeEvent(priority = EventPriority.LOWEST)
-    public void onDamage(LivingHurtEvent event) {
-        if (isClientWorld(event.getEntityLiving())) return;
-        EntityLivingBase entity = event.getEntityLiving();
-        SkillHelper.getActiveOwner(entity, this, holder -> {
-            Entity user = NBTHelper.getEntity(EntityLivingBase.class, holder.data.nbt, "user");
-            double distance = NBTHelper.getDouble(holder.data.nbt, "range");
-            if (user != null && distance >= user.getDistance(entity)) {
-                event.setAmount(0);
             }
         });
     }
@@ -204,6 +171,7 @@ public class NearbyInvincibility extends BaseAbility implements ISkillAdvancemen
         });
     }
 
+    @Override
     public int getCostIncrement(EntityLivingBase entity, int total) {
         Optional<AdvancementCapability> optional = Capabilities.advancement(entity);
         if (optional.isPresent()) {
@@ -218,6 +186,7 @@ public class NearbyInvincibility extends BaseAbility implements ISkillAdvancemen
         return total;
     }
 
+    @Override
     public int getUpgradeCost(@Nullable AbilityInfo info) {
         int level = info != null ? getLevel(info) + 1 : 0;
         int levelMax = getMaxLevel();

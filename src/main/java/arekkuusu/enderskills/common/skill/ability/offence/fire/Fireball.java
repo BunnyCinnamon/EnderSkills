@@ -2,10 +2,10 @@ package arekkuusu.enderskills.common.skill.ability.offence.fire;
 
 import arekkuusu.enderskills.api.capability.AdvancementCapability;
 import arekkuusu.enderskills.api.capability.Capabilities;
-import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoCooldown;
-import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoUpgradeable;
 import arekkuusu.enderskills.api.capability.data.SkillData;
 import arekkuusu.enderskills.api.capability.data.SkillInfo;
+import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoCooldown;
+import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoUpgradeable;
 import arekkuusu.enderskills.api.capability.data.nbt.UUIDWatcher;
 import arekkuusu.enderskills.api.event.SkillDamageEvent;
 import arekkuusu.enderskills.api.event.SkillDamageSource;
@@ -25,6 +25,7 @@ import arekkuusu.enderskills.common.lib.LibMod;
 import arekkuusu.enderskills.common.lib.LibNames;
 import arekkuusu.enderskills.common.skill.ModAbilities;
 import arekkuusu.enderskills.common.skill.ModAttributes;
+import arekkuusu.enderskills.common.skill.ModEffects;
 import arekkuusu.enderskills.common.skill.SkillHelper;
 import arekkuusu.enderskills.common.skill.ability.AbilityInfo;
 import arekkuusu.enderskills.common.skill.ability.BaseAbility;
@@ -59,13 +60,13 @@ public class Fireball extends BaseAbility implements IImpact, IScanEntities, IEx
     }
 
     @Override
-    public void use(EntityLivingBase user, SkillInfo skillInfo) {
-        if (((IInfoCooldown) skillInfo).hasCooldown() || isClientWorld(user)) return;
+    public void use(EntityLivingBase owner, SkillInfo skillInfo) {
+        if (((IInfoCooldown) skillInfo).hasCooldown() || isClientWorld(owner)) return;
         AbilityInfo abilityInfo = (AbilityInfo) skillInfo;
         double distance = getRange(abilityInfo);
 
-        if (isActionable(user) && canActivate(user)) {
-            if (!(user instanceof EntityPlayer) || !((EntityPlayer) user).capabilities.isCreativeMode) {
+        if (isActionable(owner) && canActivate(owner)) {
+            if (!(owner instanceof EntityPlayer) || !((EntityPlayer) owner).capabilities.isCreativeMode) {
                 abilityInfo.setCooldown(getCooldown(abilityInfo));
             }
             double range = getFlameRange(abilityInfo);
@@ -74,7 +75,7 @@ public class Fireball extends BaseAbility implements IImpact, IScanEntities, IEx
             int dotDuration = getTime(abilityInfo);
             double dot = getDoT(abilityInfo);
             NBTTagCompound compound = new NBTTagCompound();
-            NBTHelper.setEntity(compound, user, "user");
+            NBTHelper.setEntity(compound, owner, "owner");
             NBTHelper.setDouble(compound, "damage", damage);
             NBTHelper.setDouble(compound, "range", range);
             NBTHelper.setInteger(compound, "time", time);
@@ -84,13 +85,12 @@ public class Fireball extends BaseAbility implements IImpact, IScanEntities, IEx
             SkillData data = SkillData.of(this)
                     .with(dotDuration)
                     .put(compound, UUIDWatcher.INSTANCE)
-                    .overrides(this)
                     .create();
-            EntityThrowableData.throwFor(user, distance, data, false);
-            sync(user);
+            EntityThrowableData.throwFor(owner, distance, data, false);
+            sync(owner);
 
-            if (user.world instanceof WorldServer) {
-                ((WorldServer) user.world).playSound(null, user.posX, user.posY, user.posZ, ModSounds.FIREBALL, SoundCategory.PLAYERS, 1.0F, (1.0F + (user.world.rand.nextFloat() - user.world.rand.nextFloat()) * 0.2F) * 0.7F);
+            if (owner.world instanceof WorldServer) {
+                ((WorldServer) owner.world).playSound(null, owner.posX, owner.posY, owner.posZ, ModSounds.FIREBALL, SoundCategory.PLAYERS, 1.0F, (1.0F + (owner.world.rand.nextFloat() - owner.world.rand.nextFloat()) * 0.2F) * 0.7F);
             }
         }
     }
@@ -100,11 +100,11 @@ public class Fireball extends BaseAbility implements IImpact, IScanEntities, IEx
     public void onImpact(Entity source, @Nullable EntityLivingBase owner, SkillData skillData, RayTraceResult trace) {
         int time = skillData.nbt.getInteger("time");
         double radius = skillData.nbt.getDouble("range");
-        EntityPlaceableData spawn = new EntityPlaceableData(source.world, owner, skillData, time + 5);
         Vec3d hitVector = trace.hitVec;
         if (trace.typeOfHit == RayTraceResult.Type.ENTITY) {
             hitVector = new Vec3d(hitVector.x, hitVector.y + trace.entityHit.getEyeHeight(), hitVector.z);
         }
+        EntityPlaceableData spawn = new EntityPlaceableData(source.world, owner, skillData, time + 5);
         spawn.setPosition(hitVector.x, hitVector.y, hitVector.z);
         spawn.setRadius(radius);
         spawn.growTicks = 5;
@@ -116,14 +116,14 @@ public class Fireball extends BaseAbility implements IImpact, IScanEntities, IEx
     }
 
     @Override
-    public AxisAlignedBB expand(Entity source, @Nullable EntityLivingBase owner, AxisAlignedBB bb, float amount) {
+    public AxisAlignedBB expand(Entity source, AxisAlignedBB bb, float amount) {
         return bb.grow(amount * 2);
     }
 
     @Override
     public void onFound(Entity source, @Nullable EntityLivingBase owner, EntityLivingBase target, SkillData skillData) {
+        ModEffects.BURNING.set(target, skillData);
         apply(target, skillData);
-        sync(target, skillData);
 
         if (source.world instanceof WorldServer) {
             ((WorldServer) source.world).playSound(null, source.posX, source.posY, source.posZ, ModSounds.FIRE_HIT, SoundCategory.PLAYERS, 1.0F, (1.0F + (source.world.rand.nextFloat() - source.world.rand.nextFloat()) * 0.2F) * 0.7F);
@@ -134,27 +134,13 @@ public class Fireball extends BaseAbility implements IImpact, IScanEntities, IEx
     @Override
     public void begin(EntityLivingBase entity, SkillData data) {
         if (isClientWorld(entity)) return;
-        SkillHelper.getOwner(data).ifPresent(user -> {
-            double damage = data.nbt.getDouble("damage");
-            SkillDamageSource source = new SkillDamageSource(BaseAbility.DAMAGE_HIT_TYPE, user);
-            source.setExplosion();
-            SkillDamageEvent event = new SkillDamageEvent(user, this, source, damage);
-            MinecraftForge.EVENT_BUS.post(event);
-            entity.attackEntityFrom(event.getSource(), event.toFloat());
-        });
-    }
-
-    @Override
-    public void update(EntityLivingBase entity, SkillData data, int tick) {
-        if (isClientWorld(entity)) return;
-        SkillHelper.getOwner(data).ifPresent(user -> {
-            double damage = data.nbt.getDouble("dot");
-            double time = data.nbt.getInteger("dotDuration");
-            SkillDamageSource source = new SkillDamageSource(BaseAbility.DAMAGE_DOT_TYPE, user);
-            SkillDamageEvent event = new SkillDamageEvent(user, this, source, damage);
-            MinecraftForge.EVENT_BUS.post(event);
-            entity.attackEntityFrom(event.getSource(), (float) (event.toFloat() / time));
-        });
+        EntityLivingBase owner = SkillHelper.getOwner(data);
+        double damage = data.nbt.getDouble("damage");
+        SkillDamageSource source = new SkillDamageSource(BaseAbility.DAMAGE_HIT_TYPE, owner);
+        source.setExplosion();
+        SkillDamageEvent event = new SkillDamageEvent(owner, this, source, damage);
+        MinecraftForge.EVENT_BUS.post(event);
+        entity.attackEntityFrom(event.getSource(), event.toFloat());
     }
 
     public int getLevel(IInfoUpgradeable info) {
@@ -269,6 +255,7 @@ public class Fireball extends BaseAbility implements IImpact, IScanEntities, IEx
         });
     }
 
+    @Override
     public int getCostIncrement(EntityLivingBase entity, int total) {
         Optional<AdvancementCapability> optional = Capabilities.advancement(entity);
         if (optional.isPresent()) {
@@ -283,6 +270,7 @@ public class Fireball extends BaseAbility implements IImpact, IScanEntities, IEx
         return total;
     }
 
+    @Override
     public int getUpgradeCost(@Nullable AbilityInfo info) {
         int level = info != null ? getLevel(info) + 1 : 0;
         int levelMax = getMaxLevel();
@@ -396,9 +384,9 @@ public class Fireball extends BaseAbility implements IImpact, IScanEntities, IEx
                 };
                 @Config.Comment("Damage Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
                 public String[] damage = {
-                        "(0+){40 + ((e^(0.1 * (x / 49)) - 1)/((e^0.1) - 1)) * (52.96 - 40)}",
-                        "(25+){52.96 + ((e^(2.25 * ((x-24) / (y-24))) - 1)/((e^2.25) - 1)) * (86 - 52.96)}",
-                        "(50){90}"
+                        "(0+){20 + ((e^(0.1 * (x / 49)) - 1)/((e^0.1) - 1)) * (32.96 - 20)}",
+                        "(25+){32.96 + ((e^(2.25 * ((x-24) / (y-24))) - 1)/((e^2.25) - 1)) * (66 - 32.96)}",
+                        "(50){70}"
                 };
                 @Config.Comment("Damage Over Time Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
                 public String[] dot = {

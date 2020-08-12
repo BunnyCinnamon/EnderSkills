@@ -2,12 +2,11 @@ package arekkuusu.enderskills.common.skill.ability.defense.earth;
 
 import arekkuusu.enderskills.api.capability.AdvancementCapability;
 import arekkuusu.enderskills.api.capability.Capabilities;
-import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoCooldown;
-import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoUpgradeable;
 import arekkuusu.enderskills.api.capability.data.SkillData;
 import arekkuusu.enderskills.api.capability.data.SkillInfo;
+import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoCooldown;
+import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoUpgradeable;
 import arekkuusu.enderskills.api.capability.data.nbt.UUIDWatcher;
-import arekkuusu.enderskills.api.event.SkillsActionableEvent;
 import arekkuusu.enderskills.api.helper.ExpressionHelper;
 import arekkuusu.enderskills.api.helper.NBTHelper;
 import arekkuusu.enderskills.api.helper.TeamHelper;
@@ -15,17 +14,18 @@ import arekkuusu.enderskills.api.registry.Skill;
 import arekkuusu.enderskills.client.gui.data.ISkillAdvancement;
 import arekkuusu.enderskills.client.util.helper.TextHelper;
 import arekkuusu.enderskills.common.CommonConfig;
-import arekkuusu.enderskills.common.entity.AIOverride;
+import arekkuusu.enderskills.common.EnderSkills;
 import arekkuusu.enderskills.common.entity.data.IExpand;
 import arekkuusu.enderskills.common.entity.data.IFindEntity;
 import arekkuusu.enderskills.common.entity.data.IScanEntities;
 import arekkuusu.enderskills.common.entity.placeable.EntityPlaceableData;
 import arekkuusu.enderskills.common.entity.placeable.EntityPlaceableShockwave;
+import arekkuusu.enderskills.common.entity.throwable.MotionHelper;
 import arekkuusu.enderskills.common.lib.LibMod;
 import arekkuusu.enderskills.common.lib.LibNames;
 import arekkuusu.enderskills.common.skill.ModAbilities;
 import arekkuusu.enderskills.common.skill.ModAttributes;
-import arekkuusu.enderskills.common.skill.SkillHelper;
+import arekkuusu.enderskills.common.skill.ModEffects;
 import arekkuusu.enderskills.common.skill.ability.AbilityInfo;
 import arekkuusu.enderskills.common.skill.ability.BaseAbility;
 import arekkuusu.enderskills.common.sound.ModSounds;
@@ -33,9 +33,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
@@ -44,11 +42,8 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.WorldServer;
-import net.minecraftforge.client.event.InputUpdateEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Config;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.InputEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -66,38 +61,36 @@ public class Shockwave extends BaseAbility implements IScanEntities, IExpand, IF
     }
 
     @Override
-    public void use(EntityLivingBase user, SkillInfo skillInfo) {
-        if (((IInfoCooldown) skillInfo).hasCooldown() || isClientWorld(user)) return;
+    public void use(EntityLivingBase owner, SkillInfo skillInfo) {
+        if (((IInfoCooldown) skillInfo).hasCooldown() || isClientWorld(owner)) return;
         AbilityInfo abilityInfo = (AbilityInfo) skillInfo;
 
-        if (user.onGround && isActionable(user) && canActivate(user)) {
-            if (!(user instanceof EntityPlayer) || !((EntityPlayer) user).capabilities.isCreativeMode) {
+        if (owner.onGround && isActionable(owner) && canActivate(owner)) {
+            if (!(owner instanceof EntityPlayer) || !((EntityPlayer) owner).capabilities.isCreativeMode) {
                 abilityInfo.setCooldown(getCooldown(abilityInfo));
             }
             int time = getTime(abilityInfo);
             double range = getRange(abilityInfo);
-            double force = getPush(abilityInfo);
-            Vec3d lookVector = user.getLook(1F);
+            double push = getPush(abilityInfo);
             NBTTagCompound compound = new NBTTagCompound();
-            NBTHelper.setEntity(compound, user, "user");
+            NBTHelper.setEntity(compound, owner, "owner");
+            NBTHelper.setInteger(compound, "time", time);
             NBTHelper.setDouble(compound, "range", range);
-            NBTHelper.setDouble(compound, "force", force);
-            NBTHelper.setVector(compound, "origin", user.getPositionVector());
-            NBTHelper.setVector(compound, "vector", lookVector);
+            NBTHelper.setDouble(compound, "push", push);
+            NBTHelper.setVector(compound, "pusherVector", owner.getPositionVector());
             SkillData data = SkillData.of(this)
-                    .with(time + 10)
+                    .with(10)
                     .put(compound, UUIDWatcher.INSTANCE)
-                    .overrides(this)
                     .create();
-            EntityPlaceableShockwave spawn = new EntityPlaceableShockwave(user.world, user, data, EntityPlaceableData.MIN_TIME * 2);
-            spawn.setPosition(user.posX, user.posY, user.posZ);
+            EntityPlaceableShockwave spawn = new EntityPlaceableShockwave(owner.world, owner, data, EntityPlaceableData.MIN_TIME * 2);
+            spawn.setPosition(owner.posX, owner.posY, owner.posZ);
             spawn.setRadius(range);
             spawn.spreadOnTerrain();
-            user.world.spawnEntity(spawn);
-            sync(user);
+            owner.world.spawnEntity(spawn);
+            sync(owner);
 
-            if (user.world instanceof WorldServer) {
-                ((WorldServer) user.world).playSound(null, user.posX, user.posY, user.posZ, ModSounds.SHOCKWAVE, SoundCategory.PLAYERS, 5.0F, (1.0F + (user.world.rand.nextFloat() - user.world.rand.nextFloat()) * 0.2F) * 0.7F);
+            if (owner.world instanceof WorldServer) {
+                ((WorldServer) owner.world).playSound(null, owner.posX, owner.posY, owner.posZ, ModSounds.SHOCKWAVE, SoundCategory.PLAYERS, 5.0F, (1.0F + (owner.world.rand.nextFloat() - owner.world.rand.nextFloat()) * 0.2F) * 0.7F);
             }
         }
     }
@@ -105,54 +98,23 @@ public class Shockwave extends BaseAbility implements IScanEntities, IExpand, IF
     @Override
     public void update(EntityLivingBase target, SkillData data, int tick) {
         if (isClientWorld(target) && !(target instanceof EntityPlayer)) return;
-        EntityLivingBase user = NBTHelper.getEntity(EntityLivingBase.class, data.nbt, "user");
-        if (target != user) {
-            if (tick > 10) {
-                if (target instanceof EntityLiving) {
-                    ((EntityLiving) target).getNavigator().clearPath();
-                    ((EntityLiving) target).tasks.addTask(0, AIOverride.INSTANCE);
-                }
-                target.getEntityData().setBoolean("enderskills:stun_indicator", true);
-            } else {
-                Vec3d vector = NBTHelper.getVector(data.nbt, "vector");
-                double distance = NBTHelper.getDouble(data.nbt, "force");
-                Vec3d from = target.getPositionVector();
-                Vec3d to = from.addVector(
-                        vector.x * distance,
-                        vector.y * distance,
-                        vector.z * distance
-                );
-                moveEntity(to, from, target);
-                if (target.collidedHorizontally) {
-                    target.motionY = 0;
-                }
-            }
+        Vec3d pusherVector = NBTHelper.getVector(data.nbt, "pusherVector");
+        double push = NBTHelper.getDouble(data.nbt, "push");
+        MotionHelper.pushAround(pusherVector, target, push);
+        if (target.collidedHorizontally) {
+            target.motionY = 0;
         }
     }
 
     @Override
-    public void end(EntityLivingBase target, SkillData data) {
-        EntityLivingBase user = NBTHelper.getEntity(EntityLivingBase.class, data.nbt, "user");
-        if (target != user) {
-            target.getEntityData().setBoolean("enderskills:stun_indicator", false);
-            if (isClientWorld(target)) return;
-            if (target instanceof EntityLiving) {
-                ((EntityLiving) target).tasks.removeTask(AIOverride.INSTANCE);
-            }
-        }
-    }
-
-    public void moveEntity(Vec3d pullerPos, Vec3d pushedPos, Entity pulled) {
-        Vec3d distance = pullerPos.subtract(pushedPos);
-        Vec3d motion = new Vec3d(distance.x / 10D, distance.y / 10D, distance.z / 10D).scale(-1);
-        pulled.motionX = -motion.x;
-        pulled.motionY = -motion.y;
-        pulled.motionZ = -motion.z;
+    public void end(EntityLivingBase entity, SkillData data) {
+        if (isClientWorld(entity)) return;
+        EnderSkills.getProxy().addToQueue(() -> ModEffects.STUNNED.set(entity, data, data.nbt.getInteger("time")));
     }
 
     //* Entity *//
     @Override
-    public AxisAlignedBB expand(Entity source, @Nullable EntityLivingBase owner, AxisAlignedBB bb, float amount) {
+    public AxisAlignedBB expand(Entity source, AxisAlignedBB bb, float amount) {
         return bb.grow(amount, amount, amount);
     }
 
@@ -182,47 +144,6 @@ public class Shockwave extends BaseAbility implements IScanEntities, IExpand, IF
         }
     }
     //* Entity *//
-
-    @SubscribeEvent
-    @SideOnly(Side.CLIENT)
-    public void inputListener(InputUpdateEvent event) {
-        if (SkillHelper.isActiveNotOwner(event.getEntityLiving(), this)) {
-            event.getMovementInput().forwardKeyDown = false;
-            event.getMovementInput().rightKeyDown = false;
-            event.getMovementInput().backKeyDown = false;
-            event.getMovementInput().leftKeyDown = false;
-            event.getMovementInput().sneak = false;
-            event.getMovementInput().jump = false;
-            event.getMovementInput().moveForward = 0;
-            event.getMovementInput().moveStrafe = 0;
-        }
-    }
-
-    @SubscribeEvent
-    public void onSkillShouldUse(SkillsActionableEvent event) {
-        if (isClientWorld(event.getEntityLiving()) || event.isCanceled()) return;
-        Capabilities.get(event.getEntityLiving()).flatMap(c -> c.getActive(this)).ifPresent(holder -> {
-            Optional.ofNullable(NBTHelper.getEntity(EntityLivingBase.class, holder.data.nbt, "user")).ifPresent(user -> {
-                if (event.getEntityLiving() != user) {
-                    event.setCanceled(true);
-                }
-            });
-        });
-    }
-
-    @SubscribeEvent
-    @SideOnly(Side.CLIENT)
-    public void onMouseClick(InputEvent.MouseInputEvent event) {
-        Capabilities.get(Minecraft.getMinecraft().player).flatMap(c -> c.getActive(this)).ifPresent(holder -> {
-            Optional.ofNullable(NBTHelper.getEntity(EntityLivingBase.class, holder.data.nbt, "user")).ifPresent(user -> {
-                if (Minecraft.getMinecraft().player != user) {
-                    if (Minecraft.getMinecraft().gameSettings.keyBindAttack.isPressed()) {
-                        KeyBinding.setKeyBindState(Minecraft.getMinecraft().gameSettings.keyBindAttack.getKeyCode(), false);
-                    }
-                }
-            });
-        });
-    }
 
     public int getLevel(IInfoUpgradeable info) {
         return info.getLevel();
@@ -308,6 +229,7 @@ public class Shockwave extends BaseAbility implements IScanEntities, IExpand, IF
         });
     }
 
+    @Override
     public int getCostIncrement(EntityLivingBase entity, int total) {
         Optional<AdvancementCapability> optional = Capabilities.advancement(entity);
         if (optional.isPresent()) {
@@ -322,6 +244,7 @@ public class Shockwave extends BaseAbility implements IScanEntities, IExpand, IF
         return total;
     }
 
+    @Override
     public int getUpgradeCost(@Nullable AbilityInfo info) {
         int level = info != null ? getLevel(info) + 1 : 0;
         int levelMax = getMaxLevel();

@@ -15,11 +15,8 @@ public class EntityPlaceableUpdraft extends EntityPlaceableData {
         super(world);
     }
 
-    public EntityPlaceableUpdraft(World worldIn, @Nullable EntityLivingBase owner, SkillData skillData, int lifeTime, Vec3d motion) {
+    public EntityPlaceableUpdraft(World worldIn, @Nullable EntityLivingBase owner, SkillData skillData, int lifeTime) {
         super(worldIn, owner, skillData, lifeTime);
-        this.motionX = motion.x;
-        this.motionY = motion.y;
-        this.motionZ = motion.z;
     }
 
     @Override

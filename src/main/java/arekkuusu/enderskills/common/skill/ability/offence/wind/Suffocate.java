@@ -2,10 +2,10 @@ package arekkuusu.enderskills.common.skill.ability.offence.wind;
 
 import arekkuusu.enderskills.api.capability.AdvancementCapability;
 import arekkuusu.enderskills.api.capability.Capabilities;
-import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoCooldown;
-import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoUpgradeable;
 import arekkuusu.enderskills.api.capability.data.SkillData;
 import arekkuusu.enderskills.api.capability.data.SkillInfo;
+import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoCooldown;
+import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoUpgradeable;
 import arekkuusu.enderskills.api.capability.data.nbt.UUIDWatcher;
 import arekkuusu.enderskills.api.event.SkillDamageEvent;
 import arekkuusu.enderskills.api.event.SkillDamageSource;
@@ -26,6 +26,7 @@ import arekkuusu.enderskills.common.lib.LibMod;
 import arekkuusu.enderskills.common.lib.LibNames;
 import arekkuusu.enderskills.common.skill.ModAbilities;
 import arekkuusu.enderskills.common.skill.ModAttributes;
+import arekkuusu.enderskills.common.skill.ModEffects;
 import arekkuusu.enderskills.common.skill.SkillHelper;
 import arekkuusu.enderskills.common.skill.ability.AbilityInfo;
 import arekkuusu.enderskills.common.skill.ability.BaseAbility;
@@ -58,33 +59,33 @@ public class Suffocate extends BaseAbility implements IImpact, ILoopSound, IScan
     }
 
     @Override
-    public void use(EntityLivingBase user, SkillInfo skillInfo) {
-        if (((IInfoCooldown) skillInfo).hasCooldown() || isClientWorld(user)) return;
+    public void use(EntityLivingBase owner, SkillInfo skillInfo) {
+        if (((IInfoCooldown) skillInfo).hasCooldown() || isClientWorld(owner)) return;
         AbilityInfo abilityInfo = (AbilityInfo) skillInfo;
         double distance = getRange(abilityInfo);
 
-        if (isActionable(user) && canActivate(user)) {
-            if (!(user instanceof EntityPlayer) || !((EntityPlayer) user).capabilities.isCreativeMode) {
+        if (isActionable(owner) && canActivate(owner)) {
+            if (!(owner instanceof EntityPlayer) || !((EntityPlayer) owner).capabilities.isCreativeMode) {
                 abilityInfo.setCooldown(getCooldown(abilityInfo));
             }
             double range = getSuffocateRange(abilityInfo);
             int time = getTime(abilityInfo);
             double dot = getSuffocateDoT(abilityInfo);
             NBTTagCompound compound = new NBTTagCompound();
-            NBTHelper.setEntity(compound, user, "user");
+            NBTHelper.setEntity(compound, owner, "owner");
             NBTHelper.setDouble(compound, "dot", dot);
             NBTHelper.setInteger(compound, "time", time);
             NBTHelper.setDouble(compound, "range", range);
             SkillData data = SkillData.of(this)
-                    .with(INSTANT)
+                    .with(time)
                     .put(compound, UUIDWatcher.INSTANCE)
-                    .overrides(this)
+                    .overrides(SkillData.Overrides.EQUAL)
                     .create();
-            EntityThrowableData.throwFor(user, distance, data, false);
-            sync(user);
+            EntityThrowableData.throwFor(owner, distance, data, false);
+            sync(owner);
 
-            if (user.world instanceof WorldServer) {
-                ((WorldServer) user.world).playSound(null, user.posX, user.posY, user.posZ, ModSounds.SUFFOCATE, SoundCategory.PLAYERS, 1.0F, (1.0F + (user.world.rand.nextFloat() - user.world.rand.nextFloat()) * 0.2F) * 0.7F);
+            if (owner.world instanceof WorldServer) {
+                ((WorldServer) owner.world).playSound(null, owner.posX, owner.posY, owner.posZ, ModSounds.SUFFOCATE, SoundCategory.PLAYERS, 1.0F, (1.0F + (owner.world.rand.nextFloat() - owner.world.rand.nextFloat()) * 0.2F) * 0.7F);
             }
         }
     }
@@ -116,6 +117,7 @@ public class Suffocate extends BaseAbility implements IImpact, ILoopSound, IScan
 
     @Override
     public void onScan(Entity source, @Nullable EntityLivingBase owner, EntityLivingBase target, SkillData skillData) {
+        ModEffects.SLOWED.set(target, skillData, 0.1D);
         apply(target, skillData);
         sync(target, skillData);
     }
@@ -124,18 +126,13 @@ public class Suffocate extends BaseAbility implements IImpact, ILoopSound, IScan
     @Override
     public void update(EntityLivingBase target, SkillData data, int tick) {
         if (isClientWorld(target) && !(target instanceof EntityPlayer)) return;
-        SkillHelper.getOwner(data).ifPresent(user -> {
-            double damage = data.nbt.getDouble("dot");
-            double time = data.nbt.getInteger("time");
-            SkillDamageSource source = new SkillDamageSource(BaseAbility.DAMAGE_DOT_TYPE, user);
-            source.setMagicDamage();
-            SkillDamageEvent event = new SkillDamageEvent(user, this, source, damage);
-            MinecraftForge.EVENT_BUS.post(event);
-            target.attackEntityFrom(event.getSource(), (float) (event.toFloat() / time));
-        });
-        target.motionX = 0;
-        target.motionY = 0;
-        target.motionZ = 0;
+        EntityLivingBase owner = SkillHelper.getOwner(data);
+        double damage = data.nbt.getDouble("dot");
+        SkillDamageSource source = new SkillDamageSource(BaseAbility.DAMAGE_DOT_TYPE, owner);
+        source.setMagicDamage();
+        SkillDamageEvent event = new SkillDamageEvent(owner, this, source, damage);
+        MinecraftForge.EVENT_BUS.post(event);
+        target.attackEntityFrom(event.getSource(), event.toFloat() / data.time);
     }
 
     public int getLevel(IInfoUpgradeable info) {
@@ -232,6 +229,7 @@ public class Suffocate extends BaseAbility implements IImpact, ILoopSound, IScan
         });
     }
 
+    @Override
     public int getCostIncrement(EntityLivingBase entity, int total) {
         Optional<AdvancementCapability> optional = Capabilities.advancement(entity);
         if (optional.isPresent()) {
@@ -246,6 +244,7 @@ public class Suffocate extends BaseAbility implements IImpact, ILoopSound, IScan
         return total;
     }
 
+    @Override
     public int getUpgradeCost(@Nullable AbilityInfo info) {
         int level = info != null ? getLevel(info) + 1 : 0;
         int levelMax = getMaxLevel();

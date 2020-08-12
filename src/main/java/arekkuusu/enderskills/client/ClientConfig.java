@@ -43,6 +43,12 @@ public final class ClientConfig {
             public boolean vanilla = false;
             @Config.Comment("Check this if even the vanilla renders are killing your fps")
             public boolean helpMyFramesAreDying = false;
+            @Config.Comment("Check this if shaders are broken to turn them off")
+            public boolean helpMyShadersAreDying = false;
+            @Config.Comment("Particle Spawning Chance")
+            @Config.RangeDouble(min = 0, max = 1)
+            @Config.SlidingOption
+            public double particleSpawning = 1D;
         }
 
         public enum Orientation {

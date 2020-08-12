@@ -2,6 +2,7 @@ package arekkuusu.enderskills.client.render.skill;
 
 import arekkuusu.enderskills.api.helper.NBTHelper;
 import arekkuusu.enderskills.api.util.Vector;
+import arekkuusu.enderskills.client.proxy.ClientProxy;
 import arekkuusu.enderskills.client.render.model.ModelFist;
 import arekkuusu.enderskills.client.util.helper.GLHelper;
 import arekkuusu.enderskills.common.lib.LibMod;
@@ -43,10 +44,10 @@ public class ShadowJabRenderer extends SkillRenderer<ShadowJab> {
 
         @SubscribeEvent
         public void onEntityTick(LivingEvent.LivingUpdateEvent event) {
-            if (event.getEntityLiving().getEntityWorld().isRemote) {
+            if (event.getEntityLiving().getEntityWorld().isRemote && ClientProxy.canParticleSpawn()) {
                 EntityLivingBase entity = event.getEntityLiving();
-                SkillHelper.getActiveOwner(entity, ModAbilities.SHADOW_JAB, holder -> {
-                    FISTS.add(new Fist(entity, NBTHelper.getDouble(holder.data.nbt, "range")));
+                SkillHelper.getActiveFrom(entity, ModAbilities.SHADOW_JAB).ifPresent(data -> {
+                    FISTS.add(new Fist(entity, NBTHelper.getDouble(data.nbt, "range")));
                 });
             }
         }

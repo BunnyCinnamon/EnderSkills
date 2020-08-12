@@ -1,5 +1,6 @@
 package arekkuusu.enderskills.client.render.skill;
 
+import arekkuusu.enderskills.client.proxy.ClientProxy;
 import arekkuusu.enderskills.client.render.effect.ParticleVanilla;
 import arekkuusu.enderskills.client.render.entity.EntityPlaceableDataRenderer;
 import arekkuusu.enderskills.client.render.entity.EntityThrowableDataRenderer;
@@ -65,7 +66,7 @@ public class GasCloudRenderer extends SkillRenderer<GasCloud> {
             double scale = entity.getRadius() * 2 * MathHelper.clamp(entity.tick / 5D, 0D, 1D);
             if (entity.tick % 2 == 0) {
                 for (int i = 0; i < 4; i++) {
-                    if (entity.world.rand.nextDouble() < 0.8D) {
+                    if (entity.world.rand.nextDouble() < 0.8D && ClientProxy.canParticleSpawn()) {
                         Vec3d vec = entity.getPositionVector();
                         double posX = vec.x + scale * (entity.world.rand.nextDouble() - 0.5);
                         double posY = vec.y + scale * (entity.world.rand.nextDouble() - 0.5);
@@ -81,7 +82,7 @@ public class GasCloudRenderer extends SkillRenderer<GasCloud> {
             GlStateManager.color(1F, 1F, 1F, 1F);
             GlStateManager.pushMatrix();
             GlStateManager.translate(x, y, z);
-            if (!ClientConfig.RENDER_CONFIG.rendering.helpMyFramesAreDying) {
+            if (!ClientConfig.RENDER_CONFIG.rendering.helpMyFramesAreDying && !ClientConfig.RENDER_CONFIG.rendering.helpMyShadersAreDying) {
                 if (!ClientConfig.RENDER_CONFIG.rendering.vanilla) {
                     ShaderLibrary.UNIVERSE.begin();
                     ShaderLibrary.UNIVERSE.set("dimensions", Minecraft.getMinecraft().displayWidth, Minecraft.getMinecraft().displayHeight);
@@ -164,7 +165,7 @@ public class GasCloudRenderer extends SkillRenderer<GasCloud> {
             tessellator.draw();
             GlStateManager.disableBlend();
             GlStateManager.enableLighting();
-            if (!ClientConfig.RENDER_CONFIG.rendering.helpMyFramesAreDying) {
+            if (!ClientConfig.RENDER_CONFIG.rendering.helpMyFramesAreDying && !ClientConfig.RENDER_CONFIG.rendering.helpMyShadersAreDying) {
                 if (!ClientConfig.RENDER_CONFIG.rendering.vanilla) {
                     ShaderLibrary.UNIVERSE.end();
                 } else {

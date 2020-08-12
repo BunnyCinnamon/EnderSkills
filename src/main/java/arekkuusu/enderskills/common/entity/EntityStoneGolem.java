@@ -4,6 +4,7 @@ import arekkuusu.enderskills.api.capability.data.SkillData;
 import arekkuusu.enderskills.api.helper.TeamHelper;
 import arekkuusu.enderskills.common.entity.data.SkillExtendedData;
 import arekkuusu.enderskills.common.skill.ModAbilities;
+import arekkuusu.enderskills.common.skill.ModEffects;
 import arekkuusu.enderskills.common.skill.SkillHelper;
 import com.google.common.base.Optional;
 import net.minecraft.block.Block;
@@ -22,9 +23,7 @@ import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.scoreboard.Team;
 import net.minecraft.server.management.PreYggdrasilConverter;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.EnumParticleTypes;
-import net.minecraft.util.SoundEvent;
+import net.minecraft.util.*;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
@@ -39,26 +38,27 @@ public class EntityStoneGolem extends EntityGolem {
 
     public static final DataParameter<Optional<UUID>> OWNER_UNIQUE_ID = EntityDataManager.createKey(EntityStoneGolem.class, DataSerializers.OPTIONAL_UNIQUE_ID);
     public static final DataParameter<SkillExtendedData> DATA = EntityDataManager.createKey(EntityStoneGolem.class, SkillExtendedData.SERIALIZER);
-    private static final DataParameter<Float> MAX_HEALTH = EntityDataManager.createKey(EntityStoneGolem.class, DataSerializers.FLOAT);
+    public static final DataParameter<Float> MAX_HEALTH = EntityDataManager.createKey(EntityStoneGolem.class, DataSerializers.FLOAT);
     public static final DataParameter<Float> MIRROR_DAMAGE = EntityDataManager.createKey(EntityStoneGolem.class, DataSerializers.FLOAT);
     public static final DataParameter<Float> DAMAGE = EntityDataManager.createKey(EntityStoneGolem.class, DataSerializers.FLOAT);
-    public int growTime = 5 * 20; //Used to make the golem 'grow' on spawning
+    public int growTime = 5 * 20; //Used to make the golem come out of the ground on spawning
+    public boolean isGrown; //When the golem is fully out of the ground
     public int attackTimer;
     public BlockPos spawn;
 
     public EntityStoneGolem(World worldIn) {
         super(worldIn);
-        this.setSize(1.4F, 0F/*2.7F*/);
+        this.setSize(1.4F, 0F);
     }
 
     @Override
     public void initEntityAI() {
         this.tasks.addTask(1, new EntityAIAttackMelee(this, 1.0D, true));
         this.tasks.addTask(2, new EntityAIMoveTowardsTarget(this, 0.9D, 32.0F));
-        this.tasks.addTask(4, new EntityAIMoveTowardsRestriction(this, 1.0D));
-        this.tasks.addTask(6, new EntityAIWanderAvoidWater(this, 0.3D));
-        this.tasks.addTask(7, new EntityAIWatchClosest(this, EntityPlayer.class, 6.0F));
-        this.tasks.addTask(8, new EntityAILookIdle(this));
+        this.tasks.addTask(6, new AIFollowOwner(this, 2D, 5, 64));
+        this.tasks.addTask(8, new EntityAIWatchClosest(this, EntityPlayer.class, 6.0F));
+        this.tasks.addTask(9, new EntityAILookIdle(this));
+        this.tasks.addTask(0, AIOverride.INSTANCE);
         this.targetTasks.addTask(2, new EntityAIHurtByTarget(this, false));
     }
 
@@ -73,11 +73,29 @@ public class EntityStoneGolem extends EntityGolem {
     }
 
     @Override
+    protected boolean canDespawn() {
+        return true;
+    }
+
+    @Override
     public void applyEntityAttributes() {
         super.applyEntityAttributes();
         this.getEntityAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(this.dataManager.get(MAX_HEALTH));
         this.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(0.25D);
         this.getEntityAttribute(SharedMonsterAttributes.KNOCKBACK_RESISTANCE).setBaseValue(1.0D);
+    }
+
+    @Override
+    protected void collideWithEntity(Entity entityIn) {
+        UUID uuid = getOwnerId();
+        if (uuid != null) {
+            EntityLivingBase owner = getEntityByUUID(uuid);
+            if (entityIn != owner) {
+                super.collideWithEntity(entityIn);
+            }
+        } else {
+            super.collideWithEntity(entityIn);
+        }
     }
 
     @Override
@@ -122,9 +140,13 @@ public class EntityStoneGolem extends EntityGolem {
                     this.world.spawnParticle(EnumParticleTypes.BLOCK_CRACK, this.posX + ((double) this.rand.nextFloat() - 0.5D) * (double) this.width, this.getEntityBoundingBox().minY + 0.1D, this.posZ + ((double) this.rand.nextFloat() - 0.5D) * (double) this.width, 4.0D * ((double) this.rand.nextFloat() - 0.5D), 1.5D, ((double) this.rand.nextFloat() - 0.5D) * 4.0D, Block.getStateId(iblockstate));
                 }
             }
+        } else if(!isGrown) {
+            tasks.removeTask(AIOverride.INSTANCE);
+            isGrown = true;
         }
     }
 
+    @Override
     public void onLivingUpdate() {
         super.onLivingUpdate();
 
@@ -134,12 +156,12 @@ public class EntityStoneGolem extends EntityGolem {
             if (owner != null) {
                 this.setHomePosAndDistance(owner.getPosition(), 10);
                 if (ticksExisted % 20 == 0) { //Check if skill is still active every 2 seconds
-                    if (!SkillHelper.isActiveOwner(owner, ModAbilities.ANIMATED_STONE_GOLEM)) {
+                    if (!SkillHelper.isActiveFrom(owner, ModAbilities.ANIMATED_STONE_GOLEM)) {
                         setDead();
                     }
                 }
-                if (owner.getDistance(this) > 10) {
-                    this.setPositionAndUpdate(owner.posX, owner.posY, owner.posZ);
+                if (owner.getDistance(this) > 69) { //uwu
+                    teleportTo(owner);
                 }
                 if (owner.getLastAttackedEntity() != this && (owner.getLastAttackedEntity() == null || TeamHelper.SELECTOR_ENEMY.apply(owner).test(owner.getLastAttackedEntity()))) {
                     setAttackTarget(owner.getLastAttackedEntity());
@@ -163,6 +185,32 @@ public class EntityStoneGolem extends EntityGolem {
                 this.world.spawnParticle(EnumParticleTypes.BLOCK_CRACK, this.posX + ((double) this.rand.nextFloat() - 0.5D) * (double) this.width, this.getEntityBoundingBox().minY + 0.1D, this.posZ + ((double) this.rand.nextFloat() - 0.5D) * (double) this.width, 4.0D * ((double) this.rand.nextFloat() - 0.5D), 0.5D, ((double) this.rand.nextFloat() - 0.5D) * 4.0D, Block.getStateId(iblockstate));
             }
         }
+    }
+
+    public void teleportTo(Entity entity) {
+        for (int i = 0; i < 16; ++i) {
+            double d3 = entity.posX + (world.rand.nextDouble() - 0.5D) * 5;
+            double d4 = MathHelper.clamp(entity.posY + (((world.rand.nextDouble()) * 5D) - (5D / 2D)), 0.0D, world.getActualHeight() - 1);
+            double d5 = entity.posZ + (world.rand.nextDouble() - 0.5D) * 5;
+            if (isRiding()) {
+                dismountRidingEntity();
+            }
+
+            if (attemptTeleport(d3, d4, d5)) {
+                world.playSound(null, posX, posY, posZ, SoundEvents.ITEM_CHORUS_FRUIT_TELEPORT, SoundCategory.PLAYERS, 1.0F, 1.0F);
+                playSound(SoundEvents.ITEM_CHORUS_FRUIT_TELEPORT, 1.0F, 1.0F);
+                break;
+            }
+        }
+    }
+
+    @Override
+    protected boolean processInteract(EntityPlayer player, EnumHand hand) {
+        if(player.isSneaking() && player.getUniqueID().equals(getOwnerId())) {
+            setDead();
+            return true;
+        }
+        return super.processInteract(player, hand);
     }
 
     @Override
@@ -204,10 +252,8 @@ public class EntityStoneGolem extends EntityGolem {
         if (uuid != null) {
             EntityLivingBase owner = getEntityByUUID(uuid);
             if (owner != null) {
-                SkillHelper.getActiveOwner(owner, ModAbilities.ANIMATED_STONE_GOLEM, holder -> {
-                    ModAbilities.ANIMATED_STONE_GOLEM.unapply(owner, holder.data);
-                    ModAbilities.ANIMATED_STONE_GOLEM.async(owner, holder.data);
-                });
+                ModAbilities.ANIMATED_STONE_GOLEM.unapply(owner, getData());
+                ModAbilities.ANIMATED_STONE_GOLEM.async(owner, getData());
             }
         }
     }
@@ -224,16 +270,14 @@ public class EntityStoneGolem extends EntityGolem {
                 float ownerDamage = (float) owner.getEntityAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).getAttributeValue();
                 float damage = getDamage() + ownerDamage + (ownerDamage * getMirrorDamage());
                 attacked = entityIn.attackEntityFrom(DamageSource.causeMobDamage(this), damage);
+                if (entityIn instanceof EntityLivingBase) {
+                    SkillData data = getData().copy();
+                    ModEffects.STUNNED.apply((EntityLivingBase) entityIn, data);
+                    ModEffects.STUNNED.sync((EntityLivingBase) entityIn, data);
+                }
+                entityIn.motionY += 0.4000000059604645D;
+                this.applyEnchantments(this, entityIn);
             }
-        }
-
-        if (attacked) {
-            if (entityIn instanceof EntityLivingBase) {
-                ModAbilities.ANIMATED_STONE_GOLEM.apply((EntityLivingBase) entityIn, getData().copy());
-                ModAbilities.ANIMATED_STONE_GOLEM.sync((EntityLivingBase) entityIn, getData().copy());
-            }
-            entityIn.motionY += 0.4000000059604645D;
-            this.applyEnchantments(this, entityIn);
         }
 
         this.playSound(SoundEvents.ENTITY_IRONGOLEM_ATTACK, 1.0F, 1.0F);

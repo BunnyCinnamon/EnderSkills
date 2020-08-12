@@ -2,13 +2,12 @@ package arekkuusu.enderskills.common.skill.ability.offence.blood;
 
 import arekkuusu.enderskills.api.capability.AdvancementCapability;
 import arekkuusu.enderskills.api.capability.Capabilities;
-import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoCooldown;
-import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoUpgradeable;
 import arekkuusu.enderskills.api.capability.data.SkillData;
 import arekkuusu.enderskills.api.capability.data.SkillInfo;
+import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoCooldown;
+import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoUpgradeable;
 import arekkuusu.enderskills.api.capability.data.nbt.UUIDWatcher;
 import arekkuusu.enderskills.api.event.SkillDamageEvent;
-import arekkuusu.enderskills.api.event.SkillDamageSource;
 import arekkuusu.enderskills.api.helper.ExpressionHelper;
 import arekkuusu.enderskills.api.helper.NBTHelper;
 import arekkuusu.enderskills.api.registry.Skill;
@@ -54,35 +53,38 @@ public class Sacrifice extends BaseAbility implements ISkillAdvancement {
     }
 
     @Override
-    public void use(EntityLivingBase user, SkillInfo skillInfo) {
-        if (((IInfoCooldown) skillInfo).hasCooldown() || isClientWorld(user)) return;
+    public void use(EntityLivingBase owner, SkillInfo skillInfo) {
+        if (((IInfoCooldown) skillInfo).hasCooldown() || isClientWorld(owner)) return;
         AbilityInfo abilityInfo = (AbilityInfo) skillInfo;
 
-        if (isActionable(user) && canActivate(user)) {
-            if (!(user instanceof EntityPlayer) || !((EntityPlayer) user).capabilities.isCreativeMode) {
+        if (isActionable(owner) && canActivate(owner)) {
+            if (!(owner instanceof EntityPlayer) || !((EntityPlayer) owner).capabilities.isCreativeMode) {
                 abilityInfo.setCooldown(getCooldown(abilityInfo));
             }
+            float power = getPower(abilityInfo);
             NBTTagCompound compound = new NBTTagCompound();
-            NBTHelper.setEntity(compound, user, "user");
+            NBTHelper.setEntity(compound, owner, "owner");
+            NBTHelper.setFloat(compound, "power", power);
             SkillData data = SkillData.of(this)
+                    .by(owner)
                     .with(getTime(abilityInfo))
                     .put(compound, UUIDWatcher.INSTANCE)
-                    .overrides(this)
+                    .overrides(SkillData.Overrides.EQUAL)
                     .create();
-            apply(user, data);
-            sync(user, data);
-            sync(user);
+            apply(owner, data);
+            sync(owner, data);
+            sync(owner);
 
-            if (user.world instanceof WorldServer) {
-                ((WorldServer) user.world).playSound(null, user.posX, user.posY, user.posZ, ModSounds.SACRIFICE, SoundCategory.PLAYERS, 1.0F, (1.0F + (user.world.rand.nextFloat() - user.world.rand.nextFloat()) * 0.2F) * 0.7F);
+            if (owner.world instanceof WorldServer) {
+                ((WorldServer) owner.world).playSound(null, owner.posX, owner.posY, owner.posZ, ModSounds.SACRIFICE, SoundCategory.PLAYERS, 1.0F, (1.0F + (owner.world.rand.nextFloat() - owner.world.rand.nextFloat()) * 0.2F) * 0.7F);
             }
         }
     }
 
     @Override
-    public void begin(EntityLivingBase user, SkillData data) {
-        if (isClientWorld(user)) {
-            makeSound(user);
+    public void begin(EntityLivingBase owner, SkillData data) {
+        if (isClientWorld(owner)) {
+            makeSound(owner);
         }
     }
 
@@ -95,30 +97,22 @@ public class Sacrifice extends BaseAbility implements ISkillAdvancement {
     public void onEntityDamage(LivingHurtEvent event) {
         if (isClientWorld(event.getEntityLiving()) || SkillHelper.isSkillDamage(event.getSource())) return;
         DamageSource source = event.getSource();
-        if (!(source.getTrueSource() instanceof EntityLivingBase) || source instanceof SkillDamageSource || event.getAmount() <= 0) return;
+        if (!(source.getTrueSource() instanceof EntityLivingBase) || event.getAmount() <= 0) return;
         EntityLivingBase attacker = (EntityLivingBase) source.getTrueSource();
-        Capabilities.get(attacker).ifPresent(capability -> {
-            //Do Damage
-            if (capability.isOwned(this)) {
-                capability.getOwned(this).ifPresent(skillInfo -> {
-                    AbilityInfo abilityInfo = (AbilityInfo) skillInfo;
-                    event.setAmount(event.getAmount() + (event.getAmount() * getPower(abilityInfo)));
-                });
-            }
+        SkillHelper.getActiveFrom(attacker, this).ifPresent(data -> {
+            float power = NBTHelper.getFloat(data.nbt, "power");
+            event.setAmount(event.getAmount() + (event.getAmount() * power));
         });
     }
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public void onSkillDamage(SkillDamageEvent event) {
+        if (event.getEntityLiving() == null) return;
         if (isClientWorld(event.getEntityLiving()) || !SkillHelper.isSkillDamage(event.getSource())) return;
         EntityLivingBase entity = event.getEntityLiving();
-        Capabilities.get(entity).ifPresent(capability -> {
-            if (capability.isOwned(this) && capability.isActive(this)) {
-                capability.getOwned(this).ifPresent(skillInfo -> {
-                    AbilityInfo abilityInfo = (AbilityInfo) skillInfo;
-                    event.setAmount(event.getAmount() + (event.getAmount() * getPower(abilityInfo)));
-                });
-            }
+        SkillHelper.getActiveFrom(entity, this).ifPresent(data -> {
+            float power = NBTHelper.getFloat(data.nbt, "power");
+            event.setAmount(event.getAmount() + (event.getAmount() * power));
         });
     }
 
@@ -206,6 +200,7 @@ public class Sacrifice extends BaseAbility implements ISkillAdvancement {
         });
     }
 
+    @Override
     public int getCostIncrement(EntityLivingBase entity, int total) {
         Optional<AdvancementCapability> optional = Capabilities.advancement(entity);
         if (optional.isPresent()) {
@@ -220,6 +215,7 @@ public class Sacrifice extends BaseAbility implements ISkillAdvancement {
         return total;
     }
 
+    @Override
     public int getUpgradeCost(@Nullable AbilityInfo info) {
         int level = info != null ? getLevel(info) + 1 : 0;
         int levelMax = getMaxLevel();

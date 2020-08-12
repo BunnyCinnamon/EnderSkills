@@ -15,7 +15,7 @@ public class TeamHelper {
 
     public static final Function<Entity, Predicate<Entity>> SAME_TEAM = e -> e != null ? TeamHelper.getTeamCollisionPredicate(e) : Predicates.alwaysFalse();
     public static final Function<Entity, Predicate<Entity>> NOT_SAME_TEAM = e -> e != null ? EntitySelectors.getTeamCollisionPredicate(e) : Predicates.alwaysFalse();
-    public static final Predicate<Entity> NOT_CREATIVE = entity -> !(entity instanceof EntityPlayer) || !((EntityPlayer) entity).capabilities.isCreativeMode;
+    public static final Predicate<Entity> NOT_CREATIVE = entity -> !(entity instanceof EntityPlayer) || !((EntityPlayer) entity).capabilities.isCreativeMode || !((EntityPlayer) entity).capabilities.disableDamage;
     public static final Predicate<Entity> HUMAN_TEAM = entity -> !EnderSkillsAPI.defaultHumanTeam || !entity.isCreatureType(EnumCreatureType.MONSTER, false);
     public static final Predicate<Entity> NOT_HUMAN_TEAM = entity -> !EnderSkillsAPI.defaultHumanTeam || entity.isCreatureType(EnumCreatureType.MONSTER, false);
     public static final Function<Entity, Predicate<Entity>> SELECTOR_ALLY = (e) -> Predicates.or(Predicates.and(SAME_TEAM.apply(e), NOT_CREATIVE, HUMAN_TEAM), input -> input == e);

@@ -2,14 +2,16 @@ package arekkuusu.enderskills.common.skill.ability.offence.blood;
 
 import arekkuusu.enderskills.api.capability.AdvancementCapability;
 import arekkuusu.enderskills.api.capability.Capabilities;
-import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoCooldown;
-import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoUpgradeable;
 import arekkuusu.enderskills.api.capability.data.SkillData;
 import arekkuusu.enderskills.api.capability.data.SkillInfo;
+import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoCooldown;
+import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoUpgradeable;
 import arekkuusu.enderskills.api.capability.data.nbt.UUIDWatcher;
 import arekkuusu.enderskills.api.event.SkillDamageSource;
 import arekkuusu.enderskills.api.helper.ExpressionHelper;
 import arekkuusu.enderskills.api.helper.NBTHelper;
+import arekkuusu.enderskills.api.helper.RayTraceHelper;
+import arekkuusu.enderskills.api.helper.TeamHelper;
 import arekkuusu.enderskills.api.registry.Skill;
 import arekkuusu.enderskills.client.gui.data.ISkillAdvancement;
 import arekkuusu.enderskills.client.util.helper.TextHelper;
@@ -27,7 +29,6 @@ import arekkuusu.enderskills.common.sound.ModSounds;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
@@ -51,27 +52,28 @@ public class Syphon extends BaseAbility implements IImpact, ISkillAdvancement {
     }
 
     @Override
-    public void use(EntityLivingBase user, SkillInfo skillInfo) {
-        if (((IInfoCooldown) skillInfo).hasCooldown() || isClientWorld(user)) return;
+    public void use(EntityLivingBase owner, SkillInfo skillInfo) {
+        if (((IInfoCooldown) skillInfo).hasCooldown() || isClientWorld(owner)) return;
         AbilityInfo abilityInfo = (AbilityInfo) skillInfo;
         double distance = getRange(abilityInfo);
 
-        if (isActionable(user) && canActivate(user)) {
-            if (!(user instanceof EntityPlayer) || !((EntityPlayer) user).capabilities.isCreativeMode) {
+        if (isActionable(owner) && canActivate(owner)) {
+            if (!(owner instanceof EntityPlayer) || !((EntityPlayer) owner).capabilities.isCreativeMode) {
                 abilityInfo.setCooldown(getCooldown(abilityInfo));
             }
+            float heal = getHeal(abilityInfo);
             NBTTagCompound compound = new NBTTagCompound();
-            NBTHelper.setEntity(compound, user, "user");
+            NBTHelper.setEntity(compound, owner, "owner");
+            NBTHelper.setFloat(compound, "heal", heal);
             SkillData data = SkillData.of(this)
                     .with(INSTANT)
                     .put(compound, UUIDWatcher.INSTANCE)
-                    .overrides(this)
                     .create();
-            EntityThrowableData.throwFor(user, distance, data, false);
-            sync(user);
+            EntityThrowableData.throwFor(owner, distance, data, false);
+            sync(owner);
 
-            if (user.world instanceof WorldServer) {
-                ((WorldServer) user.world).playSound(null, user.posX, user.posY, user.posZ, ModSounds.SYPHON, SoundCategory.PLAYERS, 1.0F, (1.0F + (user.world.rand.nextFloat() - user.world.rand.nextFloat()) * 0.2F) * 0.7F);
+            if (owner.world instanceof WorldServer) {
+                ((WorldServer) owner.world).playSound(null, owner.posX, owner.posY, owner.posZ, ModSounds.SYPHON, SoundCategory.PLAYERS, 1.0F, (1.0F + (owner.world.rand.nextFloat() - owner.world.rand.nextFloat()) * 0.2F) * 0.7F);
             }
         }
     }
@@ -79,32 +81,27 @@ public class Syphon extends BaseAbility implements IImpact, ISkillAdvancement {
     @Override
     public void begin(EntityLivingBase target, SkillData data) {
         if (isClientWorld(target)) return;
-        SkillHelper.getOwner(data).ifPresent(user -> {
-            if (target instanceof EntityLiving) {
-                Capabilities.get(user).flatMap(c -> c.getOwned(this)).ifPresent(skillInfo -> {
-                    AbilityInfo abilityInfo = (AbilityInfo) skillInfo;
-                    float heal = getHeal(abilityInfo);
-                    float healed = target.getMaxHealth() * heal;
-                    //Calculate Heal
-                    float healthBeforeDamage = target.getHealth();
-                    float lifeTaken = healed;
-                    SkillDamageSource source = new SkillDamageSource(BaseAbility.DAMAGE_HIT_TYPE, user);
-                    source.setMagicDamage();
-                    target.attackEntityFrom(source, lifeTaken);
-                    float healthAfterDamage = target.getHealth();
-                    float realLifeTaken = healthBeforeDamage - healthAfterDamage;
-                    float effectiveFor = realLifeTaken / lifeTaken;
-                    //Heal
-                    user.heal(user.getMaxHealth() * (heal * effectiveFor));
-                });
-            }
+        Optional.ofNullable(SkillHelper.getOwner(data)).ifPresent(owner -> {
+            float heal = NBTHelper.getFloat(data.nbt, "heal");
+            float healed = target.getMaxHealth() * heal;
+            //Calculate Heal
+            float healthBeforeDamage = target.getHealth();
+            float lifeTaken = healed;
+            SkillDamageSource source = new SkillDamageSource(BaseAbility.DAMAGE_HIT_TYPE, owner);
+            source.setMagicDamage();
+            target.attackEntityFrom(source, lifeTaken);
+            float healthAfterDamage = target.getHealth();
+            float realLifeTaken = healthBeforeDamage - healthAfterDamage;
+            float effectiveFor = realLifeTaken / lifeTaken;
+            //Heal
+            owner.heal(owner.getMaxHealth() * (heal * effectiveFor));
         });
     }
 
     //* Entity *//
     @Override
     public void onImpact(Entity source, @Nullable EntityLivingBase owner, SkillData skillData, RayTraceResult trace) {
-        if (trace.typeOfHit == RayTraceResult.Type.ENTITY && trace.entityHit instanceof EntityLivingBase) {
+        if (RayTraceHelper.isEntityTrace(trace, TeamHelper.SELECTOR_ENEMY.apply(owner))) {
             apply((EntityLivingBase) trace.entityHit, skillData);
             sync((EntityLivingBase) trace.entityHit, skillData);
         }
@@ -183,6 +180,7 @@ public class Syphon extends BaseAbility implements IImpact, ISkillAdvancement {
         });
     }
 
+    @Override
     public int getCostIncrement(EntityLivingBase entity, int total) {
         Optional<AdvancementCapability> optional = Capabilities.advancement(entity);
         if (optional.isPresent()) {
@@ -197,6 +195,7 @@ public class Syphon extends BaseAbility implements IImpact, ISkillAdvancement {
         return total;
     }
 
+    @Override
     public int getUpgradeCost(@Nullable AbilityInfo info) {
         int level = info != null ? getLevel(info) + 1 : 0;
         int levelMax = getMaxLevel();

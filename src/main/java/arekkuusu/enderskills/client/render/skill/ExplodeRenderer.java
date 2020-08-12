@@ -1,10 +1,10 @@
 package arekkuusu.enderskills.client.render.skill;
 
-import arekkuusu.enderskills.api.capability.data.SkillHolder;
+import arekkuusu.enderskills.client.ClientConfig;
+import arekkuusu.enderskills.client.proxy.ClientProxy;
 import arekkuusu.enderskills.client.util.ResourceLibrary;
 import arekkuusu.enderskills.client.util.ShaderLibrary;
 import arekkuusu.enderskills.client.util.helper.GLHelper;
-import arekkuusu.enderskills.client.util.helper.RenderMisc;
 import arekkuusu.enderskills.common.EnderSkills;
 import arekkuusu.enderskills.common.entity.placeable.EntityPlaceableData;
 import arekkuusu.enderskills.common.lib.LibMod;
@@ -15,7 +15,6 @@ import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.entity.Entity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
@@ -31,11 +30,6 @@ public class ExplodeRenderer extends SkillRenderer<Explode> {
 
     private static final ResourceLocation PLACEABLE = new ResourceLocation(LibMod.MOD_ID, "textures/entity/explode.png");
 
-    @Override
-    public void render(Entity entity, double x, double y, double z, float partialTicks, SkillHolder skillHolder) {
-        RenderMisc.renderEntityOnFire(entity, x, y, z);
-    }
-
     @SideOnly(Side.CLIENT)
     public static class Placeable extends Render<EntityPlaceableData> {
 
@@ -46,9 +40,9 @@ public class ExplodeRenderer extends SkillRenderer<Explode> {
         @Override
         public void doRender(EntityPlaceableData entity, double x, double y, double z, float entityYaw, float partialTicks) {
             double scale = entity.getRadius() * 2 * MathHelper.clamp(entity.tick / 5D, 0D, 1D);
-            if (entity.tick == 10) {
+            if (entity.tick == EntityPlaceableData.MIN_TIME) {
                 for (int i = 0; i < 4; i++) {
-                    if (entity.world.rand.nextDouble() < 0.8D) {
+                    if (entity.world.rand.nextDouble() < 0.8D && ClientProxy.canParticleSpawn()) {
                         Vec3d vec = entity.getPositionVector();
                         double posX = vec.x + scale * (entity.world.rand.nextDouble() - 0.5);
                         double posY = vec.y + scale * (entity.world.rand.nextDouble() - 0.5);
@@ -64,8 +58,10 @@ public class ExplodeRenderer extends SkillRenderer<Explode> {
             GlStateManager.pushMatrix();
             GlStateManager.translate(x, y, z);
             GLHelper.BLEND_SRC_ALPHA$ONE.blend();
-            ShaderLibrary.BRIGHT.begin();
-            ShaderLibrary.BRIGHT.set("alpha", 0.7F * (MathHelper.clamp(entity.tick / 10F, 0F, 1F)));
+            if (!ClientConfig.RENDER_CONFIG.rendering.helpMyShadersAreDying) {
+                ShaderLibrary.BRIGHT.begin();
+                ShaderLibrary.BRIGHT.set("alpha", 0.7F * (MathHelper.clamp(entity.tick / 10F, 0F, 1F)));
+            }
             GlStateManager.disableLighting();
             GlStateManager.enableBlend();
             this.bindTexture(getEntityTexture(entity));
@@ -128,7 +124,9 @@ public class ExplodeRenderer extends SkillRenderer<Explode> {
             tessellator.draw();
             GlStateManager.disableBlend();
             GlStateManager.enableLighting();
-            ShaderLibrary.BRIGHT.end();
+            if (!ClientConfig.RENDER_CONFIG.rendering.helpMyShadersAreDying) {
+                ShaderLibrary.BRIGHT.end();
+            }
             GLHelper.BLEND_NORMAL.blend();
             GlStateManager.popMatrix();
         }

@@ -7,6 +7,9 @@ import java.util.function.IntSupplier;
 
 public abstract class BaseSkill extends Skill implements IConfigSync, ISkillAdvancement {
 
+    public static final int INDEFINITE = -1;
+    public static final int INSTANT = 0;
+
     public BaseSkill(Properties properties) {
         super(properties);
     }

@@ -29,7 +29,7 @@ public class HoverSound extends MovingSound {
     public void update() {
         EntityLivingBase entity = reference.get();
         if (entity != null && !entity.isDead) {
-            if (SkillHelper.isActiveOwner(entity, ModAbilities.HOVER)) {
+            if (SkillHelper.isActiveFrom(entity, ModAbilities.HOVER)) {
                 this.xPosF = (float) entity.posX;
                 this.yPosF = (float) entity.posY;
                 this.zPosF = (float) entity.posZ;

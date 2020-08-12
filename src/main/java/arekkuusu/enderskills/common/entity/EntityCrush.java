@@ -1,10 +1,14 @@
 package arekkuusu.enderskills.common.entity;
 
+import arekkuusu.enderskills.api.capability.data.SkillData;
 import arekkuusu.enderskills.api.event.SkillDamageEvent;
 import arekkuusu.enderskills.api.event.SkillDamageSource;
+import arekkuusu.enderskills.api.helper.TeamHelper;
+import arekkuusu.enderskills.common.entity.data.SkillExtendedData;
+import arekkuusu.enderskills.common.entity.placeable.EntityPlaceableData;
 import arekkuusu.enderskills.common.skill.ModAbilities;
+import arekkuusu.enderskills.common.skill.SkillHelper;
 import arekkuusu.enderskills.common.sound.ModSounds;
-import com.google.common.base.Optional;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.init.SoundEvents;
@@ -12,7 +16,6 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
-import net.minecraft.server.management.PreYggdrasilConverter;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.MathHelper;
@@ -26,7 +29,7 @@ import java.util.UUID;
 
 public class EntityCrush extends Entity {
 
-    public static final DataParameter<Optional<UUID>> OWNER_UNIQUE_ID = EntityDataManager.createKey(EntityCrush.class, DataSerializers.OPTIONAL_UNIQUE_ID);
+    public static final DataParameter<SkillExtendedData> DATA = EntityDataManager.createKey(EntityPlaceableData.class, SkillExtendedData.SERIALIZER);
     public static final DataParameter<Float> SYNC_SIZE = EntityDataManager.createKey(EntityCrush.class, DataSerializers.FLOAT);
     public int warmupDelayTicks;
     public boolean sentSpikeEvent;
@@ -38,6 +41,12 @@ public class EntityCrush extends Entity {
         super(worldIn);
         this.lifeTicks = 22;
         setSize(1F, 0F);
+    }
+
+    @Override
+    protected void entityInit() {
+        this.dataManager.register(DATA, new SkillExtendedData(null));
+        this.dataManager.register(SYNC_SIZE, 0F);
     }
 
     @Override
@@ -62,15 +71,11 @@ public class EntityCrush extends Entity {
                 }
             }
         } else if (--this.warmupDelayTicks < 0) {
-            UUID uuid = getOwnerId();
-            if (uuid != null) {
-                EntityLivingBase owner = getEntityByUUID(uuid);
-                if (owner != null) {
-                    if (this.warmupDelayTicks == -8) {
-                        for (EntityLivingBase target : this.world.getEntitiesWithinAABB(EntityLivingBase.class, this.getEntityBoundingBox())) {
-                            this.damage(owner, target);
-                        }
-                    }
+            SkillData data = getData();
+            EntityLivingBase owner = SkillHelper.getOwner(data);
+            if (this.warmupDelayTicks == -8) {
+                for (EntityLivingBase target : this.world.getEntitiesWithinAABB(EntityLivingBase.class, this.getEntityBoundingBox(), TeamHelper.SELECTOR_ENEMY.apply(owner))) {
+                    ModAbilities.CRUSH.apply(target, data);
                 }
             }
             if (!this.sentSpikeEvent) {
@@ -98,14 +103,10 @@ public class EntityCrush extends Entity {
     }
 
     private void damage(EntityLivingBase owner, EntityLivingBase target) {
-        if (target.isEntityAlive() && !target.getIsInvulnerable() && target != owner) {
-            if (!owner.isOnSameTeam(target)) {
-                SkillDamageSource damageSource = new SkillDamageSource("skill", owner);
-                SkillDamageEvent event = new SkillDamageEvent(owner, ModAbilities.CRUSH, damageSource, damage);
-                MinecraftForge.EVENT_BUS.post(event);
-                target.attackEntityFrom(event.getSource(), event.toFloat());
-            }
-        }
+        SkillDamageSource damageSource = new SkillDamageSource("skill", owner);
+        SkillDamageEvent event = new SkillDamageEvent(owner, ModAbilities.CRUSH, damageSource, damage);
+        MinecraftForge.EVENT_BUS.post(event);
+        target.attackEntityFrom(event.getSource(), event.toFloat());
     }
 
     @SideOnly(Side.CLIENT)
@@ -130,12 +131,6 @@ public class EntityCrush extends Entity {
             int i = this.lifeTicks - 2;
             return i <= 0 ? 1.0F : 1.0F - ((float) i - partialTicks) / 20.0F;
         }
-    }
-
-    @Override
-    protected void entityInit() {
-        this.dataManager.register(OWNER_UNIQUE_ID, Optional.absent());
-        this.dataManager.register(SYNC_SIZE, 0F);
     }
 
     @Override
@@ -170,14 +165,12 @@ public class EntityCrush extends Entity {
             this.world.updateEntityWithOptionalForce(this, false); // Forge - Process chunk registration after moving.
     }
 
-    @Nullable
-    public UUID getOwnerId() {
-        return this.dataManager.get(OWNER_UNIQUE_ID).orNull();
+    public void setData(SkillData data) {
+        this.dataManager.set(DATA, new SkillExtendedData(data));
     }
 
-    @SuppressWarnings("Guava")
-    public void setOwnerId(@Nullable UUID owner) {
-        this.dataManager.set(OWNER_UNIQUE_ID, Optional.fromNullable(owner));
+    public SkillData getData() {
+        return this.dataManager.get(DATA).data;
     }
 
     public float getSize() {
@@ -203,25 +196,16 @@ public class EntityCrush extends Entity {
 
     @Override
     protected void readEntityFromNBT(NBTTagCompound compound) {
-        String uuidString;
-        if (compound.hasKey("OwnerUUID", 8)) {
-            uuidString = compound.getString("OwnerUUID");
-        } else {
-            String ownerString = compound.getString("Owner");
-            uuidString = PreYggdrasilConverter.convertMobOwnerIfNeeded(this.getServer(), ownerString);
-        }
-        if (!uuidString.isEmpty()) {
-            this.dataManager.set(OWNER_UNIQUE_ID, Optional.of(UUID.fromString(uuidString)));
+        if (compound.hasKey("data")) {
+            setData(new SkillData(compound.getCompoundTag("data")));
         }
         setSize(compound.getFloat("size"));
     }
 
     @Override
     protected void writeEntityToNBT(NBTTagCompound compound) {
-        if (!this.dataManager.get(OWNER_UNIQUE_ID).isPresent()) {
-            compound.setString("OwnerUUID", "");
-        } else {
-            compound.setString("OwnerUUID", this.dataManager.get(OWNER_UNIQUE_ID).get().toString());
+        if (getData() != null) {
+            compound.setTag("data", getData().serializeNBT());
         }
         compound.setFloat("size", getSize());
     }

@@ -1,13 +1,13 @@
 package arekkuusu.enderskills.common.entity;
 
 import arekkuusu.enderskills.api.capability.data.SkillData;
-import arekkuusu.enderskills.api.event.SkillDamageEvent;
-import arekkuusu.enderskills.api.event.SkillDamageSource;
 import arekkuusu.enderskills.api.helper.TeamHelper;
 import arekkuusu.enderskills.client.sounds.BlackHoleSound;
 import arekkuusu.enderskills.common.entity.data.SkillExtendedData;
+import arekkuusu.enderskills.common.entity.throwable.MotionHelper;
 import arekkuusu.enderskills.common.skill.ModAbilities;
-import com.google.common.base.Optional;
+import arekkuusu.enderskills.common.skill.ModEffects;
+import arekkuusu.enderskills.common.skill.SkillHelper;
 import com.google.common.collect.Lists;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
@@ -18,15 +18,11 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
-import net.minecraft.server.management.PreYggdrasilConverter;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
-import net.minecraft.world.WorldServer;
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -34,12 +30,10 @@ import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-import java.util.UUID;
 
 @SuppressWarnings("Guava")
 public class EntityBlackHole extends Entity {
 
-    public static final DataParameter<Optional<UUID>> OWNER_ID = EntityDataManager.createKey(EntityBlackHole.class, DataSerializers.OPTIONAL_UNIQUE_ID);
     public static final DataParameter<SkillExtendedData> DATA = EntityDataManager.createKey(EntityBlackHole.class, SkillExtendedData.SERIALIZER);
     public static final DataParameter<Integer> LIFE_TIME = EntityDataManager.createKey(EntityBlackHole.class, DataSerializers.VARINT);
     public static final DataParameter<Float> SIZE = EntityDataManager.createKey(EntityBlackHole.class, DataSerializers.FLOAT);
@@ -64,14 +58,12 @@ public class EntityBlackHole extends Entity {
             this.rotationPitch = owner.rotationPitch;
             this.rotationYaw = owner.rotationYaw;
         }
-        setOwner(owner);
         setData(skillData);
         setLifeTime(lifeTime);
     }
 
     @Override
     protected void entityInit() {
-        this.dataManager.register(OWNER_ID, Optional.absent());
         this.dataManager.register(DATA, new SkillExtendedData(null));
         this.dataManager.register(LIFE_TIME, 0);
         this.dataManager.register(SIZE, 0F);
@@ -113,23 +105,23 @@ public class EntityBlackHole extends Entity {
             makeSound();
         }
         super.onUpdate();
-        SkillData data = getData();
         if (world.isRemote && getRadius() != 0 && points.isEmpty()) {
             this.setupShape(new Random(this.getSeed()));
         }
-        if(getRadius() > 0) {
+        if (getRadius() > 0) {
             if (getLifeTime() > this.tick) {
                 if (tick == 0) {
                     world.playSound(posX, posY, posZ, SoundEvents.ENTITY_ENDERMEN_TELEPORT, SoundCategory.HOSTILE, 8.0F, 1.0F, true);
                 }
-                EntityLivingBase owner = getOwner();
+                SkillData data = getData();
+                EntityLivingBase owner = SkillHelper.getOwner(data);
                 double radius = getRadius();
                 double suckRange = radius * 2;
                 AxisAlignedBB suckzone = new AxisAlignedBB(this.posX - suckRange, this.posY - suckRange, this.posZ - suckRange, this.posX + suckRange, this.posY + suckRange, this.posZ + suckRange);
-                List<Entity> succ = getEntityWorld().getEntitiesWithinAABB(Entity.class, suckzone, TeamHelper.SELECTOR_ENEMY.apply(owner));
+                List<EntityLivingBase> succ = getEntityWorld().getEntitiesWithinAABB(EntityLivingBase.class, suckzone, TeamHelper.SELECTOR_ENEMY.apply(owner));
                 if (!succ.isEmpty()) {
-                    for (Entity entity : succ) {
-                        if (entity instanceof EntityLivingBase && entity != owner && (!world.isRemote || entity instanceof EntityPlayer)) {
+                    for (EntityLivingBase entity : succ) {
+                        if ((!world.isRemote || entity instanceof EntityPlayer)) {
                             double dx = posX - entity.posX;
                             double dy = posY - entity.posY;
                             double dz = posZ - entity.posZ;
@@ -145,16 +137,19 @@ public class EntityBlackHole extends Entity {
                                 double motionX = entity.motionX + (dx / len) * strength * power;
                                 double motionY = entity.motionY + (dy / len) * strength * power;
                                 double motionZ = entity.motionZ + (dz / len) * strength * power;
-                                if(Double.isFinite(motionX) && Double.isFinite(motionY) && Double.isFinite(motionZ)) {
+                                if (Double.isFinite(motionX) && Double.isFinite(motionY) && Double.isFinite(motionZ)) {
                                     entity.motionX = motionX;
                                     entity.motionY = motionY;
                                     entity.motionZ = motionZ;
                                 }
                             }
                         }
-                        if (entity instanceof EntityLivingBase && entity != owner && !world.isRemote) {
-                            ModAbilities.BLACK_HOLE.apply((EntityLivingBase) entity, data.copy());
-                            ModAbilities.BLACK_HOLE.sync((EntityLivingBase) entity, data.copy());
+                        if (!world.isRemote) {
+                            if (!SkillHelper.isActive(entity, ModEffects.BLINDED)) {
+                                ModEffects.BLINDED.set(entity, getData());
+                            }
+                            ModEffects.VOIDED.set(entity, getData());
+                            ModEffects.SLOWED.set(entity, getData(), 0.6D);
                         }
                     }
                 }
@@ -165,17 +160,11 @@ public class EntityBlackHole extends Entity {
                 this.world.playSound(null, posX, posY, posZ, SoundEvents.ENTITY_GENERIC_EXPLODE, SoundCategory.BLOCKS, 4.0F, (1.0F + (this.world.rand.nextFloat() - this.world.rand.nextFloat()) * 0.2F) * 0.7F);
                 this.world.spawnParticle(EnumParticleTypes.EXPLOSION_HUGE, posX, posY, posZ, 1.0D, 0.0D, 0.0D);
                 if (!world.isRemote) {
-                    EntityLivingBase owner = getOwner();
-                    List<Entity> fucc = getEntityWorld().getEntitiesWithinAABB(Entity.class, getEntityBoundingBox(), TeamHelper.SELECTOR_ENEMY.apply(owner));
-                    for (Entity entity : fucc) {
-                        if (entity instanceof EntityLivingBase && entity != owner) {
-                            double damage = data.nbt.getDouble("damage");
-                            SkillDamageSource source = new SkillDamageSource("skill", owner);
-                            source.setExplosion();
-                            SkillDamageEvent event = new SkillDamageEvent(owner, ModAbilities.BLACK_HOLE, source, damage);
-                            MinecraftForge.EVENT_BUS.post(event);
-                            entity.attackEntityFrom(event.getSource(), event.toFloat());
-                        }
+                    EntityLivingBase owner = SkillHelper.getOwner(getData());
+                    List<EntityLivingBase> fucc = getEntityWorld().getEntitiesWithinAABB(EntityLivingBase.class, getEntityBoundingBox(), TeamHelper.SELECTOR_ENEMY.apply(owner));
+                    for (EntityLivingBase entity : fucc) {
+                        MotionHelper.pushAround(this, entity, 2);
+                        ModAbilities.BLACK_HOLE.apply(entity, getData().copy());
                     }
                 }
                 setDead();
@@ -262,43 +251,8 @@ public class EntityBlackHole extends Entity {
         return this.dataManager.get(DATA).data;
     }
 
-    @SuppressWarnings("Guava")
-    public void setOwner(@Nullable EntityLivingBase owner) {
-        this.dataManager.set(OWNER_ID, owner != null ? Optional.of(owner.getUniqueID()) : Optional.absent());
-    }
-
-    @Nullable
-    public EntityLivingBase getOwner() {
-        EntityLivingBase owner = null;
-        if (this.dataManager.get(OWNER_ID).isPresent()) {
-            UUID uuid = this.dataManager.get(OWNER_ID).get();
-            owner = this.world.getPlayerEntityByUUID(uuid);
-
-            if (owner == null && this.world instanceof WorldServer) {
-                Entity entity = ((WorldServer) this.world).getEntityFromUuid(uuid);
-
-                if (entity instanceof EntityLivingBase) {
-                    owner = (EntityLivingBase) entity;
-                }
-            }
-        }
-
-        return owner;
-    }
-
     @Override
-    @SuppressWarnings({"Guava", "ConstantConditions"})
     protected void readEntityFromNBT(NBTTagCompound compound) {
-        String uuidString;
-        if (compound.hasKey("OwnerUUID", 8)) {
-            uuidString = compound.getString("OwnerUUID");
-        } else {
-            String ownerString = compound.getString("Owner");
-            uuidString = PreYggdrasilConverter.convertMobOwnerIfNeeded(this.getServer(), ownerString);
-        }
-        if (!uuidString.isEmpty()) {
-            this.dataManager.set(OWNER_ID, Optional.of(UUID.fromString(uuidString)));
-        }
         setData(new SkillData(compound.getCompoundTag("data")));
         setLifeTime(compound.getInteger("lifeTime"));
         setRadius(compound.getFloat("radius"));
@@ -306,11 +260,6 @@ public class EntityBlackHole extends Entity {
 
     @Override
     protected void writeEntityToNBT(NBTTagCompound compound) {
-        if (!this.dataManager.get(OWNER_ID).isPresent()) {
-            compound.setString("OwnerUUID", "");
-        } else {
-            compound.setString("OwnerUUID", this.dataManager.get(OWNER_ID).get().toString());
-        }
         compound.setTag("data", getData().serializeNBT());
         compound.setInteger("lifeTime", getLifeTime());
         compound.setFloat("radius", getRadius());

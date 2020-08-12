@@ -52,7 +52,7 @@ public class UnstablePortalRenderer extends SkillRenderer<UnstablePortal> {
                 scale = 1F - (float) (entity.tick - shrinkTime) / 10F;
             }
             this.bindTexture(getEntityTexture(entity));
-            if (!ClientConfig.RENDER_CONFIG.rendering.helpMyFramesAreDying) {
+            if (!ClientConfig.RENDER_CONFIG.rendering.helpMyFramesAreDying && !ClientConfig.RENDER_CONFIG.rendering.helpMyShadersAreDying) {
                 if (!ClientConfig.RENDER_CONFIG.rendering.vanilla) {
                     ShaderLibrary.UNIVERSE.begin();
                     ShaderLibrary.UNIVERSE.set("dimensions", Minecraft.getMinecraft().displayWidth, Minecraft.getMinecraft().displayHeight);
@@ -76,7 +76,7 @@ public class UnstablePortalRenderer extends SkillRenderer<UnstablePortal> {
                 scale += Math.sin(ticks / 8F) * 0.10000000149011612F * stab;
             }
             for (int q = 0; q <= 3; ++q) {
-                GL11.glPushMatrix();
+                GlStateManager.pushMatrix();
                 float s = entity.getRadius() * ((q < 3) ? (1.1F + 0.05F * q) : 1F) * scale;
                 GlStateManager.scale(s, s, s);
                 if (q < 3) {
@@ -87,11 +87,11 @@ public class UnstablePortalRenderer extends SkillRenderer<UnstablePortal> {
                 if (q < 3) {
                     GlStateManager.depthMask(true);
                 }
-                GL11.glPopMatrix();
+                GlStateManager.popMatrix();
             }
             GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
             GL11.glDisable(3042);
-            if (!ClientConfig.RENDER_CONFIG.rendering.helpMyFramesAreDying) {
+            if (!ClientConfig.RENDER_CONFIG.rendering.helpMyFramesAreDying && !ClientConfig.RENDER_CONFIG.rendering.helpMyShadersAreDying) {
                 if (!ClientConfig.RENDER_CONFIG.rendering.vanilla) {
                     ShaderLibrary.UNIVERSE.end();
                 } else {

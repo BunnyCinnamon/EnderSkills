@@ -2,6 +2,7 @@ package arekkuusu.enderskills.client.proxy;
 
 import arekkuusu.enderskills.api.registry.Skill;
 import arekkuusu.enderskills.api.util.Vector;
+import arekkuusu.enderskills.client.ClientConfig;
 import arekkuusu.enderskills.client.keybind.KeyBounds;
 import arekkuusu.enderskills.client.render.ModRenders;
 import arekkuusu.enderskills.client.render.effect.*;
@@ -15,7 +16,6 @@ import arekkuusu.enderskills.common.proxy.IProxy;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.resources.IReloadableResourceManager;
-import net.minecraft.client.resources.IResourceManagerReloadListener;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
@@ -30,7 +30,6 @@ import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.network.FMLNetworkEvent;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -54,7 +53,7 @@ public class ClientProxy implements IProxy {
         TextureMap map = event.getMap();
         ResourceLibrary.ATLAS_SET.forEach(map::registerSprite);
         for (Map.Entry<ResourceLocation, Skill> entry : GameRegistry.findRegistry(Skill.class).getEntries()) {
-            if(entry.getValue().getProperties().hasTexture()) {
+            if (entry.getValue().getProperties().hasTexture()) {
                 map.registerSprite(ResourceLibrary.createAtlasTexture(entry.getKey().getResourceDomain(), "skills", entry.getKey().getResourcePath()));
             }
         }
@@ -62,7 +61,8 @@ public class ClientProxy implements IProxy {
 
     @Override
     public void preInit(FMLPreInitializationEvent event) {
-        registerResourceReloadListener(ShaderManager.INSTANCE);
+        ((IReloadableResourceManager) Minecraft.getMinecraft().getResourceManager())
+                .registerReloadListener(ShaderManager.INSTANCE);
         ModRenders.preInit();
     }
 
@@ -84,13 +84,9 @@ public class ClientProxy implements IProxy {
         return Minecraft.getMinecraft().player;
     }
 
-    @SubscribeEvent
-    public static void disconnect(FMLNetworkEvent.ClientDisconnectionFromServerEvent event) {
-    }
-
-    public static void registerResourceReloadListener(IResourceManagerReloadListener listener) {
-        ((IReloadableResourceManager) Minecraft.getMinecraft().getResourceManager())
-                .registerReloadListener(listener);
+    @Override
+    public void addToQueue(Runnable runnable) {
+        Events.QUEUE.add(runnable);
     }
 
     @Override
@@ -118,18 +114,19 @@ public class ClientProxy implements IProxy {
         world.playSound(vec.x, vec.y, vec.z, event, category, volume, pitch, false);
     }
 
-    public boolean canParticleSpawn() {
+    public static boolean canParticleSpawn() {
         int setting = Minecraft.getMinecraft().gameSettings.particleSetting;
         float chance;
         switch (setting) {
             case 1:
-                chance = 0.6F;
+                chance = 0.6F * (float) ClientConfig.RENDER_CONFIG.rendering.particleSpawning;
                 break;
             case 2:
-                chance = 0.2F;
+                chance = 0.2F * (float) ClientConfig.RENDER_CONFIG.rendering.particleSpawning;
                 break;
             default:
-                return true;
+                chance = (float) ClientConfig.RENDER_CONFIG.rendering.particleSpawning;
+                break;
         }
         return Math.random() < chance;
     }

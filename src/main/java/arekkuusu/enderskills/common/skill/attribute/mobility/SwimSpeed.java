@@ -208,7 +208,7 @@ public class SwimSpeed extends BaseAttribute implements ISkillAdvancement {
             public static class Advancement {
                 @Config.Comment("Function f(x)=? where 'x' is [Next Level] and 'y' is [Max Level], XP Cost is in units [NOT LEVELS]")
                 public String[] upgrade = {
-                        "(0+){160 * 2 * (x / y)}"
+                        "(0+){(136 * (1 - (0 ^ (0 ^ x)))) + 400 * 2 * (x / y)}"
                 };
             }
         }

@@ -1,6 +1,7 @@
 package arekkuusu.enderskills.client.render.skill;
 
 import arekkuusu.enderskills.api.capability.data.SkillHolder;
+import arekkuusu.enderskills.client.proxy.ClientProxy;
 import arekkuusu.enderskills.client.render.entity.EntityThrowableDataRenderer;
 import arekkuusu.enderskills.client.util.ResourceLibrary;
 import arekkuusu.enderskills.common.EnderSkills;
@@ -35,17 +36,6 @@ public class BloodPoolRenderer extends SkillRenderer<BloodPool> {
         EntityThrowableDataRenderer.add(ModAbilities.BLOOD_POOL, ProjectileBlood::new);
     }
 
-    @Override
-    public void render(Entity entity, double x, double y, double z, float partialTicks, SkillHolder skillHolder) {
-        if (entity.ticksExisted % 5 == 0 && entity.world.rand.nextDouble() < 0.1D) {
-            Vec3d vec = entity.getPositionVector();
-            double posX = vec.x + entity.world.rand.nextDouble() - 0.5D;
-            double posY = vec.y + entity.world.rand.nextDouble() * entity.height;
-            double posZ = vec.z + entity.world.rand.nextDouble() - 0.5D;
-            EnderSkills.getProxy().spawnParticle(entity.world, new Vec3d(posX, posY, posZ), new Vec3d(0, -0.01, 0), 2F, 50, 0x690303, ResourceLibrary.DROPLET);
-        }
-    }
-
     @SideOnly(Side.CLIENT)
     public static class Placeable extends Render<EntityPlaceableBloodPool> {
 
@@ -61,7 +51,7 @@ public class BloodPoolRenderer extends SkillRenderer<BloodPool> {
             GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
             Vec3d originVec = entity.getPositionVector();
             for (BlockPos pos : entity.getTerrainBlocks()) {
-                if (entity.ticksExisted % 5 == 0 && entity.world.rand.nextDouble() < 0.005D) {
+                if (entity.ticksExisted % 5 == 0 && entity.world.rand.nextDouble() < 0.005D && ClientProxy.canParticleSpawn()) {
                     double posX = pos.getX() + 1 * entity.world.rand.nextDouble();
                     double posY = pos.getY() + 1D + 0.1 * entity.world.rand.nextDouble();
                     double posZ = pos.getZ() + 1 * entity.world.rand.nextDouble();

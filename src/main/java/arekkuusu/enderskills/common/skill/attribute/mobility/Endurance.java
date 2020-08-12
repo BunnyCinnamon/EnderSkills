@@ -2,8 +2,8 @@ package arekkuusu.enderskills.common.skill.attribute.mobility;
 
 import arekkuusu.enderskills.api.capability.Capabilities;
 import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoUpgradeable;
-import arekkuusu.enderskills.api.event.SkillsActionableEvent;
 import arekkuusu.enderskills.api.event.SkillActivateEvent;
+import arekkuusu.enderskills.api.event.SkillsActionableEvent;
 import arekkuusu.enderskills.api.helper.ExpressionHelper;
 import arekkuusu.enderskills.api.helper.NBTHelper;
 import arekkuusu.enderskills.api.registry.Skill;
@@ -326,6 +326,8 @@ public class Endurance extends BaseAttribute implements ISkillAdvancement {
                         .put(LibMod.MOD_ID + ":" + LibNames.THORNY, 12)
                         .put(LibMod.MOD_ID + ":" + LibNames.SHOCKWAVE, 14)
                         .put(LibMod.MOD_ID + ":" + LibNames.ANIMATED_STONE_GOLEM, 16)
+                        //Defense-Electric
+                        .put(LibMod.MOD_ID + ":" + LibNames.SHOCKING_AURA, 1)
                         //Mobility-Wind
                         .put(LibMod.MOD_ID + ":" + LibNames.DASH, 4)
                         .put(LibMod.MOD_ID + ":" + LibNames.EXTRA_JUMP, 2)

@@ -145,11 +145,13 @@ public class GuiScreenSkillAdvancements extends GuiScreen {
             if (guiButton.id == 104) {
                 boolean tabSelected = tabPin == -1 || (this.selectedTab != null && tabPin == this.tabs.indexOf(this.selectedTab));
                 boolean tabPageSelected = tabPagePin == -1 || (this.selectedTab != null && tabPagePin == this.selectedTab.tabPage);
-                guiButton.enabled = tabSelected && tabPageSelected;
+                guiButton.enabled = tabSelected && tabPageSelected && this.selectedTab != null;
             } else if(guiButton.id == 102) {
                 guiButton.enabled = this.selectedTab != null && this.selectedTab.pages.indexOf(this.selectedTab.selectedPage) > 0;
             } else if(guiButton.id == 103) {
                 guiButton.enabled = this.selectedTab != null && this.selectedTab.pages.indexOf(this.selectedTab.selectedPage) < this.selectedTab.maxPages - 1;
+            } else if(guiButton.id == 101) {
+                guiButton.enabled = this.selectedTab != null;
             }
         }
         if (GuiScreenSkillAdvancements.confirmation != null) {

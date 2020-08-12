@@ -75,7 +75,7 @@ public final class ModSounds {
     public static final SoundEvent FIRE_HIT = empty();
     public static final SoundEvent FIRE_SPIRIT = empty();
     public static final SoundEvent FIRE_SPIRIT_ACTIVE = empty();
-    public static final SoundEvent FIRE_SPIRIT_ACTIVE2 = empty();
+    public static final SoundEvent FIRE_SPIRIT_ACTIVE_ = empty();
     public static final SoundEvent FIREBALL = empty();
     public static final SoundEvent FIREBALL_EXPLODE = empty();
     public static final SoundEvent FLAMING_BREATH = empty();
@@ -151,7 +151,7 @@ public final class ModSounds {
         registry.register(new SoundBase("fire_hit"));
         registry.register(new SoundBase("fire_spirit"));
         registry.register(new SoundBase("fire_spirit_active"));
-        registry.register(new SoundBase("fire_spirit_active2"));
+        registry.register(new SoundBase("fire_spirit_active_"));
         registry.register(new SoundBase("fireball"));
         registry.register(new SoundBase("fireball_explode"));
         registry.register(new SoundBase("flaming_rain"));

@@ -16,6 +16,7 @@ import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.SoundCategory;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
@@ -90,32 +91,39 @@ public class EntityWall extends Entity {
                 }
             }
 
-            boolean foundLand = false;
-            int foundLandIndex = 0;
-            IBlockState[] states = new IBlockState[height];
-            for (int j = height - 1; j >= 0; j--) {
-                IBlockState stateSeg = world.getBlockState(mPos);
-                boolean solid = isSolid(world, mPos);
-                if (!solid) {
-                    stateSeg = !foundLand ? Blocks.AIR.getDefaultState() : states[j + 1];
-                } else if (!foundLand) {
-                    foundLand = true;
-                    foundLandIndex = height - (j + 1);
-                }
+            if (!isOverlappingWall(world, mPos, 1)) {
+                boolean foundLand = false;
+                int foundLandIndex = 0;
+                IBlockState[] states = new IBlockState[height];
+                for (int j = height - 1; j >= 0; j--) {
+                    IBlockState stateSeg = world.getBlockState(mPos);
+                    boolean solid = isSolid(world, mPos);
+                    if (!solid) {
+                        stateSeg = !foundLand ? Blocks.AIR.getDefaultState() : states[j + 1];
+                    } else if (!foundLand) {
+                        foundLand = true;
+                        foundLandIndex = height - (j + 1);
+                    }
 
-                states[j] = stateSeg;
-                mPos.move(EnumFacing.DOWN);
+                    states[j] = stateSeg;
+                    mPos.move(EnumFacing.DOWN);
+                }
+                if (Arrays.stream(states).allMatch(s -> s == Blocks.AIR.getDefaultState())) return;
+                EntityWallSegment segment = new EntityWallSegment(world);
+                segment.setBlocks(states);
+                segment.setSize(height - foundLandIndex);
+                segment.setPosition(x + 0.5D, y, z + 0.5D);
+                segment.setDuration(duration);
+                segment.setWall(this);
+                world.spawnEntity(segment);
+                addSegment(segment);
             }
-            if (Arrays.stream(states).allMatch(s -> s == Blocks.AIR.getDefaultState())) return;
-            EntityWallSegment segment = new EntityWallSegment(world);
-            segment.setBlocks(states);
-            segment.setSize(height - foundLandIndex);
-            segment.setPosition(x + 0.5D, y, z + 0.5D);
-            segment.setDuration(duration);
-            segment.setWall(this);
-            world.spawnEntity(segment);
-            addSegment(segment);
         }
+    }
+
+    public boolean isOverlappingWall(World world, BlockPos pos, int size) {
+        AxisAlignedBB bb = new AxisAlignedBB(pos).grow(0, size, 0);
+        return !world.getEntitiesWithinAABB(EntityWallSegment.class, bb).isEmpty();
     }
 
     public EntityWallSegment[] getSegments() {

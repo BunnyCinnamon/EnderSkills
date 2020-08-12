@@ -2,10 +2,10 @@ package arekkuusu.enderskills.common.skill.ability.mobility.wind;
 
 import arekkuusu.enderskills.api.capability.AdvancementCapability;
 import arekkuusu.enderskills.api.capability.Capabilities;
-import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoCooldown;
-import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoUpgradeable;
 import arekkuusu.enderskills.api.capability.data.SkillData;
 import arekkuusu.enderskills.api.capability.data.SkillInfo;
+import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoCooldown;
+import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoUpgradeable;
 import arekkuusu.enderskills.api.capability.data.nbt.UUIDWatcher;
 import arekkuusu.enderskills.api.helper.ExpressionHelper;
 import arekkuusu.enderskills.api.helper.NBTHelper;
@@ -18,6 +18,7 @@ import arekkuusu.enderskills.common.lib.LibNames;
 import arekkuusu.enderskills.common.skill.DynamicModifier;
 import arekkuusu.enderskills.common.skill.ModAbilities;
 import arekkuusu.enderskills.common.skill.ModAttributes;
+import arekkuusu.enderskills.common.skill.SkillHelper;
 import arekkuusu.enderskills.common.skill.ability.AbilityInfo;
 import arekkuusu.enderskills.common.skill.ability.BaseAbility;
 import arekkuusu.enderskills.common.sound.ModSounds;
@@ -59,25 +60,28 @@ public class SpeedBoost extends BaseAbility implements ISkillAdvancement {
     }
 
     @Override
-    public void use(EntityLivingBase user, SkillInfo skillInfo) {
-        if (((IInfoCooldown) skillInfo).hasCooldown() || isClientWorld(user)) return;
+    public void use(EntityLivingBase owner, SkillInfo skillInfo) {
+        if (((IInfoCooldown) skillInfo).hasCooldown() || isClientWorld(owner)) return;
         AbilityInfo abilityInfo = (AbilityInfo) skillInfo;
 
-        if (isActionable(user) && canActivate(user)) {
-            if (!(user instanceof EntityPlayer) || !((EntityPlayer) user).capabilities.isCreativeMode) {
+        if (isActionable(owner) && canActivate(owner)) {
+            if (!(owner instanceof EntityPlayer) || !((EntityPlayer) owner).capabilities.isCreativeMode) {
                 abilityInfo.setCooldown(getCooldown(abilityInfo));
             }
             int time = getTime(abilityInfo);
+            double speed = getSpeed(abilityInfo);
             NBTTagCompound compound = new NBTTagCompound();
-            NBTHelper.setEntity(compound, user, "user");
+            NBTHelper.setEntity(compound, owner, "owner");
+            NBTHelper.setDouble(compound, "speed", speed);
             SkillData data = SkillData.of(this)
+                    .by(owner)
                     .with(time)
                     .put(compound, UUIDWatcher.INSTANCE)
-                    .overrides(this)
+                    .overrides(SkillData.Overrides.EQUAL)
                     .create();
-            apply(user, data);
-            sync(user, data);
-            sync(user);
+            apply(owner, data);
+            sync(owner, data);
+            sync(owner);
         }
     }
 
@@ -88,48 +92,49 @@ public class SpeedBoost extends BaseAbility implements ISkillAdvancement {
         }
     }
 
-    public static final String NBT_STEP = LibMod.MOD_ID + ".stepHeight";
+    public static final String NBT_STEP = LibMod.MOD_ID + ":stepHeight";
     public static final float STEP_HEIGHT = 0.60001F;
     public static final float STEP_HEIGHT_SNEAK = 1.25F;
+    public static final float STEP_HEIGHT_DEFAULT = 0.6F;
 
     public static final List<String> STEP_LIST = new ArrayList<>();
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public void onEntityUpdate(LivingEvent.LivingUpdateEvent event) {
         EntityLivingBase entity = event.getEntityLiving();
-        Capabilities.get(entity).ifPresent(capability -> {
-            String key = entityToString(entity);
-            if (STEP_LIST.contains(key)) {
-                if (capability.isActive(this)) {
-                    capability.getOwned(this).ifPresent(skillInfo -> {
-                        if (!isClientWorld(event.getEntityLiving())) {
-                            AbilityInfo abilityInfo = (AbilityInfo) skillInfo;
-                            SPEED_ATTRIBUTE.apply(entity, getSpeed(abilityInfo));
-                        }
-
-                        if (entity.getEntityData().getFloat(NBT_STEP) == 0.6F) {
-                            if (entity.isSneaking()) {
-                                entity.stepHeight = STEP_HEIGHT;
-                            } else {
-                                entity.stepHeight = STEP_HEIGHT_SNEAK;
-                            }
-                        } else if(entity.stepHeight == 0.6F) {
-                            entity.getEntityData().setFloat(NBT_STEP, entity.stepHeight);
-                        }
-                    });
-                } else {
+        String key = entityToString(entity);
+        if (STEP_LIST.contains(key)) {
+            if (SkillHelper.isActiveFrom(entity, this)) {
+                SkillHelper.getActiveFrom(entity, this).ifPresent(data -> {
                     if (!isClientWorld(event.getEntityLiving())) {
-                        SPEED_ATTRIBUTE.remove(entity);
+                        double speed = NBTHelper.getDouble(data.nbt, "speed");
+                        SPEED_ATTRIBUTE.apply(entity, speed);
                     }
 
-                    entity.stepHeight = 0.6F;
-                    STEP_LIST.remove(key);
+                    if (entity.getEntityData().getFloat(NBT_STEP) == STEP_HEIGHT_DEFAULT) {
+                        if (entity.isSneaking()) {
+                            entity.stepHeight = STEP_HEIGHT;
+                        } else {
+                            entity.stepHeight = STEP_HEIGHT_SNEAK;
+                        }
+                    } else if (entity.stepHeight == STEP_HEIGHT_DEFAULT) {
+                        entity.getEntityData().setFloat(NBT_STEP, entity.stepHeight);
+                    }
+                });
+            } else {
+                if (!isClientWorld(event.getEntityLiving())) {
+                    SPEED_ATTRIBUTE.remove(entity);
                 }
-            } else if (capability.isActive(this)) {
-                STEP_LIST.add(key);
-                entity.getEntityData().setFloat(NBT_STEP, entity.stepHeight);
+
+                if(entity.stepHeight == STEP_HEIGHT || entity.stepHeight == STEP_HEIGHT_SNEAK) {
+                    entity.stepHeight = STEP_HEIGHT_DEFAULT;
+                }
+                STEP_LIST.remove(key);
             }
-        });
+        } else if (SkillHelper.isActiveFrom(entity, this)) {
+            STEP_LIST.add(key);
+            entity.getEntityData().setFloat(NBT_STEP, entity.stepHeight);
+        }
     }
 
     public String entityToString(Entity entity) {
@@ -210,6 +215,7 @@ public class SpeedBoost extends BaseAbility implements ISkillAdvancement {
         });
     }
 
+    @Override
     public int getCostIncrement(EntityLivingBase entity, int total) {
         Optional<AdvancementCapability> optional = Capabilities.advancement(entity);
         if (optional.isPresent()) {
@@ -224,6 +230,7 @@ public class SpeedBoost extends BaseAbility implements ISkillAdvancement {
         return total;
     }
 
+    @Override
     public int getUpgradeCost(@Nullable AbilityInfo info) {
         int level = info != null ? getLevel(info) + 1 : 0;
         int levelMax = getMaxLevel();

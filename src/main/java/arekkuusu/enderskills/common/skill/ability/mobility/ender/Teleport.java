@@ -2,15 +2,16 @@ package arekkuusu.enderskills.common.skill.ability.mobility.ender;
 
 import arekkuusu.enderskills.api.capability.AdvancementCapability;
 import arekkuusu.enderskills.api.capability.Capabilities;
-import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoCooldown;
-import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoUpgradeable;
 import arekkuusu.enderskills.api.capability.data.SkillData;
 import arekkuusu.enderskills.api.capability.data.SkillInfo;
+import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoCooldown;
+import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoUpgradeable;
 import arekkuusu.enderskills.api.helper.ExpressionHelper;
 import arekkuusu.enderskills.api.helper.NBTHelper;
 import arekkuusu.enderskills.api.helper.RayTraceHelper;
 import arekkuusu.enderskills.api.registry.Skill;
 import arekkuusu.enderskills.client.gui.data.ISkillAdvancement;
+import arekkuusu.enderskills.client.render.skill.TeleportRenderer;
 import arekkuusu.enderskills.client.util.helper.TextHelper;
 import arekkuusu.enderskills.common.CommonConfig;
 import arekkuusu.enderskills.common.lib.LibMod;
@@ -50,12 +51,12 @@ public class Teleport extends BaseAbility implements ISkillAdvancement {
     }
 
     @Override
-    public void use(EntityLivingBase user, SkillInfo skillInfo) {
-        if (((IInfoCooldown) skillInfo).hasCooldown() || isClientWorld(user)) return;
+    public void use(EntityLivingBase owner, SkillInfo skillInfo) {
+        if (((IInfoCooldown) skillInfo).hasCooldown() || isClientWorld(owner)) return;
         AbilityInfo abilityInfo = (AbilityInfo) skillInfo;
         double distance = getRange(abilityInfo);
 
-        RayTraceHelper.getVecLookedAt(user, distance).ifPresent(targetVector -> {
+        RayTraceHelper.getVecLookedAt(owner, distance).ifPresent(targetVector -> {
             targetVector = new Vec3d(
                     MathHelper.floor(targetVector.x) + 0.5D,
                     MathHelper.floor(targetVector.y) + 0.1D,
@@ -65,33 +66,50 @@ public class Teleport extends BaseAbility implements ISkillAdvancement {
             BlockPos posFloor = new BlockPos(targetVector).up(); //One Bwock fwom bwock tawgeted
             BlockPos posCeiling = posFloor.up(); //One spawce up fow youw wittle head uwu
             if (posFloor.getY() <= 0) return; //Yikes
-            if (isSafePos(user.world, posFloor) && isSafePos(user.world, posCeiling) && isActionable(user) && canActivate(user)) {
-                if (!(user instanceof EntityPlayer) || !((EntityPlayer) user).capabilities.isCreativeMode) {
+            if (isSafePos(owner.world, posFloor) && isSafePos(owner.world, posCeiling) && isActionable(owner) && canActivate(owner)) {
+                if (!(owner instanceof EntityPlayer) || !((EntityPlayer) owner).capabilities.isCreativeMode) {
                     abilityInfo.setCooldown(getCooldown(abilityInfo));
                 }
                 NBTTagCompound compound = new NBTTagCompound();
-                NBTHelper.setVector(compound, "origin", user.getPositionVector());
+                NBTHelper.setVector(compound, "origin", owner.getPositionVector());
                 NBTHelper.setVector(compound, "target", targetVector);
                 SkillData data = SkillData.of(this)
+                        .by(owner)
                         .with(INSTANT)
                         .put(compound)
+                        .overrides(SkillData.Overrides.EQUAL)
                         .create();
-                apply(user, data);
-                sync(user, data);
-                sync(user);
+                apply(owner, data);
+                sync(owner, data);
+                sync(owner);
             }
         });
     }
 
     @Override
     public void begin(EntityLivingBase entity, SkillData data) {
-        if (isClientWorld(entity)) return;
         Vec3d vec = NBTHelper.getVector(data.nbt, "target");
         entity.setPositionAndUpdate(vec.x, vec.y, vec.z);
         if (entity.world instanceof WorldServer) {
             ((WorldServer) entity.world).playSound(null, entity.prevPosX, entity.prevPosY, entity.prevPosZ, ModSounds.TELEPORT, SoundCategory.PLAYERS, 1.0F, (1.0F + (entity.world.rand.nextFloat() - entity.world.rand.nextFloat()) * 0.2F) * 0.7F);
             ((WorldServer) entity.world).playSound(null, vec.x, vec.y, vec.z, ModSounds.TELEPORT, SoundCategory.PLAYERS, 1.0F, (1.0F + (entity.world.rand.nextFloat() - entity.world.rand.nextFloat()) * 0.2F) * 0.7F);
         }
+    }
+
+    @Override
+    public void end(EntityLivingBase entity, SkillData data) {
+        if (isClientWorld(entity)) {
+            spawnRift(entity, data);
+        }
+    }
+
+    @SideOnly(Side.CLIENT)
+    public void spawnRift(EntityLivingBase entity, SkillData data) {
+        Vec3d offset = new Vec3d(0, entity.height / 2D, 0);
+        TeleportRenderer.TeleportRift riftOrigin = new TeleportRenderer.TeleportRift(entity, NBTHelper.getVector(data.nbt, "origin").add(offset));
+        TeleportRenderer.TeleportRift riftTarget = new TeleportRenderer.TeleportRift(entity, NBTHelper.getVector(data.nbt, "target").add(offset));
+        TeleportRenderer.TELEPORT_RIFTS.add(riftOrigin);
+        TeleportRenderer.TELEPORT_RIFTS.add(riftTarget);
     }
 
     public boolean isSafePos(World world, BlockPos pos) {
@@ -163,6 +181,7 @@ public class Teleport extends BaseAbility implements ISkillAdvancement {
         });
     }
 
+    @Override
     public int getCostIncrement(EntityLivingBase entity, int total) {
         Optional<AdvancementCapability> optional = Capabilities.advancement(entity);
         if (optional.isPresent()) {
@@ -177,6 +196,7 @@ public class Teleport extends BaseAbility implements ISkillAdvancement {
         return total;
     }
 
+    @Override
     public int getUpgradeCost(@Nullable AbilityInfo info) {
         int level = info != null ? getLevel(info) + 1 : 0;
         int levelMax = getMaxLevel();

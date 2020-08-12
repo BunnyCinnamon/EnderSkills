@@ -2,13 +2,14 @@ package arekkuusu.enderskills.common.skill.ability.offence.wind;
 
 import arekkuusu.enderskills.api.capability.AdvancementCapability;
 import arekkuusu.enderskills.api.capability.Capabilities;
-import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoCooldown;
-import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoUpgradeable;
 import arekkuusu.enderskills.api.capability.data.SkillData;
 import arekkuusu.enderskills.api.capability.data.SkillInfo;
+import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoCooldown;
+import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoUpgradeable;
 import arekkuusu.enderskills.api.capability.data.nbt.UUIDWatcher;
 import arekkuusu.enderskills.api.helper.ExpressionHelper;
 import arekkuusu.enderskills.api.helper.NBTHelper;
+import arekkuusu.enderskills.api.helper.TeamHelper;
 import arekkuusu.enderskills.api.registry.Skill;
 import arekkuusu.enderskills.client.gui.data.ISkillAdvancement;
 import arekkuusu.enderskills.client.util.helper.TextHelper;
@@ -17,6 +18,7 @@ import arekkuusu.enderskills.common.entity.data.IExpand;
 import arekkuusu.enderskills.common.entity.data.IFindEntity;
 import arekkuusu.enderskills.common.entity.data.IScanEntities;
 import arekkuusu.enderskills.common.entity.placeable.EntityPlaceableUpdraft;
+import arekkuusu.enderskills.common.entity.throwable.MotionHelper;
 import arekkuusu.enderskills.common.lib.LibMod;
 import arekkuusu.enderskills.common.lib.LibNames;
 import arekkuusu.enderskills.common.skill.ModAbilities;
@@ -24,6 +26,7 @@ import arekkuusu.enderskills.common.skill.ModAttributes;
 import arekkuusu.enderskills.common.skill.ability.AbilityInfo;
 import arekkuusu.enderskills.common.skill.ability.BaseAbility;
 import arekkuusu.enderskills.common.sound.ModSounds;
+import com.google.common.base.Predicates;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.Entity;
@@ -51,42 +54,34 @@ public class Updraft extends BaseAbility implements IScanEntities, IExpand, IFin
     }
 
     @Override
-    public void use(EntityLivingBase user, SkillInfo skillInfo) {
-        if (((IInfoCooldown) skillInfo).hasCooldown() || isClientWorld(user)) return;
+    public void use(EntityLivingBase owner, SkillInfo skillInfo) {
+        if (((IInfoCooldown) skillInfo).hasCooldown() || isClientWorld(owner)) return;
         AbilityInfo abilityInfo = (AbilityInfo) skillInfo;
 
-        if (isActionable(user) && canActivate(user)) {
-            if (!(user instanceof EntityPlayer) || !((EntityPlayer) user).capabilities.isCreativeMode) {
+        if (isActionable(owner) && canActivate(owner)) {
+            if (!(owner instanceof EntityPlayer) || !((EntityPlayer) owner).capabilities.isCreativeMode) {
                 abilityInfo.setCooldown(getCooldown(abilityInfo));
             }
             double distance = getRange(abilityInfo);
             double range = getLiftRange(abilityInfo);
             double force = getLaunch(abilityInfo);
             NBTTagCompound compound = new NBTTagCompound();
-            NBTHelper.setEntity(compound, user, "user");
+            NBTHelper.setEntity(compound, owner, "owner");
             NBTHelper.setDouble(compound, "force", force);
             NBTHelper.setDouble(compound, "range", range);
             NBTHelper.setDouble(compound, "distance", distance);
             SkillData data = SkillData.of(this)
+                    .by(owner)
                     .with(10)
                     .put(compound, UUIDWatcher.INSTANCE)
-                    .overrides(this)
+                    .overrides(SkillData.Overrides.EQUAL)
                     .create();
-
-            Vec3d lookVec = user.getLookVec();
-            Vec3d userVec = user.getPositionEyes(1F);
-            Vec3d position = userVec.addVector(
-                    lookVec.x * distance,
-                    lookVec.y * distance,
-                    lookVec.z * distance
-            );
-            Vec3d motion = position.subtract(userVec);
-            motion = new Vec3d(motion.x / 10, motion.y / 10, motion.z / 10);
-            EntityPlaceableUpdraft spawn = new EntityPlaceableUpdraft(user.world, user, data, 10, motion);
-            spawn.setPosition(user.posX, user.posY, user.posZ);
+            EntityPlaceableUpdraft spawn = new EntityPlaceableUpdraft(owner.world, owner, data, 10);
+            MotionHelper.forwardMotion(owner, spawn, distance, 10);
+            spawn.setPosition(owner.posX, owner.posY, owner.posZ);
             spawn.setRadius(range);
-            user.world.spawnEntity(spawn);
-            sync(user);
+            owner.world.spawnEntity(spawn);
+            sync(owner);
 
             if (spawn.world instanceof WorldServer) {
                 ((WorldServer) spawn.world).playSound(null, spawn.posX, spawn.posY, spawn.posZ, ModSounds.UPDRAFT, SoundCategory.PLAYERS, 1.0F, (1.0F + (spawn.world.rand.nextFloat() - spawn.world.rand.nextFloat()) * 0.2F) * 0.7F);
@@ -96,7 +91,7 @@ public class Updraft extends BaseAbility implements IScanEntities, IExpand, IFin
 
     //* Entity *//
     @Override
-    public AxisAlignedBB expand(Entity source, @Nullable EntityLivingBase owner, AxisAlignedBB bb, float amount) {
+    public AxisAlignedBB expand(Entity source, AxisAlignedBB bb, float amount) {
         return bb.grow(amount, 0, amount).expand(0, amount, 0);
     }
 
@@ -110,10 +105,6 @@ public class Updraft extends BaseAbility implements IScanEntities, IExpand, IFin
         }
     }
     //* Entity *//
-
-    @Override
-    public void begin(EntityLivingBase entity, SkillData data) {
-    }
 
     @Override
     public void update(EntityLivingBase target, SkillData data, int tick) {
@@ -207,6 +198,7 @@ public class Updraft extends BaseAbility implements IScanEntities, IExpand, IFin
         });
     }
 
+    @Override
     public int getCostIncrement(EntityLivingBase entity, int total) {
         Optional<AdvancementCapability> optional = Capabilities.advancement(entity);
         if (optional.isPresent()) {
@@ -221,6 +213,7 @@ public class Updraft extends BaseAbility implements IScanEntities, IExpand, IFin
         return total;
     }
 
+    @Override
     public int getUpgradeCost(@Nullable AbilityInfo info) {
         int level = info != null ? getLevel(info) + 1 : 0;
         int levelMax = getMaxLevel();

@@ -36,6 +36,13 @@ public class LibNames {
     public static final String THORNY = "thorny";
     public static final String SHOCKWAVE = "shockwave";
     public static final String ANIMATED_STONE_GOLEM = "animated_stone_golem";
+    //Electric
+    public static final String SHOCKING_AURA = "shocking_aura";
+    public static final String ELECTRIC_PULSE = "electric_pulse";
+    public static final String MAGNETIC_PULL = "magnetic_pull";
+    public static final String POWER_DRAIN = "power_drain";
+    public static final String ENERGIZE = "energize";
+    public static final String VOLTAIC_SENTINEL = "voltaic_sentinel";
     //Wind
     public static final String DASH = "dash";
     public static final String EXTRA_JUMP = "extra_jump";
@@ -79,7 +86,17 @@ public class LibNames {
     public static final String FIREBALL = "fireball";
     public static final String EXPLODE = "explode";
     //Status
-    public static final String OVER_HEAL = "over_heal";
+    public static final String OVERHEAL = "overheal";
+    public static final String ELECTRIFIED = "electrified";
+    public static final String OVERCHARGE = "overcharge";
+    public static final String STUNNED = "stunned";
+    public static final String BURNING = "burning";
+    public static final String BLEEDING = "bleeding";
+    public static final String INVULNERABLE = "invulnerable";
+    public static final String SLOWED = "slowed";
+    public static final String VOIDED = "voided";
+    public static final String ROOTED = "rooted";
+    public static final String BLINDED = "blinded";
     //Misc
     public static final String BOOK = "book";
     public static final String ALTAR = "altar";

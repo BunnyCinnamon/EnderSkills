@@ -2,9 +2,9 @@ package arekkuusu.enderskills.common.skill.ability.mobility.wind;
 
 import arekkuusu.enderskills.api.capability.AdvancementCapability;
 import arekkuusu.enderskills.api.capability.Capabilities;
-import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoUpgradeable;
 import arekkuusu.enderskills.api.capability.data.SkillData;
 import arekkuusu.enderskills.api.capability.data.SkillInfo;
+import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoUpgradeable;
 import arekkuusu.enderskills.api.helper.ExpressionHelper;
 import arekkuusu.enderskills.api.helper.NBTHelper;
 import arekkuusu.enderskills.api.registry.Skill;
@@ -55,31 +55,34 @@ public class ExtraJump extends BaseAbility implements ISkillAdvancement {
     }
 
     @Override
-    public void use(EntityLivingBase user, SkillInfo skillInfo) {
-        if (isClientWorld(user)) return;
-        if (isActionable(user) && canActivate(user)) {
-            SkillData data = SkillData.of(this).with(INSTANT).overrides(this).create();
-            apply(user, data);
-            sync(user, data);
-            sync(user);
+    public void use(EntityLivingBase owner, SkillInfo skillInfo) {
+        if (isClientWorld(owner)) return;
+        if (isActionable(owner) && canActivate(owner)) {
+            SkillData data = SkillData.of(this)
+                    .with(INSTANT)
+                    .overrides(SkillData.Overrides.SAME)
+                    .create();
+            apply(owner, data);
+            sync(owner, data);
+            sync(owner);
         }
     }
 
     @Override
-    public void begin(EntityLivingBase user, SkillData data) {
-        if (isClientWorld(user)) { //YEEHAWW
-            if (user instanceof EntityPlayerSP && user == Minecraft.getMinecraft().player) {
-                ((EntityPlayerSP) user).jump();
+    public void begin(EntityLivingBase owner, SkillData data) {
+        if (isClientWorld(owner)) { //YEEHAWW
+            if (owner instanceof EntityPlayerSP && owner == Minecraft.getMinecraft().player) {
+                ((EntityPlayerSP) owner).jump();
             }
         } else {
-            if (user instanceof EntityLiving) {
-                ((EntityLiving) user).getJumpHelper().setJumping();
+            if (owner instanceof EntityLiving) {
+                ((EntityLiving) owner).getJumpHelper().setJumping();
             } else {
-                user.motionY += 0.3F;
+                owner.motionY += 0.3F;
             }
         }
-        if (user.world instanceof WorldServer) {
-            ((WorldServer) user.world).playSound(null, user.posX, user.posY, user.posZ, ModSounds.JUMP, SoundCategory.PLAYERS, 1.0F, (1.0F + (user.world.rand.nextFloat() - user.world.rand.nextFloat()) * 0.2F) * 0.7F);
+        if (owner.world instanceof WorldServer) {
+            ((WorldServer) owner.world).playSound(null, owner.posX, owner.posY, owner.posZ, ModSounds.JUMP, SoundCategory.PLAYERS, 1.0F, (1.0F + (owner.world.rand.nextFloat() - owner.world.rand.nextFloat()) * 0.2F) * 0.7F);
         }
     }
 
@@ -109,7 +112,7 @@ public class ExtraJump extends BaseAbility implements ISkillAdvancement {
                     }
                 });
             }
-            if(tapped && !wasTapped) wasTapped = true;
+            if (tapped && !wasTapped) wasTapped = true;
         });
     }
 
@@ -118,8 +121,8 @@ public class ExtraJump extends BaseAbility implements ISkillAdvancement {
     public void onKeyTapUpdate(TickEvent.ClientTickEvent event) {
         if (Minecraft.getMinecraft().player != null && Minecraft.getMinecraft().player.onGround && jumps > 0) jumps = 0;
         boolean tapped = Minecraft.getMinecraft().gameSettings.keyBindJump.isKeyDown();
-        if(wasTapped && !tapped) wasTapped = false;
-        if(ticksForNextTap > 0) ticksForNextTap--;
+        if (wasTapped && !tapped) wasTapped = false;
+        if (ticksForNextTap > 0) ticksForNextTap--;
     }
 
     public int getLevel(IInfoUpgradeable info) {
@@ -180,6 +183,7 @@ public class ExtraJump extends BaseAbility implements ISkillAdvancement {
         });
     }
 
+    @Override
     public int getCostIncrement(EntityLivingBase entity, int total) {
         Optional<AdvancementCapability> optional = Capabilities.advancement(entity);
         if (optional.isPresent()) {
@@ -194,6 +198,7 @@ public class ExtraJump extends BaseAbility implements ISkillAdvancement {
         return total;
     }
 
+    @Override
     public int getUpgradeCost(@Nullable AbilityInfo info) {
         int level = info != null ? getLevel(info) + 1 : 0;
         int levelMax = getMaxLevel();
@@ -261,6 +266,7 @@ public class ExtraJump extends BaseAbility implements ISkillAdvancement {
             @Config.Comment("Effectiveness Modifier")
             @Config.RangeDouble
             public double effectiveness = 1D;
+
             public static class Advancement {
                 @Config.Comment("Function f(x)=? where 'x' is [Next Level] and 'y' is [Max Level], XP Cost is in units [NOT LEVELS]")
                 public String[] upgrade = {

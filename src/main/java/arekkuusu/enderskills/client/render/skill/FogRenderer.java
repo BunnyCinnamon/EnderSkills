@@ -1,11 +1,10 @@
 package arekkuusu.enderskills.client.render.skill;
 
 import arekkuusu.enderskills.api.capability.Capabilities;
-import arekkuusu.enderskills.api.capability.SkilledEntityCapability;
-import arekkuusu.enderskills.api.capability.data.SkillData;
 import arekkuusu.enderskills.api.helper.NBTHelper;
 import arekkuusu.enderskills.common.network.PacketHelper;
 import arekkuusu.enderskills.common.skill.ModAbilities;
+import arekkuusu.enderskills.common.skill.ModEffects;
 import arekkuusu.enderskills.common.skill.SkillHelper;
 import arekkuusu.enderskills.common.skill.ability.mobility.wind.Fog;
 import net.minecraft.client.Minecraft;
@@ -19,7 +18,6 @@ import net.minecraftforge.event.entity.PlaySoundAtEntityEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import org.lwjgl.opengl.GLContext;
 
 import java.util.Optional;
 
@@ -36,27 +34,15 @@ public class FogRenderer extends SkillRenderer<Fog> {
         @SubscribeEvent
         public void onLivingRender(RenderLivingEvent.Post<EntityLivingBase> event) {
             EntityPlayerSP thePlayer = Minecraft.getMinecraft().player;
-            Capabilities.get(thePlayer).ifPresent(c -> {
-                if (isInactiveNotOwner(thePlayer, c)) {
-                    Capabilities.get(event.getEntity()).flatMap(sub -> sub.getActive(ModAbilities.FOG)).ifPresent(holder -> {
-                        Optional.ofNullable(NBTHelper.getEntity(EntityLivingBase.class, holder.data.nbt, "user")).ifPresent(user -> {
-                            if (thePlayer != user && user == event.getEntity()) {
-                                SkillData data = SkillData.of(holder.data.skill)
-                                        .with(holder.data.time - holder.tick)
-                                        .put(holder.data.nbt, holder.data.watcher.copy())
-                                        .overrides(holder.data.overrides)
-                                        .create();
-                                PacketHelper.sendFogUseRequestPacket(Minecraft.getMinecraft().player, data);
-                            }
-                        });
+            if (!SkillHelper.isActive(thePlayer, ModEffects.BLINDED)) {
+                SkillHelper.getActiveFrom(event.getEntity(), ModAbilities.FOG).ifPresent(data -> {
+                    Optional.ofNullable(NBTHelper.getEntity(EntityLivingBase.class, data.nbt, "owner")).ifPresent(user -> {
+                        if (thePlayer != user && user == event.getEntity()) {
+                            PacketHelper.sendBlindedUseRequestPacket(Minecraft.getMinecraft().player, data);
+                        }
                     });
-                }
-            });
-        }
-
-        @SideOnly(Side.CLIENT)
-        public boolean isInactiveNotOwner(EntityPlayerSP thePlayer, SkilledEntityCapability c) {
-            return !c.isActive(ModAbilities.FOG) || c.getActives().stream().noneMatch(h -> h.data.skill == ModAbilities.FOG && NBTHelper.getEntity(EntityLivingBase.class, h.data.nbt, "user") != thePlayer);
+                });
+            }
         }
 
         @SubscribeEvent
@@ -71,28 +57,11 @@ public class FogRenderer extends SkillRenderer<Fog> {
 
         @SubscribeEvent
         public void onFogDensityRender(EntityViewRenderEvent.FogDensity event) {
-            SkillHelper.getActive(event.getEntity(), ModAbilities.FOG, holder -> {
-                Optional.ofNullable(NBTHelper.getEntity(EntityLivingBase.class, holder.data.nbt, "user")).ifPresent(user -> {
-                    if (event.getEntity() != user) {
-                        float f1 = 2.0F;
-                        int i = holder.data.time - holder.tick;
-                        if (i < 20) {
-                            f1 = f1 + (Minecraft.getMinecraft().gameSettings.renderDistanceChunks * 16 - f1) * (1.0F - (float) i / 20.0F);
-                        }
-                        GlStateManager.setFog(GlStateManager.FogMode.LINEAR);
-                        GlStateManager.setFogStart(f1 * 0.25F);
-                        GlStateManager.setFogEnd(f1);
-                        if (GLContext.getCapabilities().GL_NV_fog_distance) {
-                            GlStateManager.glFogi(34138, 34139);
-                        }
-                        event.setDensity(1F);
-                    } else {
-                        GlStateManager.setFog(GlStateManager.FogMode.EXP);
-                        event.setDensity(0.02F);
-                    }
-                    event.setCanceled(true);
-                });
-            });
+            if (!SkillHelper.isActive(event.getEntity(), ModEffects.BLINDED) && SkillHelper.isActive(event.getEntity(), ModAbilities.FOG)) {
+                GlStateManager.setFog(GlStateManager.FogMode.EXP);
+                event.setDensity(0.02F);
+                event.setCanceled(true);
+            }
         }
     }
 }

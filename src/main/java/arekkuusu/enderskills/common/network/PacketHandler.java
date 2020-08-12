@@ -10,13 +10,17 @@ import arekkuusu.enderskills.api.helper.NBTHelper;
 import arekkuusu.enderskills.api.helper.XPHelper;
 import arekkuusu.enderskills.api.registry.Skill;
 import arekkuusu.enderskills.client.gui.data.ISkillAdvancement;
+import arekkuusu.enderskills.client.sounds.BleedSound;
 import arekkuusu.enderskills.common.CommonConfig;
 import arekkuusu.enderskills.common.EnderSkills;
 import arekkuusu.enderskills.common.lib.LibMod;
 import arekkuusu.enderskills.common.skill.BaseSkill;
 import arekkuusu.enderskills.common.skill.IConfigSync;
 import arekkuusu.enderskills.common.skill.ModAbilities;
+import arekkuusu.enderskills.common.skill.ModEffects;
 import com.google.common.collect.Lists;
+import net.minecraft.client.Minecraft;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -29,6 +33,7 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.registries.IForgeRegistry;
 
 import java.util.List;
@@ -105,7 +110,7 @@ public final class PacketHandler {
         IForgeRegistry<Skill> registry = GameRegistry.findRegistry(Skill.class);
         Skill skill = registry.getValue(NBTHelper.getResourceLocation(compound, "location"));
         assert skill != null;
-        Optional.ofNullable(NBTHelper.getEntity(EntityLivingBase.class, compound, "user")).ifPresent(e -> {
+        Optional.ofNullable(NBTHelper.getEntity(EntityLivingBase.class, compound, "owner")).ifPresent(e -> {
             Capabilities.get(e).flatMap(skills -> skills.getOwned(skill)).ifPresent(info -> skill.use(e, info));
         });
     }));
@@ -145,7 +150,7 @@ public final class PacketHandler {
             Skill skill = registry.getValue(NBTHelper.getResourceLocation(compound, "location"));
             assert skill != null;
             SkillData data = new SkillData(NBTHelper.getNBTTag(compound, "data"));
-            capability.deactivate(skill, h -> h.data.equals(data));
+            capability.deactivate(skill, data);
         });
     }));
 
@@ -153,7 +158,7 @@ public final class PacketHandler {
         IForgeRegistry<Skill> registry = GameRegistry.findRegistry(Skill.class);
         Skill skill = registry.getValue(NBTHelper.getResourceLocation(compound, "location"));
         assert skill != null;
-        Optional.ofNullable(NBTHelper.getEntity(EntityLivingBase.class, compound, "user")).ifPresent(e -> {
+        Optional.ofNullable(NBTHelper.getEntity(EntityLivingBase.class, compound, "owner")).ifPresent(e -> {
             Capabilities.get(e).ifPresent(c -> {
                 if (c.isOwned(skill)) {
                     c.getOwned(skill).ifPresent(info -> {
@@ -222,7 +227,7 @@ public final class PacketHandler {
     }));
 
     public static final IPacketHandler GUI_PIN = (((compound, context) -> {
-        Optional.ofNullable(NBTHelper.getEntity(EntityLivingBase.class, compound, "user")).ifPresent(e -> {
+        Optional.ofNullable(NBTHelper.getEntity(EntityLivingBase.class, compound, "owner")).ifPresent(e -> {
             Capabilities.advancement(e).ifPresent(c -> {
                 c.tabPin = compound.getInteger("tabPin");
                 c.tabPagePin = compound.getInteger("tabPagePin");
@@ -234,29 +239,28 @@ public final class PacketHandler {
     }));
 
     public static final IPacketHandler USE_DASH_REQUEST = (((compound, context) -> {
-        Optional.ofNullable(NBTHelper.getEntity(EntityLivingBase.class, compound, "user")).ifPresent(e -> {
+        Optional.ofNullable(NBTHelper.getEntity(EntityLivingBase.class, compound, "owner")).ifPresent(e -> {
             Capabilities.get(e).flatMap(skills -> skills.getOwned(ModAbilities.DASH)).ifPresent(info -> ModAbilities.DASH.use(e, info, NBTHelper.getVector(compound, "vector")));
         });
     }));
 
-    public static final IPacketHandler USE_FOG_REQUEST = (((compound, context) -> {
-        Optional.ofNullable(NBTHelper.getEntity(EntityLivingBase.class, compound, "user")).ifPresent(e -> {
+    public static final IPacketHandler USE_BLINDED_REQUEST = (((compound, context) -> {
+        Optional.ofNullable(NBTHelper.getEntity(EntityLivingBase.class, compound, "owner")).ifPresent(e -> {
             Optional.of(NBTHelper.getNBTTag(compound, "data")).ifPresent(nbt -> {
                 SkillData data = new SkillData(nbt);
-                ModAbilities.FOG.apply(e, data);
-                ModAbilities.FOG.sync(e, data);
+                ModEffects.BLINDED.set(e, data);
             });
         });
     }));
 
     public static final IPacketHandler USE_WARP_REQUEST = (((compound, context) -> {
-        Optional.ofNullable(NBTHelper.getEntity(EntityLivingBase.class, compound, "user")).ifPresent(e -> {
+        Optional.ofNullable(NBTHelper.getEntity(EntityLivingBase.class, compound, "owner")).ifPresent(e -> {
             Capabilities.get(e).flatMap(skills -> skills.getOwned(ModAbilities.WARP)).ifPresent(info -> ModAbilities.WARP.use(e, info, NBTHelper.getVector(compound, "vector")));
         });
     }));
 
     public static final IPacketHandler RESET_SKILLS_REQUEST = (((compound, context) -> {
-        Optional.ofNullable(NBTHelper.getEntity(EntityLivingBase.class, compound, "user")).ifPresent(e -> {
+        Optional.ofNullable(NBTHelper.getEntity(EntityLivingBase.class, compound, "owner")).ifPresent(e -> {
             Capabilities.get(e).ifPresent(SkilledEntityCapability::clearOwned);
             Capabilities.advancement(e).ifPresent(c -> {
                 c.skillUnlockOrder = new Skill[0];
@@ -272,7 +276,7 @@ public final class PacketHandler {
     }));
 
     public static final IPacketHandler STORE_XP_REQUEST = (((compound, context) -> {
-        Optional.ofNullable(NBTHelper.getEntity(EntityLivingBase.class, compound, "user")).ifPresent(e -> {
+        Optional.ofNullable(NBTHelper.getEntity(EntityLivingBase.class, compound, "owner")).ifPresent(e -> {
             Capabilities.advancement(e).ifPresent(c -> {
                 if (e instanceof EntityPlayer) {
                     int xp = XPHelper.getXPTotal((EntityPlayer) e);
@@ -287,7 +291,7 @@ public final class PacketHandler {
     }));
 
     public static final IPacketHandler TAKE_XP_REQUEST = (((compound, context) -> {
-        Optional.ofNullable(NBTHelper.getEntity(EntityLivingBase.class, compound, "user")).ifPresent(e -> {
+        Optional.ofNullable(NBTHelper.getEntity(EntityLivingBase.class, compound, "owner")).ifPresent(e -> {
             Capabilities.advancement(e).ifPresent(c -> {
                 if (e instanceof EntityPlayer) {
                     int xpStored = XPHelper.getXPTotal(c.experienceLevel, c.experienceProgress);
@@ -305,9 +309,14 @@ public final class PacketHandler {
 
     public static final IPacketHandler BLEED_SOUND_EFFECT_PLAY = (((compound, context) -> {
         Optional.ofNullable(NBTHelper.getEntity(EntityLivingBase.class, compound, "target")).ifPresent(e -> {
-            ModAbilities.BLEED.makeSound(e);
+            PacketHandler.bleedSoundEffectPlay(e);
         });
     }));
+
+    @SideOnly(Side.CLIENT)
+    public static void bleedSoundEffectPlay(EntityLivingBase entity) {
+        Minecraft.getMinecraft().getSoundHandler().playSound(new BleedSound(entity));
+    }
     //TODO: REMOVE TOO HARDCODED!!
 
     public static final SimpleNetworkWrapper NETWORK = new SimpleNetworkWrapper(LibMod.MOD_ID);
@@ -336,7 +345,7 @@ public final class PacketHandler {
         HANDLERS.add(GUI_PIN);
         HANDLERS.add(RESET_SKILLS_REQUEST);
         HANDLERS.add(USE_DASH_REQUEST);
-        HANDLERS.add(USE_FOG_REQUEST);
+        HANDLERS.add(USE_BLINDED_REQUEST);
         HANDLERS.add(USE_WARP_REQUEST);
         HANDLERS.add(STORE_XP_REQUEST);
         HANDLERS.add(TAKE_XP_REQUEST);

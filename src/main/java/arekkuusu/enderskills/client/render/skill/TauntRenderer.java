@@ -1,6 +1,7 @@
 package arekkuusu.enderskills.client.render.skill;
 
 import arekkuusu.enderskills.api.capability.data.SkillHolder;
+import arekkuusu.enderskills.client.ClientConfig;
 import arekkuusu.enderskills.client.render.entity.EntityPlaceableDataRenderer;
 import arekkuusu.enderskills.client.util.ResourceLibrary;
 import arekkuusu.enderskills.client.util.ShaderLibrary;
@@ -70,8 +71,10 @@ public class TauntRenderer extends SkillRenderer<Taunt> {
             GlStateManager.pushMatrix();
             GlStateManager.translate(x, y, z);
             GLHelper.BLEND_SRC_ALPHA$ONE.blend();
-            ShaderLibrary.BRIGHT.begin();
-            ShaderLibrary.BRIGHT.set("alpha", 0.6F * (1F - (float) tick / (float) EntityPlaceableData.MIN_TIME));
+            if (!ClientConfig.RENDER_CONFIG.rendering.helpMyShadersAreDying) {
+                ShaderLibrary.BRIGHT.begin();
+                ShaderLibrary.BRIGHT.set("alpha", 0.6F * (1F - (float) tick / (float) EntityPlaceableData.MIN_TIME));
+            }
             GlStateManager.disableLighting();
             GlStateManager.enableBlend();
             this.bindTexture(getEntityTexture(entity));
@@ -134,7 +137,9 @@ public class TauntRenderer extends SkillRenderer<Taunt> {
             tessellator.draw();
             GlStateManager.disableBlend();
             GlStateManager.enableLighting();
-            ShaderLibrary.BRIGHT.end();
+            if (!ClientConfig.RENDER_CONFIG.rendering.helpMyShadersAreDying) {
+                ShaderLibrary.BRIGHT.end();
+            }
             GLHelper.BLEND_NORMAL.blend();
             GlStateManager.popMatrix();
         }
@@ -154,7 +159,7 @@ public class TauntRenderer extends SkillRenderer<Taunt> {
         public void playerTick(TickEvent.ClientTickEvent event) {
             if (event.type == TickEvent.Type.CLIENT) {
                 EntityRenderer renderer = Minecraft.getMinecraft().entityRenderer;
-                if (SkillHelper.isActiveNotOwner(Minecraft.getMinecraft().player, ModAbilities.TAUNT)) {
+                if (SkillHelper.isActive(Minecraft.getMinecraft().player, ModAbilities.TAUNT)) {
                     if (!wasActive) {
                         renderer.loadShader(SHADER);
                         wasActive = true;

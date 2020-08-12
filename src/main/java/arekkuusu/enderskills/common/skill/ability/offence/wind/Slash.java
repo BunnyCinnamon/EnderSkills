@@ -2,10 +2,11 @@ package arekkuusu.enderskills.common.skill.ability.offence.wind;
 
 import arekkuusu.enderskills.api.capability.AdvancementCapability;
 import arekkuusu.enderskills.api.capability.Capabilities;
-import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoCooldown;
-import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoUpgradeable;
 import arekkuusu.enderskills.api.capability.data.SkillData;
 import arekkuusu.enderskills.api.capability.data.SkillInfo;
+import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoCooldown;
+import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoUpgradeable;
+import arekkuusu.enderskills.api.capability.data.nbt.UUIDWatcher;
 import arekkuusu.enderskills.api.event.SkillDamageEvent;
 import arekkuusu.enderskills.api.event.SkillDamageSource;
 import arekkuusu.enderskills.api.helper.ExpressionHelper;
@@ -20,6 +21,7 @@ import arekkuusu.enderskills.common.entity.data.IExpand;
 import arekkuusu.enderskills.common.entity.data.IFindEntity;
 import arekkuusu.enderskills.common.entity.data.IScanEntities;
 import arekkuusu.enderskills.common.entity.placeable.EntityPlaceableData;
+import arekkuusu.enderskills.common.entity.throwable.MotionHelper;
 import arekkuusu.enderskills.common.lib.LibMod;
 import arekkuusu.enderskills.common.lib.LibNames;
 import arekkuusu.enderskills.common.skill.ModAbilities;
@@ -53,24 +55,33 @@ public class Slash extends BaseAbility implements IScanEntities, IExpand, IFindE
     }
 
     @Override
-    public void use(EntityLivingBase user, SkillInfo skillInfo) {
-        if (((IInfoCooldown) skillInfo).hasCooldown() || isClientWorld(user)) return;
+    public void use(EntityLivingBase owner, SkillInfo skillInfo) {
+        if (((IInfoCooldown) skillInfo).hasCooldown() || isClientWorld(owner)) return;
         AbilityInfo abilityInfo = (AbilityInfo) skillInfo;
 
-        if (isActionable(user) && canActivate(user)) {
-            if (!(user instanceof EntityPlayer) || !((EntityPlayer) user).capabilities.isCreativeMode) {
+        if (isActionable(owner) && canActivate(owner)) {
+            if (!(owner instanceof EntityPlayer) || !((EntityPlayer) owner).capabilities.isCreativeMode) {
                 abilityInfo.setCooldown(getCooldown(abilityInfo));
             }
+            double distance = getTravel(abilityInfo);
             double range = getRange(abilityInfo);
+            double damage = getDamage(abilityInfo);
+            NBTTagCompound compound = new NBTTagCompound();
+            NBTHelper.setEntity(compound, owner, "owner");
+            NBTHelper.setDouble(compound, "damage", damage);
+            NBTHelper.setDouble(compound, "range", range);
+            NBTHelper.setDouble(compound, "distance", distance);
             SkillData data = SkillData.of(this)
-                    .with(INSTANT)
-                    .overrides(this)
+                    .by(owner)
+                    .put(compound, UUIDWatcher.INSTANCE)
                     .create();
-            EntityPlaceableData spawn = new EntityPlaceableData(user.world, user, data, EntityPlaceableData.MIN_TIME);
-            spawn.setPosition(user.posX, user.posY + user.getEyeHeight(), user.posZ);
+            EntityPlaceableData spawn = new EntityPlaceableData(owner.world, owner, data, 5);
+            MotionHelper.forwardMotion(owner, spawn, distance, 5);
+            spawn.setPosition(owner.posX, owner.posY + owner.getEyeHeight(), owner.posZ);
+            spawn.setGrowTicks(5);
             spawn.setRadius(range);
-            user.world.spawnEntity(spawn);
-            sync(user);
+            owner.world.spawnEntity(spawn);
+            sync(owner);
 
             if (spawn.world instanceof WorldServer) {
                 ((WorldServer) spawn.world).playSound(null, spawn.posX, spawn.posY, spawn.posZ, ModSounds.SLASH, SoundCategory.PLAYERS, 1.0F, (1.0F + (spawn.world.rand.nextFloat() - spawn.world.rand.nextFloat()) * 0.2F) * 0.7F);
@@ -86,13 +97,12 @@ public class Slash extends BaseAbility implements IScanEntities, IExpand, IFindE
 
     @Override
     public void onFound(Entity source, @Nullable EntityLivingBase owner, EntityLivingBase target, SkillData skillData) {
-        Capabilities.get(owner).flatMap(c -> c.getOwned(this)).ifPresent(skillInfo -> {
-            AbilityInfo abilityInfo = (AbilityInfo) skillInfo;
-            SkillDamageSource damageSource = new SkillDamageSource(BaseAbility.DAMAGE_HIT_TYPE, owner);
-            SkillDamageEvent event = new SkillDamageEvent(owner, this, damageSource, getDamage(abilityInfo));
-            MinecraftForge.EVENT_BUS.post(event);
-            target.attackEntityFrom(event.getSource(), event.toFloat());
-        });
+        double damage = NBTHelper.getDouble(skillData.nbt, "damage");
+        SkillDamageSource damageSource = new SkillDamageSource(BaseAbility.DAMAGE_HIT_TYPE, owner);
+        SkillDamageEvent event = new SkillDamageEvent(owner, this, damageSource, damage);
+        MinecraftForge.EVENT_BUS.post(event);
+        target.attackEntityFrom(event.getSource(), event.toFloat());
+
         if (target.world instanceof WorldServer) {
             ((WorldServer) target.world).playSound(null, target.posX, target.posY, target.posZ, ModSounds.WIND_ON_HIT, SoundCategory.PLAYERS, 1.0F, (1.0F + (target.world.rand.nextFloat() - target.world.rand.nextFloat()) * 0.2F) * 0.7F);
         }
@@ -113,6 +123,14 @@ public class Slash extends BaseAbility implements IScanEntities, IExpand, IFindE
         int levelMax = getMaxLevel();
         double func = ExpressionHelper.getExpression(this, Configuration.getSyncValues().extra.damage, level, levelMax);
         double result = (func * CommonConfig.getSyncValues().skill.extra.globalNegativeEffect);
+        return (result * getEffectiveness());
+    }
+
+    public double getTravel(AbilityInfo info) {
+        int level = getLevel(info);
+        int levelMax = getMaxLevel();
+        double func = ExpressionHelper.getExpression(this, Configuration.getSyncValues().extra.travelDistance, level, levelMax);
+        double result = (func * CommonConfig.getSyncValues().skill.extra.globalNeutralEffect);
         return (result * getEffectiveness());
     }
 
@@ -159,6 +177,7 @@ public class Slash extends BaseAbility implements IScanEntities, IExpand, IFindE
                         description.add("Cooldown: " + TextHelper.format2FloatPoint(getCooldown(abilityInfo) / 20D) + "s");
                         description.add("Range: " + TextHelper.format2FloatPoint(getRange(abilityInfo)) + " Blocks");
                         description.add("Damage: " + TextHelper.format2FloatPoint(getDamage(abilityInfo) / 2D) + " Hearts");
+                        description.add("Distance: " + TextHelper.format2FloatPoint(getTravel(abilityInfo) / 2D) + " Blocks");
                         if (abilityInfo.getLevel() < getMaxLevel()) { //Copy info and set a higher level...
                             AbilityInfo infoNew = new AbilityInfo(abilityInfo.serializeNBT());
                             infoNew.setLevel(infoNew.getLevel() + 1);
@@ -167,21 +186,12 @@ public class Slash extends BaseAbility implements IScanEntities, IExpand, IFindE
                             description.add("Cooldown: " + TextHelper.format2FloatPoint(getCooldown(infoNew) / 20D) + "s");
                             description.add("Range: " + TextHelper.format2FloatPoint(getRange(infoNew)) + " Blocks");
                             description.add("Damage: " + TextHelper.format2FloatPoint(getDamage(infoNew) / 2D) + " Hearts");
+                            description.add("Distance: " + TextHelper.format2FloatPoint(getTravel(infoNew)) + " Blocks");
                         }
                     });
                 }
             }
         });
-    }
-
-    @Override
-    public boolean canUpgrade(EntityLivingBase entity) {
-        return Capabilities.advancement(entity).map(c -> {
-            Requirement requirement = getRequirement(entity);
-            int tokens = requirement.getLevels();
-            int xp = requirement.getXp();
-            return c.level >= tokens && c.getExperienceTotal(entity) >= xp;
-        }).orElse(false);
     }
 
     @Override
@@ -202,22 +212,6 @@ public class Slash extends BaseAbility implements IScanEntities, IExpand, IFindE
     }
 
     @Override
-    public Requirement getRequirement(EntityLivingBase entity) {
-        AbilityInfo info = (AbilityInfo) Capabilities.get(entity).flatMap(a -> a.getOwned(this)).orElse(null);
-        int tokensNeeded = 0;
-        int xpNeeded;
-        if (info == null) {
-            int abilities = Capabilities.get(entity).map(c -> (int) c.getAllOwned().keySet().stream().filter(s -> s instanceof BaseAbility).count()).orElse(0);
-            if (abilities > 0) {
-                tokensNeeded = abilities + 1;
-            } else {
-                tokensNeeded = 1;
-            }
-        }
-        xpNeeded = getUpgradeCost(info);
-        return new DefaultRequirement(tokensNeeded, getCostIncrement(entity, xpNeeded));
-    }
-
     public int getCostIncrement(EntityLivingBase entity, int total) {
         Optional<AdvancementCapability> optional = Capabilities.advancement(entity);
         if (optional.isPresent()) {
@@ -232,6 +226,7 @@ public class Slash extends BaseAbility implements IScanEntities, IExpand, IFindE
         return total;
     }
 
+    @Override
     public int getUpgradeCost(@Nullable AbilityInfo info) {
         int level = info != null ? getLevel(info) + 1 : 0;
         int levelMax = getMaxLevel();
@@ -247,6 +242,7 @@ public class Slash extends BaseAbility implements IScanEntities, IExpand, IFindE
         Configuration.getSyncValues().range = Configuration.getValues().range;
         Configuration.getSyncValues().effectiveness = Configuration.getValues().effectiveness;
         Configuration.getSyncValues().extra.damage = Configuration.getValues().extra.damage;
+        Configuration.getSyncValues().extra.travelDistance = Configuration.getValues().extra.travelDistance;
         Configuration.getSyncValues().advancement.upgrade = Configuration.getValues().advancement.upgrade;
     }
 
@@ -257,6 +253,7 @@ public class Slash extends BaseAbility implements IScanEntities, IExpand, IFindE
         NBTHelper.setArray(compound, "range", Configuration.getValues().range);
         compound.setDouble("effectiveness", Configuration.getValues().effectiveness);
         NBTHelper.setArray(compound, "extra.damage", Configuration.getValues().extra.damage);
+        NBTHelper.setArray(compound, "extra.travelDistance", Configuration.getValues().extra.travelDistance);
         NBTHelper.setArray(compound, "advancement.upgrade", Configuration.getValues().advancement.upgrade);
     }
 
@@ -268,6 +265,7 @@ public class Slash extends BaseAbility implements IScanEntities, IExpand, IFindE
         Configuration.getSyncValues().range = NBTHelper.getArray(compound, "range");
         Configuration.getSyncValues().effectiveness = compound.getDouble("effectiveness");
         Configuration.getSyncValues().extra.damage = NBTHelper.getArray(compound, "extra.damage");
+        Configuration.getSyncValues().extra.travelDistance = NBTHelper.getArray(compound, "extra.travelDistance");
         Configuration.getSyncValues().advancement.upgrade = NBTHelper.getArray(compound, "advancement.upgrade");
     }
 
@@ -322,6 +320,12 @@ public class Slash extends BaseAbility implements IScanEntities, IExpand, IFindE
                         "(0+){4 + ((e^(0.1 * (x / 49)) - 1)/((e^0.1) - 1)) * (7.88 - 4)}",
                         "(25+){7.88 + ((e^(2.25 * ((x-24) / (y-24))) - 1)/((e^2.25) - 1)) * (18 - 7.88)}",
                         "(50){19}"
+                };
+
+                @Config.Comment("Speed Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
+                public String[] travelDistance = {
+                        "(0+){3 + 2 * (1 - (e^(-2.1 * (x/24)))) / (1 - e^(-2.1))}",
+                        "(25+){5 + 3 * ((e^(0.1 * ((x - 24) / (y - 24))) - 1)/((e^0.1) - 1))}"
                 };
             }
 

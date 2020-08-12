@@ -14,6 +14,7 @@ import arekkuusu.enderskills.api.registry.Skill;
 import arekkuusu.enderskills.client.gui.data.ISkillAdvancement;
 import arekkuusu.enderskills.client.util.helper.TextHelper;
 import arekkuusu.enderskills.common.CommonConfig;
+import arekkuusu.enderskills.common.EnderSkills;
 import arekkuusu.enderskills.common.entity.data.IExpand;
 import arekkuusu.enderskills.common.entity.data.IFindEntity;
 import arekkuusu.enderskills.common.entity.data.IScanEntities;
@@ -22,10 +23,9 @@ import arekkuusu.enderskills.common.lib.LibMod;
 import arekkuusu.enderskills.common.lib.LibNames;
 import arekkuusu.enderskills.common.skill.ModAbilities;
 import arekkuusu.enderskills.common.skill.ModAttributes;
-import arekkuusu.enderskills.common.skill.SkillHelper;
+import arekkuusu.enderskills.common.skill.ModEffects;
 import arekkuusu.enderskills.common.skill.ability.AbilityInfo;
 import arekkuusu.enderskills.common.skill.ability.BaseAbility;
-import arekkuusu.enderskills.common.skill.status.OverHeal;
 import arekkuusu.enderskills.common.sound.ModSounds;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
@@ -52,30 +52,32 @@ public class HealAura extends BaseAbility implements IScanEntities, IExpand, IFi
     }
 
     @Override
-    public void use(EntityLivingBase user, SkillInfo skillInfo) {
-        if (((IInfoCooldown) skillInfo).hasCooldown() || isClientWorld(user)) return;
+    public void use(EntityLivingBase owner, SkillInfo skillInfo) {
+        if (((IInfoCooldown) skillInfo).hasCooldown() || isClientWorld(owner)) return;
         AbilityInfo abilityInfo = (AbilityInfo) skillInfo;
 
-        if (isActionable(user) && canActivate(user)) {
-            if (!(user instanceof EntityPlayer) || !((EntityPlayer) user).capabilities.isCreativeMode) {
+        if (isActionable(owner) && canActivate(owner)) {
+            if (!(owner instanceof EntityPlayer) || !((EntityPlayer) owner).capabilities.isCreativeMode) {
                 abilityInfo.setCooldown(getCooldown(abilityInfo));
             }
             double range = getRange(abilityInfo);
+            double heal = getHeal(abilityInfo);
             NBTTagCompound compound = new NBTTagCompound();
-            NBTHelper.setEntity(compound, user, "user");
+            NBTHelper.setEntity(compound, owner, "owner");
+            NBTHelper.setDouble(compound, "heal", heal);
             SkillData data = SkillData.of(this)
+                    .by(owner)
                     .with(INSTANT)
                     .put(compound, UUIDWatcher.INSTANCE)
-                    .overrides(this)
                     .create();
-            EntityPlaceableData spawn = new EntityPlaceableData(user.world, user, data, EntityPlaceableData.MIN_TIME);
-            spawn.setPosition(user.posX, user.posY + user.height / 2, user.posZ);
+            EntityPlaceableData spawn = new EntityPlaceableData(owner.world, owner, data, EntityPlaceableData.MIN_TIME);
+            spawn.setPosition(owner.posX, owner.posY + owner.height / 2, owner.posZ);
             spawn.setRadius(range);
-            user.world.spawnEntity(spawn);
-            sync(user);
+            owner.world.spawnEntity(spawn);
+            sync(owner);
 
-            if (user.world instanceof WorldServer) {
-                ((WorldServer) user.world).playSound(null, user.posX, user.posY, user.posZ, ModSounds.HEAL_AURA, SoundCategory.PLAYERS, 5.0F, (1.0F + (user.world.rand.nextFloat() - user.world.rand.nextFloat()) * 0.2F) * 0.7F);
+            if (owner.world instanceof WorldServer) {
+                ((WorldServer) owner.world).playSound(null, owner.posX, owner.posY, owner.posZ, ModSounds.HEAL_AURA, SoundCategory.PLAYERS, 5.0F, (1.0F + (owner.world.rand.nextFloat() - owner.world.rand.nextFloat()) * 0.2F) * 0.7F);
             }
         }
     }
@@ -100,12 +102,9 @@ public class HealAura extends BaseAbility implements IScanEntities, IExpand, IFi
     @Override
     public void begin(EntityLivingBase target, SkillData data) {
         if (isClientWorld(target)) return;
-        SkillHelper.getOwner(data).ifPresent(user -> {
-            Capabilities.get(user).flatMap(s -> s.getOwned(this)).ifPresent(skillInfo -> {
-                AbilityInfo abilityInfo = (AbilityInfo) skillInfo;
-                double healing = getHeal(abilityInfo);
-                OverHeal.heal(target, (float) (target.getMaxHealth() * healing));
-            });
+        EnderSkills.getProxy().addToQueue(() -> {
+            double heal = NBTHelper.getDouble(data.nbt, "heal");
+            ModEffects.OVERHEAL.set(target, (float) (target.getMaxHealth() * heal));
         });
     }
 
@@ -183,6 +182,7 @@ public class HealAura extends BaseAbility implements IScanEntities, IExpand, IFi
         });
     }
 
+    @Override
     public int getCostIncrement(EntityLivingBase entity, int total) {
         Optional<AdvancementCapability> optional = Capabilities.advancement(entity);
         if (optional.isPresent()) {
@@ -197,6 +197,7 @@ public class HealAura extends BaseAbility implements IScanEntities, IExpand, IFi
         return total;
     }
 
+    @Override
     public int getUpgradeCost(@Nullable AbilityInfo info) {
         int level = info != null ? getLevel(info) + 1 : 0;
         int levelMax = getMaxLevel();

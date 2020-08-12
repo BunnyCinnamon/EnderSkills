@@ -9,6 +9,7 @@ import arekkuusu.enderskills.client.util.helper.GLHelper;
 import arekkuusu.enderskills.client.util.helper.RenderMisc;
 import arekkuusu.enderskills.client.ClientConfig;
 import arekkuusu.enderskills.common.skill.ModAbilities;
+import arekkuusu.enderskills.common.skill.SkillHelper;
 import arekkuusu.enderskills.common.skill.ability.offence.ender.Gloom;
 import com.google.common.collect.Lists;
 import net.minecraft.client.Minecraft;
@@ -45,9 +46,9 @@ public class GloomRenderer extends SkillRenderer<Gloom> {
     @Override
     public void render(Entity entity, double x, double y, double z, float partialTicks, SkillHolder skillHolder) {
         if (skillHolder.tick == 1) {
-            Entity source = NBTHelper.getEntity(EntityLivingBase.class, skillHolder.data.nbt, "user");
-            if (source != null) {
-                BEAMS.add(new Beam(entity, source));
+            EntityLivingBase owner = SkillHelper.getOwner(skillHolder.data);
+            if (owner != null) {
+                BEAMS.add(new Beam(entity, owner));
             }
         }
     }
@@ -115,7 +116,7 @@ public class GloomRenderer extends SkillRenderer<Gloom> {
             Entity entity = referenceTo.get();
             if (source != null && entity != null) {
                 float blend = SkillRenderer.getSmoothBlend(lifeTime, maxLifeTime, 1F);
-                if (!ClientConfig.RENDER_CONFIG.rendering.helpMyFramesAreDying) {
+                if (!ClientConfig.RENDER_CONFIG.rendering.helpMyFramesAreDying && !ClientConfig.RENDER_CONFIG.rendering.helpMyShadersAreDying) {
                     if (!ClientConfig.RENDER_CONFIG.rendering.vanilla) {
                         ShaderLibrary.UNIVERSE.begin();
                         ShaderLibrary.UNIVERSE.set("dimensions", Minecraft.getMinecraft().displayWidth, Minecraft.getMinecraft().displayHeight);
@@ -138,12 +139,12 @@ public class GloomRenderer extends SkillRenderer<Gloom> {
                 Tessellator tessellator = Tessellator.getInstance();
                 BufferBuilder buffer = tessellator.getBuffer();
                 buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX_COLOR);
-                Vec3d from = source.getPositionVector().addVector(0, source.height / 2, 0);
-                Vec3d to = entity.getPositionVector().addVector(0, entity.height / 2, 0);
+                Vec3d from = makePartialPosition(source, partial).addVector(0, source.height / 2, 0);
+                Vec3d to = makePartialPosition(entity, partial).addVector(0, entity.height / 2, 0);
                 renderTextureAroundAxis(buffer, from, to, 0F, partial);
                 renderTextureAroundAxis(buffer, from, to, 90F * Math.PI / 180F, partial);
                 tessellator.draw();
-                if (!ClientConfig.RENDER_CONFIG.rendering.helpMyFramesAreDying) {
+                if (!ClientConfig.RENDER_CONFIG.rendering.helpMyFramesAreDying && !ClientConfig.RENDER_CONFIG.rendering.helpMyShadersAreDying) {
                     if (!ClientConfig.RENDER_CONFIG.rendering.vanilla) {
                         ShaderLibrary.UNIVERSE.end();
                     } else {
@@ -155,14 +156,21 @@ public class GloomRenderer extends SkillRenderer<Gloom> {
             }
         }
 
+        private Vec3d makePartialPosition(Entity entity, float partialTicks) {
+            double x = entity.lastTickPosX + (entity.posX - entity.lastTickPosX) * (double)partialTicks;
+            double y = entity.lastTickPosY + (entity.posY - entity.lastTickPosY) * (double)partialTicks;
+            double z = entity.lastTickPosZ + (entity.posZ - entity.lastTickPosZ) * (double)partialTicks;
+            return new Vec3d(x, y, z);
+        }
+
         private void renderTextureAroundAxis(BufferBuilder buf, Vec3d from, Vec3d to, double angle, float partialTicks) {
             Vec3d direction = to.subtract(from).normalize();
             Vec3d perpendicular = perpendicular(direction).normalize();
             Quaternion quat = new Quaternion();
             quat.setFromAxisAngle(new Vector4f((float) direction.x, (float) direction.y, (float) direction.z, (float) angle));
             Vec3d rotatedPerp = rotate(perpendicular, quat).normalize();
-            Vec3d perpFrom = rotatedPerp.scale(0.25);
-            Vec3d perpTo = rotatedPerp.scale(0.25);
+            Vec3d perpFrom = rotatedPerp.scale(0.15);
+            Vec3d perpTo = rotatedPerp.scale(0.15);
 
             int rgb = 0x1E0034;
             float r = (rgb >>> 16 & 0xFF) / 256.0F;

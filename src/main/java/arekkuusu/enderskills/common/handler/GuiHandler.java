@@ -52,9 +52,9 @@ public class GuiHandler implements IGuiHandler {
                 }
 
                 GuiScreenSkillAdvancements window = new GuiScreenSkillAdvancements();
-                GuiSkillAdvancementTab tab0 = window.addTab(new TextComponentTranslation(get("tab.defense.title")), SkillAdvancementTabType.BELOW, 0x65974B, 0);
-                if (tab0 != null) {
-                    GuiSkillAdvancementPage page0 = tab0.addPage(new TextComponentTranslation(get("page.light.title")));
+                GuiSkillAdvancementTab defense = window.addTab(new TextComponentTranslation(get("tab.defense.title")), SkillAdvancementTabType.BELOW, 0x65974B, 0);
+                if (defense != null) {
+                    GuiSkillAdvancementPage light = defense.addPage(new TextComponentTranslation(get("page.light.title")));
                     SkillAdvancementConditionSimple charm = new SkillAdvancementConditionSimple(
                             new SkillAdvancementInfo(
                                     new TextComponentTranslation(get("skill.charm.title")),
@@ -207,17 +207,17 @@ public class GuiHandler implements IGuiHandler {
                         heal_self.addCondition(new SkillAdvancementConditionAltar(SkillAdvancementConditionAltar.LEVEL_2));
                         nearby_invisibility.addCondition(new SkillAdvancementConditionAltarUltimate());
                         //GUI
-                        GuiSkillAdvancement gui0 = page0.addAdvancement(charm);
-                        GuiSkillAdvancement gui1 = page0.addAdvancement(heal_aura, power_boost);
-                        GuiSkillAdvancement gui2 = page0.addAdvancement(heal_other, heal_self);
-                        GuiSkillAdvancement gui3 = page0.addAdvancement(nearby_invisibility);
+                        GuiSkillAdvancement gui0 = light.addAdvancement(charm);
+                        GuiSkillAdvancement gui1 = light.addAdvancement(heal_aura, power_boost);
+                        GuiSkillAdvancement gui2 = light.addAdvancement(heal_other, heal_self);
+                        GuiSkillAdvancement gui3 = light.addAdvancement(nearby_invisibility);
                         gui0.addChildren(gui1);
                         gui1.addChildren(gui2);
                         gui2.addChildren(gui3);
-                        page0.addAdvancement(explosion_resistance, damage_resistance, knockback_resistance);
-                        page0.addAdvancement(magic_resistance, heart_boost, fire_resistance);
+                        light.addAdvancement(explosion_resistance, damage_resistance, knockback_resistance);
+                        light.addAdvancement(magic_resistance, heart_boost, fire_resistance);
                     }
-                    GuiSkillAdvancementPage page1 = tab0.addPage(new TextComponentTranslation(get("page.earth.title")));
+                    GuiSkillAdvancementPage earth = defense.addPage(new TextComponentTranslation(get("page.earth.title")));
                     SkillAdvancementConditionSimple taunt = new SkillAdvancementConditionSimple(
                             new SkillAdvancementInfo(
                                     new TextComponentTranslation(get("skill.taunt.title")),
@@ -371,25 +371,143 @@ public class GuiHandler implements IGuiHandler {
                         shockwave.addCondition(new SkillAdvancementConditionAltar(SkillAdvancementConditionAltar.LEVEL_2));
                         animatedStoneGolem.addCondition(new SkillAdvancementConditionAltarUltimate());
                         //GUI
-                        GuiSkillAdvancement gui0 = page1.addAdvancement(taunt);
-                        GuiSkillAdvancement gui1 = page1.addAdvancement(wall, dome);
-                        GuiSkillAdvancement gui2 = page1.addAdvancement(thorny, shockwave);
-                        GuiSkillAdvancement gui3 = page1.addAdvancement(animatedStoneGolem);
+                        GuiSkillAdvancement gui0 = earth.addAdvancement(taunt);
+                        GuiSkillAdvancement gui1 = earth.addAdvancement(wall, dome);
+                        GuiSkillAdvancement gui2 = earth.addAdvancement(thorny, shockwave);
+                        GuiSkillAdvancement gui3 = earth.addAdvancement(animatedStoneGolem);
                         gui0.addChildren(gui1);
                         gui1.addChildren(gui2);
                         gui2.addChildren(gui3);
-                        page1.addAdvancement(explosion_resistance, damage_resistance, knockback_resistance);
-                        page1.addAdvancement(magic_resistance, heart_boost, fire_resistance);
+                        earth.addAdvancement(explosion_resistance, damage_resistance, knockback_resistance);
+                        earth.addAdvancement(magic_resistance, heart_boost, fire_resistance);
                     }
+                    /*GuiSkillAdvancementPage electric = defense.addPage(new TextComponentTranslation(get("page.electric.title")));
+                    SkillAdvancementConditionSimple shocking_aura = new SkillAdvancementConditionSimple(
+                            new SkillAdvancementInfo(
+                                    new TextComponentTranslation(get("skill.shocking_aura.title")),
+                                    new TextComponentTranslation(get("skill.shocking_aura.description")),
+                                    SkillAdvancementInfo.Frame.NORMAL,
+                                    ModAbilities.SHOCKING_AURA,
+                                    false
+                            ),
+                            0, 1
+                    );
+                    {
+                        //Attribute
+                        SkillAdvancementConditionAttribute explosion_resistance = new SkillAdvancementConditionAttribute(
+                                new SkillAdvancementInfo(
+                                        new TextComponentTranslation(get("skill.explosion_resistance.title")),
+                                        new TextComponentTranslation(get("skill.explosion_resistance.description")),
+                                        SkillAdvancementInfo.Frame.NORMAL,
+                                        ModAttributes.EXPLOSION_RESISTANCE,
+                                        false
+                                ),
+                                0, 5
+                        );
+                        SkillAdvancementConditionAttribute damage_resistance = new SkillAdvancementConditionAttribute(
+                                new SkillAdvancementInfo(
+                                        new TextComponentTranslation(get("skill.damage_resistance.title")),
+                                        new TextComponentTranslation(get("skill.damage_resistance.description")),
+                                        SkillAdvancementInfo.Frame.NORMAL,
+                                        ModAttributes.DAMAGE_RESISTANCE,
+                                        false
+                                ),
+                                0, 6
+                        );
+                        SkillAdvancementConditionAttribute knockback_resistance = new SkillAdvancementConditionAttribute(
+                                new SkillAdvancementInfo(
+                                        new TextComponentTranslation(get("skill.knockback_resistance.title")),
+                                        new TextComponentTranslation(get("skill.knockback_resistance.description")),
+                                        SkillAdvancementInfo.Frame.NORMAL,
+                                        ModAttributes.KNOCKBACK_RESISTANCE,
+                                        false
+                                ),
+                                0, 7
+                        );
+                        SkillAdvancementConditionAttribute magic_resistance = new SkillAdvancementConditionAttribute(
+                                new SkillAdvancementInfo(
+                                        new TextComponentTranslation(get("skill.magic_resistance.title")),
+                                        new TextComponentTranslation(get("skill.magic_resistance.description")),
+                                        SkillAdvancementInfo.Frame.NORMAL,
+                                        ModAttributes.MAGIC_RESISTANCE,
+                                        false
+                                ),
+                                2, 5
+                        );
+                        SkillAdvancementConditionAttribute heart_boost = new SkillAdvancementConditionAttribute(
+                                new SkillAdvancementInfo(
+                                        new TextComponentTranslation(get("skill.heart_boost.title")),
+                                        new TextComponentTranslation(get("skill.heart_boost.description")),
+                                        SkillAdvancementInfo.Frame.NORMAL,
+                                        ModAttributes.HEART_BOOST,
+                                        false
+                                ),
+                                2, 6
+                        );
+                        SkillAdvancementConditionAttribute fire_resistance = new SkillAdvancementConditionAttribute(
+                                new SkillAdvancementInfo(
+                                        new TextComponentTranslation(get("skill.fire_resistance.title")),
+                                        new TextComponentTranslation(get("skill.fire_resistance.description")),
+                                        SkillAdvancementInfo.Frame.NORMAL,
+                                        ModAttributes.FIRE_RESISTANCE,
+                                        false
+                                ),
+                                2, 7
+                        );
+                        //Ability
+
+                        //Requirements
+                        *//*wall.addCondition(taunt);
+                        wall.addCondition(new SkillAdvancementConditionNotOrOverride(dome, animatedStoneGolem));
+                        dome.addCondition(taunt);
+                        dome.addCondition(new SkillAdvancementConditionNotOrOverride(wall, animatedStoneGolem));
+                        thorny.addCondition(new SkillAdvancementConditionOr(wall, dome));
+                        thorny.addCondition(new SkillAdvancementConditionNotOrOverride(shockwave, animatedStoneGolem));
+                        thorny.addCondition(new SkillAdvancementConditionWhenOverrideOrUpgraded(thorny, animatedStoneGolem, wall, dome));
+                        shockwave.addCondition(new SkillAdvancementConditionOr(wall, dome));
+                        shockwave.addCondition(new SkillAdvancementConditionNotOrOverride(thorny, animatedStoneGolem));
+                        shockwave.addCondition(new SkillAdvancementConditionWhenOverrideOrUpgraded(shockwave, animatedStoneGolem, wall, dome));
+                        animatedStoneGolem.addCondition(new SkillAdvancementConditionOr(shockwave, thorny));*//*
+                        explosion_resistance.addCondition(shocking_aura);
+                        damage_resistance.addCondition(shocking_aura);
+                        knockback_resistance.addCondition(shocking_aura);
+                        *//*magic_resistance.addCondition(new SkillAdvancementConditionOr(wall, dome));
+                        heart_boost.addCondition(new SkillAdvancementConditionOr(wall, dome));
+                        fire_resistance.addCondition(new SkillAdvancementConditionOr(wall, dome));*//*
+                        //Altar Requirements
+                        magic_resistance.addCondition(new SkillAdvancementConditionAltar(SkillAdvancementConditionAltar.LEVEL_1));
+                        heart_boost.addCondition(new SkillAdvancementConditionAltar(SkillAdvancementConditionAltar.LEVEL_1));
+                        fire_resistance.addCondition(new SkillAdvancementConditionAltar(SkillAdvancementConditionAltar.LEVEL_1));
+                        shocking_aura.addCondition(new SkillAdvancementConditionAltar(SkillAdvancementConditionAltar.LEVEL_0));
+                        *//*wall.addCondition(new SkillAdvancementConditionAltar(SkillAdvancementConditionAltar.LEVEL_1));
+                        dome.addCondition(new SkillAdvancementConditionAltar(SkillAdvancementConditionAltar.LEVEL_1));
+                        thorny.addCondition(new SkillAdvancementConditionAltar(SkillAdvancementConditionAltar.LEVEL_2));
+                        shockwave.addCondition(new SkillAdvancementConditionAltar(SkillAdvancementConditionAltar.LEVEL_2));
+                        animatedStoneGolem.addCondition(new SkillAdvancementConditionAltarUltimate());*//*
+                        //GUI
+                        GuiSkillAdvancement gui0 = electric.addAdvancement(shocking_aura);
+                        *//*GuiSkillAdvancement gui1 = earth.addAdvancement(wall, dome);
+                        GuiSkillAdvancement gui2 = earth.addAdvancement(thorny, shockwave);
+                        GuiSkillAdvancement gui3 = earth.addAdvancement(animatedStoneGolem);*//*
+                        *//*gui0.addChildren(gui1);
+                        gui1.addChildren(gui2);
+                        gui2.addChildren(gui3);*//*
+                        electric.addAdvancement(explosion_resistance, damage_resistance, knockback_resistance);
+                        electric.addAdvancement(magic_resistance, heart_boost, fire_resistance);
+                    }*/
 
                     if (CommonConfig.getValues().advancement.oneTreePerClass) {
                         charm.addCondition(new SkillAdvancementConditionNot(taunt));
+                        //charm.addCondition(new SkillAdvancementConditionNot(shocking_aura));
                         taunt.addCondition(new SkillAdvancementConditionNot(charm));
+                        //taunt.addCondition(new SkillAdvancementConditionNot(shocking_aura));
+                        //shocking_aura.addCondition(new SkillAdvancementConditionNot(taunt));
+                        //shocking_aura.addCondition(new SkillAdvancementConditionNot(charm));
                     }
                 }
-                GuiSkillAdvancementTab tab1 = window.addTab(new TextComponentTranslation(get("tab.mobility.title")), SkillAdvancementTabType.BELOW, 0x329CA2, 1);
-                if (tab1 != null) {
-                    GuiSkillAdvancementPage page0 = tab1.addPage(new TextComponentTranslation(get("page.wind.title")));
+                GuiSkillAdvancementTab mobility = window.addTab(new TextComponentTranslation(get("tab.mobility.title")), SkillAdvancementTabType.BELOW, 0x329CA2, 1);
+                if (mobility != null) {
+                    GuiSkillAdvancementPage wind = mobility.addPage(new TextComponentTranslation(get("page.wind.title")));
                     SkillAdvancementConditionSimple dash = new SkillAdvancementConditionSimple(
                             new SkillAdvancementInfo(
                                     new TextComponentTranslation(get("skill.dash.title")),
@@ -542,17 +660,17 @@ public class GuiHandler implements IGuiHandler {
                         hasten.addCondition(new SkillAdvancementConditionAltar(SkillAdvancementConditionAltar.LEVEL_2));
                         speedBoost.addCondition(new SkillAdvancementConditionAltarUltimate());
                         //GUI
-                        GuiSkillAdvancement gui0 = page0.addAdvancement(dash);
-                        GuiSkillAdvancement gui1 = page0.addAdvancement(extra_jump, fog);
-                        GuiSkillAdvancement gui2 = page0.addAdvancement(smash, hasten);
-                        GuiSkillAdvancement gui3 = page0.addAdvancement(speedBoost);
+                        GuiSkillAdvancement gui0 = wind.addAdvancement(dash);
+                        GuiSkillAdvancement gui1 = wind.addAdvancement(extra_jump, fog);
+                        GuiSkillAdvancement gui2 = wind.addAdvancement(smash, hasten);
+                        GuiSkillAdvancement gui3 = wind.addAdvancement(speedBoost);
                         gui0.addChildren(gui1);
                         gui1.addChildren(gui2);
                         gui2.addChildren(gui3);
-                        page0.addAdvancement(jump_height, speed, fall_resistance);
-                        page0.addAdvancement(endurance, stealth_damage, swim_speed);
+                        wind.addAdvancement(jump_height, speed, fall_resistance);
+                        wind.addAdvancement(endurance, stealth_damage, swim_speed);
                     }
-                    GuiSkillAdvancementPage page1 = tab1.addPage(new TextComponentTranslation(get("page.void.title")));
+                    GuiSkillAdvancementPage ender = mobility.addPage(new TextComponentTranslation(get("page.void.title")));
                     SkillAdvancementConditionSimple warp = new SkillAdvancementConditionSimple(
                             new SkillAdvancementInfo(
                                     new TextComponentTranslation(get("skill.warp.title")),
@@ -706,15 +824,15 @@ public class GuiHandler implements IGuiHandler {
                         portal.addCondition(new SkillAdvancementConditionAltar(SkillAdvancementConditionAltar.LEVEL_2));
                         teleport.addCondition(new SkillAdvancementConditionAltarUltimate());
                         //GUI
-                        GuiSkillAdvancement gui0 = page1.addAdvancement(warp);
-                        GuiSkillAdvancement gui1 = page1.addAdvancement(invisibility, hover);
-                        GuiSkillAdvancement gui2 = page1.addAdvancement(unstable_portal, portal);
-                        GuiSkillAdvancement gui3 = page1.addAdvancement(teleport);
+                        GuiSkillAdvancement gui0 = ender.addAdvancement(warp);
+                        GuiSkillAdvancement gui1 = ender.addAdvancement(invisibility, hover);
+                        GuiSkillAdvancement gui2 = ender.addAdvancement(unstable_portal, portal);
+                        GuiSkillAdvancement gui3 = ender.addAdvancement(teleport);
                         gui0.addChildren(gui1);
                         gui1.addChildren(gui2);
                         gui2.addChildren(gui3);
-                        page1.addAdvancement(jump_height, speed, fall_resistance);
-                        page1.addAdvancement(endurance, stealth_damage, swim_speed);
+                        ender.addAdvancement(jump_height, speed, fall_resistance);
+                        ender.addAdvancement(endurance, stealth_damage, swim_speed);
                     }
 
                     if (CommonConfig.getValues().advancement.oneTreePerClass) {
@@ -722,9 +840,9 @@ public class GuiHandler implements IGuiHandler {
                         warp.addCondition(new SkillAdvancementConditionNot(dash));
                     }
                 }
-                GuiSkillAdvancementTab tab2 = window.addTab(new TextComponentTranslation(get("tab.offense.title")), SkillAdvancementTabType.BELOW, 0xAF3B3E, 2);
-                if (tab2 != null) {
-                    GuiSkillAdvancementPage page0 = tab2.addPage(new TextComponentTranslation(get("page.void.title")));
+                GuiSkillAdvancementTab offense = window.addTab(new TextComponentTranslation(get("tab.offense.title")), SkillAdvancementTabType.BELOW, 0xAF3B3E, 2);
+                if (offense != null) {
+                    GuiSkillAdvancementPage ender = offense.addPage(new TextComponentTranslation(get("page.void.title")));
                     SkillAdvancementConditionSimple shadow = new SkillAdvancementConditionSimple(
                             new SkillAdvancementInfo(
                                     new TextComponentTranslation(get("skill.shadow.title")),
@@ -877,17 +995,17 @@ public class GuiHandler implements IGuiHandler {
                         grasp.addCondition(new SkillAdvancementConditionAltar(SkillAdvancementConditionAltar.LEVEL_2));
                         black_hole.addCondition(new SkillAdvancementConditionAltarUltimate());
                         //GUI
-                        GuiSkillAdvancement gui0 = page0.addAdvancement(shadow);
-                        GuiSkillAdvancement gui1 = page0.addAdvancement(gloom, shadow_jab);
-                        GuiSkillAdvancement gui2 = page0.addAdvancement(gas_cloud, grasp);
-                        GuiSkillAdvancement gui3 = page0.addAdvancement(black_hole);
+                        GuiSkillAdvancement gui0 = ender.addAdvancement(shadow);
+                        GuiSkillAdvancement gui1 = ender.addAdvancement(gloom, shadow_jab);
+                        GuiSkillAdvancement gui2 = ender.addAdvancement(gas_cloud, grasp);
+                        GuiSkillAdvancement gui3 = ender.addAdvancement(black_hole);
                         gui0.addChildren(gui1);
                         gui1.addChildren(gui2);
                         gui2.addChildren(gui3);
-                        page0.addAdvancement(damage, attack_speed, knockback);
-                        page0.addAdvancement(ability_power, critical_chance, armor_penetration);
+                        ender.addAdvancement(damage, attack_speed, knockback);
+                        ender.addAdvancement(ability_power, critical_chance, armor_penetration);
                     }
-                    GuiSkillAdvancementPage page1 = tab2.addPage(new TextComponentTranslation(get("page.blood.title")));
+                    GuiSkillAdvancementPage blood = offense.addPage(new TextComponentTranslation(get("page.blood.title")));
                     SkillAdvancementConditionSimple bleed = new SkillAdvancementConditionSimple(
                             new SkillAdvancementInfo(
                                     new TextComponentTranslation(get("skill.bleed.title")),
@@ -1041,17 +1159,17 @@ public class GuiHandler implements IGuiHandler {
                         syphon.addCondition(new SkillAdvancementConditionAltar(SkillAdvancementConditionAltar.LEVEL_2));
                         sacrifice.addCondition(new SkillAdvancementConditionAltarUltimate());
                         //GUI
-                        GuiSkillAdvancement gui0 = page1.addAdvancement(bleed);
-                        GuiSkillAdvancement gui1 = page1.addAdvancement(blood_pool, contaminate);
-                        GuiSkillAdvancement gui2 = page1.addAdvancement(life_steal, syphon);
-                        GuiSkillAdvancement gui3 = page1.addAdvancement(sacrifice);
+                        GuiSkillAdvancement gui0 = blood.addAdvancement(bleed);
+                        GuiSkillAdvancement gui1 = blood.addAdvancement(blood_pool, contaminate);
+                        GuiSkillAdvancement gui2 = blood.addAdvancement(life_steal, syphon);
+                        GuiSkillAdvancement gui3 = blood.addAdvancement(sacrifice);
                         gui0.addChildren(gui1);
                         gui1.addChildren(gui2);
                         gui2.addChildren(gui3);
-                        page1.addAdvancement(damage, attack_speed, knockback);
-                        page1.addAdvancement(ability_power, critical_chance, armor_penetration);
+                        blood.addAdvancement(damage, attack_speed, knockback);
+                        blood.addAdvancement(ability_power, critical_chance, armor_penetration);
                     }
-                    GuiSkillAdvancementPage page2 = tab2.addPage(new TextComponentTranslation(get("page.wind.title")));
+                    GuiSkillAdvancementPage wind = offense.addPage(new TextComponentTranslation(get("page.wind.title")));
                     SkillAdvancementConditionSimple slash = new SkillAdvancementConditionSimple(
                             new SkillAdvancementInfo(
                                     new TextComponentTranslation(get("skill.slash.title")),
@@ -1205,17 +1323,17 @@ public class GuiHandler implements IGuiHandler {
                         updraft.addCondition(new SkillAdvancementConditionAltar(SkillAdvancementConditionAltar.LEVEL_2));
                         suffocate.addCondition(new SkillAdvancementConditionAltarUltimate());
                         //GUI
-                        GuiSkillAdvancement gui0 = page2.addAdvancement(slash);
-                        GuiSkillAdvancement gui1 = page2.addAdvancement(push, pull);
-                        GuiSkillAdvancement gui2 = page2.addAdvancement(crush, updraft);
-                        GuiSkillAdvancement gui3 = page2.addAdvancement(suffocate);
+                        GuiSkillAdvancement gui0 = wind.addAdvancement(slash);
+                        GuiSkillAdvancement gui1 = wind.addAdvancement(push, pull);
+                        GuiSkillAdvancement gui2 = wind.addAdvancement(crush, updraft);
+                        GuiSkillAdvancement gui3 = wind.addAdvancement(suffocate);
                         gui0.addChildren(gui1);
                         gui1.addChildren(gui2);
                         gui2.addChildren(gui3);
-                        page2.addAdvancement(damage, attack_speed, knockback);
-                        page2.addAdvancement(ability_power, critical_chance, armor_penetration);
+                        wind.addAdvancement(damage, attack_speed, knockback);
+                        wind.addAdvancement(ability_power, critical_chance, armor_penetration);
                     }
-                    GuiSkillAdvancementPage page3 = tab2.addPage(new TextComponentTranslation(get("page.fire.title")));
+                    GuiSkillAdvancementPage fire = offense.addPage(new TextComponentTranslation(get("page.fire.title")));
                     SkillAdvancementConditionSimple fire_spirit = new SkillAdvancementConditionSimple(
                             new SkillAdvancementInfo(
                                     new TextComponentTranslation(get("skill.fire_spirit.title")),
@@ -1370,15 +1488,15 @@ public class GuiHandler implements IGuiHandler {
                         fireball.addCondition(new SkillAdvancementConditionAltar(SkillAdvancementConditionAltar.LEVEL_2));
                         explode.addCondition(new SkillAdvancementConditionAltarUltimate());
                         //GUI
-                        GuiSkillAdvancement gui0 = page3.addAdvancement(fire_spirit);
-                        GuiSkillAdvancement gui1 = page3.addAdvancement(flaming_breath, flaming_rain);
-                        GuiSkillAdvancement gui2 = page3.addAdvancement(focus_flame, fireball);
-                        GuiSkillAdvancement gui3 = page3.addAdvancement(explode);
+                        GuiSkillAdvancement gui0 = fire.addAdvancement(fire_spirit);
+                        GuiSkillAdvancement gui1 = fire.addAdvancement(flaming_breath, flaming_rain);
+                        GuiSkillAdvancement gui2 = fire.addAdvancement(focus_flame, fireball);
+                        GuiSkillAdvancement gui3 = fire.addAdvancement(explode);
                         gui0.addChildren(gui1);
                         gui1.addChildren(gui2);
                         gui2.addChildren(gui3);
-                        page3.addAdvancement(damage, attack_speed, knockback);
-                        page3.addAdvancement(ability_power, critical_chance, armor_penetration);
+                        fire.addAdvancement(damage, attack_speed, knockback);
+                        fire.addAdvancement(ability_power, critical_chance, armor_penetration);
                     }
 
                     if (CommonConfig.getValues().advancement.oneTreePerClass) {

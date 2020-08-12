@@ -2,26 +2,28 @@ package arekkuusu.enderskills.common.skill.ability.defense.light;
 
 import arekkuusu.enderskills.api.capability.AdvancementCapability;
 import arekkuusu.enderskills.api.capability.Capabilities;
-import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoCooldown;
-import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoUpgradeable;
 import arekkuusu.enderskills.api.capability.data.SkillData;
 import arekkuusu.enderskills.api.capability.data.SkillInfo;
+import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoCooldown;
+import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoUpgradeable;
 import arekkuusu.enderskills.api.helper.ExpressionHelper;
 import arekkuusu.enderskills.api.helper.NBTHelper;
+import arekkuusu.enderskills.api.helper.RayTraceHelper;
 import arekkuusu.enderskills.api.helper.TeamHelper;
 import arekkuusu.enderskills.api.registry.Skill;
 import arekkuusu.enderskills.client.gui.data.ISkillAdvancement;
 import arekkuusu.enderskills.client.util.helper.TextHelper;
 import arekkuusu.enderskills.common.CommonConfig;
+import arekkuusu.enderskills.common.EnderSkills;
 import arekkuusu.enderskills.common.entity.data.IImpact;
 import arekkuusu.enderskills.common.entity.throwable.EntityThrowableData;
 import arekkuusu.enderskills.common.lib.LibMod;
 import arekkuusu.enderskills.common.lib.LibNames;
 import arekkuusu.enderskills.common.skill.ModAbilities;
 import arekkuusu.enderskills.common.skill.ModAttributes;
+import arekkuusu.enderskills.common.skill.ModEffects;
 import arekkuusu.enderskills.common.skill.ability.AbilityInfo;
 import arekkuusu.enderskills.common.skill.ability.BaseAbility;
-import arekkuusu.enderskills.common.skill.status.OverHeal;
 import arekkuusu.enderskills.common.sound.ModSounds;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
@@ -32,7 +34,6 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.WorldServer;
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Config;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -50,28 +51,28 @@ public class HealOther extends BaseAbility implements IImpact, ISkillAdvancement
     }
 
     @Override
-    public void use(EntityLivingBase user, SkillInfo skillInfo) {
-        if (((IInfoCooldown) skillInfo).hasCooldown() || isClientWorld(user)) return;
+    public void use(EntityLivingBase owner, SkillInfo skillInfo) {
+        if (((IInfoCooldown) skillInfo).hasCooldown() || isClientWorld(owner)) return;
         AbilityInfo abilityInfo = (AbilityInfo) skillInfo;
 
-        if (isActionable(user) && canActivate(user)) {
-            if (!(user instanceof EntityPlayer) || !((EntityPlayer) user).capabilities.isCreativeMode) {
+        if (isActionable(owner) && canActivate(owner)) {
+            if (!(owner instanceof EntityPlayer) || !((EntityPlayer) owner).capabilities.isCreativeMode) {
                 abilityInfo.setCooldown(getCooldown(abilityInfo));
             }
             double distance = getRange(abilityInfo);
-            double healing = getHeal(abilityInfo);
+            double heal = getHeal(abilityInfo);
             NBTTagCompound compound = new NBTTagCompound();
-            NBTHelper.setDouble(compound, "healing", healing);
+            NBTHelper.setDouble(compound, "heal", heal);
             SkillData data = SkillData.of(this)
+                    .by(owner)
                     .with(INSTANT)
                     .put(compound)
-                    .overrides(this)
                     .create();
-            EntityThrowableData.throwFor(user, distance, data, false);
-            sync(user);
+            EntityThrowableData.throwFor(owner, distance, data, false);
+            sync(owner);
 
-            if (user.world instanceof WorldServer) {
-                ((WorldServer) user.world).playSound(null, user.posX, user.posY, user.posZ, ModSounds.HEAL_OTHER, SoundCategory.PLAYERS, 5.0F, (1.0F + (user.world.rand.nextFloat() - user.world.rand.nextFloat()) * 0.2F) * 0.7F);
+            if (owner.world instanceof WorldServer) {
+                ((WorldServer) owner.world).playSound(null, owner.posX, owner.posY, owner.posZ, ModSounds.HEAL_OTHER, SoundCategory.PLAYERS, 5.0F, (1.0F + (owner.world.rand.nextFloat() - owner.world.rand.nextFloat()) * 0.2F) * 0.7F);
             }
         }
     }
@@ -79,14 +80,16 @@ public class HealOther extends BaseAbility implements IImpact, ISkillAdvancement
     @Override
     public void begin(EntityLivingBase entity, SkillData data) {
         if (isClientWorld(entity)) return;
-        double healing = NBTHelper.getDouble(data.nbt, "healing");
-        OverHeal.heal(entity, (float) (entity.getMaxHealth() * healing));
+        EnderSkills.getProxy().addToQueue(() -> {
+            double heal = NBTHelper.getDouble(data.nbt, "heal");
+            ModEffects.OVERHEAL.set(entity, (float) (entity.getMaxHealth() * heal));
+        });
     }
 
     //* Entity *//
     @Override
     public void onImpact(Entity source, @Nullable EntityLivingBase owner, SkillData skillData, RayTraceResult trace) {
-        if (trace.typeOfHit == RayTraceResult.Type.ENTITY && trace.entityHit instanceof EntityLivingBase && TeamHelper.SELECTOR_ALLY.apply(owner).test(trace.entityHit)) {
+        if (RayTraceHelper.isEntityTrace(trace, TeamHelper.SELECTOR_ALLY.apply(owner))) {
             apply((EntityLivingBase) trace.entityHit, skillData);
             sync((EntityLivingBase) trace.entityHit, skillData);
 
@@ -171,6 +174,7 @@ public class HealOther extends BaseAbility implements IImpact, ISkillAdvancement
         });
     }
 
+    @Override
     public int getCostIncrement(EntityLivingBase entity, int total) {
         Optional<AdvancementCapability> optional = Capabilities.advancement(entity);
         if (optional.isPresent()) {
@@ -185,6 +189,7 @@ public class HealOther extends BaseAbility implements IImpact, ISkillAdvancement
         return total;
     }
 
+    @Override
     public int getUpgradeCost(@Nullable AbilityInfo info) {
         int level = info != null ? getLevel(info) + 1 : 0;
         int levelMax = getMaxLevel();

@@ -1,6 +1,7 @@
 package arekkuusu.enderskills.client.render.skill;
 
 import arekkuusu.enderskills.api.capability.data.SkillHolder;
+import arekkuusu.enderskills.client.ClientConfig;
 import arekkuusu.enderskills.client.util.ShaderLibrary;
 import arekkuusu.enderskills.common.lib.LibMod;
 import arekkuusu.enderskills.common.skill.ability.defense.earth.Thorny;
@@ -24,55 +25,64 @@ public class ThornyRenderer extends SkillRenderer<Thorny> {
         GlStateManager.color(1F, 1F, 1F, 1F);
         GlStateManager.pushMatrix();
         GlStateManager.translate(x, y, z);
-        ShaderLibrary.BRIGHT.begin();
-        ShaderLibrary.BRIGHT.set("alpha", SkillRenderer.getDiffuseBlend(skillHolder.tick, skillHolder.data.time, 1F));
+        if (!ClientConfig.RENDER_CONFIG.rendering.helpMyShadersAreDying) {
+            ShaderLibrary.BRIGHT.begin();
+            ShaderLibrary.BRIGHT.set("alpha", SkillRenderer.getDiffuseBlend(skillHolder.tick, skillHolder.data.time, 1F));
+        }
         GlStateManager.disableLighting();
         this.bindTexture(FOLLOWING);
-        double width = entity.width / 2;
-        double height = entity.height;
-        Tessellator tessellator = Tessellator.getInstance();
-        BufferBuilder buffer = tessellator.getBuffer();
-        buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
-        double u = entity.width / 1D;
-        double v = entity.height / 1D;
-        buffer.pos(-width, 0, -width).tex(0, 0).endVertex();
-        buffer.pos(width, 0, -width).tex(u, 0).endVertex();
-        buffer.pos(width, height, -width).tex(u, v).endVertex();
-        buffer.pos(-width, height, -width).tex(0, v).endVertex();
-        buffer.pos(-width, height, -width).tex(0, v).endVertex();
-        buffer.pos(width, height, -width).tex(u, v).endVertex();
-        buffer.pos(width, 0, -width).tex(u, 0).endVertex();
-        buffer.pos(-width, 0, -width).tex(0, 0).endVertex();
+        double width = entity.width / 2 + 0.1;
+        double height = entity.height + 0.1;
+        for (int i = 0; i < 2; i++) {
+            GlStateManager.pushMatrix();
+            GlStateManager.rotate(45F * i, 0F, 1F, 0F);
+            Tessellator tessellator = Tessellator.getInstance();
+            BufferBuilder buffer = tessellator.getBuffer();
+            buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
+            double u = entity.width / 1D;
+            double v = entity.height / 1D;
+            buffer.pos(-width, -0.1, -width).tex(0, 0).endVertex();
+            buffer.pos(width, -0.1, -width).tex(u, 0).endVertex();
+            buffer.pos(width, height, -width).tex(u, v).endVertex();
+            buffer.pos(-width, height, -width).tex(0, v).endVertex();
+            buffer.pos(-width, height, -width).tex(0, v).endVertex();
+            buffer.pos(width, height, -width).tex(u, v).endVertex();
+            buffer.pos(width, 0, -width).tex(u, 0).endVertex();
+            buffer.pos(-width, 0, -width).tex(0, 0).endVertex();
 
-        buffer.pos(width, 0, width).tex(0, 0).endVertex();
-        buffer.pos(-width, 0, width).tex(u, 0).endVertex();
-        buffer.pos(-width, height, width).tex(u, v).endVertex();
-        buffer.pos(width, height, width).tex(0, v).endVertex();
-        buffer.pos(width, height, width).tex(0, v).endVertex();
-        buffer.pos(-width, height, width).tex(u, v).endVertex();
-        buffer.pos(-width, 0, width).tex(u, 0).endVertex();
-        buffer.pos(width, 0, width).tex(0, 0).endVertex();
+            buffer.pos(width, -0.1, width).tex(0, 0).endVertex();
+            buffer.pos(-width, -0.1, width).tex(u, 0).endVertex();
+            buffer.pos(-width, height, width).tex(u, v).endVertex();
+            buffer.pos(width, height, width).tex(0, v).endVertex();
+            buffer.pos(width, height, width).tex(0, v).endVertex();
+            buffer.pos(-width, height, width).tex(u, v).endVertex();
+            buffer.pos(-width, -0.1, width).tex(u, 0).endVertex();
+            buffer.pos(width, -0.1, width).tex(0, 0).endVertex();
 
-        buffer.pos(-width, 0, width).tex(0, 0).endVertex();
-        buffer.pos(-width, 0, -width).tex(u, 0).endVertex();
-        buffer.pos(-width, height, -width).tex(u, v).endVertex();
-        buffer.pos(-width, height, width).tex(0, v).endVertex();
-        buffer.pos(-width, height, width).tex(0, v).endVertex();
-        buffer.pos(-width, height, -width).tex(u, v).endVertex();
-        buffer.pos(-width, 0, -width).tex(u, 0).endVertex();
-        buffer.pos(-width, 0, width).tex(0, 0).endVertex();
+            buffer.pos(-width, -0.1, width).tex(0, 0).endVertex();
+            buffer.pos(-width, -0.1, -width).tex(u, 0).endVertex();
+            buffer.pos(-width, height, -width).tex(u, v).endVertex();
+            buffer.pos(-width, height, width).tex(0, v).endVertex();
+            buffer.pos(-width, height, width).tex(0, v).endVertex();
+            buffer.pos(-width, height, -width).tex(u, v).endVertex();
+            buffer.pos(-width, -0.1, -width).tex(u, 0).endVertex();
+            buffer.pos(-width, -0.1, width).tex(0, 0).endVertex();
 
-        buffer.pos(width, 0, -width).tex(0, 0).endVertex();
-        buffer.pos(width, 0, width).tex(u, 0).endVertex();
-        buffer.pos(width, height, width).tex(u, v).endVertex();
-        buffer.pos(width, height, -width).tex(0, v).endVertex();
-        buffer.pos(width, height, -width).tex(0, v).endVertex();
-        buffer.pos(width, height, width).tex(u, v).endVertex();
-        buffer.pos(width, 0, width).tex(u, 0).endVertex();
-        buffer.pos(width, 0, -width).tex(0, 0).endVertex();
-        tessellator.draw();
+            buffer.pos(width, -0.1, -width).tex(0, 0).endVertex();
+            buffer.pos(width, -0.1, width).tex(u, 0).endVertex();
+            buffer.pos(width, height, width).tex(u, v).endVertex();
+            buffer.pos(width, height, -width).tex(0, v).endVertex();
+            buffer.pos(width, height, -width).tex(0, v).endVertex();
+            buffer.pos(width, height, width).tex(u, v).endVertex();
+            buffer.pos(width, -0.1, width).tex(u, 0).endVertex();
+            buffer.pos(width, -0.1, -width).tex(0, 0).endVertex();
+            tessellator.draw();
+            GlStateManager.popMatrix();
+        }
         GlStateManager.enableLighting();
-        ShaderLibrary.BRIGHT.end();
+        if (!ClientConfig.RENDER_CONFIG.rendering.helpMyShadersAreDying) {
+            ShaderLibrary.BRIGHT.end();
+        }
         GlStateManager.popMatrix();
     }
 }

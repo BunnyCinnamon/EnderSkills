@@ -15,6 +15,7 @@ import java.lang.ref.WeakReference;
 public class SacrificeSound extends MovingSound {
 
     public final WeakReference<EntityLivingBase> reference;
+    public int tick = 10;
 
     public SacrificeSound(EntityLivingBase entity) {
         super(ModSounds.SACRIFICE_ACTIVE, SoundCategory.PLAYERS);
@@ -29,12 +30,14 @@ public class SacrificeSound extends MovingSound {
     public void update() {
         EntityLivingBase entity = reference.get();
         if (entity != null && !entity.isDead) {
-            if (SkillHelper.isActiveOwner(entity, ModAbilities.SACRIFICE)) {
+            if (SkillHelper.isActive(entity, ModAbilities.SACRIFICE)) {
                 this.xPosF = (float) entity.posX;
                 this.yPosF = (float) entity.posY;
                 this.zPosF = (float) entity.posZ;
             } else {
-                donePlaying = true;
+                if (--tick < 0) {
+                    donePlaying = true;
+                }
             }
         } else {
             donePlaying = true;
@@ -43,15 +46,10 @@ public class SacrificeSound extends MovingSound {
 
     @Override
     public float getVolume() {
-        return super.getVolume() * (1F - getProgress());
+        return super.getVolume() * getProgress();
     }
 
     public float getProgress() {
-        float[] data = new float[1];
-        EntityLivingBase entity = reference.get();
-        if (entity != null && !entity.isDead) {
-            SkillHelper.getActiveOwner(entity, ModAbilities.SACRIFICE, h -> data[0] = (float) h.tick / (float) h.data.time);
-        }
-        return data[0];
+        return tick / 10F;
     }
 }

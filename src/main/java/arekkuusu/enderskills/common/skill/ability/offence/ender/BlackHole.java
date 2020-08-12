@@ -2,10 +2,10 @@ package arekkuusu.enderskills.common.skill.ability.offence.ender;
 
 import arekkuusu.enderskills.api.capability.AdvancementCapability;
 import arekkuusu.enderskills.api.capability.Capabilities;
-import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoCooldown;
-import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoUpgradeable;
 import arekkuusu.enderskills.api.capability.data.SkillData;
 import arekkuusu.enderskills.api.capability.data.SkillInfo;
+import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoCooldown;
+import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoUpgradeable;
 import arekkuusu.enderskills.api.capability.data.nbt.UUIDWatcher;
 import arekkuusu.enderskills.api.event.SkillDamageEvent;
 import arekkuusu.enderskills.api.event.SkillDamageSource;
@@ -54,13 +54,13 @@ public class BlackHole extends BaseAbility implements IImpact, ISkillAdvancement
     }
 
     @Override
-    public void use(EntityLivingBase user, SkillInfo skillInfo) {
-        if (((IInfoCooldown) skillInfo).hasCooldown() || isClientWorld(user)) return;
+    public void use(EntityLivingBase owner, SkillInfo skillInfo) {
+        if (((IInfoCooldown) skillInfo).hasCooldown() || isClientWorld(owner)) return;
         AbilityInfo abilityInfo = (AbilityInfo) skillInfo;
         double distance = getRange(abilityInfo);
 
-        if (isActionable(user) && canActivate(user)) {
-            if (!(user instanceof EntityPlayer) || !((EntityPlayer) user).capabilities.isCreativeMode) {
+        if (isActionable(owner) && canActivate(owner)) {
+            if (!(owner instanceof EntityPlayer) || !((EntityPlayer) owner).capabilities.isCreativeMode) {
                 abilityInfo.setCooldown(getCooldown(abilityInfo));
             }
             double range = getHoleRange(abilityInfo);
@@ -69,7 +69,7 @@ public class BlackHole extends BaseAbility implements IImpact, ISkillAdvancement
             double dot = getDoT(abilityInfo);
             int dotDuration = getTime(abilityInfo);
             NBTTagCompound compound = new NBTTagCompound();
-            NBTHelper.setEntity(compound, user, "user");
+            NBTHelper.setEntity(compound, owner, "owner");
             NBTHelper.setDouble(compound, "range", range);
             NBTHelper.setInteger(compound, "time", time);
             NBTHelper.setDouble(compound, "damage", damage);
@@ -77,12 +77,10 @@ public class BlackHole extends BaseAbility implements IImpact, ISkillAdvancement
             NBTHelper.setInteger(compound, "dotDuration", dotDuration);
 
             SkillData data = SkillData.of(this)
-                    .with(dotDuration)
                     .put(compound, UUIDWatcher.INSTANCE)
-                    .overrides(this)
                     .create();
-            EntityThrowableData.throwFor(user, distance, data, false);
-            sync(user);
+            EntityThrowableData.throwFor(owner, distance, data, false);
+            sync(owner);
         }
     }
 
@@ -105,24 +103,15 @@ public class BlackHole extends BaseAbility implements IImpact, ISkillAdvancement
     //* Entity *//
 
     @Override
-    public void update(EntityLivingBase entity, SkillData data, int tick) {
-        SkillHelper.getOwner(data).ifPresent(user -> {
-            if (entity != user) {
-                if (!isClientWorld(entity)) {
-                    double damage = data.nbt.getDouble("dot");
-                    double time = data.nbt.getInteger("dotDuration");
-                    SkillDamageSource source = new SkillDamageSource(BaseAbility.DAMAGE_DOT_TYPE, user);
-                    source.setMagicDamage();
-                    SkillDamageEvent event = new SkillDamageEvent(user, this, source, damage);
-                    MinecraftForge.EVENT_BUS.post(event);
-                    entity.attackEntityFrom(event.getSource(), (float) (event.toFloat() / time));
-                }
-                if (!isClientWorld(entity) || (entity instanceof EntityPlayer)) {
-                    entity.motionX *= 0.6;
-                    entity.motionZ *= 0.6;
-                }
-            }
-        });
+    public void begin(EntityLivingBase entity, SkillData data) {
+        if(isClientWorld(entity)) return;
+        EntityLivingBase owner = SkillHelper.getOwner(data);
+        double damage = NBTHelper.getDouble(data.nbt, "damage");
+        SkillDamageSource source = new SkillDamageSource(BaseAbility.DAMAGE_HIT_TYPE, owner);
+        source.setExplosion();
+        SkillDamageEvent event = new SkillDamageEvent(owner, ModAbilities.BLACK_HOLE, source, damage);
+        MinecraftForge.EVENT_BUS.post(event);
+        entity.attackEntityFrom(event.getSource(), event.toFloat());
     }
 
     public int getLevel(IInfoUpgradeable info) {
@@ -239,6 +228,7 @@ public class BlackHole extends BaseAbility implements IImpact, ISkillAdvancement
         });
     }
 
+    @Override
     public int getCostIncrement(EntityLivingBase entity, int total) {
         Optional<AdvancementCapability> optional = Capabilities.advancement(entity);
         if (optional.isPresent()) {
@@ -253,6 +243,7 @@ public class BlackHole extends BaseAbility implements IImpact, ISkillAdvancement
         return total;
     }
 
+    @Override
     public int getUpgradeCost(@Nullable AbilityInfo info) {
         int level = info != null ? getLevel(info) + 1 : 0;
         int levelMax = getMaxLevel();

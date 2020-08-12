@@ -2,12 +2,11 @@ package arekkuusu.enderskills.common.skill.ability.mobility.wind;
 
 import arekkuusu.enderskills.api.capability.AdvancementCapability;
 import arekkuusu.enderskills.api.capability.Capabilities;
-import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoCooldown;
-import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoUpgradeable;
 import arekkuusu.enderskills.api.capability.data.SkillData;
 import arekkuusu.enderskills.api.capability.data.SkillInfo;
+import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoCooldown;
+import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoUpgradeable;
 import arekkuusu.enderskills.api.capability.data.nbt.UUIDWatcher;
-import arekkuusu.enderskills.api.event.SkillsActionableEvent;
 import arekkuusu.enderskills.api.helper.ExpressionHelper;
 import arekkuusu.enderskills.api.helper.NBTHelper;
 import arekkuusu.enderskills.api.registry.Skill;
@@ -24,6 +23,7 @@ import arekkuusu.enderskills.common.lib.LibNames;
 import arekkuusu.enderskills.common.network.PacketHelper;
 import arekkuusu.enderskills.common.skill.ModAbilities;
 import arekkuusu.enderskills.common.skill.ModAttributes;
+import arekkuusu.enderskills.common.skill.ModEffects;
 import arekkuusu.enderskills.common.skill.SkillHelper;
 import arekkuusu.enderskills.common.skill.ability.AbilityInfo;
 import arekkuusu.enderskills.common.skill.ability.BaseAbility;
@@ -32,7 +32,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
@@ -41,7 +40,6 @@ import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.WorldServer;
-import net.minecraftforge.client.event.InputUpdateEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Config;
 import net.minecraftforge.event.entity.living.LivingFallEvent;
@@ -70,43 +68,41 @@ public class Smash extends BaseAbility implements IScanEntities, IExpand, IFindE
     }
 
     @Override
-    public void use(EntityLivingBase user, SkillInfo skillInfo) {
-        if (((IInfoCooldown) skillInfo).hasCooldown() || isClientWorld(user) || (user instanceof EntityPlayer && ((EntityPlayer) user).capabilities.isCreativeMode))
-            return;
+    public void use(EntityLivingBase owner, SkillInfo skillInfo) {
+        if (isClientWorld(owner) || (owner instanceof EntityPlayer && ((EntityPlayer) owner).capabilities.isCreativeMode)) return;
         AbilityInfo abilityInfo = (AbilityInfo) skillInfo;
-        if (!user.onGround && isActionable(user) && canActivate(user)) {
+        if (!owner.onGround && !((IInfoCooldown) skillInfo).hasCooldown() && isActionable(owner) && canActivate(owner)) {
             abilityInfo.setCooldown(getCooldown(abilityInfo));
             double range = getRange(abilityInfo);
             int time = getTime(abilityInfo);
             NBTTagCompound compound = new NBTTagCompound();
-            NBTHelper.setEntity(compound, user, "user");
+            NBTHelper.setEntity(compound, owner, "owner");
+            NBTHelper.setEntity(compound, owner, "owner");
             NBTHelper.setDouble(compound, "range", range);
             NBTHelper.setInteger(compound, "time", time);
             SkillData data = SkillData.of(this)
+                    .by(owner)
                     .with(BaseAbility.INDEFINITE)
                     .put(compound, UUIDWatcher.INSTANCE)
-                    .overrides(this)
+                    .overrides(SkillData.Overrides.EQUAL)
                     .create();
-            apply(user, data);
-            sync(user, data);
-            sync(user);
+            apply(owner, data);
+            sync(owner, data);
+            sync(owner);
         }
     }
 
     //* Entity *//
     @Override
-    public AxisAlignedBB expand(Entity source, @Nullable EntityLivingBase owner, AxisAlignedBB bb, float amount) {
+    public AxisAlignedBB expand(Entity source, AxisAlignedBB bb, float amount) {
         return bb.grow(amount, 0, amount);
     }
 
     @Override
     public void onFound(Entity source, @Nullable EntityLivingBase owner, EntityLivingBase target, SkillData skillData) {
-        DamageSource damageSource = owner instanceof EntityPlayer
-                ? DamageSource.causePlayerDamage((EntityPlayer) owner)
-                : DamageSource.causeMobDamage(owner);
-        target.attackEntityFrom(damageSource, (float) skillData.nbt.getDouble("damage"));
-        apply(target, skillData);
-        sync(target, skillData);
+        DamageSource damageSource = new DamageSource("smash");
+        target.attackEntityFrom(damageSource, skillData.nbt.getFloat("damage"));
+        ModEffects.STUNNED.set(target, skillData, skillData.nbt.getInteger("time"));
     }
     //* Entity *//
 
@@ -118,22 +114,14 @@ public class Smash extends BaseAbility implements IScanEntities, IExpand, IFindE
     }
 
     @Override
-    public void update(EntityLivingBase target, SkillData data, int tick) {
-        if (isClientWorld(target) && !(target instanceof EntityPlayer)) return;
-        SkillHelper.getOwner(data).ifPresent(user -> {
-            if (target != user) {
-                if (target instanceof EntityLiving) {
-                    ((EntityLiving) target).getNavigator().clearPath();
-                }
-            } else {
-                if (user.onGround) {
-                    unapply(user, data);
-                    async(user, data);
-                } else {
-                    user.motionY *= 1.05D;
-                }
-            }
-        });
+    public void update(EntityLivingBase owner, SkillData data, int tick) {
+        if (!isClientWorld(owner) && owner.onGround) {
+            unapply(owner, data);
+            async(owner, data);
+        }
+        if(owner.motionY < 0D) {
+            owner.motionY *= 1.05D;
+        }
     }
 
     @Override
@@ -146,29 +134,18 @@ public class Smash extends BaseAbility implements IScanEntities, IExpand, IFindE
     @SubscribeEvent(priority = EventPriority.HIGH)
     public void onFallDamage(LivingFallEvent event) {
         if (isClientWorld(event.getEntityLiving())) return;
-        EntityLivingBase user = event.getEntityLiving();
-        Capabilities.get(user).ifPresent(capability -> {
-            if (capability.isOwned(this) && SkillHelper.isActiveOwner(user, this)) {
-                SkillHelper.getActiveOwner(user, this, holder -> {
-                    int time = NBTHelper.getInteger(holder.data.nbt, "time");
-                    double range = NBTHelper.getInteger(holder.data.nbt, "range");
-                    double damage = MathHelper.ceil(event.getDistance() - 3F);
-                    NBTTagCompound compound = new NBTTagCompound();
-                    NBTHelper.setEntity(compound, user, "user");
-                    NBTHelper.setDouble(compound, "damage", (damage + (damage * -user.motionY)));
-                    SkillData data = SkillData.of(this)
-                            .with(time)
-                            .put(compound, UUIDWatcher.INSTANCE)
-                            .overrides(this)
-                            .create();
-                    EntityPlaceableSmash spawn = new EntityPlaceableSmash(user.world, user, data, EntityPlaceableData.MIN_TIME);
-                    spawn.setPosition(user.posX, user.posY, user.posZ);
-                    spawn.setRadius(range);
-                    user.world.spawnEntity(spawn);
-                    unapply(user, holder.data);
-                    async(user, holder.data);
-                });
-            }
+        EntityLivingBase owner = event.getEntityLiving();
+        SkillHelper.getActiveFrom(owner, this).ifPresent(data -> {
+            double range = NBTHelper.getDouble(data.nbt, "range");
+            float damage = MathHelper.ceil(event.getDistance() - 3F);
+            SkillData copy = data.copy();
+            NBTHelper.setFloat(copy.nbt, "damage", (damage + (damage * -((float) owner.motionY))));
+            EntityPlaceableSmash spawn = new EntityPlaceableSmash(owner.world, owner, copy, EntityPlaceableData.MIN_TIME);
+            spawn.setPosition(owner.posX, owner.posY, owner.posZ);
+            spawn.setRadius(range);
+            owner.world.spawnEntity(spawn);
+            unapply(owner, data);
+            async(owner, data);
         });
     }
 
@@ -179,7 +156,7 @@ public class Smash extends BaseAbility implements IScanEntities, IExpand, IFindE
         Capabilities.get(player).flatMap(c -> c.getOwned(this)).ifPresent(skillInfo -> {
             AbilityInfo abilityInfo = (AbilityInfo) skillInfo;
             if (abilityInfo.hasCooldown()) return;
-            if (Minecraft.getMinecraft().gameSettings.keyBindSneak.isPressed() && !player.onGround) {
+            if (Minecraft.getMinecraft().gameSettings.keyBindSneak.isKeyDown() && !player.onGround) {
                 Capabilities.endurance(player).ifPresent(endurance -> {
                     int amount = ModAttributes.ENDURANCE.getEnduranceDrain(this);
                     if (endurance.getEndurance() - amount >= 0) {
@@ -188,29 +165,6 @@ public class Smash extends BaseAbility implements IScanEntities, IExpand, IFindE
                 });
             }
         });
-    }
-
-    @SubscribeEvent
-    @SideOnly(Side.CLIENT)
-    public void inputListener(InputUpdateEvent event) {
-        if (SkillHelper.isActiveNotOwner(event.getEntityLiving(), this)) {
-            event.getMovementInput().forwardKeyDown = false;
-            event.getMovementInput().rightKeyDown = false;
-            event.getMovementInput().backKeyDown = false;
-            event.getMovementInput().leftKeyDown = false;
-            event.getMovementInput().sneak = false;
-            event.getMovementInput().jump = false;
-            event.getMovementInput().moveForward = 0;
-            event.getMovementInput().moveStrafe = 0;
-        }
-    }
-
-    @SubscribeEvent
-    public void onSkillShouldUse(SkillsActionableEvent event) {
-        if (isClientWorld(event.getEntityLiving()) || event.isCanceled()) return;
-        if (SkillHelper.isActiveNotOwner(event.getEntityLiving(), this)) {
-            event.setCanceled(true);
-        }
     }
 
     public int getLevel(IInfoUpgradeable info) {
@@ -287,6 +241,7 @@ public class Smash extends BaseAbility implements IScanEntities, IExpand, IFindE
         });
     }
 
+    @Override
     public int getCostIncrement(EntityLivingBase entity, int total) {
         Optional<AdvancementCapability> optional = Capabilities.advancement(entity);
         if (optional.isPresent()) {
@@ -301,6 +256,7 @@ public class Smash extends BaseAbility implements IScanEntities, IExpand, IFindE
         return total;
     }
 
+    @Override
     public int getUpgradeCost(@Nullable AbilityInfo info) {
         int level = info != null ? getLevel(info) + 1 : 0;
         int levelMax = getMaxLevel();

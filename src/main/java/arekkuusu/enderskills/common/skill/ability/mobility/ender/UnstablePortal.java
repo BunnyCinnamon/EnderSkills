@@ -2,10 +2,10 @@ package arekkuusu.enderskills.common.skill.ability.mobility.ender;
 
 import arekkuusu.enderskills.api.capability.AdvancementCapability;
 import arekkuusu.enderskills.api.capability.Capabilities;
-import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoCooldown;
-import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoUpgradeable;
 import arekkuusu.enderskills.api.capability.data.SkillData;
 import arekkuusu.enderskills.api.capability.data.SkillInfo;
+import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoCooldown;
+import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoUpgradeable;
 import arekkuusu.enderskills.api.capability.data.nbt.UUIDWatcher;
 import arekkuusu.enderskills.api.helper.ExpressionHelper;
 import arekkuusu.enderskills.api.helper.NBTHelper;
@@ -24,7 +24,6 @@ import arekkuusu.enderskills.common.lib.LibMod;
 import arekkuusu.enderskills.common.lib.LibNames;
 import arekkuusu.enderskills.common.skill.ModAbilities;
 import arekkuusu.enderskills.common.skill.ModAttributes;
-import arekkuusu.enderskills.common.skill.SkillHelper;
 import arekkuusu.enderskills.common.skill.ability.AbilityInfo;
 import arekkuusu.enderskills.common.skill.ability.BaseAbility;
 import net.minecraft.client.Minecraft;
@@ -56,31 +55,32 @@ public class UnstablePortal extends BaseAbility implements IImpact, IExpand, ISc
     }
 
     @Override
-    public void use(EntityLivingBase user, SkillInfo skillInfo) {
-        if (((IInfoCooldown) skillInfo).hasCooldown() || isClientWorld(user)) return;
+    public void use(EntityLivingBase owner, SkillInfo skillInfo) {
+        if (((IInfoCooldown) skillInfo).hasCooldown() || isClientWorld(owner)) return;
         AbilityInfo abilityInfo = (AbilityInfo) skillInfo;
         double distance = getRange(abilityInfo);
 
-        if (isActionable(user) && canActivate(user)) {
-            if (!(user instanceof EntityPlayer) || !((EntityPlayer) user).capabilities.isCreativeMode) {
+        if (isActionable(owner) && canActivate(owner)) {
+            if (!(owner instanceof EntityPlayer) || !((EntityPlayer) owner).capabilities.isCreativeMode) {
                 abilityInfo.setCooldown(getCooldown(abilityInfo));
             }
             double range = getPortalRange(abilityInfo);
             double teleport = getPortalTeleport(abilityInfo);
             int time = getTime(abilityInfo);
             NBTTagCompound compound = new NBTTagCompound();
-            NBTHelper.setEntity(compound, user, "user");
+            NBTHelper.setEntity(compound, owner, "owner");
             NBTHelper.setDouble(compound, "range", range);
             NBTHelper.setDouble(compound, "teleport", teleport);
             NBTHelper.setInteger(compound, "time", time);
 
             SkillData data = SkillData.of(this)
+                    .by(owner)
                     .with(INSTANT)
                     .put(compound, UUIDWatcher.INSTANCE)
-                    .overrides(this)
+                    .overrides(SkillData.Overrides.EQUAL)
                     .create();
-            EntityThrowableData.throwFor(user, distance, data, false);
-            sync(user);
+            EntityThrowableData.throwFor(owner, distance, data, false);
+            sync(owner);
         }
     }
 
@@ -106,45 +106,39 @@ public class UnstablePortal extends BaseAbility implements IImpact, IExpand, ISc
     }
 
     @Override
-    public AxisAlignedBB expand(Entity source, @Nullable EntityLivingBase owner, AxisAlignedBB bb, float amount) {
+    public AxisAlignedBB expand(Entity source, AxisAlignedBB bb, float amount) {
         return bb.grow(amount);
     }
 
     @Override
     public void onScan(Entity source, @Nullable EntityLivingBase owner, EntityLivingBase target, SkillData skillData) {
-        Capabilities.get(target).filter(c -> !c.isActive(this)).ifPresent(capability -> {
-            apply(target, skillData);
-            sync(target, skillData);
-        });
+        apply(target, skillData);
+        sync(target, skillData);
     }
     //* Entity *//
 
     @Override
     public void begin(EntityLivingBase entity, SkillData data) {
         if (isClientWorld(entity) && !(entity instanceof EntityPlayer)) return;
-        SkillHelper.getOwner(data).ifPresent(user -> {
-            if (entity != user) {
-                double distance = NBTHelper.getDouble(data.nbt, "teleport");
-                double x = entity.posX + (entity.getRNG().nextDouble() - 0.5D) * distance;
-                double y = entity.posY + (((entity.getRNG().nextDouble()) * distance) - (distance / 2));
-                double z = entity.posZ + (entity.getRNG().nextDouble() - 0.5D) * distance;
+        double distance = NBTHelper.getDouble(data.nbt, "teleport");
+        double x = entity.posX + (entity.getRNG().nextDouble() - 0.5D) * distance;
+        double y = entity.posY + (((entity.getRNG().nextDouble()) * distance) - (distance / 2));
+        double z = entity.posZ + (entity.getRNG().nextDouble() - 0.5D) * distance;
 
-                for (int i = 0; i < 16; ++i) {
-                    double d3 = x + (entity.getRNG().nextDouble() - 0.5D) * distance;
-                    double d4 = MathHelper.clamp(y + (((entity.getRNG().nextDouble()) * distance) - (distance / 2)), 0.0D, entity.world.getActualHeight() - 1);
-                    double d5 = z + (entity.getRNG().nextDouble() - 0.5D) * distance;
-                    if (entity.isRiding()) {
-                        entity.dismountRidingEntity();
-                    }
-
-                    if (entity.attemptTeleport(d3, d4, d5)) {
-                        entity.world.playSound(null, entity.posX, entity.posY, entity.posZ, SoundEvents.ITEM_CHORUS_FRUIT_TELEPORT, SoundCategory.PLAYERS, 1.0F, 1.0F);
-                        entity.playSound(SoundEvents.ITEM_CHORUS_FRUIT_TELEPORT, 1.0F, 1.0F);
-                        break;
-                    }
-                }
+        for (int i = 0; i < 16; ++i) {
+            double d3 = x + (entity.getRNG().nextDouble() - 0.5D) * distance;
+            double d4 = MathHelper.clamp(y + (((entity.getRNG().nextDouble()) * distance) - (distance / 2)), 0.0D, entity.world.getActualHeight() - 1);
+            double d5 = z + (entity.getRNG().nextDouble() - 0.5D) * distance;
+            if (entity.isRiding()) {
+                entity.dismountRidingEntity();
             }
-        });
+
+            if (entity.attemptTeleport(d3, d4, d5)) {
+                entity.world.playSound(null, entity.posX, entity.posY, entity.posZ, SoundEvents.ITEM_CHORUS_FRUIT_TELEPORT, SoundCategory.PLAYERS, 1.0F, 1.0F);
+                entity.playSound(SoundEvents.ITEM_CHORUS_FRUIT_TELEPORT, 1.0F, 1.0F);
+                break;
+            }
+        }
     }
 
     public int getLevel(IInfoUpgradeable info) {
@@ -241,6 +235,7 @@ public class UnstablePortal extends BaseAbility implements IImpact, IExpand, ISc
         });
     }
 
+    @Override
     public int getCostIncrement(EntityLivingBase entity, int total) {
         Optional<AdvancementCapability> optional = Capabilities.advancement(entity);
         if (optional.isPresent()) {
@@ -255,6 +250,7 @@ public class UnstablePortal extends BaseAbility implements IImpact, IExpand, ISc
         return total;
     }
 
+    @Override
     public int getUpgradeCost(@Nullable AbilityInfo info) {
         int level = info != null ? getLevel(info) + 1 : 0;
         int levelMax = getMaxLevel();

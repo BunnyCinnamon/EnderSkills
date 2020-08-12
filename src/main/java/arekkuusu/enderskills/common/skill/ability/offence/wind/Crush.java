@@ -2,10 +2,12 @@ package arekkuusu.enderskills.common.skill.ability.offence.wind;
 
 import arekkuusu.enderskills.api.capability.AdvancementCapability;
 import arekkuusu.enderskills.api.capability.Capabilities;
-import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoCooldown;
-import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoUpgradeable;
 import arekkuusu.enderskills.api.capability.data.SkillData;
 import arekkuusu.enderskills.api.capability.data.SkillInfo;
+import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoCooldown;
+import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoUpgradeable;
+import arekkuusu.enderskills.api.event.SkillDamageEvent;
+import arekkuusu.enderskills.api.event.SkillDamageSource;
 import arekkuusu.enderskills.api.helper.ExpressionHelper;
 import arekkuusu.enderskills.api.helper.NBTHelper;
 import arekkuusu.enderskills.api.registry.Skill;
@@ -19,6 +21,7 @@ import arekkuusu.enderskills.common.lib.LibMod;
 import arekkuusu.enderskills.common.lib.LibNames;
 import arekkuusu.enderskills.common.skill.ModAbilities;
 import arekkuusu.enderskills.common.skill.ModAttributes;
+import arekkuusu.enderskills.common.skill.SkillHelper;
 import arekkuusu.enderskills.common.skill.ability.AbilityInfo;
 import arekkuusu.enderskills.common.skill.ability.BaseAbility;
 import arekkuusu.enderskills.common.sound.ModSounds;
@@ -31,6 +34,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.WorldServer;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Config;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -48,28 +52,29 @@ public class Crush extends BaseAbility implements IImpact, ISkillAdvancement {
     }
 
     @Override
-    public void use(EntityLivingBase user, SkillInfo skillInfo) {
-        if (((IInfoCooldown) skillInfo).hasCooldown() || isClientWorld(user)) return;
+    public void use(EntityLivingBase owner, SkillInfo skillInfo) {
+        if (((IInfoCooldown) skillInfo).hasCooldown() || isClientWorld(owner)) return;
         AbilityInfo abilityInfo = (AbilityInfo) skillInfo;
         double distance = getRange(abilityInfo);
 
-        if (isActionable(user) && canActivate(user)) {
-            if (!(user instanceof EntityPlayer) || !((EntityPlayer) user).capabilities.isCreativeMode) {
+        if (isActionable(owner) && canActivate(owner)) {
+            if (!(owner instanceof EntityPlayer) || !((EntityPlayer) owner).capabilities.isCreativeMode) {
                 abilityInfo.setCooldown(getCooldown(abilityInfo));
             }
             double size = getSize(abilityInfo);
             double damage = getDamage(abilityInfo);
             NBTTagCompound compound = new NBTTagCompound();
+            NBTHelper.setEntity(compound, owner, "owner");
             NBTHelper.setDouble(compound, "size", size);
             NBTHelper.setDouble(compound, "damage", damage);
             SkillData data = SkillData.of(this)
                     .put(compound)
                     .create();
-            EntityThrowableData.throwFor(user, distance, data, false);
-            sync(user);
+            EntityThrowableData.throwFor(owner, distance, data, false);
+            sync(owner);
 
-            if (user.world instanceof WorldServer) {
-                ((WorldServer) user.world).playSound(null, user.posX, user.posY, user.posZ, ModSounds.CRUSH, SoundCategory.PLAYERS, 1.0F, (1.0F + (user.world.rand.nextFloat() - user.world.rand.nextFloat()) * 0.2F) * 0.7F);
+            if (owner.world instanceof WorldServer) {
+                ((WorldServer) owner.world).playSound(null, owner.posX, owner.posY, owner.posZ, ModSounds.CRUSH, SoundCategory.PLAYERS, 1.0F, (1.0F + (owner.world.rand.nextFloat() - owner.world.rand.nextFloat()) * 0.2F) * 0.7F);
             }
         }
     }
@@ -80,7 +85,7 @@ public class Crush extends BaseAbility implements IImpact, ISkillAdvancement {
     public void onImpact(Entity source, @Nullable EntityLivingBase owner, SkillData skillData, RayTraceResult trace) {
         EntityCrush crush = new EntityCrush(source.world);
         crush.setPosition(trace.hitVec.x, trace.hitVec.y, trace.hitVec.z);
-        crush.setOwnerId(owner.getUniqueID());
+        crush.setData(skillData);
         crush.setYawFrom(owner);
         crush.setSize((float) NBTHelper.getDouble(skillData.nbt, "size"));
         crush.setDamage((float) NBTHelper.getDouble(skillData.nbt, "damage"));
@@ -91,6 +96,17 @@ public class Crush extends BaseAbility implements IImpact, ISkillAdvancement {
         }
     }
     //* Entity *//
+
+    @Override
+    public void apply(EntityLivingBase entity, SkillData data) {
+        if(isClientWorld(entity)) return;
+        double damage = NBTHelper.getDouble(data.nbt, "damage");
+        EntityLivingBase owner = SkillHelper.getOwner(data);
+        SkillDamageSource damageSource = new SkillDamageSource(DAMAGE_HIT_TYPE, owner);
+        SkillDamageEvent event = new SkillDamageEvent(owner, ModAbilities.CRUSH, damageSource, damage);
+        MinecraftForge.EVENT_BUS.post(event);
+        entity.attackEntityFrom(event.getSource(), event.toFloat());
+    }
 
     public int getLevel(IInfoUpgradeable info) {
         return info.getLevel();
@@ -176,6 +192,7 @@ public class Crush extends BaseAbility implements IImpact, ISkillAdvancement {
         });
     }
 
+    @Override
     public int getCostIncrement(EntityLivingBase entity, int total) {
         Optional<AdvancementCapability> optional = Capabilities.advancement(entity);
         if (optional.isPresent()) {
@@ -190,6 +207,7 @@ public class Crush extends BaseAbility implements IImpact, ISkillAdvancement {
         return total;
     }
 
+    @Override
     public int getUpgradeCost(@Nullable AbilityInfo info) {
         int level = info != null ? getLevel(info) + 1 : 0;
         int levelMax = getMaxLevel();

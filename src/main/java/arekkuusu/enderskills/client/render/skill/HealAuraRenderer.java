@@ -1,6 +1,8 @@
 package arekkuusu.enderskills.client.render.skill;
 
 import arekkuusu.enderskills.api.capability.data.SkillHolder;
+import arekkuusu.enderskills.client.ClientConfig;
+import arekkuusu.enderskills.client.proxy.ClientProxy;
 import arekkuusu.enderskills.client.render.entity.EntityPlaceableDataRenderer;
 import arekkuusu.enderskills.client.util.ResourceLibrary;
 import arekkuusu.enderskills.client.util.ShaderLibrary;
@@ -37,15 +39,11 @@ public class HealAuraRenderer extends SkillRenderer<HealAura> {
 
     @Override
     public void render(Entity entity, double x, double y, double z, float partialTicks, SkillHolder skillHolder) {
-        if (skillHolder.tick % 5 == 0) {
-            for (int i = 0; i < 3; i++) {
-                Vec3d vec = entity.getPositionVector();
-                double posX = vec.x + entity.width * (entity.world.rand.nextDouble() - 0.5);
-                double posY = vec.y + entity.height * entity.world.rand.nextDouble();
-                double posZ = vec.z + entity.width * (entity.world.rand.nextDouble() - 0.5);
-                EnderSkills.getProxy().spawnParticle(entity.world, new Vec3d(posX, posY, posZ), new Vec3d(0, 0, 0), 3, 50, 0x58DB11, ResourceLibrary.PLUS);
-            }
-        }
+        Vec3d vec = entity.getPositionVector();
+        double posX = vec.x;
+        double posY = vec.y + entity.height + 0.1D;
+        double posZ = vec.z;
+        EnderSkills.getProxy().spawnParticle(entity.world, new Vec3d(posX, posY, posZ), new Vec3d(0, 0, 0), 4, 50, 0x58DB11, ResourceLibrary.PLUS);
     }
 
     @SideOnly(Side.CLIENT)
@@ -61,7 +59,7 @@ public class HealAuraRenderer extends SkillRenderer<HealAura> {
             GlStateManager.color(1F, 1F, 1F, 1F);
             if (entity.tick % 5 == 0) {
                 for (int i = 0; i < 6; i++) {
-                    if (entity.world.rand.nextDouble() < 0.4D) {
+                    if (entity.world.rand.nextDouble() < 0.4D && ClientProxy.canParticleSpawn()) {
                         Vec3d vec = entity.getPositionVector();
                         double posX = vec.x + entity.width * (entity.world.rand.nextDouble() - 0.5);
                         double posY = vec.y + entity.height * (entity.world.rand.nextDouble() - 0.5);
@@ -73,8 +71,10 @@ public class HealAuraRenderer extends SkillRenderer<HealAura> {
             GlStateManager.pushMatrix();
             GlStateManager.translate(x, y, z);
             GLHelper.BLEND_SRC_ALPHA$ONE.blend();
-            ShaderLibrary.BRIGHT.begin();
-            ShaderLibrary.BRIGHT.set("alpha", SkillRenderer.getDiffuseBlend(entity.tick, entity.getLifeTime(), 0.8F));
+            if (!ClientConfig.RENDER_CONFIG.rendering.helpMyShadersAreDying) {
+                ShaderLibrary.BRIGHT.begin();
+                ShaderLibrary.BRIGHT.set("alpha", SkillRenderer.getDiffuseBlend(entity.tick, entity.getLifeTime(), 0.8F));
+            }
             GlStateManager.disableLighting();
             GlStateManager.enableBlend();
             this.bindTexture(getEntityTexture(entity));
@@ -86,7 +86,9 @@ public class HealAuraRenderer extends SkillRenderer<HealAura> {
             drawSquareWithOffset(scale, -offset);
             GlStateManager.disableBlend();
             GlStateManager.enableLighting();
-            ShaderLibrary.BRIGHT.end();
+            if (!ClientConfig.RENDER_CONFIG.rendering.helpMyShadersAreDying) {
+                ShaderLibrary.BRIGHT.end();
+            }
             GlStateManager.popMatrix();
         }
 

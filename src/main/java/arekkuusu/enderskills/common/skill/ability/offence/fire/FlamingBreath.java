@@ -2,13 +2,11 @@ package arekkuusu.enderskills.common.skill.ability.offence.fire;
 
 import arekkuusu.enderskills.api.capability.AdvancementCapability;
 import arekkuusu.enderskills.api.capability.Capabilities;
-import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoCooldown;
-import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoUpgradeable;
 import arekkuusu.enderskills.api.capability.data.SkillData;
 import arekkuusu.enderskills.api.capability.data.SkillInfo;
+import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoCooldown;
+import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoUpgradeable;
 import arekkuusu.enderskills.api.capability.data.nbt.UUIDWatcher;
-import arekkuusu.enderskills.api.event.SkillDamageEvent;
-import arekkuusu.enderskills.api.event.SkillDamageSource;
 import arekkuusu.enderskills.api.helper.ExpressionHelper;
 import arekkuusu.enderskills.api.helper.NBTHelper;
 import arekkuusu.enderskills.api.helper.RayTraceHelper;
@@ -25,7 +23,7 @@ import arekkuusu.enderskills.common.lib.LibMod;
 import arekkuusu.enderskills.common.lib.LibNames;
 import arekkuusu.enderskills.common.skill.ModAbilities;
 import arekkuusu.enderskills.common.skill.ModAttributes;
-import arekkuusu.enderskills.common.skill.SkillHelper;
+import arekkuusu.enderskills.common.skill.ModEffects;
 import arekkuusu.enderskills.common.skill.ability.AbilityInfo;
 import arekkuusu.enderskills.common.skill.ability.BaseAbility;
 import arekkuusu.enderskills.common.sound.ModSounds;
@@ -56,32 +54,33 @@ public class FlamingBreath extends BaseAbility implements IScanEntities, IExpand
     }
 
     @Override
-    public void use(EntityLivingBase user, SkillInfo skillInfo) {
-        if (((IInfoCooldown) skillInfo).hasCooldown() || isClientWorld(user)) return;
+    public void use(EntityLivingBase owner, SkillInfo skillInfo) {
+        if (((IInfoCooldown) skillInfo).hasCooldown() || isClientWorld(owner)) return;
         AbilityInfo abilityInfo = (AbilityInfo) skillInfo;
 
-        if (isActionable(user) && canActivate(user)) {
-            if (!(user instanceof EntityPlayer) || !((EntityPlayer) user).capabilities.isCreativeMode) {
+        if (isActionable(owner) && canActivate(owner)) {
+            if (!(owner instanceof EntityPlayer) || !((EntityPlayer) owner).capabilities.isCreativeMode) {
                 abilityInfo.setCooldown(getCooldown(abilityInfo));
             }
             double range = getRange(abilityInfo);
+            double dot = getDoT(abilityInfo);
+            int dotDuration = getTime(abilityInfo);
             NBTTagCompound compound = new NBTTagCompound();
-            NBTHelper.setEntity(compound, user, "user");
-            NBTHelper.setDouble(compound, "dot", getDoT(abilityInfo));
-            NBTHelper.setInteger(compound, "time", getTime(abilityInfo));
+            NBTHelper.setEntity(compound, owner, "owner");
+            NBTHelper.setDouble(compound, "dot", dot);
+            NBTHelper.setInteger(compound, "dotDuration", dotDuration);
             SkillData data = SkillData.of(this)
-                    .with(getTime(abilityInfo))
+                    .by(owner)
                     .put(compound, UUIDWatcher.INSTANCE)
-                    .overrides(this)
                     .create();
-            EntityPlaceableData spawn = new EntityPlaceableData(user.world, user, data, EntityPlaceableData.MIN_TIME);
-            spawn.setPosition(user.posX, user.posY + user.getEyeHeight(), user.posZ);
+            EntityPlaceableData spawn = new EntityPlaceableData(owner.world, owner, data, EntityPlaceableData.MIN_TIME);
+            spawn.setPosition(owner.posX, owner.posY + owner.getEyeHeight(), owner.posZ);
             spawn.setRadius(range);
-            user.world.spawnEntity(spawn);
-            sync(user);
+            owner.world.spawnEntity(spawn);
+            sync(owner);
 
-            if (user.world instanceof WorldServer) {
-                ((WorldServer) user.world).playSound(null, user.posX, user.posY, user.posZ, ModSounds.FLAMING_BREATH, SoundCategory.PLAYERS, 1.0F, (1.0F + (user.world.rand.nextFloat() - user.world.rand.nextFloat()) * 0.2F) * 0.7F);
+            if (owner.world instanceof WorldServer) {
+                ((WorldServer) owner.world).playSound(null, owner.posX, owner.posY, owner.posZ, ModSounds.FLAMING_BREATH, SoundCategory.PLAYERS, 1.0F, (1.0F + (owner.world.rand.nextFloat() - owner.world.rand.nextFloat()) * 0.2F) * 0.7F);
             }
         }
     }
@@ -94,26 +93,9 @@ public class FlamingBreath extends BaseAbility implements IScanEntities, IExpand
 
     @Override
     public void onFound(Entity source, @Nullable EntityLivingBase owner, EntityLivingBase target, SkillData skillData) {
-        apply(target, skillData);
-        sync(target, skillData);
+        ModEffects.BURNING.set(target, skillData);
     }
     //* Entity *//
-
-    @Override
-    public void update(EntityLivingBase entity, SkillData data, int tick) {
-        if (isClientWorld(entity)) return;
-        SkillHelper.getOwner(data).ifPresent(user -> {
-            if (entity != user) {
-                double damage = data.nbt.getDouble("dot");
-                double time = data.nbt.getInteger("time");
-                SkillDamageSource source = new SkillDamageSource(BaseAbility.DAMAGE_DOT_TYPE, user);
-                source.setFireDamage();
-                SkillDamageEvent event = new SkillDamageEvent(user, this, source, damage);
-                MinecraftForge.EVENT_BUS.post(event);
-                entity.attackEntityFrom(event.getSource(), (float) (event.toFloat() / time));
-            }
-        });
-    }
 
     public int getLevel(IInfoUpgradeable info) {
         return info.getLevel();
@@ -199,6 +181,7 @@ public class FlamingBreath extends BaseAbility implements IScanEntities, IExpand
         });
     }
 
+    @Override
     public int getCostIncrement(EntityLivingBase entity, int total) {
         Optional<AdvancementCapability> optional = Capabilities.advancement(entity);
         if (optional.isPresent()) {
@@ -213,6 +196,7 @@ public class FlamingBreath extends BaseAbility implements IScanEntities, IExpand
         return total;
     }
 
+    @Override
     public int getUpgradeCost(@Nullable AbilityInfo info) {
         int level = info != null ? getLevel(info) + 1 : 0;
         int levelMax = getMaxLevel();

@@ -1,6 +1,5 @@
 package arekkuusu.enderskills.client.sounds;
 
-import arekkuusu.enderskills.api.helper.NBTHelper;
 import arekkuusu.enderskills.common.skill.ModAbilities;
 import arekkuusu.enderskills.common.skill.SkillHelper;
 import arekkuusu.enderskills.common.sound.ModSounds;
@@ -11,12 +10,12 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 import java.lang.ref.WeakReference;
-import java.util.Optional;
 
 @SideOnly(Side.CLIENT)
 public class BleedSound extends MovingSound {
 
     public final WeakReference<EntityLivingBase> reference;
+    public int tick = 10;
 
     public BleedSound(EntityLivingBase entity) {
         super(ModSounds.BLEED_ACTIVE, SoundCategory.PLAYERS);
@@ -31,12 +30,14 @@ public class BleedSound extends MovingSound {
     public void update() {
         EntityLivingBase entity = reference.get();
         if (entity != null && !entity.isDead) {
-            if (SkillHelper.isActiveNotOwner(entity, ModAbilities.BLEED)) {
+            if (SkillHelper.isActive(entity, ModAbilities.BLEED)) {
                 this.xPosF = (float) entity.posX;
                 this.yPosF = (float) entity.posY;
                 this.zPosF = (float) entity.posZ;
             } else {
-                donePlaying = true;
+                if (--tick < 0) {
+                    donePlaying = true;
+                }
             }
         } else {
             donePlaying = true;
@@ -45,22 +46,10 @@ public class BleedSound extends MovingSound {
 
     @Override
     public float getVolume() {
-        return super.getVolume() * (1F - getProgress());
+        return super.getVolume() * getProgress();
     }
 
     public float getProgress() {
-        float[] data = new float[2];
-        EntityLivingBase entity = reference.get();
-        if (entity != null && !entity.isDead) {
-            SkillHelper.getActive(entity, ModAbilities.BLEED, holder -> {
-                Optional.ofNullable(NBTHelper.getEntity(EntityLivingBase.class, holder.data.nbt, "user")).ifPresent(user -> {
-                    if (entity != user) {
-                        data[0] += holder.tick;
-                        data[1] += holder.data.time;
-                    }
-                });
-            });
-        }
-        return data[0] / data[1];
+        return tick / 10F;
     }
 }

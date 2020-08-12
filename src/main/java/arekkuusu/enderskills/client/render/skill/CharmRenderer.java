@@ -1,6 +1,8 @@
 package arekkuusu.enderskills.client.render.skill;
 
 import arekkuusu.enderskills.api.capability.data.SkillHolder;
+import arekkuusu.enderskills.client.ClientConfig;
+import arekkuusu.enderskills.client.proxy.ClientProxy;
 import arekkuusu.enderskills.client.render.entity.EntityThrowableDataRenderer;
 import arekkuusu.enderskills.client.util.ResourceLibrary;
 import arekkuusu.enderskills.client.util.ShaderLibrary;
@@ -44,7 +46,7 @@ public class CharmRenderer extends SkillRenderer<Charm> {
 
     @Override
     public void render(Entity entity, double x, double y, double z, float partialTicks, SkillHolder skillHolder) {
-        if (entity.ticksExisted % 2 == 0 && entity.world.rand.nextDouble() < 0.2D) {
+        if (entity.ticksExisted % 4 == 0 && entity.world.rand.nextDouble() < 0.2D && ClientProxy.canParticleSpawn()) {
             Vec3d vec = entity.getPositionEyes(1F);
             double posX = vec.x + entity.world.rand.nextDouble() - 0.5D;
             double posY = vec.y + entity.world.rand.nextDouble() - 0.5D;
@@ -62,7 +64,7 @@ public class CharmRenderer extends SkillRenderer<Charm> {
         public void playerTick(TickEvent.ClientTickEvent event) {
             if (event.type == TickEvent.Type.CLIENT) {
                 EntityRenderer renderer = Minecraft.getMinecraft().entityRenderer;
-                if (SkillHelper.isActiveNotOwner(Minecraft.getMinecraft().player, ModAbilities.CHARM)) {
+                if (SkillHelper.isActive(Minecraft.getMinecraft().player, ModAbilities.CHARM)) {
                     if (!wasActive) {
                         renderer.loadShader(SHADER);
                         wasActive = true;
@@ -101,8 +103,10 @@ public class CharmRenderer extends SkillRenderer<Charm> {
             }
             GlStateManager.pushMatrix();
             GLHelper.BLEND_SRC_ALPHA$ONE.blend();
-            ShaderLibrary.BRIGHT.begin();
-            ShaderLibrary.BRIGHT.set("alpha", 0.8F);
+            if (!ClientConfig.RENDER_CONFIG.rendering.helpMyShadersAreDying) {
+                ShaderLibrary.BRIGHT.begin();
+                ShaderLibrary.BRIGHT.set("alpha", 0.8F);
+            }
             GlStateManager.disableLighting();
             GlStateManager.enableBlend();
             GlStateManager.translate((float) x, (float) y, (float) z);
@@ -120,7 +124,9 @@ public class CharmRenderer extends SkillRenderer<Charm> {
             tessellator.draw();
             GlStateManager.disableBlend();
             GlStateManager.enableLighting();
-            ShaderLibrary.BRIGHT.end();
+            if (!ClientConfig.RENDER_CONFIG.rendering.helpMyShadersAreDying) {
+                ShaderLibrary.BRIGHT.end();
+            }
             GlStateManager.popMatrix();
         }
 

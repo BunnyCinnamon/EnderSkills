@@ -2,10 +2,10 @@ package arekkuusu.enderskills.common.skill.ability.mobility.wind;
 
 import arekkuusu.enderskills.api.capability.AdvancementCapability;
 import arekkuusu.enderskills.api.capability.Capabilities;
-import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoCooldown;
-import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoUpgradeable;
 import arekkuusu.enderskills.api.capability.data.SkillData;
 import arekkuusu.enderskills.api.capability.data.SkillInfo;
+import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoCooldown;
+import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoUpgradeable;
 import arekkuusu.enderskills.api.capability.data.nbt.UUIDWatcher;
 import arekkuusu.enderskills.api.helper.ExpressionHelper;
 import arekkuusu.enderskills.api.helper.NBTHelper;
@@ -18,6 +18,7 @@ import arekkuusu.enderskills.common.lib.LibNames;
 import arekkuusu.enderskills.common.network.PacketHelper;
 import arekkuusu.enderskills.common.skill.ModAbilities;
 import arekkuusu.enderskills.common.skill.ModAttributes;
+import arekkuusu.enderskills.common.skill.SkillHelper;
 import arekkuusu.enderskills.common.skill.ability.AbilityInfo;
 import arekkuusu.enderskills.common.skill.ability.BaseAbility;
 import arekkuusu.enderskills.common.sound.ModSounds;
@@ -59,70 +60,70 @@ public class Dash extends BaseAbility implements ISkillAdvancement {
         MinecraftForge.EVENT_BUS.register(this);
     }
 
-    public void use(EntityLivingBase user, SkillInfo skillInfo, Vec3d vector) {
-        if (((IInfoCooldown) skillInfo).hasCooldown() || isClientWorld(user)) return;
+    public void use(EntityLivingBase owner, SkillInfo skillInfo, Vec3d vector) {
+        if (((IInfoCooldown) skillInfo).hasCooldown() || isClientWorld(owner)) return;
         AbilityInfo abilityInfo = (AbilityInfo) skillInfo;
-        if (isActionable(user) && canActivate(user)) {
-            if (!(user instanceof EntityPlayer) || !((EntityPlayer) user).capabilities.isCreativeMode) {
+        if (isActionable(owner) && canActivate(owner)) {
+            if (!(owner instanceof EntityPlayer) || !((EntityPlayer) owner).capabilities.isCreativeMode) {
                 abilityInfo.setCooldown(getCooldown(abilityInfo));
             }
             double distance = getRange(abilityInfo);
             NBTTagCompound compound = new NBTTagCompound();
             NBTHelper.setVector(compound, "vector", vector);
             NBTHelper.setDouble(compound, "distance", distance);
-            NBTHelper.setEntity(compound, user, "user");
+            NBTHelper.setEntity(compound, owner, "owner");
             SkillData data = SkillData.of(this)
                     .with(10)
                     .put(compound, UUIDWatcher.INSTANCE)
-                    .overrides(this)
+                    .overrides(SkillData.Overrides.SAME)
                     .create();
-            apply(user, data);
-            sync(user, data);
-            sync(user);
+            apply(owner, data);
+            sync(owner, data);
+            sync(owner);
         }
     }
 
     @Override
-    public void begin(EntityLivingBase user, SkillData data) {
-        if (user.world instanceof WorldServer) {
-            ((WorldServer) user.world).playSound(null, user.posX, user.posY, user.posZ, ModSounds.DASH, SoundCategory.PLAYERS, 1.0F, (1.0F + (user.world.rand.nextFloat() - user.world.rand.nextFloat()) * 0.2F) * 0.7F);
+    public void begin(EntityLivingBase owner, SkillData data) {
+        if (owner.world instanceof WorldServer) {
+            ((WorldServer) owner.world).playSound(null, owner.posX, owner.posY, owner.posZ, ModSounds.DASH, SoundCategory.PLAYERS, 1.0F, (1.0F + (owner.world.rand.nextFloat() - owner.world.rand.nextFloat()) * 0.2F) * 0.7F);
         }
-        if (isClientWorld(user) && !(user instanceof EntityPlayer)) return;
-        if (!user.onGround) {
+        if (isClientWorld(owner) && !(owner instanceof EntityPlayer)) return;
+        if (!owner.onGround) {
             Vec3d vector = NBTHelper.getVector(data.nbt, "vector");
             double distance = NBTHelper.getDouble(data.nbt, "distance");
-            Vec3d from = user.getPositionVector();
+            Vec3d from = owner.getPositionVector();
             Vec3d to = from.addVector(
                     vector.x * distance,
                     0,
                     vector.z * distance
             );
-            moveEntity(to, from, user);
+            moveEntity(to, from, owner);
         }
     }
 
     @Override
-    public void update(EntityLivingBase user, SkillData data, int tick) {
-        if (isClientWorld(user) && !(user instanceof EntityPlayer)) return;
+    public void update(EntityLivingBase owner, SkillData data, int tick) {
+        if (isClientWorld(owner) && !(owner instanceof EntityPlayer)) return;
         if (tick < 10) {
             Vec3d vector = NBTHelper.getVector(data.nbt, "vector");
             double distance = NBTHelper.getDouble(data.nbt, "distance");
-            Vec3d from = user.getPositionVector();
+            Vec3d from = owner.getPositionVector();
             Vec3d to = from.addVector(
                     vector.x * distance,
                     0,
                     vector.z * distance
             );
-            if (user.onGround) {
-                moveEntity(to, from, user);
+            if (owner.onGround) {
+                moveEntity(to, from, owner);
             }
-            if (user.collidedHorizontally) {
-                user.motionY = 0;
+            if (owner.collidedHorizontally) {
+                owner.motionY = 0;
             }
         }
-        if (user.isSneaking()) {
-            unapply(user);
-            async(user);
+        if (owner.isSneaking()) {
+            unapply(owner);
+            async(owner);
         }
     }
 
@@ -183,7 +184,7 @@ public class Dash extends BaseAbility implements ISkillAdvancement {
                     ticksSinceLastTap = 0;
                 }
             }
-            if(tapped && !wasTapped) wasTapped = true;
+            if (tapped && !wasTapped) wasTapped = true;
         });
     }
 
@@ -202,7 +203,7 @@ public class Dash extends BaseAbility implements ISkillAdvancement {
         if (Minecraft.getMinecraft().gameSettings.keyBindSprint.isKeyDown()) keyWasPressed = false;
         if (ticksSinceLastTap < 10) ticksSinceLastTap++;
         boolean tapped = Minecraft.getMinecraft().gameSettings.keyBindSprint.isKeyDown();
-        if(wasTapped && !tapped) wasTapped = false;
+        if (wasTapped && !tapped) wasTapped = false;
     }
 
     public int getLevel(IInfoUpgradeable info) {
@@ -270,16 +271,6 @@ public class Dash extends BaseAbility implements ISkillAdvancement {
     }
 
     @Override
-    public boolean canUpgrade(EntityLivingBase entity) {
-        return Capabilities.advancement(entity).map(c -> {
-            Requirement requirement = getRequirement(entity);
-            int tokens = requirement.getLevels();
-            int xp = requirement.getXp();
-            return c.level >= tokens && c.getExperienceTotal(entity) >= xp;
-        }).orElse(false);
-    }
-
-    @Override
     public void onUpgrade(EntityLivingBase entity) {
         Capabilities.advancement(entity).ifPresent(c -> {
             Requirement requirement = getRequirement(entity);
@@ -297,22 +288,6 @@ public class Dash extends BaseAbility implements ISkillAdvancement {
     }
 
     @Override
-    public Requirement getRequirement(EntityLivingBase entity) {
-        AbilityInfo info = (AbilityInfo) Capabilities.get(entity).flatMap(a -> a.getOwned(this)).orElse(null);
-        int tokensNeeded = 0;
-        int xpNeeded;
-        if (info == null) {
-            int abilities = Capabilities.get(entity).map(c -> (int) c.getAllOwned().keySet().stream().filter(s -> s instanceof BaseAbility).count()).orElse(0);
-            if (abilities > 0) {
-                tokensNeeded = abilities + 1;
-            } else {
-                tokensNeeded = 1;
-            }
-        }
-        xpNeeded = getUpgradeCost(info);
-        return new DefaultRequirement(tokensNeeded, getCostIncrement(entity, xpNeeded));
-    }
-
     public int getCostIncrement(EntityLivingBase entity, int total) {
         Optional<AdvancementCapability> optional = Capabilities.advancement(entity);
         if (optional.isPresent()) {
@@ -327,6 +302,7 @@ public class Dash extends BaseAbility implements ISkillAdvancement {
         return total;
     }
 
+    @Override
     public int getUpgradeCost(@Nullable AbilityInfo info) {
         int level = info != null ? getLevel(info) + 1 : 0;
         int levelMax = getMaxLevel();

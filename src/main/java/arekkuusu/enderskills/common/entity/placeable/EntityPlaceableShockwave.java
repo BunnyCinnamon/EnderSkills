@@ -49,7 +49,7 @@ public class EntityPlaceableShockwave extends EntityPlaceableData {
         BlockPos[][] positions = this.dataManager.get(SYNC_BLOCKS_DATA).posArray;
         curves = new double[positions.length];
         double perTick = (double) (curves.length + 6) / (double) (MIN_TIME * 2);
-        double maxLayer = getData().nbt.getDouble("force") * 0.5D;
+        double maxLayer = getData().nbt.getDouble("push") * 0.5D;
         double perLayer = maxLayer / 3;
         int num = (int) Math.ceil(cursor);
         for (int i = num - 3; i < num + 3; i++) {

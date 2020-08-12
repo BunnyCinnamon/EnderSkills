@@ -44,10 +44,7 @@ import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import org.lwjgl.opengl.GL11;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @EventBusSubscriber(modid = LibMod.MOD_ID, value = Side.CLIENT)
 public class Events {
@@ -81,7 +78,7 @@ public class Events {
                 if (KeyBounds.skillGroupRotateLeft.isPressed()) {
                     rotateSkillGroup(weight, true);
                     List<Tuple<Skill, SkillInfo>> display = getGroup(skills, weight);
-                    if(!display.isEmpty()) {
+                    if (!display.isEmpty()) {
                         player.sendStatusMessage(TextHelper.getTextComponent("rotate_skill_group", skillGroupName), true);
                     }
                     rotate = EnumFacing.AxisDirection.NEGATIVE;
@@ -90,7 +87,7 @@ public class Events {
                 if (KeyBounds.skillGroupRotateRight.isPressed()) {
                     rotateSkillGroup(weight, false);
                     List<Tuple<Skill, SkillInfo>> display = getGroup(skills, weight);
-                    if(!display.isEmpty()) {
+                    if (!display.isEmpty()) {
                         player.sendStatusMessage(TextHelper.getTextComponent("rotate_skill_group", skillGroupName), true);
                     }
                     rotate = EnumFacing.AxisDirection.POSITIVE;
@@ -129,7 +126,7 @@ public class Events {
                 }
                 List<Tuple<Skill, SkillInfo>> display = getGroup(skills, weight);
                 if (!ClientConfig.RENDER_CONFIG.skillGroup.renderUnowned && display.isEmpty()) {
-                    if(!weight.skillGroupMap.isEmpty()) {
+                    if (!weight.skillGroupMap.isEmpty()) {
                         rotateSkillGroup(weight, rotate == EnumFacing.AxisDirection.NEGATIVE);
                         display = getGroup(skills, weight);
                         if (!display.isEmpty()) {
@@ -224,11 +221,12 @@ public class Events {
         });
     }
 
+    @Deprecated
     public static double getOwnerActiveRemainingTime(Skill skill) {
         EntityPlayerSP thePlayer = Minecraft.getMinecraft().player;
         return Capabilities.get(thePlayer)
                 .flatMap(c -> c.getActives().stream().filter(a -> a.data.skill == skill
-                        && NBTHelper.getEntity(EntityPlayer.class, a.data.nbt, "user") == thePlayer).findFirst()
+                        && NBTHelper.getEntity(EntityPlayer.class, a.data.nbt, "owner") == thePlayer).findFirst()
                 ).map(a -> {
                     int maxTime = a.data.time;
                     if (maxTime == -1) return 1D;
@@ -401,6 +399,18 @@ public class Events {
         GlStateManager.popMatrix();
     }
     //----------------Particle Renderer End----------------//
+
+    public static final Queue<Runnable> QUEUE = new LinkedList<>();
+
+    @SubscribeEvent(priority = EventPriority.LOWEST)
+    public static void onNextTickExecute(TickEvent.ClientTickEvent event) {
+        if (event.phase == TickEvent.Phase.END) {
+            Runnable runnable;
+            while ((runnable = QUEUE.poll()) != null) {
+                runnable.run();
+            }
+        }
+    }
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void onEntityTickActive(LivingEvent.LivingUpdateEvent event) {

@@ -3,23 +3,28 @@ package arekkuusu.enderskills.api.capability.data;
 import arekkuusu.enderskills.api.capability.data.nbt.WatcherManager;
 import arekkuusu.enderskills.api.helper.NBTHelper;
 import arekkuusu.enderskills.api.registry.Skill;
+import net.minecraft.entity.Entity;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagInt;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.common.util.INBTSerializable;
 
+import java.util.Arrays;
 import java.util.Objects;
+import java.util.UUID;
 
 public final class SkillData implements INBTSerializable<NBTTagCompound> {
 
+    public String id;
     public WatcherManager watcher;
+    public Overrides overrides;
     public NBTTagCompound nbt;
-    public Skill[] overrides;
     public Skill skill;
     public int time;
 
-    public SkillData(NBTTagCompound nbt, Skill skill, Skill[] overrides, WatcherManager.Watcher[] trackers, int time) {
+    public SkillData(NBTTagCompound nbt, String id, Skill skill, Overrides overrides, WatcherManager.Watcher[] trackers, int time) {
+        this.id = id;
         this.nbt = nbt;
         this.time = time;
         this.skill = skill;
@@ -51,13 +56,10 @@ public final class SkillData implements INBTSerializable<NBTTagCompound> {
     }
 
     public void writeNBT(NBTTagCompound compound) {
-        NBTTagList list0 = new NBTTagList();
-        for (Skill override : this.overrides) {
-            NBTTagCompound sub = new NBTTagCompound();
-            NBTHelper.setRegistry(sub, "skill", override);
-            list0.appendTag(sub);
+        NBTHelper.setString(compound, "id", this.id);
+        if (this.overrides != null) {
+            NBTHelper.setInteger(compound, "overrides", this.overrides.ordinal());
         }
-        compound.setTag("overrides", list0);
         NBTHelper.setRegistry(compound, "skill", this.skill);
         NBTHelper.setInteger(compound, "time", this.time);
         NBTHelper.setNBT(compound, "nbt", this.nbt);
@@ -71,11 +73,11 @@ public final class SkillData implements INBTSerializable<NBTTagCompound> {
     }
 
     public void readNBT(NBTTagCompound compound) {
-        NBTTagList list0 = compound.getTagList("overrides", Constants.NBT.TAG_COMPOUND);
-        this.overrides = new Skill[list0.tagCount()];
-        for (int i = 0; i < list0.tagCount(); i++) {
-            NBTTagCompound sub = list0.getCompoundTagAt(i);
-            this.overrides[i] = NBTHelper.getRegistry(sub, "skill", Skill.class);
+        this.id = NBTHelper.getString(compound, "id");
+        if (NBTHelper.hasTag(compound, "overrides")) {
+            this.overrides = Overrides.values()[NBTHelper.getInteger(compound, "overrides")];
+        } else {
+            this.overrides = null;
         }
         this.skill = NBTHelper.getRegistry(compound, "skill", Skill.class);
         this.time = compound.getInteger("time");
@@ -109,16 +111,18 @@ public final class SkillData implements INBTSerializable<NBTTagCompound> {
     public static class Builder {
 
         public int time;
+        public String id;
         public Skill skill;
-        public Skill[] overrides;
         public NBTTagCompound tag;
+        public Overrides overrides;
         public WatcherManager.Watcher[] tracker;
 
         public Builder(Skill skill) {
             this.skill = skill;
-            this.overrides = new Skill[0];
-            this.tracker = new WatcherManager.Watcher[0];
+            this.id = UUID.randomUUID().toString();
             this.tag = new NBTTagCompound();
+            this.overrides = Overrides.NONE;
+            this.tracker = new WatcherManager.Watcher[0];
         }
 
         public Builder put(NBTTagCompound tag, WatcherManager.Watcher... tracker) {
@@ -127,18 +131,42 @@ public final class SkillData implements INBTSerializable<NBTTagCompound> {
             return this;
         }
 
+        public Builder overrides(Overrides overrides) {
+            this.overrides = overrides;
+            return this;
+        }
+
         public Builder with(int time) {
             this.time = time;
             return this;
         }
 
-        public Builder overrides(Skill... overrides) {
-            this.overrides = overrides;
+        public Builder by(Entity owner) {
+            return this.by(owner.getUniqueID().toString());
+        }
+
+        public Builder by(UUID id) {
+            return this.by(id.toString());
+        }
+
+        public Builder by(UUID a, UUID b) {
+            return this.by(a.toString() + ":" + b.toString());
+        }
+
+        public Builder by(String id) {
+            this.id = id;
             return this;
         }
 
         public SkillData create() {
-            return new SkillData(tag, skill, overrides, tracker, time);
+            return new SkillData(tag, id, skill, overrides, tracker, time);
         }
+    }
+
+    public enum Overrides {
+        EQUAL,
+        SAME,
+        ID,
+        NONE
     }
 }

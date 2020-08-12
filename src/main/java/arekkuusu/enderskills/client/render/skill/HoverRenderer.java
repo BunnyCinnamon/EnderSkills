@@ -1,6 +1,7 @@
 package arekkuusu.enderskills.client.render.skill;
 
 import arekkuusu.enderskills.api.capability.data.SkillHolder;
+import arekkuusu.enderskills.client.proxy.ClientProxy;
 import arekkuusu.enderskills.client.util.ResourceLibrary;
 import arekkuusu.enderskills.client.util.ShaderLibrary;
 import arekkuusu.enderskills.client.util.helper.RenderMisc;
@@ -23,7 +24,7 @@ public class HoverRenderer extends SkillRenderer<Hover> {
 
     @Override
     public void render(Entity entity, double x, double y, double z, float partialTicks, SkillHolder skillHolder) {
-        if (entity.ticksExisted % 2 == 0 && entity.world.rand.nextDouble() < 0.4D) {
+        if (entity.ticksExisted % 2 == 0 && entity.world.rand.nextDouble() < 0.4D && ClientProxy.canParticleSpawn()) {
             Vec3d vec = entity.getPositionVector();
             double posX = vec.x + entity.world.rand.nextDouble() - 0.5D;
             double posY = vec.y + 0.1D * (entity.world.rand.nextDouble() - 0.5D);
@@ -60,7 +61,7 @@ public class HoverRenderer extends SkillRenderer<Hover> {
             GlStateManager.depthMask(false);
         }
         GL11.glBlendFunc(GL11.GL_SRC_ALPHA, outline ? GL11.GL_ONE : GL11.GL_ONE_MINUS_SRC_ALPHA);
-        if (!ClientConfig.RENDER_CONFIG.rendering.helpMyFramesAreDying) {
+        if (!ClientConfig.RENDER_CONFIG.rendering.helpMyFramesAreDying && !ClientConfig.RENDER_CONFIG.rendering.helpMyShadersAreDying) {
             if (!ClientConfig.RENDER_CONFIG.rendering.vanilla) {
                 ShaderLibrary.UNIVERSE.begin();
                 ShaderLibrary.UNIVERSE.set("dimensions", Minecraft.getMinecraft().displayWidth, Minecraft.getMinecraft().displayHeight);
@@ -92,7 +93,7 @@ public class HoverRenderer extends SkillRenderer<Hover> {
         buffer.pos(width, 0, -width).tex(1, 0).endVertex();
         tessellator.draw();
         GlStateManager.popMatrix();
-        if (!ClientConfig.RENDER_CONFIG.rendering.helpMyFramesAreDying) {
+        if (!ClientConfig.RENDER_CONFIG.rendering.helpMyFramesAreDying && !ClientConfig.RENDER_CONFIG.rendering.helpMyShadersAreDying) {
             if (!ClientConfig.RENDER_CONFIG.rendering.vanilla) {
                 ShaderLibrary.UNIVERSE.end();
             } else {

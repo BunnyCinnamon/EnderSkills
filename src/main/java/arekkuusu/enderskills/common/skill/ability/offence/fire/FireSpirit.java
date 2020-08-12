@@ -2,13 +2,11 @@ package arekkuusu.enderskills.common.skill.ability.offence.fire;
 
 import arekkuusu.enderskills.api.capability.AdvancementCapability;
 import arekkuusu.enderskills.api.capability.Capabilities;
-import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoCooldown;
-import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoUpgradeable;
 import arekkuusu.enderskills.api.capability.data.SkillData;
 import arekkuusu.enderskills.api.capability.data.SkillInfo;
+import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoCooldown;
+import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoUpgradeable;
 import arekkuusu.enderskills.api.capability.data.nbt.UUIDWatcher;
-import arekkuusu.enderskills.api.event.SkillDamageEvent;
-import arekkuusu.enderskills.api.event.SkillDamageSource;
 import arekkuusu.enderskills.api.helper.ExpressionHelper;
 import arekkuusu.enderskills.api.helper.NBTHelper;
 import arekkuusu.enderskills.api.helper.TeamHelper;
@@ -22,6 +20,7 @@ import arekkuusu.enderskills.common.lib.LibMod;
 import arekkuusu.enderskills.common.lib.LibNames;
 import arekkuusu.enderskills.common.skill.ModAbilities;
 import arekkuusu.enderskills.common.skill.ModAttributes;
+import arekkuusu.enderskills.common.skill.ModEffects;
 import arekkuusu.enderskills.common.skill.SkillHelper;
 import arekkuusu.enderskills.common.skill.ability.AbilityInfo;
 import arekkuusu.enderskills.common.skill.ability.BaseAbility;
@@ -56,33 +55,34 @@ public class FireSpirit extends BaseAbility implements ISkillAdvancement {
     }
 
     @Override
-    public void use(EntityLivingBase user, SkillInfo skillInfo) {
-        if (isClientWorld(user) || !isActionable(user)) return;
+    public void use(EntityLivingBase owner, SkillInfo skillInfo) {
+        if (isClientWorld(owner) || !isActionable(owner)) return;
         AbilityInfo abilityInfo = (AbilityInfo) skillInfo;
 
-        Capabilities.get(user).ifPresent(capability -> {
-            if (!SkillHelper.isActiveOwner(user, this)) {
-                if (!((IInfoCooldown) skillInfo).hasCooldown() && canActivate(user)) {
-                    if (!(user instanceof EntityPlayer) || !((EntityPlayer) user).capabilities.isCreativeMode) {
+        Capabilities.get(owner).ifPresent(capability -> {
+            if (!SkillHelper.isActiveFrom(owner, this)) {
+                if (!((IInfoCooldown) skillInfo).hasCooldown() && canActivate(owner)) {
+                    if (!(owner instanceof EntityPlayer) || !((EntityPlayer) owner).capabilities.isCreativeMode) {
                         abilityInfo.setCooldown(getCooldown(abilityInfo));
                     }
                     NBTTagCompound compound = new NBTTagCompound();
-                    NBTHelper.setEntity(compound, user, "user");
+                    NBTHelper.setEntity(compound, owner, "owner");
                     NBTHelper.setDouble(compound, "dot", getDoT(abilityInfo));
-                    NBTHelper.setInteger(compound, "time", getTime(abilityInfo));
+                    NBTHelper.setInteger(compound, "dotDuration", getTime(abilityInfo));
                     SkillData data = SkillData.of(this)
+                            .by(owner)
                             .with(INDEFINITE)
                             .put(compound, UUIDWatcher.INSTANCE)
-                            .overrides(this)
+                            .overrides(SkillData.Overrides.EQUAL)
                             .create();
-                    apply(user, data);
-                    sync(user, data);
-                    sync(user);
+                    apply(owner, data);
+                    sync(owner, data);
+                    sync(owner);
                 }
             } else {
-                SkillHelper.getActiveOwner(user, this, holder -> {
-                    unapply(user, holder.data);
-                    async(user, holder.data);
+                SkillHelper.getActiveFrom(owner, this).ifPresent(data -> {
+                    unapply(owner, data);
+                    async(owner, data);
                 });
             }
         });
@@ -91,11 +91,7 @@ public class FireSpirit extends BaseAbility implements ISkillAdvancement {
     @Override
     public void begin(EntityLivingBase entity, SkillData data) {
         if (isClientWorld(entity)) {
-        SkillHelper.getOwner(data).ifPresent(user -> {
-                if (entity == user) {
-                    makeSound(entity);
-                }
-            });
+            makeSound(entity);
         }
     }
 
@@ -106,66 +102,39 @@ public class FireSpirit extends BaseAbility implements ISkillAdvancement {
     }
 
     @Override
-    public void update(EntityLivingBase entity, SkillData data, int tick) {
-        if (isClientWorld(entity)) return;
-        SkillHelper.getOwner(data).ifPresent(user -> {
-            if (entity == user) {
-                if (tick % 20 == 0 && (!(user instanceof EntityPlayer) || !((EntityPlayer) user).capabilities.isCreativeMode)) {
-                    Capabilities.endurance(user).ifPresent(capability -> {
-                        int drain = ModAttributes.ENDURANCE.getEnduranceDrain(this);
-                        if (capability.getEndurance() - drain >= 0) {
-                            capability.setEndurance(capability.getEndurance() - drain);
-                            capability.setEnduranceDelay(30);
-                        } else {
-                            unapply(user, data);
-                            async(user, data);
-                        }
-                    });
+    public void update(EntityLivingBase owner, SkillData data, int tick) {
+        if (isClientWorld(owner)) return;
+        if (tick % 20 == 0 && (!(owner instanceof EntityPlayer) || !((EntityPlayer) owner).capabilities.isCreativeMode)) {
+            Capabilities.endurance(owner).ifPresent(capability -> {
+                int drain = ModAttributes.ENDURANCE.getEnduranceDrain(this);
+                if (capability.getEndurance() - drain >= 0) {
+                    capability.setEndurance(capability.getEndurance() - drain);
+                    capability.setEnduranceDelay(30);
+                } else {
+                    unapply(owner, data);
+                    async(owner, data);
                 }
-            } else {
-                double damage = data.nbt.getDouble("dot");
-                double time = data.nbt.getInteger("time");
-                SkillDamageSource source = new SkillDamageSource(BaseAbility.DAMAGE_DOT_TYPE, user);
-                source.setFireDamage();
-                SkillDamageEvent event = new SkillDamageEvent(user, this, source, damage);
-                MinecraftForge.EVENT_BUS.post(event);
-                entity.attackEntityFrom(event.getSource(), (float) (event.toFloat() / time));
-            }
-        });
+            });
+        }
     }
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public void onEntityDamage(LivingHurtEvent event) {
-        if (isClientWorld(event.getEntityLiving())) return;
+        if (isClientWorld(event.getEntityLiving()) || SkillHelper.isSkillDamage(event.getSource())) return;
         DamageSource source = event.getSource();
-        if (!(source.getTrueSource() instanceof EntityLivingBase) || source instanceof SkillDamageSource || event.getAmount() <= 0) return;
+        if (!(source.getTrueSource() instanceof EntityLivingBase) || event.getAmount() <= 0) return;
         EntityLivingBase attacker = (EntityLivingBase) source.getTrueSource();
         EntityLivingBase target = event.getEntityLiving();
-        SkillHelper.getActiveOwner(attacker, this, holder -> {
-            Capabilities.get(target).ifPresent(c -> {
-                if(TeamHelper.SELECTOR_ENEMY.apply(attacker).test(target)) {
-                    if (isActiveOwner(attacker, target)) {
-                        unapply(target, holder.data);
-                        async(target, holder.data);
-                    }
-                    SkillData data = SkillData.of(this)
-                            .with(holder.data.nbt.getInteger("time"))
-                            .put(holder.data.nbt, holder.data.watcher.copy())
-                            .overrides(holder.data.overrides)
-                            .create();
-                    apply(target, data);
-                    sync(target, data);
-
+        if (TeamHelper.SELECTOR_ENEMY.apply(attacker).test(target)) {
+            SkillHelper.getActiveFrom(attacker, this).ifPresent(data -> {
+                if (!SkillHelper.isActive(target, ModEffects.BURNING)) {
                     if (target.world instanceof WorldServer) {
                         ((WorldServer) target.world).playSound(null, target.posX, target.posY, target.posZ, ModSounds.FIRE_HIT, SoundCategory.PLAYERS, 1.0F, (1.0F + (target.world.rand.nextFloat() - target.world.rand.nextFloat()) * 0.2F) * 0.7F);
                     }
                 }
+                ModEffects.BURNING.set(target, data);
             });
-        });
-    }
-
-    public boolean isActiveOwner(EntityLivingBase attacker, EntityLivingBase target) {
-        return SkillHelper.isActive(target, this, h -> Optional.ofNullable(NBTHelper.getEntity(EntityLivingBase.class, h.data.nbt, "user")).map(e -> e == attacker).orElse(false));
+        }
     }
 
     public int getLevel(IInfoUpgradeable info) {
@@ -243,16 +212,6 @@ public class FireSpirit extends BaseAbility implements ISkillAdvancement {
     }
 
     @Override
-    public boolean canUpgrade(EntityLivingBase entity) {
-        return Capabilities.advancement(entity).map(c -> {
-            Requirement requirement = getRequirement(entity);
-            int tokens = requirement.getLevels();
-            int xp = requirement.getXp();
-            return c.level >= tokens && c.getExperienceTotal(entity) >= xp;
-        }).orElse(false);
-    }
-
-    @Override
     public void onUpgrade(EntityLivingBase entity) {
         Capabilities.advancement(entity).ifPresent(c -> {
             Requirement requirement = getRequirement(entity);
@@ -270,22 +229,6 @@ public class FireSpirit extends BaseAbility implements ISkillAdvancement {
     }
 
     @Override
-    public Requirement getRequirement(EntityLivingBase entity) {
-        AbilityInfo info = (AbilityInfo) Capabilities.get(entity).flatMap(a -> a.getOwned(this)).orElse(null);
-        int tokensNeeded = 0;
-        int xpNeeded;
-        if (info == null) {
-            int abilities = Capabilities.get(entity).map(c -> (int) c.getAllOwned().keySet().stream().filter(s -> s instanceof BaseAbility).count()).orElse(0);
-            if (abilities > 0) {
-                tokensNeeded = abilities + 1;
-            } else {
-                tokensNeeded = 1;
-            }
-        }
-        xpNeeded = getUpgradeCost(info);
-        return new DefaultRequirement(tokensNeeded, getCostIncrement(entity, xpNeeded));
-    }
-
     public int getCostIncrement(EntityLivingBase entity, int total) {
         Optional<AdvancementCapability> optional = Capabilities.advancement(entity);
         if (optional.isPresent()) {
@@ -300,6 +243,7 @@ public class FireSpirit extends BaseAbility implements ISkillAdvancement {
         return total;
     }
 
+    @Override
     public int getUpgradeCost(@Nullable AbilityInfo info) {
         int level = info != null ? getLevel(info) + 1 : 0;
         int levelMax = getMaxLevel();

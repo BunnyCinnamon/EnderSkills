@@ -2,10 +2,10 @@ package arekkuusu.enderskills.common.skill.ability.defense.earth;
 
 import arekkuusu.enderskills.api.capability.AdvancementCapability;
 import arekkuusu.enderskills.api.capability.Capabilities;
-import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoCooldown;
-import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoUpgradeable;
 import arekkuusu.enderskills.api.capability.data.SkillData;
 import arekkuusu.enderskills.api.capability.data.SkillInfo;
+import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoCooldown;
+import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoUpgradeable;
 import arekkuusu.enderskills.api.helper.ExpressionHelper;
 import arekkuusu.enderskills.api.helper.NBTHelper;
 import arekkuusu.enderskills.api.registry.Skill;
@@ -47,20 +47,20 @@ public class Dome extends BaseAbility implements ISkillAdvancement {
     }
 
     @Override
-    public void use(EntityLivingBase user, SkillInfo skillInfo) {
-        if (((IInfoCooldown) skillInfo).hasCooldown() || isClientWorld(user)) return;
+    public void use(EntityLivingBase owner, SkillInfo skillInfo) {
+        if (((IInfoCooldown) skillInfo).hasCooldown() || isClientWorld(owner)) return;
         AbilityInfo abilityInfo = (AbilityInfo) skillInfo;
-        BlockPos pos = user.getPosition().down();
-        IBlockState state = user.world.getBlockState(pos);
+        BlockPos pos = owner.getPosition().down();
+        IBlockState state = owner.world.getBlockState(pos);
         pos = pos.up();
-        if (state.isOpaqueCube() && state.isFullBlock() && isActionable(user) && canActivate(user)) {
-            if (!(user instanceof EntityPlayer) || !((EntityPlayer) user).capabilities.isCreativeMode) {
+        if (state.isOpaqueCube() && state.isFullBlock() && isActionable(owner) && canActivate(owner)) {
+            if (!(owner instanceof EntityPlayer) || !((EntityPlayer) owner).capabilities.isCreativeMode) {
                 abilityInfo.setCooldown(getCooldown(abilityInfo));
             }
             int size = getRange(abilityInfo);
             int time = getTime(abilityInfo);
 
-            EntityWall wall = new EntityWall(user.world, SkillData.of(this).create());
+            EntityWall wall = new EntityWall(owner.world, SkillData.of(this).by(owner).create());
             wall.setPosition(pos.getX() + 0.5D, pos.getY() - size, pos.getZ() + .5);
             wall.setLaunch(getLaunch(abilityInfo));
 
@@ -70,17 +70,11 @@ public class Dome extends BaseAbility implements ISkillAdvancement {
             wall.create(pos.add(0, 0, size), EnumFacing.NORTH, width, size, time);
             wall.create(pos.add(0, 0, -size), EnumFacing.SOUTH, width, size, time);
 
-            user.world.spawnEntity(wall); //MANIFEST W A L L!!
-            SkillData data = SkillData.of(this)
-                    .with(INSTANT)
-                    .overrides(this)
-                    .create();
-            apply(user, data);
-            sync(user, data);
-            sync(user);
+            owner.world.spawnEntity(wall); //MANIFEST W A L L!!
+            sync(owner);
 
-            if (user.world instanceof WorldServer) {
-                ((WorldServer) user.world).playSound(null, user.posX, user.posY, user.posZ, ModSounds.DOME_UP, SoundCategory.PLAYERS, 5.0F, (1.0F + (user.world.rand.nextFloat() - user.world.rand.nextFloat()) * 0.2F) * 0.7F);
+            if (owner.world instanceof WorldServer) {
+                ((WorldServer) owner.world).playSound(null, owner.posX, owner.posY, owner.posZ, ModSounds.DOME_UP, SoundCategory.PLAYERS, 5.0F, (1.0F + (owner.world.rand.nextFloat() - owner.world.rand.nextFloat()) * 0.2F) * 0.7F);
             }
         }
     }
@@ -169,6 +163,7 @@ public class Dome extends BaseAbility implements ISkillAdvancement {
         });
     }
 
+    @Override
     public int getCostIncrement(EntityLivingBase entity, int total) {
         Optional<AdvancementCapability> optional = Capabilities.advancement(entity);
         if (optional.isPresent()) {
@@ -183,6 +178,7 @@ public class Dome extends BaseAbility implements ISkillAdvancement {
         return total;
     }
 
+    @Override
     public int getUpgradeCost(@Nullable AbilityInfo info) {
         int level = info != null ? getLevel(info) + 1 : 0;
         int levelMax = getMaxLevel();

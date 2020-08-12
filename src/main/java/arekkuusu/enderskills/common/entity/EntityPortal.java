@@ -100,11 +100,11 @@ public class EntityPortal extends Entity {
         super.onUpdate();
         if (!world.isRemote) {
             if (this.getLifeTime() > this.tick) {
-                if (tick == 0) {
-                    teleported.addAll(world.getEntitiesWithinAABBExcludingEntity(this, getEntityBoundingBox()));
-                }
                 EntityPortal target = getTarget();
                 if (target != null) {
+                    if (tick == 0) {
+                        teleported.addAll(world.getEntitiesWithinAABBExcludingEntity(this, getEntityBoundingBox()));
+                    }
                     List<Entity> entities = world.getEntitiesWithinAABBExcludingEntity(this, getEntityBoundingBox());
                     teleported.removeIf(e -> !entities.contains(e));
                     for (Entity entity : entities) {

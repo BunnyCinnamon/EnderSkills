@@ -2,6 +2,7 @@ package arekkuusu.enderskills.client.render.skill;
 
 import arekkuusu.enderskills.api.capability.Capabilities;
 import arekkuusu.enderskills.api.capability.data.SkillHolder;
+import arekkuusu.enderskills.client.proxy.ClientProxy;
 import arekkuusu.enderskills.client.render.effect.ParticleVanilla;
 import arekkuusu.enderskills.client.util.helper.GLHelper;
 import arekkuusu.enderskills.common.skill.ModAbilities;
@@ -29,7 +30,7 @@ public class HastenRenderer extends SkillRenderer<Hasten> {
 
     @Override
     public void render(Entity entity, double x, double y, double z, float partialTicks, SkillHolder skillHolder) {
-        if (entity.ticksExisted % 2 == 0 && entity.world.rand.nextDouble() < 0.2D) {
+        if (entity.ticksExisted % 2 == 0 && entity.world.rand.nextDouble() < 0.2D && ClientProxy.canParticleSpawn()) {
             Vec3d vec = entity.getPositionVector();
             double posX = vec.x + entity.world.rand.nextDouble() - 0.5D;
             double posY = vec.y + entity.world.rand.nextDouble() * entity.height;

@@ -29,7 +29,7 @@ public class EntityPortalRender extends Render<EntityPortal> {
 
     @Override
     public void doRender(EntityPortal entity, double x, double y, double z, float entityYaw, float partialTicks) {
-        GL11.glPushMatrix();
+        GlStateManager.pushMatrix();
         GlStateManager.translate(x, y, z);
         this.bindTexture(getEntityTexture(entity));
         if (!ClientConfig.RENDER_CONFIG.rendering.helpMyFramesAreDying) {
@@ -61,7 +61,7 @@ public class EntityPortalRender extends Render<EntityPortal> {
             }
             GL11.glBlendFunc(GL11.GL_SRC_ALPHA, (q < 3) ? GL11.GL_ONE : GL11.GL_ONE_MINUS_SRC_ALPHA);
             if (entity.points.size() > 2) {
-                GL11.glPushMatrix();
+                GlStateManager.pushMatrix();
                 double[][] pp = new double[entity.points.size()][3];
                 float[][] colours = new float[entity.points.size()][4];
                 double[] radii = new double[entity.points.size()];
@@ -85,7 +85,7 @@ public class EntityPortalRender extends Render<EntityPortal> {
                 this.gle.set_POLYCYL_TESS(6);
                 this.gle.gleSetJoinStyle(1026);
                 this.gle.glePolyCone(pp.length, pp, colours, radii, 1F, 0F);
-                GL11.glPopMatrix();
+                GlStateManager.popMatrix();
             }
             if (q < 3) {
                 GlStateManager.depthMask(true);
@@ -100,7 +100,7 @@ public class EntityPortalRender extends Render<EntityPortal> {
                 ShaderLibrary.UNIVERSE_DEFAULT.end();
             }
         }
-        GL11.glPopMatrix();
+        GlStateManager.popMatrix();
     }
 
     @Override

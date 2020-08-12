@@ -37,69 +37,63 @@ public class SkillGroupCapability implements ICapabilitySerializable<NBTTagCompo
 
     {
         //Defense-Light
-        int i = -1;
-        putWeight("Defense-Light", ModAbilities.CHARM, i + 1);
-        putWeight("Defense-Light", ModAbilities.HEAL_AURA, i + 2);
-        putWeight("Defense-Light", ModAbilities.POWER_BOOST, i + 3);
-        putWeight("Defense-Light", ModAbilities.HEAL_OTHER, i + 4);
-        putWeight("Defense-Light", ModAbilities.HEAL_SELF, i + 5);
-        putWeight("Defense-Light", ModAbilities.NEARBY_INVINCIBILITY, i + 6);
+        putWeight("Defense-Light", ModAbilities.CHARM, 0);
+        putWeight("Defense-Light", ModAbilities.HEAL_AURA, 1);
+        putWeight("Defense-Light", ModAbilities.POWER_BOOST, 2);
+        putWeight("Defense-Light", ModAbilities.HEAL_OTHER, 3);
+        putWeight("Defense-Light", ModAbilities.HEAL_SELF, 4);
+        putWeight("Defense-Light", ModAbilities.NEARBY_INVINCIBILITY, 5);
         //Defense-Earth
-        i = -1;
-        putWeight("Defense-Earth", ModAbilities.TAUNT, i + 1);
-        putWeight("Defense-Earth", ModAbilities.WALL, i + 2);
-        putWeight("Defense-Earth", ModAbilities.DOME, i + 3);
-        putWeight("Defense-Earth", ModAbilities.THORNY, i + 4);
-        putWeight("Defense-Earth", ModAbilities.SHOCKWAVE, i + 5);
-        putWeight("Defense-Earth", ModAbilities.ANIMATED_STONE_GOLEM, i + 6);
+        putWeight("Defense-Earth", ModAbilities.TAUNT, 0);
+        putWeight("Defense-Earth", ModAbilities.WALL, 1);
+        putWeight("Defense-Earth", ModAbilities.DOME, 2);
+        putWeight("Defense-Earth", ModAbilities.THORNY, 3);
+        putWeight("Defense-Earth", ModAbilities.SHOCKWAVE, 4);
+        putWeight("Defense-Earth", ModAbilities.ANIMATED_STONE_GOLEM, 5);
+        //Defense-Electric
+        //putWeight("Defense-Electric", ModAbilities.SHOCKING_AURA, 0);
         //Mobility-Wind
-        i = -1;
-        putWeight("Mobility-Wind", ModAbilities.DASH, i + 1);
-        putWeight("Mobility-Wind", ModAbilities.EXTRA_JUMP, i + 2);
-        putWeight("Mobility-Wind", ModAbilities.FOG, i + 3);
-        putWeight("Mobility-Wind", ModAbilities.SMASH, i + 4);
-        putWeight("Mobility-Wind", ModAbilities.HASTEN, i + 5);
-        putWeight("Mobility-Wind", ModAbilities.SPEED_BOOST, i + 6);
+        putWeight("Mobility-Wind", ModAbilities.DASH, 0);
+        putWeight("Mobility-Wind", ModAbilities.EXTRA_JUMP, 1);
+        putWeight("Mobility-Wind", ModAbilities.FOG, 2);
+        putWeight("Mobility-Wind", ModAbilities.SMASH, 3);
+        putWeight("Mobility-Wind", ModAbilities.HASTEN, 4);
+        putWeight("Mobility-Wind", ModAbilities.SPEED_BOOST, 5);
         //Mobility-Void
-        i = -1;
-        putWeight("Mobility-Void", ModAbilities.WARP, i + 1);
-        putWeight("Mobility-Void", ModAbilities.INVISIBILITY, i + 2);
-        putWeight("Mobility-Void", ModAbilities.HOVER, i + 3);
-        putWeight("Mobility-Void", ModAbilities.UNSTABLE_PORTAL, i + 4);
-        putWeight("Mobility-Void", ModAbilities.PORTAL, i + 5);
-        putWeight("Mobility-Void", ModAbilities.TELEPORT, i + 6);
+        putWeight("Mobility-Void", ModAbilities.WARP, 0);
+        putWeight("Mobility-Void", ModAbilities.INVISIBILITY, 1);
+        putWeight("Mobility-Void", ModAbilities.HOVER, 2);
+        putWeight("Mobility-Void", ModAbilities.UNSTABLE_PORTAL, 3);
+        putWeight("Mobility-Void", ModAbilities.PORTAL, 4);
+        putWeight("Mobility-Void", ModAbilities.TELEPORT, 5);
         //Offense-Void
-        i = -1;
-        putWeight("Offense-Void", ModAbilities.SHADOW, i + 1);
-        putWeight("Offense-Void", ModAbilities.GLOOM, i + 2);
-        putWeight("Offense-Void", ModAbilities.SHADOW_JAB, i + 3);
-        putWeight("Offense-Void", ModAbilities.GAS_CLOUD, i + 4);
-        putWeight("Offense-Void", ModAbilities.GRASP, i + 5);
-        putWeight("Offense-Void", ModAbilities.BLACK_HOLE, i + 6);
+        putWeight("Offense-Void", ModAbilities.SHADOW, 0);
+        putWeight("Offense-Void", ModAbilities.GLOOM, 1);
+        putWeight("Offense-Void", ModAbilities.SHADOW_JAB, 2);
+        putWeight("Offense-Void", ModAbilities.GAS_CLOUD, 3);
+        putWeight("Offense-Void", ModAbilities.GRASP, 4);
+        putWeight("Offense-Void", ModAbilities.BLACK_HOLE, 5);
         //Offense-Blood
-        i = -1;
-        putWeight("Offense-Blood", ModAbilities.BLEED, i + 1);
-        putWeight("Offense-Blood", ModAbilities.BLOOD_POOL, i + 2);
-        putWeight("Offense-Blood", ModAbilities.CONTAMINATE, i + 3);
-        putWeight("Offense-Blood", ModAbilities.LIFE_STEAL, i + 4);
-        putWeight("Offense-Blood", ModAbilities.SYPHON, i + 5);
-        putWeight("Offense-Blood", ModAbilities.SACRIFICE, i + 6);
+        putWeight("Offense-Blood", ModAbilities.BLEED, 0);
+        putWeight("Offense-Blood", ModAbilities.BLOOD_POOL, 1);
+        putWeight("Offense-Blood", ModAbilities.CONTAMINATE, 2);
+        putWeight("Offense-Blood", ModAbilities.LIFE_STEAL, 3);
+        putWeight("Offense-Blood", ModAbilities.SYPHON, 4);
+        putWeight("Offense-Blood", ModAbilities.SACRIFICE, 5);
         //Offense-Wind
-        i = -1;
-        putWeight("Offense-Wind", ModAbilities.SLASH, i + 1);
-        putWeight("Offense-Wind", ModAbilities.PUSH, i + 2);
-        putWeight("Offense-Wind", ModAbilities.PULL, i + 3);
-        putWeight("Offense-Wind", ModAbilities.CRUSH, i + 4);
-        putWeight("Offense-Wind", ModAbilities.UPDRAFT, i + 5);
-        putWeight("Offense-Wind", ModAbilities.SUFFOCATE, i + 6);
+        putWeight("Offense-Wind", ModAbilities.SLASH, 0);
+        putWeight("Offense-Wind", ModAbilities.PUSH, 1);
+        putWeight("Offense-Wind", ModAbilities.PULL, 2);
+        putWeight("Offense-Wind", ModAbilities.CRUSH, 3);
+        putWeight("Offense-Wind", ModAbilities.UPDRAFT, 4);
+        putWeight("Offense-Wind", ModAbilities.SUFFOCATE, 5);
         //Offense-Fire
-        i = -1;
-        putWeight("Offense-Fire", ModAbilities.FIRE_SPIRIT, i + 1);
-        putWeight("Offense-Fire", ModAbilities.FLAMING_BREATH, i + 2);
-        putWeight("Offense-Fire", ModAbilities.FLAMING_RAIN, i + 3);
-        putWeight("Offense-Fire", ModAbilities.FOCUS_FLAME, i + 4);
-        putWeight("Offense-Fire", ModAbilities.FIREBALL, i + 5);
-        putWeight("Offense-Fire", ModAbilities.EXPLODE, i + 6);
+        putWeight("Offense-Fire", ModAbilities.FIRE_SPIRIT, 0);
+        putWeight("Offense-Fire", ModAbilities.FLAMING_BREATH, 1);
+        putWeight("Offense-Fire", ModAbilities.FLAMING_RAIN, 2);
+        putWeight("Offense-Fire", ModAbilities.FOCUS_FLAME, 3);
+        putWeight("Offense-Fire", ModAbilities.FIREBALL, 4);
+        putWeight("Offense-Fire", ModAbilities.EXPLODE, 5);
     }
 
     /* Skill Weights */

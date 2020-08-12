@@ -101,7 +101,7 @@ public final class PacketHelper {
     public static void sendSkillUpgradeRequestPacket(EntityPlayerSP entity, Skill skill) {
         NBTTagCompound compound = new NBTTagCompound();
         NBTHelper.setResourceLocation(compound, "location", Objects.requireNonNull(skill.getRegistryName()));
-        NBTHelper.setEntity(compound, entity, "user");
+        NBTHelper.setEntity(compound, entity, "owner");
         PacketHandler.NETWORK.sendToServer(new ClientToServerPacket(PacketHandler.SKILL_UPGRADE_REQUEST, compound));
     }
 
@@ -113,7 +113,7 @@ public final class PacketHelper {
     public static void sendSkillUseRequestPacket(EntityPlayerSP entity, Skill skill) {
         NBTTagCompound compound = new NBTTagCompound();
         NBTHelper.setResourceLocation(compound, "location", Objects.requireNonNull(skill.getRegistryName()));
-        NBTHelper.setEntity(compound, entity, "user");
+        NBTHelper.setEntity(compound, entity, "owner");
         PacketHandler.NETWORK.sendToServer(new ClientToServerPacket(PacketHandler.SKILL_USE_REQUEST, compound));
     }
 
@@ -175,7 +175,7 @@ public final class PacketHelper {
     @SideOnly(Side.CLIENT)
     public static void sendPinRequestPacket(EntityPlayerSP entity, int tabPin, int tabPagePin) {
         NBTTagCompound compound = new NBTTagCompound();
-        NBTHelper.setEntity(compound, entity, "user");
+        NBTHelper.setEntity(compound, entity, "owner");
         compound.setInteger("tabPin", tabPin);
         compound.setInteger("tabPagePin", tabPagePin);
         PacketHandler.NETWORK.sendToServer(new ClientToServerPacket(PacketHandler.GUI_PIN, compound));
@@ -184,23 +184,23 @@ public final class PacketHelper {
     @SideOnly(Side.CLIENT)
     public static void sendDashUseRequestPacket(EntityPlayerSP entity, Vec3d vector) {
         NBTTagCompound compound = new NBTTagCompound();
-        NBTHelper.setEntity(compound, entity, "user");
+        NBTHelper.setEntity(compound, entity, "owner");
         NBTHelper.setVector(compound, "vector", vector);
         PacketHandler.NETWORK.sendToServer(new ClientToServerPacket(PacketHandler.USE_DASH_REQUEST, compound));
     }
 
     @SideOnly(Side.CLIENT)
-    public static void sendFogUseRequestPacket(EntityPlayerSP entity, SkillData data) {
+    public static void sendBlindedUseRequestPacket(EntityPlayerSP entity, SkillData data) {
         NBTTagCompound compound = new NBTTagCompound();
-        NBTHelper.setEntity(compound, entity, "user");
+        NBTHelper.setEntity(compound, entity, "owner");
         NBTHelper.setNBT(compound, "data", data.serializeNBT());
-        PacketHandler.NETWORK.sendToServer(new ClientToServerPacket(PacketHandler.USE_FOG_REQUEST, compound));
+        PacketHandler.NETWORK.sendToServer(new ClientToServerPacket(PacketHandler.USE_BLINDED_REQUEST, compound));
     }
 
     @SideOnly(Side.CLIENT)
     public static void sendWarpUseRequestPacket(EntityPlayerSP entity, Vec3d vector) {
         NBTTagCompound compound = new NBTTagCompound();
-        NBTHelper.setEntity(compound, entity, "user");
+        NBTHelper.setEntity(compound, entity, "owner");
         NBTHelper.setVector(compound, "vector", vector);
         PacketHandler.NETWORK.sendToServer(new ClientToServerPacket(PacketHandler.USE_WARP_REQUEST, compound));
     }
@@ -208,21 +208,21 @@ public final class PacketHelper {
     @SideOnly(Side.CLIENT)
     public static void sendResetSkillsRequestPacket(EntityPlayerSP entity) {
         NBTTagCompound compound = new NBTTagCompound();
-        NBTHelper.setEntity(compound, entity, "user");
+        NBTHelper.setEntity(compound, entity, "owner");
         PacketHandler.NETWORK.sendToServer(new ClientToServerPacket(PacketHandler.RESET_SKILLS_REQUEST, compound));
     }
 
     @SideOnly(Side.CLIENT)
     public static void sendStoreXPRequestPacket(EntityPlayerSP entity) {
         NBTTagCompound compound = new NBTTagCompound();
-        NBTHelper.setEntity(compound, entity, "user");
+        NBTHelper.setEntity(compound, entity, "owner");
         PacketHandler.NETWORK.sendToServer(new ClientToServerPacket(PacketHandler.STORE_XP_REQUEST, compound));
     }
 
     @SideOnly(Side.CLIENT)
     public static void sendTakeXPRequestPacket(EntityPlayerSP entity) {
         NBTTagCompound compound = new NBTTagCompound();
-        NBTHelper.setEntity(compound, entity, "user");
+        NBTHelper.setEntity(compound, entity, "owner");
         PacketHandler.NETWORK.sendToServer(new ClientToServerPacket(PacketHandler.TAKE_XP_REQUEST, compound));
     }
 

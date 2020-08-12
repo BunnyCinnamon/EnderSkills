@@ -2,6 +2,7 @@ package arekkuusu.enderskills.client.render.skill;
 
 import arekkuusu.enderskills.api.capability.data.SkillHolder;
 import arekkuusu.enderskills.api.helper.NBTHelper;
+import arekkuusu.enderskills.client.proxy.ClientProxy;
 import arekkuusu.enderskills.client.render.entity.EntityThrowableDataRenderer;
 import arekkuusu.enderskills.client.util.ResourceLibrary;
 import arekkuusu.enderskills.client.util.ShaderLibrary;
@@ -69,10 +70,12 @@ public class GraspRenderer extends SkillRenderer<Grasp> {
     }
 
     public void spawnParticle(Vec3d vec, Entity entity) {
-        float angle = entity.ticksExisted * 1.15F % 360F;
-        vec = vec.rotateYaw(angle * (float) Math.PI / 180F);
-        vec = vec.add(entity.getPositionVector());
-        EnderSkills.getProxy().spawnParticle(entity.world, vec, new Vec3d(0, 0.1, 0), 3F, 50, 0x1E0034, ResourceLibrary.GLOW_PARTICLE_EFFECT);
+        if(ClientProxy.canParticleSpawn()) {
+            float angle = entity.ticksExisted * 1.15F % 360F;
+            vec = vec.rotateYaw(angle * (float) Math.PI / 180F);
+            vec = vec.add(entity.getPositionVector());
+            EnderSkills.getProxy().spawnParticle(entity.world, vec, new Vec3d(0, 0.1, 0), 3F, 50, 0x1E0034, ResourceLibrary.GLOW_PARTICLE_EFFECT);
+        }
     }
 
     @SideOnly(Side.CLIENT)
@@ -101,7 +104,7 @@ public class GraspRenderer extends SkillRenderer<Grasp> {
             GlStateManager.pushMatrix();
             Vec3d originVec = entity.getPositionVector();
             for (BlockPos pos : entity.getTerrainBlocks()) {
-                if (entity.ticksExisted % 5 == 0 && entity.world.rand.nextDouble() < 0.005D) {
+                if (entity.ticksExisted % 5 == 0 && entity.world.rand.nextDouble() < 0.005D && ClientProxy.canParticleSpawn()) {
                     double posX = pos.getX() + 1 * entity.world.rand.nextDouble();
                     double posY = pos.getY() + 1D + 0.1 * entity.world.rand.nextDouble();
                     double posZ = pos.getZ() + 1 * entity.world.rand.nextDouble();
@@ -115,7 +118,7 @@ public class GraspRenderer extends SkillRenderer<Grasp> {
                     this.bindTexture(ResourceLibrary.PORTAL_BACKGROUND);
                 }
                 GlStateManager.enableBlend();
-                if (!ClientConfig.RENDER_CONFIG.rendering.helpMyFramesAreDying) {
+                if (!ClientConfig.RENDER_CONFIG.rendering.helpMyFramesAreDying && !ClientConfig.RENDER_CONFIG.rendering.helpMyShadersAreDying) {
                     float fading = MathHelper.clamp(1F - (float) (entity.getPosition().getDistance(pos.getX(), pos.getY(), pos.getZ()) / (entity.getRadius() * 1.5D)), 0F, 1F);
                     if (!ClientConfig.RENDER_CONFIG.rendering.vanilla) {
                         ShaderLibrary.UNIVERSE.begin();
@@ -139,7 +142,7 @@ public class GraspRenderer extends SkillRenderer<Grasp> {
                 GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
                 GL11.glDisable(3042);
                 GlStateManager.disableBlend();
-                if (!ClientConfig.RENDER_CONFIG.rendering.helpMyFramesAreDying) {
+                if (!ClientConfig.RENDER_CONFIG.rendering.helpMyFramesAreDying && !ClientConfig.RENDER_CONFIG.rendering.helpMyShadersAreDying) {
                     if (!ClientConfig.RENDER_CONFIG.rendering.vanilla) {
                         ShaderLibrary.UNIVERSE.end();
                     } else {

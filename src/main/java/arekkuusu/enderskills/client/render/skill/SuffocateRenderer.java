@@ -1,6 +1,7 @@
 package arekkuusu.enderskills.client.render.skill;
 
-import arekkuusu.enderskills.api.capability.Capabilities;
+import arekkuusu.enderskills.client.ClientConfig;
+import arekkuusu.enderskills.client.proxy.ClientProxy;
 import arekkuusu.enderskills.client.render.effect.ParticleVanilla;
 import arekkuusu.enderskills.client.render.entity.EntityPlaceableDataRenderer;
 import arekkuusu.enderskills.client.render.entity.EntityThrowableDataRenderer;
@@ -9,6 +10,7 @@ import arekkuusu.enderskills.client.util.helper.GLHelper;
 import arekkuusu.enderskills.common.entity.placeable.EntityPlaceableData;
 import arekkuusu.enderskills.common.lib.LibMod;
 import arekkuusu.enderskills.common.skill.ModAbilities;
+import arekkuusu.enderskills.common.skill.SkillHelper;
 import arekkuusu.enderskills.common.skill.ability.offence.wind.Suffocate;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BufferBuilder;
@@ -17,7 +19,6 @@ import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
@@ -45,11 +46,8 @@ public class SuffocateRenderer extends SkillRenderer<Suffocate> {
 
         @SubscribeEvent
         public void onSoundEffect(PlaySoundAtEntityEvent event) {
-            if (event.getEntity() instanceof EntityLivingBase) {
-                EntityLivingBase entity = (EntityLivingBase) event.getEntity();
-                Capabilities.get(entity).flatMap(c -> c.getActive(ModAbilities.SUFFOCATE)).ifPresent(holder -> {
-                    event.setVolume(0F); //There is no sound in a vacuum
-                });
+            if (SkillHelper.isActive(event.getEntity(), ModAbilities.SUFFOCATE)) {
+                event.setVolume(0F); //There is no sound in a vacuum
             }
         }
     }
@@ -64,17 +62,15 @@ public class SuffocateRenderer extends SkillRenderer<Suffocate> {
         @Override
         public void doRender(EntityPlaceableData entity, double x, double y, double z, float entityYaw, float partialTicks) {
             double scale = entity.getRadius() * 2 * MathHelper.clamp(entity.tick / 5D, 0D, 1D);
-            if (entity.tick % 2 == 0) {
-                for (int i = 0; i < 4; i++) {
-                    if (entity.world.rand.nextDouble() < 0.8D) {
-                        Vec3d vec = entity.getPositionVector();
-                        double posX = vec.x + scale * (entity.world.rand.nextDouble() - 0.5);
-                        double posY = vec.y + scale * (entity.world.rand.nextDouble() - 0.5);
-                        double posZ = vec.z + scale * (entity.world.rand.nextDouble() - 0.5);
-                        float particleScale = 2F + 3F * (float) entity.world.rand.nextGaussian();
-                        ParticleVanilla vanilla = new ParticleVanilla(entity.world, new Vec3d(posX, posY, posZ), new Vec3d(0, 0, 0), particleScale, 20 * 5, 0xFFFFFF, 0);
-                        Minecraft.getMinecraft().effectRenderer.addEffect(vanilla);
-                    }
+            if (entity.tick % 10 == 0) {
+                if (entity.world.rand.nextDouble() < 0.2D && ClientProxy.canParticleSpawn()) {
+                    Vec3d vec = entity.getPositionVector();
+                    double posX = vec.x + scale * (entity.world.rand.nextDouble() - 0.5);
+                    double posY = vec.y + scale * (entity.world.rand.nextDouble() - 0.5);
+                    double posZ = vec.z + scale * (entity.world.rand.nextDouble() - 0.5);
+                    float particleScale = 7F + 4F * (float) entity.world.rand.nextGaussian();
+                    ParticleVanilla vanilla = new ParticleVanilla(entity.world, new Vec3d(posX, posY, posZ), new Vec3d(0, 0, 0), particleScale, 20 * 5, 0xFFFFFF, 0);
+                    Minecraft.getMinecraft().effectRenderer.addEffect(vanilla);
                 }
             }
             if (MinecraftForgeClient.getRenderPass() != 1) return;
@@ -83,8 +79,10 @@ public class SuffocateRenderer extends SkillRenderer<Suffocate> {
             GlStateManager.pushMatrix();
             GlStateManager.translate(x, y, z);
             GLHelper.BLEND_NORMAL.blend();
-            ShaderLibrary.BRIGHT.begin();
-            ShaderLibrary.BRIGHT.set("alpha", SkillRenderer.getDiffuseBlend(entity.tick, entity.getLifeTime(), 0.4F));
+            if (!ClientConfig.RENDER_CONFIG.rendering.helpMyShadersAreDying) {
+                ShaderLibrary.BRIGHT.begin();
+                ShaderLibrary.BRIGHT.set("alpha", SkillRenderer.getDiffuseBlend(entity.tick, entity.getLifeTime(), 0.4F));
+            }
             GlStateManager.disableLighting();
             GlStateManager.enableBlend();
             this.bindTexture(getEntityTexture(entity));
@@ -147,7 +145,9 @@ public class SuffocateRenderer extends SkillRenderer<Suffocate> {
             tessellator.draw();
             GlStateManager.disableBlend();
             GlStateManager.enableLighting();
-            ShaderLibrary.BRIGHT.end();
+            if (!ClientConfig.RENDER_CONFIG.rendering.helpMyShadersAreDying) {
+                ShaderLibrary.BRIGHT.end();
+            }
             GLHelper.BLEND_NORMAL.blend();
             GlStateManager.popMatrix();
         }

@@ -2,7 +2,6 @@ package arekkuusu.enderskills.common.skill;
 
 import arekkuusu.enderskills.api.capability.Capabilities;
 import arekkuusu.enderskills.api.capability.data.SkillData;
-import arekkuusu.enderskills.api.capability.data.SkillHolder;
 import arekkuusu.enderskills.api.helper.NBTHelper;
 import arekkuusu.enderskills.api.registry.Skill;
 import arekkuusu.enderskills.common.skill.ability.BaseAbility;
@@ -10,9 +9,8 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.DamageSource;
 
+import javax.annotation.Nullable;
 import java.util.Optional;
-import java.util.function.Consumer;
-import java.util.function.Function;
 
 public final class SkillHelper {
 
@@ -20,50 +18,32 @@ public final class SkillHelper {
         return source.getDamageType().matches(BaseAbility.DAMAGE_HIT_TYPE + "|" + BaseAbility.DAMAGE_DOT_TYPE);
     }
 
-    public static Optional<EntityLivingBase> getOwner(SkillData data) {
-        return Optional.ofNullable(NBTHelper.getEntity(EntityLivingBase.class, data.nbt, "user"));
+    public static boolean isOwner(Entity entity, SkillData data) {
+        return data.id.equals(entity.getUniqueID().toString());
     }
 
-    public static boolean isNotOwner(Entity entity, SkillHolder holder) {
-        Entity owner = NBTHelper.getEntity(EntityLivingBase.class, holder.data.nbt, "user");
-        return owner == null || entity != owner;
+    public static boolean isActive(Entity entity, Skill skill) {
+        return Capabilities.get(entity).map(c -> c.isActive(skill)).orElse(false);
     }
 
-    public static void getActiveOwner(Entity entity, Skill skill, Consumer<SkillHolder> consumer) {
-        SkillHelper.getActive(entity, skill, holder -> {
-            SkillHelper.getOwner(holder.data).ifPresent(user -> {
-                if (entity == user) {
-                    consumer.accept(holder);
-                }
-            });
-        });
+    public static boolean isActiveFrom(Entity entity, Skill skill) {
+        return SkillHelper.isActive(entity, skill, entity.getUniqueID().toString());
     }
 
-    public static void getActiveNotOwner(Entity entity, Skill skill, Consumer<SkillHolder> consumer) {
-        SkillHelper.getActive(entity, skill, holder -> {
-            SkillHelper.getOwner(holder.data).ifPresent(user -> {
-                if (entity != user) {
-                    consumer.accept(holder);
-                }
-            });
-        });
+    public static boolean isActive(Entity entity, Skill skill, String id) {
+        return Capabilities.get(entity).map(c -> c.getActives().stream().anyMatch(h -> h.data.skill == skill && h.data.id.equals(id))).orElse(false);
     }
 
-    public static void getActive(Entity entity, Skill skill, Consumer<SkillHolder> consumer) {
-        Capabilities.get(entity).ifPresent(c -> {
-            c.getActives().stream().filter(h -> h.data.skill == skill).forEach(consumer);
-        });
+    public static Optional<SkillData> getActiveFrom(Entity owner, Skill skill) {
+        return SkillHelper.getActive(owner, skill, owner.getUniqueID().toString());
     }
 
-    public static boolean isActiveOwner(Entity entity, Skill skill) {
-        return SkillHelper.isActive(entity, skill, h -> Optional.ofNullable(NBTHelper.getEntity(EntityLivingBase.class, h.data.nbt, "user")).map(e -> e == entity).orElse(false));
+    public static Optional<SkillData> getActive(Entity owner, Skill skill, String id) {
+        return Capabilities.get(owner).flatMap(c -> c.getActives().stream().filter(h -> h.data.skill == skill && h.data.id.equals(id)).map(h -> h.data).findFirst());
     }
 
-    public static boolean isActiveNotOwner(Entity entity, Skill skill) {
-        return SkillHelper.isActive(entity, skill, h -> Optional.ofNullable(NBTHelper.getEntity(EntityLivingBase.class, h.data.nbt, "user")).map(e -> e != entity).orElse(false));
-    }
-
-    public static boolean isActive(Entity entity, Skill skill, Function<SkillHolder, Boolean> function) {
-        return Capabilities.get(entity).map(c -> c.getActives().stream().filter(h -> h.data.skill == skill).anyMatch(function::apply)).orElse(false);
+    @Nullable
+    public static EntityLivingBase getOwner(SkillData data) {
+        return NBTHelper.getEntity(EntityLivingBase.class, data.nbt, "owner");
     }
 }

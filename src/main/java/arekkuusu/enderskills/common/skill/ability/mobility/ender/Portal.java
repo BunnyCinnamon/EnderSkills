@@ -2,10 +2,10 @@ package arekkuusu.enderskills.common.skill.ability.mobility.ender;
 
 import arekkuusu.enderskills.api.capability.AdvancementCapability;
 import arekkuusu.enderskills.api.capability.Capabilities;
-import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoCooldown;
-import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoUpgradeable;
 import arekkuusu.enderskills.api.capability.data.SkillData;
 import arekkuusu.enderskills.api.capability.data.SkillInfo;
+import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoCooldown;
+import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoUpgradeable;
 import arekkuusu.enderskills.api.capability.data.nbt.UUIDWatcher;
 import arekkuusu.enderskills.api.helper.ExpressionHelper;
 import arekkuusu.enderskills.api.helper.NBTHelper;
@@ -43,68 +43,67 @@ public class Portal extends BaseAbility implements ISkillAdvancement {
     }
 
     @Override
-    public void use(EntityLivingBase user, SkillInfo skillInfo) {
-        if (isClientWorld(user)) return;
+    public void use(EntityLivingBase owner, SkillInfo skillInfo) {
+        if (isClientWorld(owner)) return;
         AbilityInfo abilityInfo = (AbilityInfo) skillInfo;
 
-        if (isActionable(user)) {
-            if (!SkillHelper.isActiveOwner(user, this)) {
-                if (!((IInfoCooldown) skillInfo).hasCooldown()) {
-                    EntityPortal portal = new EntityPortal(user.world, getTime(abilityInfo));
-                    portal.setPosition(user.posX, user.posY + user.getEyeHeight(), user.posZ);
-                    user.world.spawnEntity(portal);
-                    int time = getTime(abilityInfo);
-                    NBTTagCompound compound = new NBTTagCompound();
-                    NBTHelper.setEntity(compound, portal, "portal");
-                    NBTHelper.setEntity(compound, user, "user");
-                    NBTHelper.setInteger(compound, "time", time);
-                    SkillData data = SkillData.of(this)
-                            .with(INDEFINITE)
-                            .put(compound, UUIDWatcher.INSTANCE)
-                            .overrides(this)
-                            .create();
-                    apply(user, data);
-                    sync(user, data);
-                }
-            } else {
-                SkillHelper.getActiveOwner(user, this, holder -> {
-                    EntityPortal originalPortal = NBTHelper.getEntity(EntityPortal.class, holder.data.nbt, "portal");
-                    if (originalPortal != null) {
-                        if(originalPortal.getTarget() == null) {
-                            if(canActivate(user)) {
-                                EntityPortal portal = new EntityPortal(user.world, NBTHelper.getInteger(holder.data.nbt, "time"));
-                                portal.setPosition(user.posX, user.posY + user.getEyeHeight(), user.posZ);
-                                user.world.spawnEntity(portal);
-                                originalPortal.setTarget(portal);
-                                portal.setTarget(originalPortal);
-                                if (!(user instanceof EntityPlayer) || !((EntityPlayer) user).capabilities.isCreativeMode) {
-                                    abilityInfo.setCooldown(getCooldown(abilityInfo));
-                                }
-                                sync(user);
-                            }
-                        } else {
-                            originalPortal.setDead();
-                            originalPortal.getTarget().setDead();
-                        }
-                    }
-                });
+        if (!SkillHelper.isActiveFrom(owner, this)) {
+            if (isActionable(owner) && !((IInfoCooldown) skillInfo).hasCooldown()) {
+                EntityPortal portal = new EntityPortal(owner.world, getTime(abilityInfo));
+                portal.setPosition(owner.posX, owner.posY + owner.getEyeHeight(), owner.posZ);
+                owner.world.spawnEntity(portal);
+                int time = getTime(abilityInfo);
+                NBTTagCompound compound = new NBTTagCompound();
+                NBTHelper.setEntity(compound, portal, "portal");
+                NBTHelper.setEntity(compound, owner, "owner");
+                NBTHelper.setInteger(compound, "time", time);
+                SkillData data = SkillData.of(this)
+                        .by(owner)
+                        .with(INDEFINITE)
+                        .put(compound, UUIDWatcher.INSTANCE)
+                        .overrides(SkillData.Overrides.SAME)
+                        .create();
+                apply(owner, data);
+                sync(owner, data);
             }
+        } else {
+            SkillHelper.getActiveFrom(owner, this).ifPresent(data -> {
+                EntityPortal originalPortal = NBTHelper.getEntity(EntityPortal.class, data.nbt, "portal");
+                if (originalPortal != null) {
+                    if (originalPortal.getTarget() == null) {
+                        if (isActionable(owner) && canActivate(owner)) {
+                            EntityPortal portal = new EntityPortal(owner.world, NBTHelper.getInteger(data.nbt, "time"));
+                            portal.setPosition(owner.posX, owner.posY + owner.getEyeHeight(), owner.posZ);
+                            owner.world.spawnEntity(portal);
+                            originalPortal.setTarget(portal);
+                            portal.setTarget(originalPortal);
+                            if (!(owner instanceof EntityPlayer) || !((EntityPlayer) owner).capabilities.isCreativeMode) {
+                                abilityInfo.setCooldown(getCooldown(abilityInfo));
+                            }
+                            sync(owner);
+                        }
+                    } else {
+                        originalPortal.setDead();
+                        originalPortal.getTarget().setDead();
+                    }
+                }
+            });
         }
     }
 
     @Override
-    public void update(EntityLivingBase user, SkillData data, int tick) {
-        if (isClientWorld(user)) return;
+    public void update(EntityLivingBase owner, SkillData data, int tick) {
+        if (isClientWorld(owner)) return;
         EntityPortal portal = NBTHelper.getEntity(EntityPortal.class, data.nbt, "portal");
         if (portal == null) {
-            Capabilities.get(user).flatMap(c -> c.getOwned(this)).ifPresent(skillInfo -> {
-                if (!(user instanceof EntityPlayer) || !((EntityPlayer) user).capabilities.isCreativeMode) {
+            Capabilities.get(owner).flatMap(c -> c.getOwned(this)).ifPresent(skillInfo -> {
+                if (!(owner instanceof EntityPlayer) || !((EntityPlayer) owner).capabilities.isCreativeMode) {
                     ((AbilityInfo) skillInfo).setCooldown(getCooldown((AbilityInfo) skillInfo));
                 }
-                sync(user);
+                sync(owner);
             });
-            unapply(user, data);
-            async(user, data);
+            unapply(owner, data);
+            async(owner, data);
         }
     }
 
@@ -172,6 +171,7 @@ public class Portal extends BaseAbility implements ISkillAdvancement {
         });
     }
 
+    @Override
     public int getCostIncrement(EntityLivingBase entity, int total) {
         Optional<AdvancementCapability> optional = Capabilities.advancement(entity);
         if (optional.isPresent()) {
@@ -186,6 +186,7 @@ public class Portal extends BaseAbility implements ISkillAdvancement {
         return total;
     }
 
+    @Override
     public int getUpgradeCost(@Nullable AbilityInfo info) {
         int level = info != null ? getLevel(info) + 1 : 0;
         int levelMax = getMaxLevel();
@@ -200,6 +201,7 @@ public class Portal extends BaseAbility implements ISkillAdvancement {
         Configuration.getSyncValues().cooldown = Configuration.getValues().cooldown;
         Configuration.getSyncValues().time = Configuration.getValues().time;
         Configuration.getSyncValues().effectiveness = Configuration.getValues().effectiveness;
+        Configuration.getSyncValues().extra.despawnPortals = Configuration.getValues().extra.despawnPortals;
         Configuration.getSyncValues().advancement.upgrade = Configuration.getValues().advancement.upgrade;
     }
 
@@ -241,6 +243,8 @@ public class Portal extends BaseAbility implements ISkillAdvancement {
         }
 
         public static class Values {
+            @Config.Comment("Skill specific extra Configuration")
+            public final Extra extra = new Extra();
             @Config.Comment("Skill specific Advancement Configuration")
             public final Advancement advancement = new Advancement();
 
@@ -261,6 +265,11 @@ public class Portal extends BaseAbility implements ISkillAdvancement {
             @Config.Comment("Effectiveness Modifier")
             @Config.RangeDouble
             public double effectiveness = 1D;
+
+            public static class Extra {
+                @Config.Comment("Max level obtainable")
+                public boolean despawnPortals = true;
+            }
 
             public static class Advancement {
                 @Config.Comment("Function f(x)=? where 'x' is [Next Level] and 'y' is [Max Level], XP Cost is in units [NOT LEVELS]")

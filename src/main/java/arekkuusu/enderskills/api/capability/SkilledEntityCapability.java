@@ -1,5 +1,6 @@
 package arekkuusu.enderskills.api.capability;
 
+import arekkuusu.enderskills.api.capability.data.SkillData;
 import arekkuusu.enderskills.api.capability.data.SkillHolder;
 import arekkuusu.enderskills.api.capability.data.SkillInfo;
 import arekkuusu.enderskills.api.helper.NBTHelper;
@@ -27,19 +28,16 @@ import net.minecraftforge.registries.IForgeRegistry;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
-import java.util.function.Function;
-import java.util.stream.Stream;
 
 @SuppressWarnings("ConstantConditions")
 public class SkilledEntityCapability implements ICapabilitySerializable<NBTTagCompound>, Capability.IStorage<SkilledEntityCapability> {
 
-    private Map<Skill, SkillInfo> skillPlayerInfoMap = Maps.newHashMap();
-    private List<SkillHolder> skillHolders = Lists.newLinkedList();
+    public Map<Skill, SkillInfo> skillPlayerInfoMap = Maps.newHashMap();
+    public List<SkillHolder> skillHolders = Lists.newLinkedList();
 
     /* Skill Info */
     public Map<Skill, SkillInfo> getAllOwned() {
@@ -83,28 +81,43 @@ public class SkilledEntityCapability implements ICapabilitySerializable<NBTTagCo
     }
 
     public void activate(SkillHolder holder) {
-        if (holder.data.overrides.length > 0) {
-            for (SkillHolder skillHolder : skillHolders) {
-                if (Arrays.stream(holder.data.overrides).anyMatch(s -> s == skillHolder.data.skill)) { //Remove Override!
-                    skillHolder.setDead();
-                }
+        if (holder.data.overrides != null) {
+            switch (holder.data.overrides) {
+                case EQUAL:
+                    skillHolders.forEach(h -> {
+                        if (h.data.skill == holder.data.skill && h.data.id.equals(holder.data.id))
+                            h.setDead();
+                    });
+                case SAME:
+                    skillHolders.forEach(h -> {
+                        if (h.data.skill == holder.data.skill)
+                            h.setDead();
+                    });
+                    break;
+                case ID:
+                    skillHolders.forEach(h -> {
+                        if (h.data.id.equals(holder.data.id))
+                            h.setDead();
+                    });
+                    break;
+                default:
             }
         }
         skillHolders.add(holder);
     }
 
     public void deactivate(Skill skill) {
-        for (SkillHolder skillHolder : skillHolders) {
-            if (skillHolder.data.skill == skill) {
-                skillHolder.setDead();
+        for (SkillHolder holder : skillHolders) {
+            if (holder.data.skill == skill) {
+                holder.setDead();
             }
         }
     }
 
-    public void deactivate(Skill skill, Function<SkillHolder, Boolean> function) {
-        for (SkillHolder skillHolder : skillHolders) {
-            if (skillHolder.data.skill == skill && function.apply(skillHolder)) {
-                skillHolder.setDead();
+    public void deactivate(Skill skill, SkillData data) {
+        for (SkillHolder holder : skillHolders) {
+            if (holder.data.skill == skill && data.id.equals(holder.data.id)) {
+                holder.setDead();
             }
         }
     }

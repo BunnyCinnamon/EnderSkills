@@ -2,13 +2,11 @@ package arekkuusu.enderskills.common.skill.ability.offence.ender;
 
 import arekkuusu.enderskills.api.capability.AdvancementCapability;
 import arekkuusu.enderskills.api.capability.Capabilities;
-import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoCooldown;
-import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoUpgradeable;
 import arekkuusu.enderskills.api.capability.data.SkillData;
 import arekkuusu.enderskills.api.capability.data.SkillInfo;
+import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoCooldown;
+import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoUpgradeable;
 import arekkuusu.enderskills.api.capability.data.nbt.UUIDWatcher;
-import arekkuusu.enderskills.api.event.SkillDamageEvent;
-import arekkuusu.enderskills.api.event.SkillDamageSource;
 import arekkuusu.enderskills.api.helper.ExpressionHelper;
 import arekkuusu.enderskills.api.helper.NBTHelper;
 import arekkuusu.enderskills.api.helper.TeamHelper;
@@ -28,6 +26,7 @@ import arekkuusu.enderskills.common.lib.LibMod;
 import arekkuusu.enderskills.common.lib.LibNames;
 import arekkuusu.enderskills.common.skill.ModAbilities;
 import arekkuusu.enderskills.common.skill.ModAttributes;
+import arekkuusu.enderskills.common.skill.ModEffects;
 import arekkuusu.enderskills.common.skill.SkillHelper;
 import arekkuusu.enderskills.common.skill.ability.AbilityInfo;
 import arekkuusu.enderskills.common.skill.ability.BaseAbility;
@@ -35,7 +34,6 @@ import arekkuusu.enderskills.common.sound.ModSounds;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
@@ -45,7 +43,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.WorldServer;
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Config;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -63,13 +60,13 @@ public class Grasp extends BaseAbility implements IImpact, IExpand, ILoopSound, 
     }
 
     @Override
-    public void use(EntityLivingBase user, SkillInfo skillInfo) {
-        if (((IInfoCooldown) skillInfo).hasCooldown() || isClientWorld(user)) return;
+    public void use(EntityLivingBase owner, SkillInfo skillInfo) {
+        if (((IInfoCooldown) skillInfo).hasCooldown() || isClientWorld(owner)) return;
         AbilityInfo abilityInfo = (AbilityInfo) skillInfo;
         double distance = getRange(abilityInfo);
 
-        if (canActivate(user)) {
-            if (!(user instanceof EntityPlayer) || !((EntityPlayer) user).capabilities.isCreativeMode) {
+        if (canActivate(owner)) {
+            if (!(owner instanceof EntityPlayer) || !((EntityPlayer) owner).capabilities.isCreativeMode) {
                 abilityInfo.setCooldown(getCooldown(abilityInfo));
             }
             double range = getGraspRange(abilityInfo);
@@ -77,22 +74,21 @@ public class Grasp extends BaseAbility implements IImpact, IExpand, ILoopSound, 
             double dot = getDoT(abilityInfo);
             int dotDuration = getTime(abilityInfo);
             NBTTagCompound compound = new NBTTagCompound();
-            NBTHelper.setEntity(compound, user, "user");
+            NBTHelper.setEntity(compound, owner, "owner");
             NBTHelper.setDouble(compound, "range", range);
             NBTHelper.setInteger(compound, "time", time);
             NBTHelper.setDouble(compound, "dot", dot);
             NBTHelper.setInteger(compound, "dotDuration", dotDuration);
-
             SkillData data = SkillData.of(this)
-                    .with(dotDuration)
+                    .with(5)
                     .put(compound, UUIDWatcher.INSTANCE)
-                    .overrides(this)
+                    .overrides(SkillData.Overrides.SAME)
                     .create();
-            EntityThrowableData.throwFor(user, distance, data, false);
-            sync(user);
+            EntityThrowableData.throwFor(owner, distance, data, false);
+            sync(owner);
 
-            if (user.world instanceof WorldServer) {
-                ((WorldServer) user.world).playSound(null, user.posX, user.posY, user.posZ, ModSounds.GRASP, SoundCategory.PLAYERS, 1.0F, (1.0F + (user.world.rand.nextFloat() - user.world.rand.nextFloat()) * 0.2F) * 0.7F);
+            if (owner.world instanceof WorldServer) {
+                ((WorldServer) owner.world).playSound(null, owner.posX, owner.posY, owner.posZ, ModSounds.GRASP, SoundCategory.PLAYERS, 1.0F, (1.0F + (owner.world.rand.nextFloat() - owner.world.rand.nextFloat()) * 0.2F) * 0.7F);
             }
         }
     }
@@ -103,8 +99,8 @@ public class Grasp extends BaseAbility implements IImpact, IExpand, ILoopSound, 
         if (trace.typeOfHit != RayTraceResult.Type.MISS) {
             Vec3d hitVector = trace.hitVec;
 
-            int time = skillData.nbt.getInteger("time");
-            double radius = skillData.nbt.getDouble("range");
+            int time = NBTHelper.getInteger(skillData.nbt, "time");
+            double radius = NBTHelper.getInteger(skillData.nbt, "range");
             EntityPlaceableGrasp spawn = new EntityPlaceableGrasp(source.world, owner, skillData, time);
             spawn.setPosition(hitVector.x, hitVector.y, hitVector.z);
             spawn.setRadius(radius);
@@ -125,7 +121,7 @@ public class Grasp extends BaseAbility implements IImpact, IExpand, ILoopSound, 
     }
 
     @Override
-    public AxisAlignedBB expand(Entity source, @Nullable EntityLivingBase owner, AxisAlignedBB bb, float amount) {
+    public AxisAlignedBB expand(Entity source, AxisAlignedBB bb, float amount) {
         return bb.grow(amount, 0, amount);
     }
 
@@ -150,36 +146,16 @@ public class Grasp extends BaseAbility implements IImpact, IExpand, ILoopSound, 
 
     @Override
     public void onScan(Entity source, @Nullable EntityLivingBase owner, EntityLivingBase target, SkillData skillData) {
-        apply(target, skillData);
-        sync(target, skillData);
+        if(!SkillHelper.isActive(target, this)) {
+            apply(target, skillData);
+            sync(target, skillData);
+        }
+        if(!SkillHelper.isActive(target, ModEffects.ROOTED)) {
+            ModEffects.ROOTED.set(target, skillData);
+        }
+        ModEffects.VOIDED.set(target, skillData);
     }
     //* Entity *//
-
-    @Override
-    public void update(EntityLivingBase entity, SkillData data, int tick) {
-        SkillHelper.getOwner(data).ifPresent(user -> {
-            if (!isClientWorld(entity) && entity != user) {
-                double damage = data.nbt.getDouble("dot");
-                double time = data.nbt.getInteger("dotDuration");
-                SkillDamageSource source = new SkillDamageSource(BaseAbility.DAMAGE_DOT_TYPE, user);
-                source.setMagicDamage();
-                SkillDamageEvent event = new SkillDamageEvent(user, this, source, damage);
-                MinecraftForge.EVENT_BUS.post(event);
-                entity.attackEntityFrom(event.getSource(), (float) (event.toFloat() / time));
-            }
-            EntityPlaceableGrasp grasp = NBTHelper.getEntity(EntityPlaceableGrasp.class, data.nbt, "grasp");
-            if (grasp != null && (!isClientWorld(entity) || (entity instanceof EntityPlayer) && entity != user)) {
-                if (entity instanceof EntityLiving) {
-                    ((EntityLiving) entity).getNavigator().clearPath();
-                }
-                entity.moveStrafing = 0;
-                entity.moveForward = 0;
-                entity.motionX = 0;
-                entity.motionY = 0;
-                entity.motionZ = 0;
-            }
-        });
-    }
 
     public int getLevel(IInfoUpgradeable info) {
         return info.getLevel();
@@ -285,6 +261,7 @@ public class Grasp extends BaseAbility implements IImpact, IExpand, ILoopSound, 
         });
     }
 
+    @Override
     public int getCostIncrement(EntityLivingBase entity, int total) {
         Optional<AdvancementCapability> optional = Capabilities.advancement(entity);
         if (optional.isPresent()) {
@@ -299,6 +276,7 @@ public class Grasp extends BaseAbility implements IImpact, IExpand, ILoopSound, 
         return total;
     }
 
+    @Override
     public int getUpgradeCost(@Nullable AbilityInfo info) {
         int level = info != null ? getLevel(info) + 1 : 0;
         int levelMax = getMaxLevel();

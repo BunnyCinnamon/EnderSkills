@@ -26,6 +26,8 @@ public interface IProxy {
 
     EntityPlayer getPlayer();
 
+    void addToQueue(Runnable runnable);
+
     default void spawnParticle(World world, Vec3d pos, Vec3d speed, float scale, int age, int rgb, ResourceLocation location) {
         //NO-OP
     }

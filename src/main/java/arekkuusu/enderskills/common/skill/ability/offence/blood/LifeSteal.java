@@ -2,10 +2,10 @@ package arekkuusu.enderskills.common.skill.ability.offence.blood;
 
 import arekkuusu.enderskills.api.capability.AdvancementCapability;
 import arekkuusu.enderskills.api.capability.Capabilities;
-import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoCooldown;
-import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoUpgradeable;
 import arekkuusu.enderskills.api.capability.data.SkillData;
 import arekkuusu.enderskills.api.capability.data.SkillInfo;
+import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoCooldown;
+import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoUpgradeable;
 import arekkuusu.enderskills.api.capability.data.nbt.UUIDWatcher;
 import arekkuusu.enderskills.api.event.SkillDamageSource;
 import arekkuusu.enderskills.api.helper.ExpressionHelper;
@@ -55,51 +55,55 @@ public class LifeSteal extends BaseAbility implements ISkillAdvancement {
     }
 
     @Override
-    public void use(EntityLivingBase user, SkillInfo skillInfo) {
-        if (isClientWorld(user) || !isActionable(user)) return;
+    public void use(EntityLivingBase owner, SkillInfo skillInfo) {
+        if (isClientWorld(owner) || !isActionable(owner)) return;
         AbilityInfo abilityInfo = (AbilityInfo) skillInfo;
 
-        Capabilities.get(user).ifPresent(capability -> {
-            if (!capability.isActive(this)) {
-                if (!((IInfoCooldown) skillInfo).hasCooldown() && canActivate(user)) {
-                    if (!(user instanceof EntityPlayer) || !((EntityPlayer) user).capabilities.isCreativeMode) {
+        Capabilities.get(owner).ifPresent(capability -> {
+            if (!SkillHelper.isActiveFrom(owner, this)) {
+                if (!((IInfoCooldown) skillInfo).hasCooldown() && canActivate(owner)) {
+                    if (!(owner instanceof EntityPlayer) || !((EntityPlayer) owner).capabilities.isCreativeMode) {
                         abilityInfo.setCooldown(getCooldown(abilityInfo));
                     }
                     float heal = getHeal(abilityInfo);
                     NBTTagCompound compound = new NBTTagCompound();
-                    NBTHelper.setEntity(compound, user, "user");
+                    NBTHelper.setEntity(compound, owner, "owner");
                     NBTHelper.setFloat(compound, "heal", heal);
                     SkillData data = SkillData.of(this)
+                            .by(owner)
                             .with(INDEFINITE)
                             .put(compound, UUIDWatcher.INSTANCE)
+                            .overrides(SkillData.Overrides.EQUAL)
                             .create();
-                    apply(user, data);
-                    sync(user, data);
-                    sync(user);
+                    apply(owner, data);
+                    sync(owner, data);
+                    sync(owner);
+
+                    if (owner.world instanceof WorldServer) {
+                        ((WorldServer) owner.world).playSound(null, owner.posX, owner.posY, owner.posZ, ModSounds.LIFE_STEAL, SoundCategory.PLAYERS, 1.0F, (1.0F + (owner.world.rand.nextFloat() - owner.world.rand.nextFloat()) * 0.2F) * 0.7F);
+                    }
                 }
             } else {
-                unapply(user);
-                async(user);
-            }
-
-            if (user.world instanceof WorldServer) {
-                ((WorldServer) user.world).playSound(null, user.posX, user.posY, user.posZ, ModSounds.LIFE_STEAL, SoundCategory.PLAYERS, 1.0F, (1.0F + (user.world.rand.nextFloat() - user.world.rand.nextFloat()) * 0.2F) * 0.7F);
+                SkillHelper.getActiveFrom(owner, this).ifPresent(data -> {
+                    unapply(owner, data);
+                    async(owner, data);
+                });
             }
         });
     }
 
     @Override
-    public void update(EntityLivingBase user, SkillData data, int tick) {
-        if (isClientWorld(user)) return;
-        if (tick % 20 == 0 && (!(user instanceof EntityPlayer) || !((EntityPlayer) user).capabilities.isCreativeMode)) {
-            Capabilities.endurance(user).ifPresent(capability -> {
+    public void update(EntityLivingBase owner, SkillData data, int tick) {
+        if (isClientWorld(owner)) return;
+        if (tick % 20 == 0 && (!(owner instanceof EntityPlayer) || !((EntityPlayer) owner).capabilities.isCreativeMode)) {
+            Capabilities.endurance(owner).ifPresent(capability -> {
                 int drain = ModAttributes.ENDURANCE.getEnduranceDrain(this);
                 if (capability.getEndurance() - drain >= 0) {
                     capability.setEndurance(capability.getEndurance() - drain);
                     capability.setEnduranceDelay(30);
                 } else {
-                    unapply(user);
-                    async(user);
+                    unapply(owner, data);
+                    async(owner, data);
                 }
             });
         }
@@ -109,24 +113,25 @@ public class LifeSteal extends BaseAbility implements ISkillAdvancement {
     public void onEntityDamage(LivingHurtEvent event) {
         if (isClientWorld(event.getEntityLiving())) return;
         DamageSource source = event.getSource();
-        if (!(source.getTrueSource() instanceof EntityLivingBase) || source instanceof SkillDamageSource || event.getAmount() <= 0) return;
+        if (!(source.getTrueSource() instanceof EntityLivingBase) || source instanceof SkillDamageSource || event.getAmount() <= 0)
+            return;
         EntityLivingBase attacker = (EntityLivingBase) source.getTrueSource();
         EntityLivingBase attacked = event.getEntityLiving();
-        SkillHelper.getActiveOwner(attacker, this, holder -> {
-            float heal = NBTHelper.getFloat(holder.data.nbt, "heal");
+        SkillHelper.getActiveFrom(attacker, this).ifPresent(data -> {
+            float heal = NBTHelper.getFloat(data.nbt, "heal");
             attacker.heal(attacker.getMaxHealth() * heal);
             for (int i = 0; i < 6; i++) {
                 Vec3d vec = attacked.getPositionVector();
-                double posX = vec.x + (attacked.width / 2) * (attacked.world.rand.nextDouble() - 0.5);
-                double posY = vec.y + attacked.height * attacked.world.rand.nextDouble();
-                double posZ = vec.z + (attacked.width / 2) * (attacked.world.rand.nextDouble() - 0.5);
+                double posX = vec.x;
+                double posY = vec.y + attacked.height + 0.1D;
+                double posZ = vec.z;
                 EnderSkills.getProxy().spawnParticle(attacked.world, new Vec3d(posX, posY, posZ), new Vec3d(0, 0, 0), 3, 50, 0x8A0303, ResourceLibrary.MINUS);
             }
             for (int i = 0; i < 6; i++) {
                 Vec3d vec = attacker.getPositionVector();
-                double posX = vec.x + (attacker.width / 2) * (attacker.world.rand.nextDouble() - 0.5);
-                double posY = vec.y + attacker.height * attacker.world.rand.nextDouble();
-                double posZ = vec.z + (attacker.width / 2) * (attacker.world.rand.nextDouble() - 0.5);
+                double posX = vec.x;
+                double posY = vec.y + attacker.height + 0.1D;
+                double posZ = vec.z;
                 EnderSkills.getProxy().spawnParticle(attacker.world, new Vec3d(posX, posY, posZ), new Vec3d(0, 0, 0), 3, 50, 0x8A0303, ResourceLibrary.PLUS);
             }
 
@@ -200,6 +205,7 @@ public class LifeSteal extends BaseAbility implements ISkillAdvancement {
         });
     }
 
+    @Override
     public int getCostIncrement(EntityLivingBase entity, int total) {
         Optional<AdvancementCapability> optional = Capabilities.advancement(entity);
         if (optional.isPresent()) {
@@ -214,6 +220,7 @@ public class LifeSteal extends BaseAbility implements ISkillAdvancement {
         return total;
     }
 
+    @Override
     public int getUpgradeCost(@Nullable AbilityInfo info) {
         int level = info != null ? getLevel(info) + 1 : 0;
         int levelMax = getMaxLevel();

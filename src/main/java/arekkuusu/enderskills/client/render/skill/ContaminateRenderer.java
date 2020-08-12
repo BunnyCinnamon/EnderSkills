@@ -1,6 +1,7 @@
 package arekkuusu.enderskills.client.render.skill;
 
 import arekkuusu.enderskills.api.capability.data.SkillHolder;
+import arekkuusu.enderskills.client.proxy.ClientProxy;
 import arekkuusu.enderskills.client.render.entity.EntityThrowableDataRenderer;
 import arekkuusu.enderskills.client.util.ResourceLibrary;
 import arekkuusu.enderskills.common.EnderSkills;
@@ -26,7 +27,7 @@ public class ContaminateRenderer extends SkillRenderer<Contaminate> {
 
     @Override
     public void render(Entity entity, double x, double y, double z, float partialTicks, SkillHolder skillHolder) {
-        if (entity.ticksExisted % 5 == 0 && entity.world.rand.nextDouble() < 0.8D) {
+        if (entity.ticksExisted % 5 == 0 && entity.world.rand.nextDouble() < 0.05D && ClientProxy.canParticleSpawn()) {
             Vec3d vec = entity.getPositionVector();
             double posX = vec.x + entity.world.rand.nextDouble() - 0.5D;
             double posY = vec.y + entity.world.rand.nextDouble() * entity.height;
@@ -45,7 +46,7 @@ public class ContaminateRenderer extends SkillRenderer<Contaminate> {
         @Override
         public void doRender(EntityThrowableData entity, double x, double y, double z, float entityYaw, float partialTicks) {
             for (int i = 0; i < 6; i++) {
-                if (entity.world.rand.nextDouble() < 0.6D) {
+                if (entity.world.rand.nextDouble() < 0.4D) {
                     Vec3d vec = entity.getPositionEyes(1F);
                     Vec3d motion = new Vec3d(entity.prevPosX, entity.prevPosY + entity.getEyeHeight(), entity.prevPosZ).subtract(vec);
                     double offset = entity.world.rand.nextDouble();

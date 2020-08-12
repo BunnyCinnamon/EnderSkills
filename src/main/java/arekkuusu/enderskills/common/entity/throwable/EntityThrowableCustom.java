@@ -124,7 +124,7 @@ public abstract class EntityThrowableCustom extends Entity implements IProjectil
                 this.posY += this.motionY;
                 this.posZ += this.motionZ;
                 if (!this.hasNoGravity()) {
-                    this.motionY -= 0.05000000074505806D;
+                    this.motionY -= 0.09000000074505806D;
                 }
                 this.setPosition(this.posX, this.posY, this.posZ);
             }

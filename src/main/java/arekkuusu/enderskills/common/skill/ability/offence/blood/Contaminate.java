@@ -2,24 +2,28 @@ package arekkuusu.enderskills.common.skill.ability.offence.blood;
 
 import arekkuusu.enderskills.api.capability.AdvancementCapability;
 import arekkuusu.enderskills.api.capability.Capabilities;
-import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoUpgradeable;
 import arekkuusu.enderskills.api.capability.data.SkillData;
 import arekkuusu.enderskills.api.capability.data.SkillInfo;
+import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoUpgradeable;
 import arekkuusu.enderskills.api.capability.data.nbt.UUIDWatcher;
 import arekkuusu.enderskills.api.event.SkillDamageEvent;
 import arekkuusu.enderskills.api.event.SkillDamageSource;
 import arekkuusu.enderskills.api.helper.ExpressionHelper;
 import arekkuusu.enderskills.api.helper.NBTHelper;
+import arekkuusu.enderskills.api.helper.RayTraceHelper;
+import arekkuusu.enderskills.api.helper.TeamHelper;
 import arekkuusu.enderskills.api.registry.Skill;
 import arekkuusu.enderskills.client.gui.data.ISkillAdvancement;
 import arekkuusu.enderskills.client.util.helper.TextHelper;
 import arekkuusu.enderskills.common.CommonConfig;
+import arekkuusu.enderskills.common.EnderSkills;
 import arekkuusu.enderskills.common.entity.data.IImpact;
 import arekkuusu.enderskills.common.entity.throwable.EntityThrowableData;
 import arekkuusu.enderskills.common.lib.LibMod;
 import arekkuusu.enderskills.common.lib.LibNames;
 import arekkuusu.enderskills.common.skill.ModAbilities;
 import arekkuusu.enderskills.common.skill.ModAttributes;
+import arekkuusu.enderskills.common.skill.ModEffects;
 import arekkuusu.enderskills.common.skill.SkillHelper;
 import arekkuusu.enderskills.common.skill.ability.AbilityInfo;
 import arekkuusu.enderskills.common.skill.ability.BaseAbility;
@@ -52,30 +56,30 @@ public class Contaminate extends BaseAbility implements IImpact, ISkillAdvanceme
     }
 
     @Override
-    public void use(EntityLivingBase user, SkillInfo skillInfo) {
-        if (isClientWorld(user)) return;
+    public void use(EntityLivingBase owner, SkillInfo skillInfo) {
+        if (isClientWorld(owner)) return;
         AbilityInfo abilityInfo = (AbilityInfo) skillInfo;
         double distance = getRange(abilityInfo);
 
-        if (isActionable(user) && canActivate(user)) {
-            if (!(user instanceof EntityPlayer) || !((EntityPlayer) user).capabilities.isCreativeMode) {
+        if (isActionable(owner) && canActivate(owner)) {
+            if (!(owner instanceof EntityPlayer) || !((EntityPlayer) owner).capabilities.isCreativeMode) {
                 abilityInfo.setCooldown(getCooldown(abilityInfo));
             }
+            int time = getTime(abilityInfo);
             NBTTagCompound compound = new NBTTagCompound();
-            NBTHelper.setEntity(compound, user, "user");
+            NBTHelper.setEntity(compound, owner, "owner");
             NBTHelper.setDouble(compound, "dot", getDoT(abilityInfo));
             NBTHelper.setInteger(compound, "time", getTime(abilityInfo));
             NBTHelper.setDouble(compound, "damage", getDamage(abilityInfo));
             SkillData data = SkillData.of(this)
-                    .with(getTime(abilityInfo))
+                    .with(time)
                     .put(compound, UUIDWatcher.INSTANCE)
-                    .overrides(this)
                     .create();
-            EntityThrowableData.throwFor(user, distance, data, false);
-            sync(user);
+            EntityThrowableData.throwFor(owner, distance, data, false);
+            sync(owner);
 
-            if (user.world instanceof WorldServer) {
-                ((WorldServer) user.world).playSound(null, user.posX, user.posY, user.posZ, ModSounds.CONTAMINATE, SoundCategory.PLAYERS, 1.0F, (1.0F + (user.world.rand.nextFloat() - user.world.rand.nextFloat()) * 0.2F) * 0.7F);
+            if (owner.world instanceof WorldServer) {
+                ((WorldServer) owner.world).playSound(null, owner.posX, owner.posY, owner.posZ, ModSounds.CONTAMINATE, SoundCategory.PLAYERS, 1.0F, (1.0F + (owner.world.rand.nextFloat() - owner.world.rand.nextFloat()) * 0.2F) * 0.7F);
             }
         }
     }
@@ -83,7 +87,7 @@ public class Contaminate extends BaseAbility implements IImpact, ISkillAdvanceme
     //* Entity *//
     @Override
     public void onImpact(Entity source, @Nullable EntityLivingBase owner, SkillData skillData, RayTraceResult trace) {
-        if (trace.typeOfHit == RayTraceResult.Type.ENTITY && trace.entityHit instanceof EntityLivingBase) {
+        if (RayTraceHelper.isEntityTrace(trace, TeamHelper.SELECTOR_ENEMY.apply(owner))) {
             apply((EntityLivingBase) trace.entityHit, skillData);
             sync((EntityLivingBase) trace.entityHit, skillData);
         }
@@ -93,30 +97,25 @@ public class Contaminate extends BaseAbility implements IImpact, ISkillAdvanceme
     @Override
     public void begin(EntityLivingBase entity, SkillData data) {
         if (isClientWorld(entity)) return;
-        SkillHelper.getOwner(data).ifPresent(user -> {
-            double damage = data.nbt.getDouble("damage");
-            SkillDamageSource source = new SkillDamageSource(BaseAbility.DAMAGE_HIT_TYPE, user);
-            SkillDamageEvent event = new SkillDamageEvent(user, this, source, damage);
-            MinecraftForge.EVENT_BUS.post(event);
-            entity.attackEntityFrom(event.getSource(), event.toFloat());
-        });
+        EntityLivingBase owner = SkillHelper.getOwner(data);
+        double damage = data.nbt.getDouble("damage");
+        SkillDamageSource source = new SkillDamageSource(BaseAbility.DAMAGE_HIT_TYPE, owner);
+        SkillDamageEvent event = new SkillDamageEvent(owner, this, source, damage);
+        MinecraftForge.EVENT_BUS.post(event);
+        entity.attackEntityFrom(event.getSource(), event.toFloat());
     }
 
     @Override
     public void update(EntityLivingBase entity, SkillData data, int tick) {
         if (isClientWorld(entity)) return;
-        SkillHelper.getOwner(data).ifPresent(user -> {
-            double damage = data.nbt.getDouble("dot");
-            double time = data.nbt.getInteger("time");
-            SkillDamageSource source = new SkillDamageSource(BaseAbility.DAMAGE_DOT_TYPE, user);
-            source.setMagicDamage();
-            SkillDamageEvent event = new SkillDamageEvent(user, this, source, damage);
-            MinecraftForge.EVENT_BUS.post(event);
-            entity.attackEntityFrom(event.getSource(), (float) (event.toFloat() / time));
-            entity.motionX *= 0.6;
-            entity.motionY *= 0.6;
-            entity.motionZ *= 0.6;
-        });
+        EntityLivingBase owner = SkillHelper.getOwner(data);
+        double damage = data.nbt.getDouble("dot");
+        SkillDamageSource source = new SkillDamageSource(BaseAbility.DAMAGE_DOT_TYPE, owner);
+        source.setMagicDamage();
+        SkillDamageEvent event = new SkillDamageEvent(owner, this, source, damage);
+        MinecraftForge.EVENT_BUS.post(event);
+        entity.attackEntityFrom(event.getSource(), event.toFloat() / data.time);
+        EnderSkills.getProxy().addToQueue(() -> ModEffects.SLOWED.set(entity, data, 0.6D));
     }
 
     public int getLevel(IInfoUpgradeable info) {
@@ -213,6 +212,7 @@ public class Contaminate extends BaseAbility implements IImpact, ISkillAdvanceme
         });
     }
 
+    @Override
     public int getCostIncrement(EntityLivingBase entity, int total) {
         Optional<AdvancementCapability> optional = Capabilities.advancement(entity);
         if (optional.isPresent()) {
@@ -227,6 +227,7 @@ public class Contaminate extends BaseAbility implements IImpact, ISkillAdvanceme
         return total;
     }
 
+    @Override
     public int getUpgradeCost(@Nullable AbilityInfo info) {
         int level = info != null ? getLevel(info) + 1 : 0;
         int levelMax = getMaxLevel();

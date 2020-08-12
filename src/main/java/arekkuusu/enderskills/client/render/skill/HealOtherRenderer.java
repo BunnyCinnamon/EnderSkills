@@ -1,6 +1,8 @@
 package arekkuusu.enderskills.client.render.skill;
 
 import arekkuusu.enderskills.api.capability.data.SkillHolder;
+import arekkuusu.enderskills.client.ClientConfig;
+import arekkuusu.enderskills.client.proxy.ClientProxy;
 import arekkuusu.enderskills.client.render.entity.EntityThrowableDataRenderer;
 import arekkuusu.enderskills.client.util.ResourceLibrary;
 import arekkuusu.enderskills.client.util.ShaderLibrary;
@@ -36,15 +38,11 @@ public class HealOtherRenderer extends SkillRenderer<HealOther> {
 
     @Override
     public void render(Entity entity, double x, double y, double z, float partialTicks, SkillHolder skillHolder) {
-        if (skillHolder.tick % 5 == 0) {
-            for (int i = 0; i < 3; i++) {
-                Vec3d vec = entity.getPositionVector();
-                double posX = vec.x + (entity.width / 2) * (entity.world.rand.nextDouble() - 0.5);
-                double posY = vec.y + entity.height * entity.world.rand.nextDouble();
-                double posZ = vec.z + (entity.width / 2) * (entity.world.rand.nextDouble() - 0.5);
-                EnderSkills.getProxy().spawnParticle(entity.world, new Vec3d(posX, posY, posZ), new Vec3d(0, 0, 0), 3, 50, 0x58DB11, ResourceLibrary.PLUS);
-            }
-        }
+        Vec3d vec = entity.getPositionVector();
+        double posX = vec.x;
+        double posY = vec.y + entity.height + 0.1D;
+        double posZ = vec.z;
+        EnderSkills.getProxy().spawnParticle(entity.world, new Vec3d(posX, posY, posZ), new Vec3d(0, 0, 0), 4, 50, 0x58DB11, ResourceLibrary.PLUS);
     }
 
     public static class Projectile extends Render<EntityThrowableData> {
@@ -57,7 +55,7 @@ public class HealOtherRenderer extends SkillRenderer<HealOther> {
         public void doRender(EntityThrowableData entity, double x, double y, double z, float entityYaw, float partialTicks) {
             GlStateManager.color(1F, 1F, 1F, 1F);
             for (int i = 0; i < 6; i++) {
-                if (entity.world.rand.nextDouble() < 0.2D) {
+                if (entity.world.rand.nextDouble() < 0.2D && ClientProxy.canParticleSpawn()) {
                     Vec3d vec = entity.getPositionEyes(1F);
                     double posX = vec.x + (entity.width / 2) * (entity.world.rand.nextDouble() - 0.5);
                     double posY = vec.y + (entity.height / 2) * (entity.world.rand.nextDouble() - 0.5);
@@ -67,8 +65,10 @@ public class HealOtherRenderer extends SkillRenderer<HealOther> {
             }
             GlStateManager.pushMatrix();
             GLHelper.BLEND_SRC_ALPHA$ONE.blend();
-            ShaderLibrary.BRIGHT.begin();
-            ShaderLibrary.BRIGHT.set("alpha", 0.8F);
+            if (!ClientConfig.RENDER_CONFIG.rendering.helpMyShadersAreDying) {
+                ShaderLibrary.BRIGHT.begin();
+                ShaderLibrary.BRIGHT.set("alpha", 0.8F);
+            }
             GlStateManager.disableLighting();
             GlStateManager.enableBlend();
             GlStateManager.translate((float) x, (float) y, (float) z);
@@ -86,7 +86,9 @@ public class HealOtherRenderer extends SkillRenderer<HealOther> {
             tessellator.draw();
             GlStateManager.disableBlend();
             GlStateManager.enableLighting();
-            ShaderLibrary.BRIGHT.end();
+            if (!ClientConfig.RENDER_CONFIG.rendering.helpMyShadersAreDying) {
+                ShaderLibrary.BRIGHT.end();
+            }
             GlStateManager.popMatrix();
         }
 

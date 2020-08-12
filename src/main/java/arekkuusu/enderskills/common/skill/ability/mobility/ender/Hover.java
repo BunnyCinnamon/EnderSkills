@@ -2,9 +2,9 @@ package arekkuusu.enderskills.common.skill.ability.mobility.ender;
 
 import arekkuusu.enderskills.api.capability.AdvancementCapability;
 import arekkuusu.enderskills.api.capability.Capabilities;
-import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoUpgradeable;
 import arekkuusu.enderskills.api.capability.data.SkillData;
 import arekkuusu.enderskills.api.capability.data.SkillInfo;
+import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoUpgradeable;
 import arekkuusu.enderskills.api.capability.data.nbt.UUIDWatcher;
 import arekkuusu.enderskills.api.helper.ExpressionHelper;
 import arekkuusu.enderskills.api.helper.NBTHelper;
@@ -18,6 +18,7 @@ import arekkuusu.enderskills.common.lib.LibNames;
 import arekkuusu.enderskills.common.network.PacketHelper;
 import arekkuusu.enderskills.common.skill.ModAbilities;
 import arekkuusu.enderskills.common.skill.ModAttributes;
+import arekkuusu.enderskills.common.skill.SkillHelper;
 import arekkuusu.enderskills.common.skill.ability.AbilityInfo;
 import arekkuusu.enderskills.common.skill.ability.BaseAbility;
 import net.minecraft.client.Minecraft;
@@ -55,29 +56,30 @@ public class Hover extends BaseAbility implements ISkillAdvancement {
     }
 
     @Override
-    public void use(EntityLivingBase user, SkillInfo skillInfo) {
-        if (isActionable(user) && canActivate(user)) {
+    public void use(EntityLivingBase owner, SkillInfo skillInfo) {
+        if (isActionable(owner) && canActivate(owner)) {
             AbilityInfo abilityInfo = (AbilityInfo) skillInfo;
             int maxHover = getTime(abilityInfo);
             NBTTagCompound compound = new NBTTagCompound();
-            NBTHelper.setEntity(compound, user, "user");
+            NBTHelper.setEntity(compound, owner, "owner");
             SkillData data = SkillData.of(this)
+                    .by(owner)
                     .with(maxHover)
                     .put(compound, UUIDWatcher.INSTANCE)
-                    .overrides(this)
+                    .overrides(SkillData.Overrides.SAME)
                     .create();
-            apply(user, data);
-            sync(user, data);
-            sync(user);
+            apply(owner, data);
+            sync(owner, data);
+            sync(owner);
         }
     }
 
     @Override
-    public void begin(EntityLivingBase user, SkillData data) {
-        if (isClientWorld(user) && !(user instanceof EntityPlayer)) return;
-        user.fallDistance = 0;
-        if (isClientWorld(user)) {
-            makeSound(user);
+    public void begin(EntityLivingBase owner, SkillData data) {
+        if (isClientWorld(owner) && !(owner instanceof EntityPlayer)) return;
+        owner.fallDistance = 0;
+        if (isClientWorld(owner)) {
+            makeSound(owner);
         }
     }
 
@@ -87,9 +89,9 @@ public class Hover extends BaseAbility implements ISkillAdvancement {
     }
 
     @Override
-    public void update(EntityLivingBase user, SkillData data, int tick) {
-        if (isClientWorld(user) && !(user instanceof EntityPlayer)) return;
-        if (user.motionY < 0) user.motionY *= 0.4D;
+    public void update(EntityLivingBase owner, SkillData data, int tick) {
+        if (isClientWorld(owner) && !(owner instanceof EntityPlayer)) return;
+        if (owner.motionY < 0) owner.motionY *= 0.4D;
     }
 
     @SideOnly(Side.CLIENT)
@@ -233,6 +235,7 @@ public class Hover extends BaseAbility implements ISkillAdvancement {
         });
     }
 
+    @Override
     public int getCostIncrement(EntityLivingBase entity, int total) {
         Optional<AdvancementCapability> optional = Capabilities.advancement(entity);
         if (optional.isPresent()) {
@@ -247,6 +250,7 @@ public class Hover extends BaseAbility implements ISkillAdvancement {
         return total;
     }
 
+    @Override
     public int getUpgradeCost(@Nullable AbilityInfo info) {
         int level = info != null ? getLevel(info) + 1 : 0;
         int levelMax = getMaxLevel();

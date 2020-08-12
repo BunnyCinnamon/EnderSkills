@@ -1,12 +1,9 @@
 package arekkuusu.enderskills.client.render.skill;
 
-import arekkuusu.enderskills.api.capability.Capabilities;
-import arekkuusu.enderskills.api.helper.NBTHelper;
+import arekkuusu.enderskills.client.ClientConfig;
 import arekkuusu.enderskills.client.util.ResourceLibrary;
 import arekkuusu.enderskills.client.util.ShaderLibrary;
 import arekkuusu.enderskills.client.util.helper.RenderMisc;
-import arekkuusu.enderskills.client.ClientConfig;
-import arekkuusu.enderskills.common.skill.ModAbilities;
 import arekkuusu.enderskills.common.skill.ability.mobility.ender.Teleport;
 import com.google.common.collect.Lists;
 import com.sasmaster.glelwjgl.java.CoreGLE;
@@ -18,7 +15,6 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.relauncher.Side;
@@ -41,19 +37,6 @@ public class TeleportRenderer extends SkillRenderer<Teleport> {
 
     @SideOnly(Side.CLIENT)
     public static class Events {
-
-        @SubscribeEvent
-        @SideOnly(Side.CLIENT)
-        public void entityTick(LivingEvent.LivingUpdateEvent event) {
-            if (!event.getEntity().world.isRemote) return;
-            Capabilities.get(event.getEntityLiving()).flatMap(c -> c.getActive(ModAbilities.TELEPORT).filter(h -> h.tick == 0)).ifPresent(h -> {
-                Vec3d offset = new Vec3d(0, event.getEntity().height / 2D, 0);
-                TeleportRift riftOrigin = new TeleportRift(event.getEntityLiving(), NBTHelper.getVector(h.data.nbt, "origin").add(offset));
-                TeleportRift riftTarget = new TeleportRift(event.getEntityLiving(), NBTHelper.getVector(h.data.nbt, "target").add(offset));
-                TELEPORT_RIFTS.add(riftOrigin);
-                TELEPORT_RIFTS.add(riftTarget);
-            });
-        }
 
         @SubscribeEvent
         public void clientTick(TickEvent.ClientTickEvent event) {
@@ -142,7 +125,7 @@ public class TeleportRenderer extends SkillRenderer<Teleport> {
             } else {
                 Minecraft.getMinecraft().getRenderManager().renderEngine.bindTexture(ResourceLibrary.PORTAL_BACKGROUND);
             }
-            if (!ClientConfig.RENDER_CONFIG.rendering.helpMyFramesAreDying) {
+            if (!ClientConfig.RENDER_CONFIG.rendering.helpMyFramesAreDying && !ClientConfig.RENDER_CONFIG.rendering.helpMyShadersAreDying) {
                 if (!ClientConfig.RENDER_CONFIG.rendering.vanilla) {
                     ShaderLibrary.UNIVERSE.begin();
                     ShaderLibrary.UNIVERSE.set("dimensions", Minecraft.getMinecraft().displayWidth, Minecraft.getMinecraft().displayHeight);
@@ -176,7 +159,7 @@ public class TeleportRenderer extends SkillRenderer<Teleport> {
                 }
                 GL11.glBlendFunc(GL11.GL_SRC_ALPHA, (q < 3) ? GL11.GL_ONE : GL11.GL_ONE_MINUS_SRC_ALPHA);
                 if (points.size() > 2) {
-                    GL11.glPushMatrix();
+                    GlStateManager.pushMatrix();
                     double[][] pp = new double[points.size()][3];
                     float[][] colours = new float[points.size()][4];
                     double[] radii = new double[points.size()];
@@ -200,7 +183,7 @@ public class TeleportRenderer extends SkillRenderer<Teleport> {
                     this.gle.set_POLYCYL_TESS(6);
                     this.gle.gleSetJoinStyle(1026);
                     this.gle.glePolyCone(pp.length, pp, colours, radii, 1F, 0F);
-                    GL11.glPopMatrix();
+                    GlStateManager.popMatrix();
                 }
                 if (q < 3) {
                     GlStateManager.depthMask(true);
@@ -208,7 +191,7 @@ public class TeleportRenderer extends SkillRenderer<Teleport> {
             }
             GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
             GL11.glDisable(3042);
-            if (!ClientConfig.RENDER_CONFIG.rendering.helpMyFramesAreDying) {
+            if (!ClientConfig.RENDER_CONFIG.rendering.helpMyFramesAreDying && !ClientConfig.RENDER_CONFIG.rendering.helpMyShadersAreDying) {
                 if (!ClientConfig.RENDER_CONFIG.rendering.vanilla) {
                     ShaderLibrary.UNIVERSE.end();
                 } else {

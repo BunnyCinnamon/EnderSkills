@@ -5,6 +5,8 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.DamageSource;
 import net.minecraftforge.fml.common.eventhandler.Event;
 
+import javax.annotation.Nullable;
+
 public class SkillDamageEvent extends Event {
 
     private final EntityLivingBase entity;
@@ -12,13 +14,14 @@ public class SkillDamageEvent extends Event {
     private final Skill skill;
     private double amount;
 
-    public SkillDamageEvent(EntityLivingBase entity, Skill skill, DamageSource source, double amount) {
+    public SkillDamageEvent(@Nullable EntityLivingBase entity, Skill skill, DamageSource source, double amount) {
         this.entity = entity;
         this.source = source;
         this.skill = skill;
         this.amount = amount;
     }
 
+    @Nullable
     public EntityLivingBase getEntityLiving() {
         return entity;
     }

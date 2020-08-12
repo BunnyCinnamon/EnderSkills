@@ -1,7 +1,5 @@
 package arekkuusu.enderskills.common.entity;
 
-import arekkuusu.enderskills.api.event.SkillDamageEvent;
-import arekkuusu.enderskills.api.event.SkillDamageSource;
 import arekkuusu.enderskills.common.skill.ModAbilities;
 import arekkuusu.enderskills.common.skill.SkillHelper;
 import arekkuusu.enderskills.common.sound.ModSounds;
@@ -13,12 +11,12 @@ import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.server.management.PreYggdrasilConverter;
+import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
-import net.minecraftforge.common.MinecraftForge;
 
 import javax.annotation.Nullable;
 import java.util.Map;
@@ -46,7 +44,7 @@ public class EntityShadow extends Entity {
                 EntityLivingBase owner = getEntityByUUID(uuid);
                 if (owner != null) {
                     if (ticksExisted % 20 == 0) { //Check if skill is still active every 2 seconds
-                        if (!SkillHelper.isActiveOwner(owner, ModAbilities.SHADOW)) {
+                        if (!SkillHelper.isActive(owner, ModAbilities.SHADOW)) {
                             setDead();
                         }
                     }
@@ -58,10 +56,7 @@ public class EntityShadow extends Entity {
                         for (Map.Entry<EntityLivingBase, Float> set : attackMap.entrySet()) {
                             EntityLivingBase entity = set.getKey();
                             float damage = set.getValue() + (set.getValue() * getMirrorDamage());
-                            SkillDamageSource source = new SkillDamageSource("skill", owner);
-                            SkillDamageEvent event = new SkillDamageEvent(owner, ModAbilities.SHADOW, source, damage);
-                            MinecraftForge.EVENT_BUS.post(event);
-                            entity.attackEntityFrom(event.getSource(), event.toFloat());
+                            entity.attackEntityFrom(new DamageSource("shadow"), damage);
 
                             if (entity.world instanceof WorldServer) {
                                 ((WorldServer) entity.world).playSound(null, entity.posX, entity.posY, entity.posZ, ModSounds.SHADOW_ATTACK, SoundCategory.PLAYERS, 1.0F, (1.0F + (entity.world.rand.nextFloat() - entity.world.rand.nextFloat()) * 0.2F) * 0.7F);

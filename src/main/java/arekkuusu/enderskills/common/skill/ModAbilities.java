@@ -4,6 +4,8 @@ import arekkuusu.enderskills.api.registry.Skill;
 import arekkuusu.enderskills.common.lib.LibMod;
 import arekkuusu.enderskills.common.skill.ability.BaseAbility;
 import arekkuusu.enderskills.common.skill.ability.defense.earth.*;
+import arekkuusu.enderskills.common.skill.ability.defense.electric.ElectricPulse;
+import arekkuusu.enderskills.common.skill.ability.defense.electric.ShockingAura;
 import arekkuusu.enderskills.common.skill.ability.defense.light.*;
 import arekkuusu.enderskills.common.skill.ability.mobility.ender.*;
 import arekkuusu.enderskills.common.skill.ability.mobility.wind.*;
@@ -39,6 +41,9 @@ public final class ModAbilities {
     public static final Skill THORNY = empty();
     public static final Skill SHOCKWAVE = empty();
     public static final BaseAbility ANIMATED_STONE_GOLEM = empty();
+    //Defense-Electric
+    public static final Skill SHOCKING_AURA = empty();
+    public static final Skill ELECTRIC_PULSE = empty();
     //Mobility-Wind
     public static final Dash DASH = empty();
     public static final Skill EXTRA_JUMP = empty();
@@ -97,6 +102,9 @@ public final class ModAbilities {
         registry.register(new Thorny());
         registry.register(new Shockwave());
         registry.register(new AnimatedStoneGolem());
+        //Defense-Electric
+        //registry.register(new ShockingAura());
+        //registry.register(new ElectricPulse());
         //Mobility-Wind
         registry.register(new Dash());
         registry.register(new ExtraJump());

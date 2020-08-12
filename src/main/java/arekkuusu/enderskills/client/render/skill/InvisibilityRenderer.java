@@ -1,7 +1,7 @@
 package arekkuusu.enderskills.client.render.skill;
 
-import arekkuusu.enderskills.api.capability.Capabilities;
 import arekkuusu.enderskills.common.skill.ModAbilities;
+import arekkuusu.enderskills.common.skill.SkillHelper;
 import arekkuusu.enderskills.common.skill.ability.mobility.ender.Invisibility;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraftforge.client.event.RenderLivingEvent;
@@ -23,20 +23,16 @@ public class InvisibilityRenderer extends SkillRenderer<Invisibility> {
 
         @SubscribeEvent(priority = EventPriority.NORMAL)
         public void renderPre(RenderLivingEvent.Pre<EntityLivingBase> event) {
-            Capabilities.get(event.getEntity()).ifPresent(capability -> {
-                if (capability.isActive(ModAbilities.INVISIBILITY)) {
-                    event.setCanceled(true);
-                }
-            });
+            if (SkillHelper.isActive(event.getEntity(), ModAbilities.INVISIBILITY)) {
+                event.setCanceled(true);
+            }
         }
 
         @SubscribeEvent(priority = EventPriority.NORMAL)
         public void renderPost(RenderLivingEvent.Post<EntityLivingBase> event) {
-            Capabilities.get(event.getEntity()).ifPresent(capability -> {
-                if (capability.isActive(ModAbilities.INVISIBILITY)) {
-                    event.setCanceled(true);
-                }
-            });
+            if (SkillHelper.isActive(event.getEntity(), ModAbilities.INVISIBILITY)) {
+                event.setCanceled(true);
+            }
         }
     }
 }

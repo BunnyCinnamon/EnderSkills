@@ -20,8 +20,6 @@ public abstract class BaseAbility extends BaseSkill {
 
     public static final String DAMAGE_HIT_TYPE = "skill";
     public static final String DAMAGE_DOT_TYPE = "indirectSkill";
-    public static final int INDEFINITE = -1;
-    public static final int INSTANT = 0;
 
     public BaseAbility(String id, Properties properties) {
         super(properties.setHasStatusIcon().setKeyBound().setHasTexture());
@@ -86,14 +84,6 @@ public abstract class BaseAbility extends BaseSkill {
         SkillActivateEvent event = new SkillActivateEvent(entity, this);
         MinecraftForge.EVENT_BUS.post(event);
         return !event.isCanceled();
-    }
-
-    public void unapply(EntityLivingBase entity, SkillData data) {
-        Capabilities.get(entity).ifPresent(skills -> skills.deactivate(this, h -> h.data.equals(data))); //Remove from entity Server Side
-    }
-
-    public void async(EntityLivingBase entity, SkillData data) {
-        PacketHelper.sendSkillDataRemoveResponsePacket(entity, data); //Send to Client
     }
 
     public boolean isClientWorld(EntityLivingBase entity) {

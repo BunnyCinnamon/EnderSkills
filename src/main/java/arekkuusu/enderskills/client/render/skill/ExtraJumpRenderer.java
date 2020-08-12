@@ -1,6 +1,7 @@
 package arekkuusu.enderskills.client.render.skill;
 
 import arekkuusu.enderskills.api.capability.data.SkillHolder;
+import arekkuusu.enderskills.client.proxy.ClientProxy;
 import arekkuusu.enderskills.client.render.effect.ParticleVanilla;
 import arekkuusu.enderskills.common.skill.ability.mobility.wind.ExtraJump;
 import net.minecraft.client.Minecraft;
@@ -16,7 +17,7 @@ public class ExtraJumpRenderer extends SkillRenderer<ExtraJump> {
     public void render(Entity entity, double x, double y, double z, float partialTicks, SkillHolder skillHolder) {
         if (skillHolder.tick == 1) {
             for (int i = 0; i < 16; i++) {
-                if (entity.world.rand.nextDouble() < 0.8D) {
+                if (entity.world.rand.nextDouble() < 0.8D && ClientProxy.canParticleSpawn()) {
                     Vec3d vec = entity.getPositionVector();
                     double posX = vec.x + entity.world.rand.nextDouble() - 0.5D;
                     double posY = vec.y + 0.1D * (entity.world.rand.nextDouble() - 0.5D);

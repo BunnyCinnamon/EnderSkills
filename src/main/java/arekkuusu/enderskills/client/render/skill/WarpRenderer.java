@@ -1,12 +1,9 @@
 package arekkuusu.enderskills.client.render.skill;
 
-import arekkuusu.enderskills.api.capability.Capabilities;
-import arekkuusu.enderskills.api.helper.NBTHelper;
+import arekkuusu.enderskills.client.ClientConfig;
 import arekkuusu.enderskills.client.util.ResourceLibrary;
 import arekkuusu.enderskills.client.util.ShaderLibrary;
 import arekkuusu.enderskills.client.util.helper.RenderMisc;
-import arekkuusu.enderskills.client.ClientConfig;
-import arekkuusu.enderskills.common.skill.ModAbilities;
 import arekkuusu.enderskills.common.skill.ability.mobility.ender.Warp;
 import com.google.common.collect.Lists;
 import net.minecraft.client.Minecraft;
@@ -19,7 +16,6 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.relauncher.Side;
@@ -33,7 +29,7 @@ import java.util.Random;
 @SideOnly(Side.CLIENT)
 public class WarpRenderer extends SkillRenderer<Warp> {
 
-    public static final List<WarpRift> TELEPORT_RIFTS = Lists.newArrayList();
+    public static final List<WarpRift> WARP_RIFTS = Lists.newArrayList();
 
     public WarpRenderer() {
         MinecraftForge.EVENT_BUS.register(new Events());
@@ -43,33 +39,20 @@ public class WarpRenderer extends SkillRenderer<Warp> {
     public static class Events {
 
         @SubscribeEvent
-        @SideOnly(Side.CLIENT)
-        public void entityTick(LivingEvent.LivingUpdateEvent event) {
-            if (!event.getEntity().world.isRemote) return;
-            Capabilities.get(event.getEntityLiving()).flatMap(c -> c.getActive(ModAbilities.WARP).filter(h -> h.tick == 0)).ifPresent(h -> {
-                Vec3d offset = new Vec3d(0, event.getEntity().height, 0);
-                WarpRift riftOrigin = new WarpRift(event.getEntityLiving(), NBTHelper.getVector(h.data.nbt, "origin"), false);
-                WarpRift riftTarget = new WarpRift(event.getEntityLiving(), NBTHelper.getVector(h.data.nbt, "target").add(offset), true);
-                TELEPORT_RIFTS.add(riftOrigin);
-                TELEPORT_RIFTS.add(riftTarget);
-            });
-        }
-
-        @SubscribeEvent
         public void clientTick(TickEvent.ClientTickEvent event) {
-            TELEPORT_RIFTS.removeIf(warpRift -> warpRift.lifeTime++ > warpRift.maxLifeTime || warpRift.reference.get() == null);
+            WARP_RIFTS.removeIf(warpRift -> warpRift.lifeTime++ > warpRift.maxLifeTime || warpRift.reference.get() == null);
         }
 
         @SubscribeEvent
         public void onRenderAfterWorld(RenderWorldLastEvent event) {
-            if (!TELEPORT_RIFTS.isEmpty()) {
+            if (!WARP_RIFTS.isEmpty()) {
                 GlStateManager.pushMatrix();
                 EntityPlayerSP playerEntity = Minecraft.getMinecraft().player;
                 double x = playerEntity.lastTickPosX + (playerEntity.posX - playerEntity.lastTickPosX) * 1F;
                 double y = playerEntity.lastTickPosY + (playerEntity.posY - playerEntity.lastTickPosY) * 1F;
                 double z = playerEntity.lastTickPosZ + (playerEntity.posZ - playerEntity.lastTickPosZ) * 1F;
                 GlStateManager.translate(-x, -y, -z);
-                for (WarpRift warpRift : TELEPORT_RIFTS) {
+                for (WarpRift warpRift : WARP_RIFTS) {
                     warpRift.render(event.getPartialTicks());
                 }
                 GlStateManager.popMatrix();
@@ -138,7 +121,7 @@ public class WarpRenderer extends SkillRenderer<Warp> {
                 GlStateManager.depthMask(false);
             }
             GL11.glBlendFunc(GL11.GL_SRC_ALPHA, outline ? GL11.GL_ONE : GL11.GL_ONE_MINUS_SRC_ALPHA);
-            if (!ClientConfig.RENDER_CONFIG.rendering.helpMyFramesAreDying) {
+            if (!ClientConfig.RENDER_CONFIG.rendering.helpMyFramesAreDying && !ClientConfig.RENDER_CONFIG.rendering.helpMyShadersAreDying) {
                 if (!ClientConfig.RENDER_CONFIG.rendering.vanilla) {
                     ShaderLibrary.UNIVERSE.begin();
                     ShaderLibrary.UNIVERSE.set("dimensions", Minecraft.getMinecraft().displayWidth, Minecraft.getMinecraft().displayHeight);
@@ -170,7 +153,7 @@ public class WarpRenderer extends SkillRenderer<Warp> {
             buffer.pos(width, 0, -width).tex(1, 0).endVertex();
             tessellator.draw();
             GlStateManager.popMatrix();
-            if (!ClientConfig.RENDER_CONFIG.rendering.helpMyFramesAreDying) {
+            if (!ClientConfig.RENDER_CONFIG.rendering.helpMyFramesAreDying && ClientConfig.RENDER_CONFIG.rendering.helpMyShadersAreDying) {
                 if (!ClientConfig.RENDER_CONFIG.rendering.vanilla) {
                     ShaderLibrary.UNIVERSE.end();
                 } else {
