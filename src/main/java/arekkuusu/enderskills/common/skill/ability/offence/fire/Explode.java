@@ -6,7 +6,6 @@ import arekkuusu.enderskills.api.capability.data.SkillData;
 import arekkuusu.enderskills.api.capability.data.SkillInfo;
 import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoCooldown;
 import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoUpgradeable;
-import arekkuusu.enderskills.api.capability.data.nbt.UUIDWatcher;
 import arekkuusu.enderskills.api.event.SkillDamageEvent;
 import arekkuusu.enderskills.api.event.SkillDamageSource;
 import arekkuusu.enderskills.api.helper.ExpressionHelper;
@@ -75,7 +74,7 @@ public class Explode extends BaseAbility implements IScanEntities, IExpand, IFin
             NBTHelper.setDouble(compound, "dot", dot);
             NBTHelper.setInteger(compound, "dotDuration", dotDuration);
             SkillData data = SkillData.of(this)
-                    .put(compound, UUIDWatcher.INSTANCE)
+                    .put(compound)
                     .create();
             EntityPlaceableExplode spawn = new EntityPlaceableExplode(owner.world, owner, data, EntityPlaceableData.MIN_TIME);
             Vec3d vecPos = owner.getPositionEyes(1F);

@@ -7,7 +7,6 @@ import arekkuusu.enderskills.api.capability.data.SkillHolder;
 import arekkuusu.enderskills.api.capability.data.SkillInfo;
 import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoCooldown;
 import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoUpgradeable;
-import arekkuusu.enderskills.api.capability.data.nbt.UUIDWatcher;
 import arekkuusu.enderskills.api.helper.ExpressionHelper;
 import arekkuusu.enderskills.api.helper.NBTHelper;
 import arekkuusu.enderskills.api.helper.RayTraceHelper;
@@ -19,6 +18,7 @@ import arekkuusu.enderskills.common.CommonConfig;
 import arekkuusu.enderskills.common.EnderSkills;
 import arekkuusu.enderskills.common.entity.data.IImpact;
 import arekkuusu.enderskills.common.entity.throwable.EntityThrowableData;
+import arekkuusu.enderskills.common.entity.throwable.MotionHelper;
 import arekkuusu.enderskills.common.lib.LibMod;
 import arekkuusu.enderskills.common.lib.LibNames;
 import arekkuusu.enderskills.common.network.PacketHelper;
@@ -77,7 +77,7 @@ public class Pull extends BaseAbility implements IImpact, ISkillAdvancement {
             SkillData data = SkillData.of(this)
                     .by(owner)
                     .with(10)
-                    .put(compound, UUIDWatcher.INSTANCE)
+                    .put(compound)
                     .overrides(SkillData.Overrides.EQUAL)
                     .create();
             EntityThrowableData.throwFor(owner, distance, data, false);
@@ -122,7 +122,7 @@ public class Pull extends BaseAbility implements IImpact, ISkillAdvancement {
                 vector.y * distance,
                 vector.z * distance
         );
-        moveEntity(to, from, target);
+        MotionHelper.moveEntity(to, from, target);
         if (target.collidedHorizontally) {
             target.motionY = 0;
         }
@@ -142,14 +142,6 @@ public class Pull extends BaseAbility implements IImpact, ISkillAdvancement {
     public void end(EntityLivingBase entity, SkillData data) {
         if (isClientWorld(entity)) return;
         EnderSkills.getProxy().addToQueue(() -> ModEffects.STUNNED.set(entity, data, data.nbt.getInteger("time")));
-    }
-
-    public void moveEntity(Vec3d pullerPos, Vec3d pushedPos, Entity pulled) {
-        Vec3d distance = pullerPos.subtract(pushedPos);
-        Vec3d motion = new Vec3d(distance.x / 10D, distance.y / 10D, distance.z / 10D).scale(-1);
-        pulled.motionX = -motion.x;
-        pulled.motionY = -motion.y;
-        pulled.motionZ = -motion.z;
     }
 
     public int getLevel(IInfoUpgradeable info) {

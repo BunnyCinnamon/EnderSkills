@@ -4,7 +4,6 @@ import arekkuusu.enderskills.api.capability.AdvancementCapability;
 import arekkuusu.enderskills.api.capability.Capabilities;
 import arekkuusu.enderskills.api.capability.data.SkillData;
 import arekkuusu.enderskills.api.capability.data.SkillInfo;
-import arekkuusu.enderskills.api.capability.data.nbt.UUIDWatcher;
 import arekkuusu.enderskills.api.helper.ExpressionHelper;
 import arekkuusu.enderskills.api.helper.NBTHelper;
 import arekkuusu.enderskills.api.helper.TeamHelper;
@@ -19,17 +18,15 @@ import arekkuusu.enderskills.common.skill.ModEffects;
 import arekkuusu.enderskills.common.skill.SkillHelper;
 import arekkuusu.enderskills.common.skill.ability.AbilityInfo;
 import arekkuusu.enderskills.common.skill.ability.BaseAbility;
-import arekkuusu.enderskills.common.sound.ModSounds;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.SoundCategory;
+import net.minecraft.util.DamageSource;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.config.Config;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -48,7 +45,7 @@ public class ShockingAura extends BaseAbility {
 
     @Override
     public void use(EntityLivingBase owner, SkillInfo skillInfo) {
-        if (((SkillInfo.IInfoCooldown) skillInfo).hasCooldown() || isClientWorld(owner)) return;
+        if (isClientWorld(owner)) return;
         AbilityInfo abilityInfo = (AbilityInfo) skillInfo;
 
         if (!SkillHelper.isActiveFrom(owner, this)) {
@@ -57,24 +54,26 @@ public class ShockingAura extends BaseAbility {
                     abilityInfo.setCooldown(getCooldown(abilityInfo));
                 }
                 double range = getRange(abilityInfo);
+                double stun = getStun(abilityInfo);
                 double slow = getSlow(abilityInfo);
                 NBTTagCompound compound = new NBTTagCompound();
                 NBTHelper.setEntity(compound, owner, "owner");
                 NBTHelper.setDouble(compound, "range", range);
+                NBTHelper.setDouble(compound, "stun", stun);
                 NBTHelper.setDouble(compound, "slow", slow);
                 SkillData data = SkillData.of(this)
                         .by(owner)
                         .with(INDEFINITE)
-                        .put(compound, UUIDWatcher.INSTANCE)
+                        .put(compound)
                         .overrides(SkillData.Overrides.EQUAL)
                         .create();
                 apply(owner, data);
                 sync(owner, data);
                 sync(owner);
 
-                if (owner.world instanceof WorldServer) {
+                /*if (owner.world instanceof WorldServer) {
                     ((WorldServer) owner.world).playSound(null, owner.posX, owner.posY, owner.posZ, ModSounds.TAUNT, SoundCategory.PLAYERS, 5.0F, (1.0F + (owner.world.rand.nextFloat() - owner.world.rand.nextFloat()) * 0.2F) * 0.7F);
-                }
+                }*/
             }
         } else {
             SkillHelper.getActiveFrom(owner, this).ifPresent(data -> {
@@ -86,6 +85,7 @@ public class ShockingAura extends BaseAbility {
 
     @Override
     public void update(EntityLivingBase owner, SkillData data, int tick) {
+        if (isClientWorld(owner)) return;
         double distance = NBTHelper.getDouble(data.nbt, "range") * MathHelper.clamp(((double) tick / (10)), 0D, 1D);
         double slow = NBTHelper.getDouble(data.nbt, "slow");
         Vec3d pos = owner.getPositionVector();
@@ -94,8 +94,12 @@ public class ShockingAura extends BaseAbility {
         Vec3d max = pos.addVector(0.5D, 0.5D, 0.5D);
         AxisAlignedBB bb = new AxisAlignedBB(min.x, min.y, min.z, max.x, max.y, max.z);
         owner.world.getEntitiesWithinAABB(EntityLivingBase.class, bb.grow(distance), TeamHelper.SELECTOR_ENEMY.apply(owner)).forEach(target -> {
-            if(SkillHelper.isActive(target, ModEffects.ELECTRIFIED)) {
-                ModEffects.STUNNED.set(target, data);
+            if (SkillHelper.isActive(target, ModEffects.ELECTRIFIED)) {
+                int stun = NBTHelper.getInteger(data.nbt, "stun");
+                ModEffects.ELECTRIFIED.propagate(target, data, stun);
+            }
+            if (target.isWet() && tick % 20 == 0) {
+                target.attackEntityFrom(DamageSource.LIGHTNING_BOLT, 4);
             }
             ModEffects.SLOWED.set(target, data, slow);
         });
@@ -115,6 +119,14 @@ public class ShockingAura extends BaseAbility {
         double func = ExpressionHelper.getExpression(this, Configuration.getSyncValues().extra.slow, level, levelMax);
         double result = (func * CommonConfig.getSyncValues().skill.extra.globalNeutralEffect);
         return (result * getEffectiveness());
+    }
+
+    public float getStun(AbilityInfo info) {
+        int level = getLevel(info);
+        int levelMax = getMaxLevel();
+        double func = ExpressionHelper.getExpression(this, Configuration.getSyncValues().extra.stun, level, levelMax);
+        double result = (func * CommonConfig.getSyncValues().skill.extra.globalPositiveEffect);
+        return (float) (result * getEffectiveness());
     }
 
     public double getRange(AbilityInfo info) {
@@ -160,6 +172,7 @@ public class ShockingAura extends BaseAbility {
                         description.add("Cooldown: " + TextHelper.format2FloatPoint(getCooldown(abilityInfo) / 20D) + "s");
                         description.add("Range: " + TextHelper.format2FloatPoint(getRange(abilityInfo)) + " Blocks");
                         description.add("Slow: " + TextHelper.format2FloatPoint(getSlow(abilityInfo)) + "%");
+                        description.add("Stun: " + TextHelper.format2FloatPoint(getStun(abilityInfo) / 20D) + "s");
                         if (abilityInfo.getLevel() < getMaxLevel()) { //Copy info and set a higher level...
                             AbilityInfo infoNew = new AbilityInfo(abilityInfo.serializeNBT());
                             infoNew.setLevel(infoNew.getLevel() + 1);
@@ -168,6 +181,7 @@ public class ShockingAura extends BaseAbility {
                             description.add("Cooldown: " + TextHelper.format2FloatPoint(getCooldown(infoNew) / 20D) + "s");
                             description.add("Range: " + TextHelper.format2FloatPoint(getRange(infoNew)) + " Blocks");
                             description.add("Slow: " + TextHelper.format2FloatPoint(getSlow(infoNew)) + "%");
+                            description.add("Stun: " + TextHelper.format2FloatPoint(getStun(infoNew) / 20D) + "s");
                         }
                     });
                 }
@@ -223,6 +237,7 @@ public class ShockingAura extends BaseAbility {
         Configuration.getSyncValues().range = Configuration.getValues().range;
         Configuration.getSyncValues().effectiveness = Configuration.getValues().effectiveness;
         Configuration.getSyncValues().extra.slow = Configuration.getValues().extra.slow;
+        Configuration.getSyncValues().extra.stun = Configuration.getValues().extra.stun;
         Configuration.getSyncValues().advancement.upgrade = Configuration.getValues().advancement.upgrade;
     }
 
@@ -233,6 +248,7 @@ public class ShockingAura extends BaseAbility {
         NBTHelper.setArray(compound, "range", Configuration.getValues().range);
         compound.setDouble("effectiveness", Configuration.getValues().effectiveness);
         NBTHelper.setArray(compound, "extra.slow", Configuration.getValues().extra.slow);
+        NBTHelper.setArray(compound, "extra.stun", Configuration.getValues().extra.stun);
         NBTHelper.setArray(compound, "advancement.upgrade", Configuration.getValues().advancement.upgrade);
     }
 
@@ -243,14 +259,15 @@ public class ShockingAura extends BaseAbility {
         Configuration.getSyncValues().range = NBTHelper.getArray(compound, "range");
         Configuration.getSyncValues().effectiveness = compound.getDouble("effectiveness");
         Configuration.getSyncValues().extra.slow = NBTHelper.getArray(compound, "extra.slow");
+        Configuration.getSyncValues().extra.stun = NBTHelper.getArray(compound, "extra.stun");
         Configuration.getSyncValues().advancement.upgrade = NBTHelper.getArray(compound, "advancement.upgrade");
     }
 
-    @Config(modid = LibMod.MOD_ID, name = LibMod.MOD_ID + "/Ability/" + LibNames.SHOCKWAVE)
+    @Config(modid = LibMod.MOD_ID, name = LibMod.MOD_ID + "/Ability/" + LibNames.SHOCKING_AURA)
     public static class Configuration {
 
         @Config.Comment("Ability Values")
-        @Config.LangKey(LibMod.MOD_ID + ".config." + LibNames.SHOCKWAVE)
+        @Config.LangKey(LibMod.MOD_ID + ".config." + LibNames.SHOCKING_AURA)
         public static Values CONFIG = new Values();
 
         public static Values getValues() {
@@ -295,6 +312,11 @@ public class ShockingAura extends BaseAbility {
                 @Config.Comment("Push Force Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
                 public String[] slow = {
                         "(0+){0.5}"
+                };
+
+                @Config.Comment("Stun time Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
+                public String[] stun = {
+                        "(0+){20}"
                 };
             }
 

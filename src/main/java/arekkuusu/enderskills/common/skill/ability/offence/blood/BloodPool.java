@@ -6,7 +6,6 @@ import arekkuusu.enderskills.api.capability.data.SkillData;
 import arekkuusu.enderskills.api.capability.data.SkillInfo;
 import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoCooldown;
 import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoUpgradeable;
-import arekkuusu.enderskills.api.capability.data.nbt.UUIDWatcher;
 import arekkuusu.enderskills.api.helper.ExpressionHelper;
 import arekkuusu.enderskills.api.helper.NBTHelper;
 import arekkuusu.enderskills.api.helper.TeamHelper;
@@ -80,7 +79,7 @@ public class BloodPool extends BaseAbility implements IImpact, ILoopSound, IExpa
 
             SkillData data = SkillData.of(this)
                     .by(owner)
-                    .put(compound, UUIDWatcher.INSTANCE)
+                    .put(compound)
                     .create();
             EntityThrowableData.throwFor(owner, Integer.MAX_VALUE, data, true);
             sync(owner);

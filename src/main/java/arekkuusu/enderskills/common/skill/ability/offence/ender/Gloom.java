@@ -6,7 +6,6 @@ import arekkuusu.enderskills.api.capability.data.SkillData;
 import arekkuusu.enderskills.api.capability.data.SkillInfo;
 import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoCooldown;
 import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoUpgradeable;
-import arekkuusu.enderskills.api.capability.data.nbt.UUIDWatcher;
 import arekkuusu.enderskills.api.event.SkillDamageEvent;
 import arekkuusu.enderskills.api.event.SkillDamageSource;
 import arekkuusu.enderskills.api.helper.ExpressionHelper;
@@ -71,7 +70,7 @@ public class Gloom extends BaseAbility implements IImpact, ISkillAdvancement {
             NBTHelper.setDouble(compound, "damage", getDamage(abilityInfo));
             SkillData data = SkillData.of(this)
                     .with(getTime(abilityInfo))
-                    .put(compound, UUIDWatcher.INSTANCE)
+                    .put(compound)
                     .create();
             EntityThrowableData.throwFor(owner, distance, data, false);
             sync(owner);

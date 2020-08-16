@@ -1,6 +1,5 @@
 package arekkuusu.enderskills.client.render.skill;
 
-import arekkuusu.enderskills.api.capability.Capabilities;
 import arekkuusu.enderskills.api.helper.NBTHelper;
 import arekkuusu.enderskills.common.network.PacketHelper;
 import arekkuusu.enderskills.common.skill.ModAbilities;
@@ -34,24 +33,19 @@ public class FogRenderer extends SkillRenderer<Fog> {
         @SubscribeEvent
         public void onLivingRender(RenderLivingEvent.Post<EntityLivingBase> event) {
             EntityPlayerSP thePlayer = Minecraft.getMinecraft().player;
-            if (!SkillHelper.isActive(thePlayer, ModEffects.BLINDED)) {
-                SkillHelper.getActiveFrom(event.getEntity(), ModAbilities.FOG).ifPresent(data -> {
-                    Optional.ofNullable(NBTHelper.getEntity(EntityLivingBase.class, data.nbt, "owner")).ifPresent(user -> {
-                        if (thePlayer != user && user == event.getEntity()) {
-                            PacketHelper.sendBlindedUseRequestPacket(Minecraft.getMinecraft().player, data);
-                        }
-                    });
+            SkillHelper.getActiveFrom(event.getEntity(), ModAbilities.FOG).ifPresent(data -> {
+                Optional.ofNullable(NBTHelper.getEntity(EntityLivingBase.class, data.nbt, "owner")).ifPresent(user -> {
+                    if (thePlayer != user && user == event.getEntity()) {
+                        PacketHelper.sendBlindedUseRequestPacket(thePlayer, data);
+                    }
                 });
-            }
+            });
         }
 
         @SubscribeEvent
         public void onSoundEffect(PlaySoundAtEntityEvent event) {
-            if (event.getEntity() instanceof EntityLivingBase) {
-                EntityLivingBase entity = (EntityLivingBase) event.getEntity();
-                Capabilities.get(entity).flatMap(c -> c.getActive(ModAbilities.FOG)).ifPresent(holder -> {
-                    event.setVolume(event.getVolume() * 0.5F);
-                });
+            if (SkillHelper.isActive(event.getEntity(), ModEffects.BLINDED)) {
+                event.setVolume(event.getVolume() * 0.5F);
             }
         }
 

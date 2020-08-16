@@ -39,9 +39,12 @@ public class Overheal extends BaseEffect {
         if (remainingHeal > 0) {
             NBTTagCompound compound = new NBTTagCompound();
             NBTHelper.setFloat(compound, "over_heal", remainingHeal);
-            SkillData data = SkillData.of(ModEffects.OVERHEAL).with(5 * 20).put(compound).create();
-            ModEffects.OVERHEAL.apply(entity, data);
-            ModEffects.OVERHEAL.sync(entity, data);
+            SkillData data = SkillData.of(this)
+                    .with(5 * 20)
+                    .put(compound)
+                    .create();
+            apply(entity, data);
+            sync(entity, data);
         }
     }
 }

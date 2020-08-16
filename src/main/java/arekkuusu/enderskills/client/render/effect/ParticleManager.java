@@ -32,6 +32,8 @@ public final class ParticleManager {
     public void renderAll(float partial) {
         Entity entity = Minecraft.getMinecraft().player;
         if (entity != null) {
+            ParticleBase[] particles = this.particles.toArray(new ParticleBase[0]);
+
             Particle.interpPosX = entity.lastTickPosX + (entity.posX - entity.lastTickPosX) * partial;
             Particle.interpPosY = entity.lastTickPosY + (entity.posY - entity.lastTickPosY) * partial;
             Particle.interpPosZ = entity.lastTickPosZ + (entity.posZ - entity.lastTickPosZ) * partial;

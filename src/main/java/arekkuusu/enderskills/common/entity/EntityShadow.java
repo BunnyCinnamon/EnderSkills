@@ -12,6 +12,7 @@ import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.server.management.PreYggdrasilConverter;
 import net.minecraft.util.DamageSource;
+import net.minecraft.util.EntityDamageSource;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.Vec3d;
@@ -49,14 +50,13 @@ public class EntityShadow extends Entity {
                         }
                     }
                     if (owner.getDistance(this) > 10) {
-                        this.setPositionAndUpdate(owner.posX, owner.posY, owner.posZ);
-                        setFaded(false);
+                        teleportNextToOwner();
                     }
                     if (ticksExisted % 10 == 0 && !attackMap.isEmpty()) {
                         for (Map.Entry<EntityLivingBase, Float> set : attackMap.entrySet()) {
                             EntityLivingBase entity = set.getKey();
                             float damage = set.getValue() + (set.getValue() * getMirrorDamage());
-                            entity.attackEntityFrom(new DamageSource("shadow"), damage);
+                            entity.attackEntityFrom(new EntityDamageSource("shadow", owner), damage);
 
                             if (entity.world instanceof WorldServer) {
                                 ((WorldServer) entity.world).playSound(null, entity.posX, entity.posY, entity.posZ, ModSounds.SHADOW_ATTACK, SoundCategory.PLAYERS, 1.0F, (1.0F + (entity.world.rand.nextFloat() - entity.world.rand.nextFloat()) * 0.2F) * 0.7F);
@@ -74,12 +74,6 @@ public class EntityShadow extends Entity {
             world.spawnParticle(EnumParticleTypes.SMOKE_LARGE, posX, posY, posZ, 0, 0, 0);
         }
         if (fadedCountdown > 0) --fadedCountdown;
-        if (!isFaded() && fadedCountdown == 0) {
-            fadedCountdown = 30;
-            if (!world.isRemote) {
-                setFaded(true);
-            }
-        }
     }
 
     public void addAttack(EntityLivingBase entity, float amount) {
@@ -87,6 +81,14 @@ public class EntityShadow extends Entity {
             attackMap.put(entity, attackMap.get(entity) + amount);
         } else {
             attackMap.put(entity, amount);
+        }
+    }
+
+    @Override
+    public void handleStatusUpdate(byte id) {
+        super.handleStatusUpdate(id);
+        if(id == 66) {
+            fadedCountdown = 30;
         }
     }
 
@@ -104,7 +106,7 @@ public class EntityShadow extends Entity {
                         lookVector.z
                 );
                 setPositionAndUpdate(targetVector.x, targetVector.y, targetVector.z);
-                setFaded(false);
+                world.setEntityState(this, (byte) 66);
             }
         }
     }
@@ -141,14 +143,6 @@ public class EntityShadow extends Entity {
 
     public void setMirrorDamage(float damage) {
         this.dataManager.set(MIRROR_DAMAGE, damage);
-    }
-
-    public boolean isFaded() {
-        return this.dataManager.get(FADED);
-    }
-
-    public void setFaded(boolean faded) {
-        this.dataManager.set(FADED, faded);
     }
 
     @Override

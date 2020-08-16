@@ -49,13 +49,13 @@ public class Slowed extends BaseEffect {
     public void set(EntityLivingBase entity, SkillData data, double slow) {
         NBTTagCompound compound = new NBTTagCompound();
         NBTHelper.setDouble(compound, "slow", slow);
-        SkillData status = SkillData.of(ModEffects.SLOWED)
+        SkillData status = SkillData.of(this)
                 .by(data.id + ":" + data.skill.getRegistryName())
                 .with(10)
                 .put(compound)
                 .overrides(SkillData.Overrides.EQUAL)
                 .create();
-        ModEffects.SLOWED.apply(entity, status);
-        ModEffects.SLOWED.sync(entity, status);
+        apply(entity, status);
+        sync(entity, status);
     }
 }

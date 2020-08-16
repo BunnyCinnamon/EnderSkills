@@ -153,7 +153,7 @@ public class WarpRenderer extends SkillRenderer<Warp> {
             buffer.pos(width, 0, -width).tex(1, 0).endVertex();
             tessellator.draw();
             GlStateManager.popMatrix();
-            if (!ClientConfig.RENDER_CONFIG.rendering.helpMyFramesAreDying && ClientConfig.RENDER_CONFIG.rendering.helpMyShadersAreDying) {
+            if (!ClientConfig.RENDER_CONFIG.rendering.helpMyFramesAreDying && !ClientConfig.RENDER_CONFIG.rendering.helpMyShadersAreDying) {
                 if (!ClientConfig.RENDER_CONFIG.rendering.vanilla) {
                     ShaderLibrary.UNIVERSE.end();
                 } else {

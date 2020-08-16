@@ -6,7 +6,6 @@ import arekkuusu.enderskills.api.capability.data.SkillData;
 import arekkuusu.enderskills.api.capability.data.SkillInfo;
 import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoCooldown;
 import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoUpgradeable;
-import arekkuusu.enderskills.api.capability.data.nbt.UUIDWatcher;
 import arekkuusu.enderskills.api.helper.ExpressionHelper;
 import arekkuusu.enderskills.api.helper.NBTHelper;
 import arekkuusu.enderskills.api.helper.TeamHelper;
@@ -81,7 +80,7 @@ public class Grasp extends BaseAbility implements IImpact, IExpand, ILoopSound, 
             NBTHelper.setInteger(compound, "dotDuration", dotDuration);
             SkillData data = SkillData.of(this)
                     .with(5)
-                    .put(compound, UUIDWatcher.INSTANCE)
+                    .put(compound)
                     .overrides(SkillData.Overrides.SAME)
                     .create();
             EntityThrowableData.throwFor(owner, distance, data, false);

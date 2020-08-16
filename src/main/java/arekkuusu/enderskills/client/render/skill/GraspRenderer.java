@@ -57,7 +57,7 @@ public class GraspRenderer extends SkillRenderer<Grasp> {
                 }
             }
             spawnParticle(vec, entity);
-            vec = vec.rotateYaw(120 * (float) Math.PI / 180F);
+            vec = vec.rotateYaw(120F * (float) Math.PI / 180F);
             spawnParticle(vec, entity);
             vec = vec.rotateYaw(120F * (float) Math.PI / 180F);
             spawnParticle(vec, entity);

@@ -118,18 +118,14 @@ public class ShadowJabRenderer extends SkillRenderer<ShadowJab> {
             );
             position = position.add(entityPos);
             motion = target.subtract(position);
-            motion = new Vector(motion.x / maxLifeTime, motion.y / maxLifeTime, motion.z / maxLifeTime);
+            motion = motion.divide(maxLifeTime);
             Vector direction = motion.normalize();
-            rotationYaw = (float) Math.atan2(direction.x, direction.z) * (float) (180D / Math.PI) - 90F;
-            rotationPitch = (float) MathHelper.atan2(direction.y, MathHelper.sqrt(direction.x * direction.x + direction.z * direction.z)) * (float) (180D / Math.PI);
+            rotationYaw = (float) direction.toYaw();
+            rotationPitch = (float) direction.toPitch();
         }
 
         public void update() {
-            //Entity entity = weakReference.get();
             Vector motion = this.motion;
-            /*if (entity != null) {
-                motion = motion.addVector(entity.motionX, entity.motionY, entity.motionZ);
-            }*/
             position = position.add(motion);
         }
 

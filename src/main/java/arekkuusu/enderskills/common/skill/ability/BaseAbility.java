@@ -4,8 +4,7 @@ import arekkuusu.enderskills.api.capability.Capabilities;
 import arekkuusu.enderskills.api.capability.data.SkillData;
 import arekkuusu.enderskills.api.capability.data.SkillInfo;
 import arekkuusu.enderskills.api.event.SkillActivateEvent;
-import arekkuusu.enderskills.api.event.SkillsActionableEvent;
-import arekkuusu.enderskills.common.network.PacketHelper;
+import arekkuusu.enderskills.api.event.SkillActionableEvent;
 import arekkuusu.enderskills.common.skill.BaseSkill;
 import arekkuusu.enderskills.common.skill.ModAbilities;
 import net.minecraft.entity.EntityLivingBase;
@@ -75,7 +74,7 @@ public abstract class BaseAbility extends BaseSkill {
     public abstract int getUpgradeCost(@Nullable AbilityInfo info);
 
     public boolean isActionable(EntityLivingBase entity) {
-        SkillsActionableEvent event = new SkillsActionableEvent(entity, this);
+        SkillActionableEvent event = new SkillActionableEvent(entity, this);
         MinecraftForge.EVENT_BUS.post(event);
         return !event.isCanceled();
     }

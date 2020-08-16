@@ -21,37 +21,60 @@ import javax.annotation.Nullable;
 @SuppressWarnings("ConstantConditions")
 public class EnduranceCapability implements ICapabilitySerializable<NBTTagCompound>, Capability.IStorage<EnduranceCapability> {
 
-    private final int enduranceDefault = 40;
-    private int enduranceDelay;
-    private int enduranceMax = enduranceDefault;
-    private int endurance;
+    private double enduranceDelay;
+    private double endurance;
+    private double absorption;
 
-    public int getEndurance() {
+    public double getAbsorption() {
+        return absorption;
+    }
+
+    public void setAbsorption(double absorption) {
+        this.absorption = absorption;
+    }
+
+    public double getEndurance() {
         return endurance;
     }
 
-    public void setEndurance(int endurance) {
+    public void setEndurance(double endurance) {
         this.endurance = endurance;
     }
 
-    public int getEnduranceDefault() {
-        return enduranceDefault;
-    }
-
-    public int getEnduranceMax() {
-        return enduranceMax;
-    }
-
-    public void setEnduranceMax(int enduranceMax) {
-        this.enduranceMax = enduranceMax;
-    }
-
-    public int getEnduranceDelay() {
+    public double getEnduranceDelay() {
         return enduranceDelay;
     }
 
-    public void setEnduranceDelay(int enduranceDelay) {
+    public void setEnduranceDelay(double enduranceDelay) {
         this.enduranceDelay = enduranceDelay;
+    }
+
+    public double drain(double enduranceNeeded) {
+        boolean drain = false;
+        if (getAbsorption() > 0 && enduranceNeeded > 0) {
+            if (getAbsorption() > enduranceNeeded) {
+                setAbsorption(getAbsorption() - enduranceNeeded);
+                enduranceNeeded = 0;
+            } else {
+                enduranceNeeded -= getAbsorption();
+                setAbsorption(0);
+            }
+            drain = true;
+        }
+        if (getEndurance() > 0 && enduranceNeeded > 0) {
+            if (getEndurance() > enduranceNeeded) {
+                setEndurance(getEndurance() - enduranceNeeded);
+                enduranceNeeded = 0;
+            } else {
+                enduranceNeeded -= getEndurance();
+                setEndurance(0);
+            }
+            drain = true;
+        }
+        if (drain) {
+            setEnduranceDelay(5 * 20);
+        }
+        return enduranceNeeded;
     }
 
     public static void init() {
@@ -90,9 +113,8 @@ public class EnduranceCapability implements ICapabilitySerializable<NBTTagCompou
     public NBTBase writeNBT(Capability<EnduranceCapability> capability, EnduranceCapability instance, EnumFacing side) {
         NBTTagCompound tag = new NBTTagCompound();
         //Write Endurance
-        tag.setInteger(ENDURANCE_NBT, instance.endurance);
-        tag.setInteger(ENDURANCE_MAX_NBT, instance.enduranceMax);
-        tag.setInteger(ENDURANCE_DELAY_NBT, instance.enduranceDelay);
+        tag.setDouble(ENDURANCE_NBT, instance.endurance);
+        tag.setDouble(ENDURANCE_DELAY_NBT, instance.enduranceDelay);
         return tag;
     }
 
@@ -100,9 +122,8 @@ public class EnduranceCapability implements ICapabilitySerializable<NBTTagCompou
     public void readNBT(Capability<EnduranceCapability> capability, EnduranceCapability instance, EnumFacing side, NBTBase nbt) {
         NBTTagCompound tag = (NBTTagCompound) nbt;
         //Read endurance
-        instance.endurance = tag.getInteger(ENDURANCE_NBT);
-        instance.enduranceMax = tag.getInteger(ENDURANCE_MAX_NBT);
-        instance.enduranceDelay = tag.getInteger(ENDURANCE_DELAY_NBT);
+        instance.endurance = tag.getDouble(ENDURANCE_NBT);
+        instance.enduranceDelay = tag.getDouble(ENDURANCE_DELAY_NBT);
     }
 
     public static class Handler {

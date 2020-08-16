@@ -73,11 +73,11 @@ public class SkilledEntityCapability implements ICapabilitySerializable<NBTTagCo
     }
 
     public Optional<SkillHolder> getActive(Skill skill) {
-        return skillHolders.stream().filter(h -> h.data.skill == skill).findFirst();
+        return skillHolders.stream().filter(h -> h.data.skill == skill && !h.isDead()).findFirst();
     }
 
     public boolean isActive(Skill skill) {
-        return skillHolders.stream().anyMatch(h -> h.data.skill == skill);
+        return skillHolders.stream().anyMatch(h -> h.data.skill == skill && !h.isDead());
     }
 
     public void activate(SkillHolder holder) {

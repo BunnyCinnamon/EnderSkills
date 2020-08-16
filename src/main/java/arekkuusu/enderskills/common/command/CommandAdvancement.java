@@ -119,27 +119,15 @@ public class CommandAdvancement extends CommandBase {
                     }
                     switch (args[2]) {
                         case "set":
-                            if (levelToSet > Integer.MAX_VALUE) {
-                                message(sender, "advancement.invalid.level");
-                                return;
-                            }
                             capability.level = levelToSet;
                             capability.levelProgress = 0;
                             break;
                         case "add":
                             int sum = Math.min(capability.level + levelToSet, Integer.MAX_VALUE);
-                            if (sum > Integer.MAX_VALUE) {
-                                message(sender, "advancement.invalid.level", levelToSet);
-                                return;
-                            }
                             capability.level = sum;
                             break;
                         case "sub":
                             int sub = Math.max(capability.level - levelToSet, 0);
-                            if (sub > Integer.MAX_VALUE) {
-                                message(sender, "advancement.invalid.level", levelToSet);
-                                return;
-                            }
                             capability.level = sub;
                             break;
                         case "query":

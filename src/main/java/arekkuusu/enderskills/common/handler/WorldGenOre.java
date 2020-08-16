@@ -12,7 +12,7 @@ import net.minecraftforge.fml.common.IWorldGenerator;
 import java.util.Arrays;
 import java.util.Random;
 
-public class WorldGenOre implements IWorldGenerator {
+public final class WorldGenOre implements IWorldGenerator {
 
     @Override
     public void generate(Random random, int chunkX, int chunkZ, World world, IChunkGenerator chunkGenerator, IChunkProvider chunkProvider) {

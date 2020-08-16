@@ -6,7 +6,6 @@ import arekkuusu.enderskills.api.capability.data.SkillData;
 import arekkuusu.enderskills.api.capability.data.SkillInfo;
 import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoCooldown;
 import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoUpgradeable;
-import arekkuusu.enderskills.api.capability.data.nbt.UUIDWatcher;
 import arekkuusu.enderskills.api.event.SkillDamageEvent;
 import arekkuusu.enderskills.api.event.SkillDamageSource;
 import arekkuusu.enderskills.api.helper.ExpressionHelper;
@@ -73,7 +72,7 @@ public class Slash extends BaseAbility implements IScanEntities, IExpand, IFindE
             NBTHelper.setDouble(compound, "distance", distance);
             SkillData data = SkillData.of(this)
                     .by(owner)
-                    .put(compound, UUIDWatcher.INSTANCE)
+                    .put(compound)
                     .create();
             EntityPlaceableData spawn = new EntityPlaceableData(owner.world, owner, data, 5);
             MotionHelper.forwardMotion(owner, spawn, distance, 5);

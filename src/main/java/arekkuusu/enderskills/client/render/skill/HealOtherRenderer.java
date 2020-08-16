@@ -40,7 +40,7 @@ public class HealOtherRenderer extends SkillRenderer<HealOther> {
     public void render(Entity entity, double x, double y, double z, float partialTicks, SkillHolder skillHolder) {
         Vec3d vec = entity.getPositionVector();
         double posX = vec.x;
-        double posY = vec.y + entity.height + 0.1D;
+        double posY = vec.y + entity.height + 0.5D;
         double posZ = vec.z;
         EnderSkills.getProxy().spawnParticle(entity.world, new Vec3d(posX, posY, posZ), new Vec3d(0, 0, 0), 4, 50, 0x58DB11, ResourceLibrary.PLUS);
     }

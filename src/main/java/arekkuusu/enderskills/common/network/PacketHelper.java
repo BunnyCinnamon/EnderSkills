@@ -5,6 +5,7 @@ import arekkuusu.enderskills.api.capability.data.SkillData;
 import arekkuusu.enderskills.api.capability.data.SkillHolder;
 import arekkuusu.enderskills.api.helper.NBTHelper;
 import arekkuusu.enderskills.api.registry.Skill;
+import arekkuusu.enderskills.api.util.Vector;
 import arekkuusu.enderskills.common.CommonConfig;
 import arekkuusu.enderskills.common.skill.IConfigSync;
 import net.minecraft.client.entity.EntityPlayerSP;
@@ -27,18 +28,6 @@ import java.util.Map;
 import java.util.Objects;
 
 public final class PacketHelper {
-
-    public static void sendParticle(World world, Vec3d pos, Vec3d speed, float scale, int age, int rgb, ResourceLocation location) {
-        NBTTagCompound compound = new NBTTagCompound();
-        NBTHelper.setWorld(compound, "world", world);
-        NBTHelper.setVector(compound, "pos", pos);
-        NBTHelper.setVector(compound, "speed", speed);
-        NBTHelper.setFloat(compound, "scale", scale);
-        NBTHelper.setInteger(compound, "age", age);
-        NBTHelper.setInteger(compound, "rgb", rgb);
-        NBTHelper.setResourceLocation(compound, "location", location);
-        PacketHandler.NETWORK.sendToAllAround(new ServerToClientPacket(PacketHandler.PARTICLE, compound), fromWorldPos(world, new BlockPos(pos), 69));
-    }
 
     public static void sendConfigReload(EntityPlayerMP player) {
         IForgeRegistry<Skill> registry = GameRegistry.findRegistry(Skill.class);
@@ -149,14 +138,36 @@ public final class PacketHelper {
         NBTHelper.setNBT(compound, "data", data.serializeNBT());
         PacketHandler.NETWORK.sendToAllAround(new ServerToClientPacket(PacketHandler.SKILL_DATA_REMOVE_RESPONSE, compound), fromEntity(entity, 69)); // Nice
     }
+
     //TODO: REMOVE TOO HARDCODED!!
+    public static void sendParticle(World world, Vec3d pos, Vec3d speed, float scale, int age, int rgb, ResourceLocation location) {
+        NBTTagCompound compound = new NBTTagCompound();
+        NBTHelper.setWorld(compound, "world", world);
+        NBTHelper.setVector(compound, "pos", pos);
+        NBTHelper.setVector(compound, "speed", speed);
+        NBTHelper.setFloat(compound, "scale", scale);
+        NBTHelper.setInteger(compound, "age", age);
+        NBTHelper.setInteger(compound, "rgb", rgb);
+        NBTHelper.setResourceLocation(compound, "location", location);
+        PacketHandler.NETWORK.sendToAllAround(new ServerToClientPacket(PacketHandler.PARTICLE, compound), fromWorldPos(world, new BlockPos(pos), 69));
+    }
+
+    public static void sendParticleLightning(World world, Vector from, Vector to, int generations, float offset, int age, int rgb, boolean branch) {
+        NBTTagCompound compound = new NBTTagCompound();
+        NBTHelper.setWorld(compound, "world", world);
+        NBTHelper.setVector(compound, "from", from.toVec3d());
+        NBTHelper.setVector(compound, "to", to.toVec3d());
+        NBTHelper.setInteger(compound, "generations", generations);
+        NBTHelper.setFloat(compound, "offset", offset);
+        NBTHelper.setInteger(compound, "age", age);
+        NBTHelper.setInteger(compound, "rgb", rgb);
+        NBTHelper.setBoolean(compound, "branch", branch);
+        PacketHandler.NETWORK.sendToAllAround(new ServerToClientPacket(PacketHandler.PARTICLE_LIGHTNING, compound), fromWorldPos(world, new BlockPos(from.toVec3d()), 69));
+    }
 
     public static void sendEnduranceSync(EntityPlayerMP player) {
         Capabilities.endurance(player).ifPresent(capability -> {
-            NBTTagCompound compound = new NBTTagCompound();
-            compound.setInteger("endurance", capability.getEndurance());
-            compound.setInteger("endurance_delay", capability.getEnduranceDelay());
-            compound.setInteger("endurance_max", capability.getEnduranceMax());
+            NBTTagCompound compound = capability.serializeNBT();
             PacketHandler.NETWORK.sendTo(new ServerToClientPacket(PacketHandler.SYNC_ENDURANCE, compound), player);
         });
     }

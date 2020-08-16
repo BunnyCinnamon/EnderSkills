@@ -20,11 +20,18 @@ public final class MotionHelper {
         throwable.motionZ = motion.z;
     }
 
-    public static void pushAround(Entity owner, Entity target, double push) {
-        MotionHelper.pushAround(owner.getPositionVector(), target, push);
+    public static void pull(Vec3d pusherVector, Entity target, double push) {
+        Vec3d from = target.getPositionVector();
+        Vec3d vector = pusherVector.subtract(from).normalize().scale(-1);
+        Vec3d to = from.addVector(
+                vector.x * push,
+                vector.y * push,
+                vector.z * push
+        );
+        moveEntity(from, to, target);
     }
 
-    public static void pushAround(Vec3d pusherVector, Entity target, double push) {
+    public static void push(Vec3d pusherVector, Entity target, double push) {
         Vec3d from = target.getPositionVector();
         Vec3d vector = pusherVector.subtract(from).normalize().scale(-1);
         Vec3d to = from.addVector(

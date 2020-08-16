@@ -77,7 +77,7 @@ public class EntityPlaceableShockwave extends EntityPlaceableData {
             positions = Arrays.copyOf(positions, positions.length + 1);
             positions[0] = new BlockPos[]{original};
             visited.add(original); //We know our original position is valid
-            addNext(queue, original); //Add next on queue
+            addNext(queue, original, original, radius); //Add next on queue
             int i = 1;
             while (true) {
                 positions = Arrays.copyOf(positions, positions.length + 1);
@@ -90,7 +90,7 @@ public class EntityPlaceableShockwave extends EntityPlaceableData {
                         if (visited.add(validated)) {
                             positions[i] = Arrays.copyOf(positions[i], positions[i].length + 1);
                             positions[i][j] = validated;
-                            addNext(temp, validated);
+                            addNext(temp, origin, validated, radius);
                             j++;
                         }
                     }
@@ -143,11 +143,23 @@ public class EntityPlaceableShockwave extends EntityPlaceableData {
         return state.getCollisionBoundingBox(world, pos) != Block.NULL_AABB;
     }
 
-    public void addNext(Set<BlockPos> list, BlockPos origin) {
-        list.add(origin.offset(EnumFacing.NORTH));
-        list.add(origin.offset(EnumFacing.SOUTH));
-        list.add(origin.offset(EnumFacing.EAST));
-        list.add(origin.offset(EnumFacing.WEST));
+    public void addNext(Set<BlockPos> list, BlockPos origin, BlockPos pos, int distance) {
+        BlockPos offset = pos.offset(EnumFacing.NORTH);
+        if (isWithingRadius(origin, pos, distance)) {
+            list.add(offset);
+        }
+        offset = pos.offset(EnumFacing.SOUTH);
+        if (isWithingRadius(origin, pos, distance)) {
+            list.add(offset);
+        }
+        offset = pos.offset(EnumFacing.EAST);
+        if (isWithingRadius(origin, pos, distance)) {
+            list.add(offset);
+        }
+        offset = pos.offset(EnumFacing.WEST);
+        if (isWithingRadius(origin, pos, distance)) {
+            list.add(offset);
+        }
     }
 
     public BlockPos[][] getTerrainBlocks() {

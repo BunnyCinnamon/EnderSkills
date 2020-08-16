@@ -6,7 +6,6 @@ import arekkuusu.enderskills.api.capability.data.SkillData;
 import arekkuusu.enderskills.api.capability.data.SkillInfo;
 import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoCooldown;
 import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoUpgradeable;
-import arekkuusu.enderskills.api.capability.data.nbt.UUIDWatcher;
 import arekkuusu.enderskills.api.event.SkillDamageSource;
 import arekkuusu.enderskills.api.helper.ExpressionHelper;
 import arekkuusu.enderskills.api.helper.NBTHelper;
@@ -64,7 +63,7 @@ public class Thorny extends BaseAbility implements ISkillAdvancement {
             SkillData data = SkillData.of(this)
                     .by(owner)
                     .with(time)
-                    .put(compound, UUIDWatcher.INSTANCE)
+                    .put(compound)
                     .overrides(SkillData.Overrides.EQUAL)
                     .create();
             apply(owner, data);

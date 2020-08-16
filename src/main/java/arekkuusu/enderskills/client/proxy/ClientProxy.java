@@ -104,7 +104,7 @@ public class ClientProxy implements IProxy {
     }
 
     @Override
-    public void spawnLightning(Vector from, Vector to, int generations, float offset, int age, int rgb, boolean branch) {
+    public void spawnLightning(World world, Vector from, Vector to, int generations, float offset, int age, int rgb, boolean branch) {
         LIGHTNING_MANAGER.add(new Lightning(from, to, generations, offset, age, rgb, branch));
     }
 

@@ -6,7 +6,6 @@ import arekkuusu.enderskills.api.capability.data.SkillData;
 import arekkuusu.enderskills.api.capability.data.SkillInfo;
 import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoCooldown;
 import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoUpgradeable;
-import arekkuusu.enderskills.api.capability.data.nbt.UUIDWatcher;
 import arekkuusu.enderskills.api.helper.ExpressionHelper;
 import arekkuusu.enderskills.api.helper.NBTHelper;
 import arekkuusu.enderskills.api.helper.TeamHelper;
@@ -80,7 +79,7 @@ public class Shockwave extends BaseAbility implements IScanEntities, IExpand, IF
             NBTHelper.setVector(compound, "pusherVector", owner.getPositionVector());
             SkillData data = SkillData.of(this)
                     .with(10)
-                    .put(compound, UUIDWatcher.INSTANCE)
+                    .put(compound)
                     .create();
             EntityPlaceableShockwave spawn = new EntityPlaceableShockwave(owner.world, owner, data, EntityPlaceableData.MIN_TIME * 2);
             spawn.setPosition(owner.posX, owner.posY, owner.posZ);
@@ -100,7 +99,7 @@ public class Shockwave extends BaseAbility implements IScanEntities, IExpand, IF
         if (isClientWorld(target) && !(target instanceof EntityPlayer)) return;
         Vec3d pusherVector = NBTHelper.getVector(data.nbt, "pusherVector");
         double push = NBTHelper.getDouble(data.nbt, "push");
-        MotionHelper.pushAround(pusherVector, target, push);
+        MotionHelper.push(pusherVector, target, push);
         if (target.collidedHorizontally) {
             target.motionY = 0;
         }

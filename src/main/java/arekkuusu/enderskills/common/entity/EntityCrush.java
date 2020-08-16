@@ -29,7 +29,7 @@ import java.util.UUID;
 
 public class EntityCrush extends Entity {
 
-    public static final DataParameter<SkillExtendedData> DATA = EntityDataManager.createKey(EntityPlaceableData.class, SkillExtendedData.SERIALIZER);
+    public static final DataParameter<SkillExtendedData> DATA = EntityDataManager.createKey(EntityCrush.class, SkillExtendedData.SERIALIZER);
     public static final DataParameter<Float> SYNC_SIZE = EntityDataManager.createKey(EntityCrush.class, DataSerializers.FLOAT);
     public int warmupDelayTicks;
     public boolean sentSpikeEvent;

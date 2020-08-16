@@ -42,7 +42,7 @@ public class InvulnerableRenderer extends SkillRenderer<Invulnerable> {
                 Entity entity = event.getEntity();
                 GlStateManager.color(1F, 1F, 1F, 1F);
                 GlStateManager.pushMatrix();
-                GlStateManager.translate(event.getX(), event.getY() + entity.height / 2, event.getZ());
+                GlStateManager.translate(event.getX(), event.getY() + entity.height + 0.5D, event.getZ());
                 GlStateManager.rotate(180, 1F, 0, 0);
                 GlStateManager.rotate(entity.ticksExisted * 0.75F % 360F, 0F, 1F, 0F);
                 GLHelper.BLEND_SRC_ALPHA$ONE.blend();
@@ -53,7 +53,7 @@ public class InvulnerableRenderer extends SkillRenderer<Invulnerable> {
                 GlStateManager.disableLighting();
                 GlStateManager.enableBlend();
                 this.bindTexture(FOLLOWING_HEAD);
-                drawHeadWithOffset(0.2, -(entity.height / 2) - 0.1);
+                drawHeadWithOffset(0.2);
                 GlStateManager.disableBlend();
                 GlStateManager.enableLighting();
                 if (!ClientConfig.RENDER_CONFIG.rendering.helpMyShadersAreDying) {
@@ -96,9 +96,7 @@ public class InvulnerableRenderer extends SkillRenderer<Invulnerable> {
             Minecraft.getMinecraft().getRenderManager().renderEngine.bindTexture(location);
         }
 
-        public void drawHeadWithOffset(double scale, double offset) {
-            GlStateManager.pushMatrix();
-            GlStateManager.translate(0, offset, 0);
+        public void drawHeadWithOffset(double scale) {
             Tessellator tessellator = Tessellator.getInstance();
             BufferBuilder buffer = tessellator.getBuffer();
 
@@ -140,7 +138,6 @@ public class InvulnerableRenderer extends SkillRenderer<Invulnerable> {
             buffer.pos(scale, -scale, -scale).tex(0, 0).endVertex();
 
             tessellator.draw();
-            GlStateManager.popMatrix();
         }
     }
 }

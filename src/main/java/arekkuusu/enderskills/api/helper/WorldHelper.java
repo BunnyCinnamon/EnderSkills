@@ -13,16 +13,18 @@ public class WorldHelper {
 
     @Nullable
     public static <T extends Entity> T getEntity(Class<T> ent, World world, UUID key) {
-        String sidedKey = key + ":" + world.isRemote;
-        if (!entityWeakHashMap.containsKey(sidedKey)) {
-            for (Entity entity : world.loadedEntityList) {
-                if (ent.isAssignableFrom(ent) && entity.getUniqueID().equals(key)) {
-                    entityWeakHashMap.put(sidedKey, entity);
-                    return ent.cast(entity);
+        if(world != null) {
+            String sidedKey = key + ":" + world.isRemote;
+            if (!entityWeakHashMap.containsKey(sidedKey)) {
+                for (Entity entity : world.loadedEntityList) {
+                    if (ent.isAssignableFrom(ent) && entity.getUniqueID().equals(key)) {
+                        entityWeakHashMap.put(sidedKey, entity);
+                        return ent.cast(entity);
+                    }
                 }
+            } else {
+                return ent.cast(entityWeakHashMap.get(sidedKey));
             }
-        } else {
-            return ent.cast(entityWeakHashMap.get(sidedKey));
         }
         return null;
     }

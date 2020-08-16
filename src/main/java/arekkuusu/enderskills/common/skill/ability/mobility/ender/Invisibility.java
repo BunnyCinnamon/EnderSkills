@@ -6,7 +6,6 @@ import arekkuusu.enderskills.api.capability.data.SkillData;
 import arekkuusu.enderskills.api.capability.data.SkillInfo;
 import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoCooldown;
 import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoUpgradeable;
-import arekkuusu.enderskills.api.capability.data.nbt.UUIDWatcher;
 import arekkuusu.enderskills.api.event.SkillDamageSource;
 import arekkuusu.enderskills.api.helper.ExpressionHelper;
 import arekkuusu.enderskills.api.helper.NBTHelper;
@@ -27,7 +26,9 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.MobEffects;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.world.WorldServer;
@@ -66,7 +67,7 @@ public class Invisibility extends BaseAbility implements ISkillAdvancement {
             SkillData data = SkillData.of(this)
                     .by(owner)
                     .with(getTime(abilityInfo))
-                    .put(compound, UUIDWatcher.INSTANCE)
+                    .put(compound)
                     .overrides(SkillData.Overrides.SAME)
                     .create();
             apply(owner, data);
@@ -85,6 +86,7 @@ public class Invisibility extends BaseAbility implements ISkillAdvancement {
     @Override
     public void update(EntityLivingBase owner, SkillData data, int tick) {
         if (isClientWorld(owner)) return;
+        owner.addPotionEffect(new PotionEffect(MobEffects.INVISIBILITY, 10));
         for (Entity entity : owner.world.loadedEntityList) {
             if (entity instanceof EntityLiving && ((EntityLiving) entity).getAttackTarget() == owner) {
                 ((EntityLiving) entity).setAttackTarget(null);

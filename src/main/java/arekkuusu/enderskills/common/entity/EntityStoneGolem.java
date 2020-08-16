@@ -54,8 +54,8 @@ public class EntityStoneGolem extends EntityGolem {
     @Override
     public void initEntityAI() {
         this.tasks.addTask(1, new EntityAIAttackMelee(this, 1.0D, true));
-        this.tasks.addTask(2, new EntityAIMoveTowardsTarget(this, 0.9D, 32.0F));
-        this.tasks.addTask(6, new AIFollowOwner(this, 2D, 5, 64));
+        this.tasks.addTask(2, new EntityAIMoveTowardsTarget(this, 0.5D, 32.0F));
+        this.tasks.addTask(6, new AIFollowProvider(this, () -> getOwnerId() != null? getEntityByUUID(getOwnerId()) : null, 0.5D, 5, 64));
         this.tasks.addTask(8, new EntityAIWatchClosest(this, EntityPlayer.class, 6.0F));
         this.tasks.addTask(9, new EntityAILookIdle(this));
         this.tasks.addTask(0, AIOverride.INSTANCE);
@@ -83,19 +83,6 @@ public class EntityStoneGolem extends EntityGolem {
         this.getEntityAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(this.dataManager.get(MAX_HEALTH));
         this.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(0.25D);
         this.getEntityAttribute(SharedMonsterAttributes.KNOCKBACK_RESISTANCE).setBaseValue(1.0D);
-    }
-
-    @Override
-    protected void collideWithEntity(Entity entityIn) {
-        UUID uuid = getOwnerId();
-        if (uuid != null) {
-            EntityLivingBase owner = getEntityByUUID(uuid);
-            if (entityIn != owner) {
-                super.collideWithEntity(entityIn);
-            }
-        } else {
-            super.collideWithEntity(entityIn);
-        }
     }
 
     @Override
@@ -258,6 +245,7 @@ public class EntityStoneGolem extends EntityGolem {
         }
     }
 
+    @Override
     public boolean attackEntityAsMob(Entity entityIn) {
         this.attackTimer = 15;
         this.world.setEntityState(this, (byte) 4);

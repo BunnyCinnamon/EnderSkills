@@ -4,12 +4,12 @@ import arekkuusu.enderskills.api.registry.Skill;
 import arekkuusu.enderskills.common.lib.LibMod;
 import arekkuusu.enderskills.common.skill.ability.BaseAbility;
 import arekkuusu.enderskills.common.skill.ability.defense.earth.*;
-import arekkuusu.enderskills.common.skill.ability.defense.electric.ElectricPulse;
-import arekkuusu.enderskills.common.skill.ability.defense.electric.ShockingAura;
+import arekkuusu.enderskills.common.skill.ability.defense.electric.*;
 import arekkuusu.enderskills.common.skill.ability.defense.light.*;
 import arekkuusu.enderskills.common.skill.ability.mobility.ender.*;
 import arekkuusu.enderskills.common.skill.ability.mobility.wind.*;
 import arekkuusu.enderskills.common.skill.ability.offence.blood.*;
+import arekkuusu.enderskills.common.skill.ability.offence.electric.Zap;
 import arekkuusu.enderskills.common.skill.ability.offence.ender.*;
 import arekkuusu.enderskills.common.skill.ability.offence.fire.*;
 import arekkuusu.enderskills.common.skill.ability.offence.wind.*;
@@ -44,6 +44,10 @@ public final class ModAbilities {
     //Defense-Electric
     public static final Skill SHOCKING_AURA = empty();
     public static final Skill ELECTRIC_PULSE = empty();
+    public static final Skill MAGNETIC_PULL = empty();
+    public static final Skill POWER_DRAIN = empty();
+    public static final Skill ENERGIZE = empty();
+    public static final Skill VOLTAIC_SENTINEL = empty();
     //Mobility-Wind
     public static final Dash DASH = empty();
     public static final Skill EXTRA_JUMP = empty();
@@ -86,6 +90,8 @@ public final class ModAbilities {
     public static final Skill FOCUS_FLAME = empty();
     public static final Skill FIREBALL = empty();
     public static final Skill EXPLODE = empty();
+    //Offense-Electric
+    public static final Skill ZAP = empty();
 
     public static void register(IForgeRegistry<Skill> registry) {
         //Defense-Light
@@ -103,8 +109,12 @@ public final class ModAbilities {
         registry.register(new Shockwave());
         registry.register(new AnimatedStoneGolem());
         //Defense-Electric
-        //registry.register(new ShockingAura());
-        //registry.register(new ElectricPulse());
+        registry.register(new ShockingAura());
+        registry.register(new ElectricPulse());
+        registry.register(new MagneticPull());
+        registry.register(new PowerDrain());
+        registry.register(new Energize());
+        registry.register(new VoltaicSentinel());
         //Mobility-Wind
         registry.register(new Dash());
         registry.register(new ExtraJump());
@@ -147,6 +157,8 @@ public final class ModAbilities {
         registry.register(new FocusFlame());
         registry.register(new Fireball());
         registry.register(new Explode());
+        //Offense-Electric
+        registry.register(new Zap());
     }
 
     @SuppressWarnings({"UnusedReturnValue", "WeakerAccess"}) //Shut up

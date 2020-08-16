@@ -1,6 +1,7 @@
 package arekkuusu.enderskills.api.util;
 
 import net.minecraft.util.math.MathHelper;
+import org.lwjgl.util.vector.Quaternion;
 
 public class Quat {
 

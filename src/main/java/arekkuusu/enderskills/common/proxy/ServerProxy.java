@@ -1,5 +1,6 @@
 package arekkuusu.enderskills.common.proxy;
 
+import arekkuusu.enderskills.api.util.Vector;
 import arekkuusu.enderskills.common.lib.LibMod;
 import arekkuusu.enderskills.common.network.PacketHelper;
 import net.minecraft.entity.player.EntityPlayer;
@@ -59,6 +60,11 @@ public class ServerProxy implements IProxy {
     @Override
     public void spawnParticle(World world, Vec3d pos, Vec3d speed, float scale, int age, int rgb, ResourceLocation location) {
         PacketHelper.sendParticle(world, pos, speed, scale, age, rgb, location);
+    }
+
+    @Override
+    public void spawnLightning(World world, Vector from, Vector to, int generations, float offset, int age, int rgb, boolean branch) {
+        PacketHelper.sendParticleLightning(world, from, to, generations, offset, age, rgb, branch);
     }
 
     @SubscribeEvent

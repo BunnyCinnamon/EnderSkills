@@ -1,5 +1,7 @@
 package arekkuusu.enderskills.client.render.skill;
 
+import arekkuusu.enderskills.api.util.Quat;
+import arekkuusu.enderskills.api.util.Vector;
 import arekkuusu.enderskills.client.proxy.ClientProxy;
 import arekkuusu.enderskills.client.render.effect.ParticleVanilla;
 import arekkuusu.enderskills.common.entity.throwable.EntityThrowableData;
@@ -19,16 +21,17 @@ public class ProjectileWind extends Render<EntityThrowableData> {
 
     @Override
     public void doRender(EntityThrowableData entity, double x, double y, double z, float entityYaw, float partialTicks) {
-        for (int i = 0; i < 4; i++) {
-            if (entity.world.rand.nextDouble() < 0.6D && ClientProxy.canParticleSpawn()) {
-                Vec3d vec = entity.getPositionEyes(1F);
-                Vec3d motion = new Vec3d(entity.prevPosX, entity.prevPosY + entity.getEyeHeight(), entity.prevPosZ).subtract(vec);
-                double offset = entity.world.rand.nextDouble();
-                double posX = vec.x + (entity.width / 2) * (entity.world.rand.nextDouble() - 0.5) + motion.x * offset;
-                double posY = vec.y + (entity.height / 2) * (entity.world.rand.nextDouble() - 0.5) + motion.y * offset;
-                double posZ = vec.z + (entity.width / 2) * (entity.world.rand.nextDouble() - 0.5) + motion.z * offset;
-                motion = new Vec3d(0, 0, 0);
-                ParticleVanilla vanilla = new ParticleVanilla(entity.world, new Vec3d(posX, posY, posZ), motion, 1F, 25, 0xFFFFFF, 0);
+        if (entity.world.rand.nextDouble() < 0.3D && ClientProxy.canParticleSpawn()) {
+            Vector vec = new Vector(entity.getPositionEyes(1F));
+            Vector motion = new Vector(entity.motionX, entity.motionY, entity.motionZ);
+            double offset = entity.world.rand.nextDouble();
+
+            for (int i = 1; i <= 3; i++) {
+                Vector posVec = motion.normalize()
+                        .perpendicular().normalize()
+                        .rotate(Quat.fromAxisAngleRad(motion.normalize(), (entity.ticksExisted + partialTicks + i + 1F) * 90F * (float) Math.PI / 180F)).normalize()
+                        .add(vec.add(motion.multiply(offset)));
+                ParticleVanilla vanilla = new ParticleVanilla(entity.world, posVec.toVec3d(), new Vec3d(0, 0, 0), 3F, 25, 0xFFFFFF, 0);
                 Minecraft.getMinecraft().effectRenderer.addEffect(vanilla);
             }
         }

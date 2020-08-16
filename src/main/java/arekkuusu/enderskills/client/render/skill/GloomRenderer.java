@@ -1,13 +1,14 @@
 package arekkuusu.enderskills.client.render.skill;
 
 import arekkuusu.enderskills.api.capability.data.SkillHolder;
-import arekkuusu.enderskills.api.helper.NBTHelper;
+import arekkuusu.enderskills.api.util.Quat;
+import arekkuusu.enderskills.api.util.Vector;
+import arekkuusu.enderskills.client.ClientConfig;
 import arekkuusu.enderskills.client.render.entity.EntityThrowableDataRenderer;
 import arekkuusu.enderskills.client.util.ResourceLibrary;
 import arekkuusu.enderskills.client.util.ShaderLibrary;
 import arekkuusu.enderskills.client.util.helper.GLHelper;
 import arekkuusu.enderskills.client.util.helper.RenderMisc;
-import arekkuusu.enderskills.client.ClientConfig;
 import arekkuusu.enderskills.common.skill.ModAbilities;
 import arekkuusu.enderskills.common.skill.SkillHelper;
 import arekkuusu.enderskills.common.skill.ability.offence.ender.Gloom;
@@ -28,7 +29,6 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.vector.Quaternion;
-import org.lwjgl.util.vector.Vector4f;
 
 import java.lang.ref.WeakReference;
 import java.util.List;
@@ -139,8 +139,8 @@ public class GloomRenderer extends SkillRenderer<Gloom> {
                 Tessellator tessellator = Tessellator.getInstance();
                 BufferBuilder buffer = tessellator.getBuffer();
                 buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX_COLOR);
-                Vec3d from = makePartialPosition(source, partial).addVector(0, source.height / 2, 0);
-                Vec3d to = makePartialPosition(entity, partial).addVector(0, entity.height / 2, 0);
+                Vector from = makePartialPosition(source, partial).addVector(0, source.height / 2, 0);
+                Vector to = makePartialPosition(entity, partial).addVector(0, entity.height / 2, 0);
                 renderTextureAroundAxis(buffer, from, to, 0F, partial);
                 renderTextureAroundAxis(buffer, from, to, 90F * Math.PI / 180F, partial);
                 tessellator.draw();
@@ -156,21 +156,20 @@ public class GloomRenderer extends SkillRenderer<Gloom> {
             }
         }
 
-        private Vec3d makePartialPosition(Entity entity, float partialTicks) {
-            double x = entity.lastTickPosX + (entity.posX - entity.lastTickPosX) * (double)partialTicks;
-            double y = entity.lastTickPosY + (entity.posY - entity.lastTickPosY) * (double)partialTicks;
-            double z = entity.lastTickPosZ + (entity.posZ - entity.lastTickPosZ) * (double)partialTicks;
-            return new Vec3d(x, y, z);
+        private Vector makePartialPosition(Entity entity, float partialTicks) {
+            double x = entity.lastTickPosX + (entity.posX - entity.lastTickPosX) * (double) partialTicks;
+            double y = entity.lastTickPosY + (entity.posY - entity.lastTickPosY) * (double) partialTicks;
+            double z = entity.lastTickPosZ + (entity.posZ - entity.lastTickPosZ) * (double) partialTicks;
+            return new Vector(x, y, z);
         }
 
-        private void renderTextureAroundAxis(BufferBuilder buf, Vec3d from, Vec3d to, double angle, float partialTicks) {
-            Vec3d direction = to.subtract(from).normalize();
-            Vec3d perpendicular = perpendicular(direction).normalize();
-            Quaternion quat = new Quaternion();
-            quat.setFromAxisAngle(new Vector4f((float) direction.x, (float) direction.y, (float) direction.z, (float) angle));
-            Vec3d rotatedPerp = rotate(perpendicular, quat).normalize();
-            Vec3d perpFrom = rotatedPerp.scale(0.15);
-            Vec3d perpTo = rotatedPerp.scale(0.15);
+        private void renderTextureAroundAxis(BufferBuilder buf, Vector from, Vector to, double angle, float partialTicks) {
+            Vector direction = to.subtract(from).normalize();
+            Vector perpendicular = direction.perpendicular().normalize();
+            Quat quat = Quat.fromAxisAngleRad(direction, (float) angle);
+            Vector rotatedPerp = perpendicular.rotate(quat).normalize();
+            Vector perpFrom = rotatedPerp.multiply(0.15);
+            Vector perpTo = rotatedPerp.multiply(0.15);
 
             int rgb = 0x1E0034;
             float r = (rgb >>> 16 & 0xFF) / 256.0F;
@@ -180,13 +179,13 @@ public class GloomRenderer extends SkillRenderer<Gloom> {
             double uMax = 1F;
             double vMin = 0F;
             double vMax = 1F;
-            Vec3d vec = from.add(perpFrom.scale(-1));
+            Vector vec = from.add(perpFrom.multiply(-1));
             buf.pos(vec.x, vec.y, vec.z).tex(uMax, vMax).color(r, g, b, 1F).endVertex();
             vec = from.add(perpFrom);
             buf.pos(vec.x, vec.y, vec.z).tex(uMax, vMin).color(r, g, b, 1F).endVertex();
             vec = to.add(perpTo);
             buf.pos(vec.x, vec.y, vec.z).tex(uMin, vMin).color(r, g, b, 1F).endVertex();
-            vec = to.add(perpTo.scale(-1));
+            vec = to.add(perpTo.multiply(-1));
             buf.pos(vec.x, vec.y, vec.z).tex(uMin, vMax).color(r, g, b, 1F).endVertex();
         }
 

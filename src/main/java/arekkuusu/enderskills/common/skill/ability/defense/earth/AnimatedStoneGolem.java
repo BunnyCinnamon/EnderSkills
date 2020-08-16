@@ -6,7 +6,6 @@ import arekkuusu.enderskills.api.capability.data.SkillData;
 import arekkuusu.enderskills.api.capability.data.SkillInfo;
 import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoCooldown;
 import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoUpgradeable;
-import arekkuusu.enderskills.api.capability.data.nbt.UUIDWatcher;
 import arekkuusu.enderskills.api.helper.ExpressionHelper;
 import arekkuusu.enderskills.api.helper.NBTHelper;
 import arekkuusu.enderskills.api.helper.RayTraceHelper;
@@ -82,7 +81,7 @@ public class AnimatedStoneGolem extends BaseAbility implements ISkillAdvancement
                     SkillData data = SkillData.of(this)
                             .by(owner)
                             .with(time)
-                            .put(compound, UUIDWatcher.INSTANCE)
+                            .put(compound)
                             .overrides(SkillData.Overrides.EQUAL)
                             .create();
                     apply(owner, data);
@@ -200,6 +199,7 @@ public class AnimatedStoneGolem extends BaseAbility implements ISkillAdvancement
                         description.add("Mirror Damage: +" + TextHelper.format2FloatPoint(getMirror(abilityInfo) * 100D) + "%");
                         description.add("Stun Duration: " + TextHelper.format2FloatPoint(getStunTime(abilityInfo) / 20D) + "s");
                         description.add("Golem Health: " + TextHelper.format2FloatPoint(getHealth(abilityInfo) / 2D) + " Hearts");
+                        description.add("Golem Base Damage: " + TextHelper.format2FloatPoint(getDamage(abilityInfo) / 2D) + " Hearts");
                         if (abilityInfo.getLevel() < getMaxLevel()) { //Copy info and set a higher level...
                             AbilityInfo infoNew = new AbilityInfo(abilityInfo.serializeNBT());
                             infoNew.setLevel(infoNew.getLevel() + 1);
@@ -210,6 +210,7 @@ public class AnimatedStoneGolem extends BaseAbility implements ISkillAdvancement
                             description.add("Mirror Damage: +" + TextHelper.format2FloatPoint(getMirror(infoNew) * 100D) + "%");
                             description.add("Stun Duration: " + TextHelper.format2FloatPoint(getStunTime(infoNew) / 20D) + "s");
                             description.add("Golem Health: " + TextHelper.format2FloatPoint(getHealth(infoNew) / 2D) + " Hearts");
+                            description.add("Golem Base Damage: " + TextHelper.format2FloatPoint(getDamage(infoNew) / 2D) + " Hearts");
                         }
                     });
                 }

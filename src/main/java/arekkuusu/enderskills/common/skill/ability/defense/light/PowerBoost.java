@@ -8,7 +8,6 @@ import arekkuusu.enderskills.api.capability.data.SkillHolder;
 import arekkuusu.enderskills.api.capability.data.SkillInfo;
 import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoCooldown;
 import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoUpgradeable;
-import arekkuusu.enderskills.api.capability.data.nbt.UUIDWatcher;
 import arekkuusu.enderskills.api.event.SkillDamageEvent;
 import arekkuusu.enderskills.api.helper.*;
 import arekkuusu.enderskills.api.registry.Skill;
@@ -46,7 +45,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import javax.annotation.Nullable;
 import java.util.*;
 
-public class PowerBoost extends BaseAbility implements IImpact, ISkillAdvancement {
+public class PowerBoost extends BaseAbility implements IImpact {
 
     public PowerBoost() {
         super(LibNames.POWER_BOOST, new AbilityProperties());
@@ -72,7 +71,7 @@ public class PowerBoost extends BaseAbility implements IImpact, ISkillAdvancemen
             SkillData data = SkillData.of(this)
                     .by(owner)
                     .with(time)
-                    .put(compound, UUIDWatcher.INSTANCE)
+                    .put(compound)
                     .overrides(SkillData.Overrides.EQUAL)
                     .create();
             EntityThrowableData.throwFor(owner, distance, data, false);
@@ -187,6 +186,10 @@ public class PowerBoost extends BaseAbility implements IImpact, ISkillAdvancemen
         return info.getLevel();
     }
 
+    public int getMaxLevel() {
+        return Configuration.getSyncValues().maxLevel;
+    }
+
     public float getPower(AbilityInfo info) {
         int level = getLevel(info);
         int levelMax = getMaxLevel();
@@ -217,10 +220,6 @@ public class PowerBoost extends BaseAbility implements IImpact, ISkillAdvancemen
         double func = ExpressionHelper.getExpression(this, Configuration.getSyncValues().time, level, levelMax);
         double result = (func * CommonConfig.getSyncValues().skill.globalTime);
         return (int) (result * getEffectiveness());
-    }
-
-    public int getMaxLevel() {
-        return Configuration.getSyncValues().maxLevel;
     }
 
     public double getEffectiveness() {

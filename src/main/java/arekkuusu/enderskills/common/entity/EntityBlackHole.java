@@ -145,9 +145,7 @@ public class EntityBlackHole extends Entity {
                             }
                         }
                         if (!world.isRemote) {
-                            if (!SkillHelper.isActive(entity, ModEffects.BLINDED)) {
-                                ModEffects.BLINDED.set(entity, getData());
-                            }
+                            ModEffects.BLINDED.set(entity, getData());
                             ModEffects.VOIDED.set(entity, getData());
                             ModEffects.SLOWED.set(entity, getData(), 0.6D);
                         }
@@ -163,7 +161,7 @@ public class EntityBlackHole extends Entity {
                     EntityLivingBase owner = SkillHelper.getOwner(getData());
                     List<EntityLivingBase> fucc = getEntityWorld().getEntitiesWithinAABB(EntityLivingBase.class, getEntityBoundingBox(), TeamHelper.SELECTOR_ENEMY.apply(owner));
                     for (EntityLivingBase entity : fucc) {
-                        MotionHelper.pushAround(this, entity, 2);
+                        MotionHelper.push(getPositionVector(), entity, 2);
                         ModAbilities.BLACK_HOLE.apply(entity, getData().copy());
                     }
                 }

@@ -33,10 +33,12 @@ entity.updraft.name=
 entity.flaming_rain.name=
 entity.explode.name=
 entity.token.name=
+entity.voltaic_sentinel.name=Voltaic Sentinel
 #----------------------------------------------------------------------------------------------------------------------#
 death.attack.skill=%1$s has been squished
 death.attack.skill.player=%1$s was squished by %2$s
 #----------------------------------------------------------------------------------------------------------------------#
+potion.effect.enderskills.potion_type_ender_effect=Strange Potion
 potion.effect.enderskills.potion_type_ability_power_effect_normal=Potion of Ability Power
 potion.effect.enderskills.potion_type_ability_power_effect_long=Potion of Ability Power
 potion.effect.enderskills.potion_type_ability_power_effect_strong=Potion of Ability Power II
@@ -68,6 +70,7 @@ lingering_potion.effect.enderskills.potion_type_cooldown_effect_strong=Lingering
 command.enderskills.not_allowed.es_reload=You cannot reload configs! If you wish to reload change "syncValuesToClient" to true in the global config or update your client's modpack config files!
 command.enderskills.not_found.player=Player %1$s not found
 command.enderskills.not_found.arguments=Missing arguments
+command.enderskills.skill.reset=Skills have been reset!
 command.enderskills.skill.lock=Skill %1$s locked!
 command.enderskills.skill.unlock=Skill %1$s unlocked!
 command.enderskills.skill.invalid=Skill %1$s not found
@@ -94,7 +97,7 @@ enderskills.potion_ability_power_effect=Ability Power Effect
 enderskills.potion_cooldown_effect=Cooldown Effect
 enderskills.potion_endurance_effect=Endurance Effect
 #----------------------------------------------------------------------------------------------------------------------#
-ui.enderskills.rotate_skill_group=Selected %s Group
+ui.enderskills.rotate_skill_group=%s
 ui.enderskills.altar_drop_line_0=Drop Ender Matrix
 ui.enderskills.altar_drop_line_1=on top to upgrade
 #----------------------------------------------------------------------------------------------------------------------#
@@ -142,6 +145,7 @@ ui.enderskills.knockback_resistance.info=KnockRes: %s
 
 ui.enderskills.page.light.title=Light
 ui.enderskills.page.earth.title=Earth
+ui.enderskills.page.electric.title=Electric
 ui.enderskills.page.wind.title=Wind
 ui.enderskills.page.void.title=Void
 ui.enderskills.page.blood.title=Blood
@@ -174,6 +178,19 @@ ui.enderskills.skill.heal_self.title=Heal Self
 ui.enderskills.skill.heal_self.description=Heals yourself.
 ui.enderskills.skill.nearby_invisibility.title=Nearby Invinsibility
 ui.enderskills.skill.nearby_invisibility.description=Grants invulnerability to all attacks except knockback to everyone in range including the user.
+
+ui.enderskills.skill.shocking_aura.title=Shocking Aura
+ui.enderskills.skill.shocking_aura.description=While active, slows enemies in an area.
+ui.enderskills.skill.electric_pulse.title=Electric Pulse
+ui.enderskills.skill.electric_pulse.description=Pushes away and slows enemies.
+ui.enderskills.skill.magnetic_pull.title=Magnetic Pull
+ui.enderskills.skill.magnetic_pull.description=Pulls towards you and slows enemies.
+ui.enderskills.skill.power_drain.title=Power Drain
+ui.enderskills.skill.power_drain.description=Steal the endurance from all enemies around you.
+ui.enderskills.skill.energize.title=Energize
+ui.enderskills.skill.energize.description=Refills target ally's endurance with your own.
+ui.enderskills.skill.voltaic_sentinel.title=Voltaic Sentinel
+ui.enderskills.skill.voltaic_sentinel.description=Summons a sentinel to assist you.
 
 ui.enderskills.skill.taunt.title=Taunt
 ui.enderskills.skill.taunt.description=Confuses everyone in an area, attracting the enemies towards your position.

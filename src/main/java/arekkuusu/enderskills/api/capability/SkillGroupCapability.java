@@ -51,7 +51,12 @@ public class SkillGroupCapability implements ICapabilitySerializable<NBTTagCompo
         putWeight("Defense-Earth", ModAbilities.SHOCKWAVE, 4);
         putWeight("Defense-Earth", ModAbilities.ANIMATED_STONE_GOLEM, 5);
         //Defense-Electric
-        //putWeight("Defense-Electric", ModAbilities.SHOCKING_AURA, 0);
+        putWeight("Defense-Electric", ModAbilities.SHOCKING_AURA, 0);
+        putWeight("Defense-Electric", ModAbilities.ELECTRIC_PULSE, 1);
+        putWeight("Defense-Electric", ModAbilities.MAGNETIC_PULL, 2);
+        putWeight("Defense-Electric", ModAbilities.POWER_DRAIN, 3);
+        putWeight("Defense-Electric", ModAbilities.ENERGIZE, 4);
+        putWeight("Defense-Electric", ModAbilities.VOLTAIC_SENTINEL, 5);
         //Mobility-Wind
         putWeight("Mobility-Wind", ModAbilities.DASH, 0);
         putWeight("Mobility-Wind", ModAbilities.EXTRA_JUMP, 1);

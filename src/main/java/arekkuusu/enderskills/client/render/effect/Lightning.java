@@ -29,6 +29,8 @@ public class Lightning {
     public float offset;
     public int ticks;
 
+    Vector direction;
+
     public Lightning(Vector from, Vector to, int generations, float offset, int age, int rgb, boolean branch) {
         this.segments.add(new LightningSegment(from, to));
         this.generations = generations;
@@ -40,6 +42,8 @@ public class Lightning {
         float b = (rgb & 0xFF) / 256.0F;
         setRBGColorF(r, g, b);
         setParticleTexture(ResourceLibrary.VOLT_PARTICLE);
+
+        this.direction = from.subtract(to).normalize().perpendicular().normalize().rotateRandom(rand, 180).normalize().multiply(0.15);
     }
 
     public void make() {
@@ -86,7 +90,16 @@ public class Lightning {
     }
 
     public void onUpdate() {
-        ++ticks;
+        for (int i = 0, size = segments.size(); i < size; i++) {
+            Vector vector = this.direction.multiply(i == size / 2 ? 1D : i < size / 2 ? i / (size / 2D) : (1D - (i - (size / 2D)) / (size / 2D)));//new Vector(rand.nextGaussian() * 0.05D, rand.nextGaussian() * 0.05D, rand.nextGaussian() * 0.05D);
+            if(i + 1 < size - 1) {
+                LightningSegment segmentA = segments.get(i);
+                LightningSegment segmentB = segments.get(i + 1);
+                segmentA.to = segmentA.to.add(vector);
+                segmentB.from = segmentB.from.add(vector);
+            }
+        }
+        ticks++;
     }
 
     public boolean isAlive() {
@@ -111,8 +124,8 @@ public class Lightning {
 
     private class LightningSegment {
 
-        private final Vector from;
-        private final Vector to;
+        Vector from;
+        Vector to;
 
         LightningSegment(Vector from, Vector to) {
             this.from = from;
@@ -131,8 +144,8 @@ public class Lightning {
             Vector direction = to.subtract(from).normalize();
             Vector perpendicular = direction.cross(Vector.ONE).normalize();
             Vector rotatedPerp = perpendicular.rotate(Quat.fromAxisAngleRad(direction, (float) Math.toRadians(angle))).normalize();
-            Vector perpFrom = rotatedPerp.multiply(0.025);
-            Vector perpTo = rotatedPerp.multiply(0.025);
+            Vector perpFrom = rotatedPerp.multiply(0.15);
+            Vector perpTo = rotatedPerp.multiply(0.15);
 
             double uMin = 0F;
             double uMax = 1F;

@@ -221,8 +221,6 @@ public final class NBTHelper {
         setNBT(compound, "entity", nbt);
     }
 
-    public static final WeakHashMap<String, Entity> entityWeakHashMap = new WeakHashMap<>(); //Suck my programmer dick
-
     @Nullable
     public static <T extends Entity> T getEntity(Class<T> ent, NBTTagCompound compound, String subtag) {
         NBTTagCompound nbt = getNBTTag(compound, "entity");

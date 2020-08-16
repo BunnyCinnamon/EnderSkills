@@ -22,7 +22,7 @@ import net.minecraftforge.fml.common.network.IGuiHandler;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class GuiHandler implements IGuiHandler {
+public final class GuiHandler implements IGuiHandler {
 
     @Override
     public Object getServerGuiElement(int id, EntityPlayer player, World world, int x, int y, int z) {
@@ -381,7 +381,7 @@ public class GuiHandler implements IGuiHandler {
                         earth.addAdvancement(explosion_resistance, damage_resistance, knockback_resistance);
                         earth.addAdvancement(magic_resistance, heart_boost, fire_resistance);
                     }
-                    /*GuiSkillAdvancementPage electric = defense.addPage(new TextComponentTranslation(get("page.electric.title")));
+                    GuiSkillAdvancementPage electric = defense.addPage(new TextComponentTranslation(get("page.electric.title")));
                     SkillAdvancementConditionSimple shocking_aura = new SkillAdvancementConditionSimple(
                             new SkillAdvancementInfo(
                                     new TextComponentTranslation(get("skill.shocking_aura.title")),
@@ -455,54 +455,104 @@ public class GuiHandler implements IGuiHandler {
                                 2, 7
                         );
                         //Ability
+                        SkillAdvancementConditionSimple electricPulse = new SkillAdvancementConditionSimple(
+                                new SkillAdvancementInfo(
+                                        new TextComponentTranslation(get("skill.electric_pulse.title")),
+                                        new TextComponentTranslation(get("skill.electric_pulse.description")),
+                                        SkillAdvancementInfo.Frame.ROUNDED,
+                                        ModAbilities.ELECTRIC_PULSE,
+                                        false
+                                ),
+                                2, 0
+                        );
+                        SkillAdvancementConditionSimple magneticPull = new SkillAdvancementConditionSimple(
+                                new SkillAdvancementInfo(
+                                        new TextComponentTranslation(get("skill.magnetic_pull.title")),
+                                        new TextComponentTranslation(get("skill.magnetic_pull.description")),
+                                        SkillAdvancementInfo.Frame.ROUNDED,
+                                        ModAbilities.MAGNETIC_PULL,
+                                        false
+                                ),
+                                2, 2
+                        );
+                        SkillAdvancementConditionSimple powerDrain = new SkillAdvancementConditionSimple(
+                                new SkillAdvancementInfo(
+                                        new TextComponentTranslation(get("skill.power_drain.title")),
+                                        new TextComponentTranslation(get("skill.power_drain.description")),
+                                        SkillAdvancementInfo.Frame.ROUNDED,
+                                        ModAbilities.POWER_DRAIN,
+                                        false
+                                ),
+                                4, 0
+                        );
+                        SkillAdvancementConditionSimple energize = new SkillAdvancementConditionSimple(
+                                new SkillAdvancementInfo(
+                                        new TextComponentTranslation(get("skill.energize.title")),
+                                        new TextComponentTranslation(get("skill.energize.description")),
+                                        SkillAdvancementInfo.Frame.ROUNDED,
+                                        ModAbilities.ENERGIZE,
+                                        false
+                                ),
+                                4, 2
+                        );
+                        SkillAdvancementConditionSimple voltaicSentinel = new SkillAdvancementConditionSimple(
+                                new SkillAdvancementInfo(
+                                        new TextComponentTranslation(get("skill.voltaic_sentinel.title")),
+                                        new TextComponentTranslation(get("skill.voltaic_sentinel.description")),
+                                        SkillAdvancementInfo.Frame.SPECIAL,
+                                        ModAbilities.VOLTAIC_SENTINEL,
+                                        false
+                                ),
+                                6, 1
+                        );
 
                         //Requirements
-                        *//*wall.addCondition(taunt);
-                        wall.addCondition(new SkillAdvancementConditionNotOrOverride(dome, animatedStoneGolem));
-                        dome.addCondition(taunt);
-                        dome.addCondition(new SkillAdvancementConditionNotOrOverride(wall, animatedStoneGolem));
-                        thorny.addCondition(new SkillAdvancementConditionOr(wall, dome));
-                        thorny.addCondition(new SkillAdvancementConditionNotOrOverride(shockwave, animatedStoneGolem));
-                        thorny.addCondition(new SkillAdvancementConditionWhenOverrideOrUpgraded(thorny, animatedStoneGolem, wall, dome));
-                        shockwave.addCondition(new SkillAdvancementConditionOr(wall, dome));
-                        shockwave.addCondition(new SkillAdvancementConditionNotOrOverride(thorny, animatedStoneGolem));
-                        shockwave.addCondition(new SkillAdvancementConditionWhenOverrideOrUpgraded(shockwave, animatedStoneGolem, wall, dome));
-                        animatedStoneGolem.addCondition(new SkillAdvancementConditionOr(shockwave, thorny));*//*
+                        electricPulse.addCondition(shocking_aura);
+                        electricPulse.addCondition(new SkillAdvancementConditionNotOrOverride(magneticPull, voltaicSentinel));
+                        magneticPull.addCondition(shocking_aura);
+                        magneticPull.addCondition(new SkillAdvancementConditionNotOrOverride(electricPulse, voltaicSentinel));
+                        powerDrain.addCondition(new SkillAdvancementConditionOr(electricPulse, magneticPull));
+                        powerDrain.addCondition(new SkillAdvancementConditionNotOrOverride(energize, voltaicSentinel));
+                        powerDrain.addCondition(new SkillAdvancementConditionWhenOverrideOrUpgraded(powerDrain, voltaicSentinel, electricPulse, magneticPull));
+                        energize.addCondition(new SkillAdvancementConditionOr(electricPulse, magneticPull));
+                        energize.addCondition(new SkillAdvancementConditionNotOrOverride(powerDrain, voltaicSentinel));
+                        energize.addCondition(new SkillAdvancementConditionWhenOverrideOrUpgraded(energize, voltaicSentinel, electricPulse, magneticPull));
+                        voltaicSentinel.addCondition(new SkillAdvancementConditionOr(energize, powerDrain));
                         explosion_resistance.addCondition(shocking_aura);
                         damage_resistance.addCondition(shocking_aura);
                         knockback_resistance.addCondition(shocking_aura);
-                        *//*magic_resistance.addCondition(new SkillAdvancementConditionOr(wall, dome));
-                        heart_boost.addCondition(new SkillAdvancementConditionOr(wall, dome));
-                        fire_resistance.addCondition(new SkillAdvancementConditionOr(wall, dome));*//*
+                        magic_resistance.addCondition(new SkillAdvancementConditionOr(electricPulse, magneticPull));
+                        heart_boost.addCondition(new SkillAdvancementConditionOr(electricPulse, magneticPull));
+                        fire_resistance.addCondition(new SkillAdvancementConditionOr(electricPulse, magneticPull));
                         //Altar Requirements
                         magic_resistance.addCondition(new SkillAdvancementConditionAltar(SkillAdvancementConditionAltar.LEVEL_1));
                         heart_boost.addCondition(new SkillAdvancementConditionAltar(SkillAdvancementConditionAltar.LEVEL_1));
                         fire_resistance.addCondition(new SkillAdvancementConditionAltar(SkillAdvancementConditionAltar.LEVEL_1));
                         shocking_aura.addCondition(new SkillAdvancementConditionAltar(SkillAdvancementConditionAltar.LEVEL_0));
-                        *//*wall.addCondition(new SkillAdvancementConditionAltar(SkillAdvancementConditionAltar.LEVEL_1));
-                        dome.addCondition(new SkillAdvancementConditionAltar(SkillAdvancementConditionAltar.LEVEL_1));
-                        thorny.addCondition(new SkillAdvancementConditionAltar(SkillAdvancementConditionAltar.LEVEL_2));
-                        shockwave.addCondition(new SkillAdvancementConditionAltar(SkillAdvancementConditionAltar.LEVEL_2));
-                        animatedStoneGolem.addCondition(new SkillAdvancementConditionAltarUltimate());*//*
+                        electricPulse.addCondition(new SkillAdvancementConditionAltar(SkillAdvancementConditionAltar.LEVEL_1));
+                        magneticPull.addCondition(new SkillAdvancementConditionAltar(SkillAdvancementConditionAltar.LEVEL_1));
+                        powerDrain.addCondition(new SkillAdvancementConditionAltar(SkillAdvancementConditionAltar.LEVEL_2));
+                        energize.addCondition(new SkillAdvancementConditionAltar(SkillAdvancementConditionAltar.LEVEL_2));
+                        voltaicSentinel.addCondition(new SkillAdvancementConditionAltarUltimate());
                         //GUI
                         GuiSkillAdvancement gui0 = electric.addAdvancement(shocking_aura);
-                        *//*GuiSkillAdvancement gui1 = earth.addAdvancement(wall, dome);
-                        GuiSkillAdvancement gui2 = earth.addAdvancement(thorny, shockwave);
-                        GuiSkillAdvancement gui3 = earth.addAdvancement(animatedStoneGolem);*//*
-                        *//*gui0.addChildren(gui1);
+                        GuiSkillAdvancement gui1 = electric.addAdvancement(electricPulse, magneticPull);
+                        GuiSkillAdvancement gui2 = electric.addAdvancement(powerDrain, energize);
+                        GuiSkillAdvancement gui3 = electric.addAdvancement(voltaicSentinel);
+                        gui0.addChildren(gui1);
                         gui1.addChildren(gui2);
-                        gui2.addChildren(gui3);*//*
+                        gui2.addChildren(gui3);
                         electric.addAdvancement(explosion_resistance, damage_resistance, knockback_resistance);
                         electric.addAdvancement(magic_resistance, heart_boost, fire_resistance);
-                    }*/
+                    }
 
                     if (CommonConfig.getValues().advancement.oneTreePerClass) {
                         charm.addCondition(new SkillAdvancementConditionNot(taunt));
-                        //charm.addCondition(new SkillAdvancementConditionNot(shocking_aura));
+                        charm.addCondition(new SkillAdvancementConditionNot(shocking_aura));
                         taunt.addCondition(new SkillAdvancementConditionNot(charm));
-                        //taunt.addCondition(new SkillAdvancementConditionNot(shocking_aura));
-                        //shocking_aura.addCondition(new SkillAdvancementConditionNot(taunt));
-                        //shocking_aura.addCondition(new SkillAdvancementConditionNot(charm));
+                        taunt.addCondition(new SkillAdvancementConditionNot(shocking_aura));
+                        shocking_aura.addCondition(new SkillAdvancementConditionNot(taunt));
+                        shocking_aura.addCondition(new SkillAdvancementConditionNot(charm));
                     }
                 }
                 GuiSkillAdvancementTab mobility = window.addTab(new TextComponentTranslation(get("tab.mobility.title")), SkillAdvancementTabType.BELOW, 0x329CA2, 1);

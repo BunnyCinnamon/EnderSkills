@@ -119,8 +119,8 @@ public class TileAltar extends TileBase implements ITickable {
                 Vector origin = new Vector(getPos()).addVector(0.5D, 0.5D, 0.5D);
                 Vector from = Vector.fromSpherical(world.rand.nextFloat() * 360F, world.rand.nextFloat() * 180F - 90F).multiply(5D * world.rand.nextDouble()).add(origin);
                 Vector to = Vector.fromSpherical(world.rand.nextFloat() * 360F, world.rand.nextFloat() * 180F - 90F).multiply(4D).add(origin);
-                EnderSkills.getProxy().spawnLightning(from, to, 5, 0.75F, 5, 0x5194FF, true);
-                world.playSound(null, from.x, from.y, from.z, ModSounds.SPARK, SoundCategory.BLOCKS, 1.0F, (1.0F + (world.rand.nextFloat() - world.rand.nextFloat()) * 0.2F) * 0.7F);
+                EnderSkills.getProxy().spawnLightning(world, from, to, 5, 0.75F, 5, 0x5194FF, true);
+                world.playSound(null, from.x, from.y, from.z, ModSounds.SPARK, SoundCategory.BLOCKS, 5.0F, (1.0F + (world.rand.nextFloat() - world.rand.nextFloat()) * 0.2F) * 0.7F);
             }
             if (lastLevelAnimationTimer < ANIMATION_TIME) {
                 lastLevelAnimationTimer += 2;

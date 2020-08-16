@@ -35,7 +35,7 @@ public class CommandSkill extends CommandBase {
 
     @Override
     public String getUsage(ICommandSender sender) {
-        return "Usage: /" + getName() + "[entity/player/@p] [modid:skillname] [set/add/sub/query/unlock/lock] [level]";
+        return "Usage: /" + getName() + "[entity/player/@p] [modid:skillname/reset] [set/add/sub/query/unlock/lock] [level]";
     }
 
     @Override
@@ -55,8 +55,10 @@ public class CommandSkill extends CommandBase {
         } else if (args.length == 2) {
             String[] skills = GameRegistry.findRegistry(Skill.class).getKeys().stream()
                     .map(ResourceLocation::toString).toArray(String[]::new);
-            return getListOfStringsMatchingLastWord(args, skills);
-        } else if (args.length == 3) {
+            List<String> list = getListOfStringsMatchingLastWord(args, skills);
+            list.add("reset");
+            return list;
+        } else if (args.length == 3 && !args[1].equals("reset")) {
             return getListOfStringsMatchingLastWord(args, "set", "add", "sub", "query", "unlock", "lock");
         }
         return super.getTabCompletions(server, sender, args, targetPos);
@@ -80,6 +82,16 @@ public class CommandSkill extends CommandBase {
                 message(sender, "not_found.player");
                 return;
             }
+
+            if(args[1].equals("reset")) {
+                capability.clearOwned();
+                if (entity instanceof EntityPlayerMP) {
+                    PacketHelper.sendSkillsSync((EntityPlayerMP) entity);
+                }
+                message(sender, "skill.reset");
+                return;
+            }
+
             Skill skill = GameRegistry.findRegistry(Skill.class).getValue(new ResourceLocation(args[1]));
             if (skill == null) {
                 message(sender, "skill.invalid", args[1]);
@@ -98,14 +110,14 @@ public class CommandSkill extends CommandBase {
                         message(sender, "skill.unlock", args[1]);
                     }
                     if (entity instanceof EntityPlayerMP) {
-                        PacketHelper.sendSkillSync((EntityPlayerMP) entity, skill);
+                        PacketHelper.sendSkillsSync((EntityPlayerMP) entity);
                     }
                     return;
             }
             //Level set/add/sub/get
             int levelToSet = args.length > 3 ? parseInt(args[3]) : 0; //We want to 'get'
             if (levelToSet < 0) {
-                message(sender, "skill.invalid.level", levelToSet);
+                message(sender, "skill.invalid.level", String.valueOf(levelToSet));
                 return;
             }
             SkillInfo info = capability.getOwned(skill).orElse(null);
@@ -130,7 +142,7 @@ public class CommandSkill extends CommandBase {
                 case "add":
                     int sum = Math.min(skillLevel.getLevel() + levelToSet, Integer.MAX_VALUE);
                     if (sum > properties.getMaxLevel()) {
-                        message(sender, "skill.invalid.level", levelToSet);
+                        message(sender, "skill.invalid.level", String.valueOf(levelToSet));
                         return;
                     }
                     skillLevel.setLevel(sum);
@@ -138,7 +150,7 @@ public class CommandSkill extends CommandBase {
                 case "sub":
                     int sub = Math.max(skillLevel.getLevel() - levelToSet, 0);
                     if (sub > properties.getMaxLevel()) {
-                        message(sender, "skill.invalid.level", levelToSet);
+                        message(sender, "skill.invalid.level", String.valueOf(levelToSet));
                         return;
                     }
                     skillLevel.setLevel(sub);

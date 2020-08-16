@@ -3,6 +3,7 @@ package arekkuusu.enderskills.common.potion;
 import arekkuusu.enderskills.api.capability.Capabilities;
 import arekkuusu.enderskills.common.lib.LibNames;
 import arekkuusu.enderskills.common.network.PacketHelper;
+import arekkuusu.enderskills.common.skill.attribute.mobility.Endurance;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayerMP;
 
@@ -16,10 +17,11 @@ public class PotionEndurance extends PotionBase {
     public void onApply(EntityLivingBase entity, int amplifier) {
         if (entity.world.isRemote) return;
         Capabilities.endurance(entity).ifPresent(capability -> {
-            int endurance = capability.getEndurance();
-            int enduranceExtra = (int) (capability.getEnduranceMax() * 0.5 * (amplifier + 1));
-            int enduranceTotal = endurance + enduranceExtra;
-            if (enduranceTotal > capability.getEnduranceMax()) enduranceTotal = capability.getEnduranceMax();
+            double maxEndurance = entity.getEntityAttribute(Endurance.MAX_ENDURANCE).getAttributeValue();
+            double endurance = capability.getEndurance();
+            double enduranceExtra = (int) (maxEndurance * 0.5 * (amplifier + 1));
+            double enduranceTotal = endurance + enduranceExtra;
+            if (enduranceTotal > maxEndurance) enduranceTotal = maxEndurance;
             capability.setEndurance(enduranceTotal);
             if (entity instanceof EntityPlayerMP) {
                 PacketHelper.sendEnduranceSync((EntityPlayerMP) entity);

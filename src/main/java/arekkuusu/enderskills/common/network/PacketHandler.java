@@ -9,6 +9,7 @@ import arekkuusu.enderskills.api.event.SkillUpgradeSyncEvent;
 import arekkuusu.enderskills.api.helper.NBTHelper;
 import arekkuusu.enderskills.api.helper.XPHelper;
 import arekkuusu.enderskills.api.registry.Skill;
+import arekkuusu.enderskills.api.util.Vector;
 import arekkuusu.enderskills.client.gui.data.ISkillAdvancement;
 import arekkuusu.enderskills.client.sounds.BleedSound;
 import arekkuusu.enderskills.common.CommonConfig;
@@ -20,7 +21,6 @@ import arekkuusu.enderskills.common.skill.ModAbilities;
 import arekkuusu.enderskills.common.skill.ModEffects;
 import com.google.common.collect.Lists;
 import net.minecraft.client.Minecraft;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -42,17 +42,6 @@ import java.util.Optional;
 public final class PacketHandler {
 
     public static final List<IPacketHandler> HANDLERS = Lists.newArrayList();
-
-    public static final IPacketHandler PARTICLE = (((compound, context) -> {
-        World world = NBTHelper.getWorld(compound, "world");
-        Vec3d pos = NBTHelper.getVector(compound, "pos");
-        Vec3d speed = NBTHelper.getVector(compound, "speed");
-        float scale = NBTHelper.getFloat(compound, "scale");
-        int age = NBTHelper.getInteger(compound, "age");
-        int rgb = NBTHelper.getInteger(compound, "rgb");
-        ResourceLocation location = NBTHelper.getResourceLocation(compound, "location");
-        EnderSkills.getProxy().spawnParticle(world, pos, speed, scale, age, rgb, location);
-    }));
 
     public static final IPacketHandler SYNC_GLOBAL_CONFIG = (((compound, context) -> {
         CommonConfig.readSyncConfig(compound);
@@ -207,12 +196,33 @@ public final class PacketHandler {
     }));
 
     //TODO: REMOVE TOO HARDCODED!!
+    public static final IPacketHandler PARTICLE = (((compound, context) -> {
+        World world = NBTHelper.getWorld(compound, "world");
+        Vec3d pos = NBTHelper.getVector(compound, "pos");
+        Vec3d speed = NBTHelper.getVector(compound, "speed");
+        float scale = NBTHelper.getFloat(compound, "scale");
+        int age = NBTHelper.getInteger(compound, "age");
+        int rgb = NBTHelper.getInteger(compound, "rgb");
+        ResourceLocation location = NBTHelper.getResourceLocation(compound, "location");
+        EnderSkills.getProxy().spawnParticle(world, pos, speed, scale, age, rgb, location);
+    }));
+
+    public static final IPacketHandler PARTICLE_LIGHTNING = (((compound, context) -> {
+        World world = NBTHelper.getWorld(compound, "world");
+        Vec3d from = NBTHelper.getVector(compound, "from");
+        Vec3d to = NBTHelper.getVector(compound, "to");
+        int generations = NBTHelper.getInteger(compound, "generations");
+        float offset = NBTHelper.getFloat(compound, "offset");
+        int age = NBTHelper.getInteger(compound, "age");
+        int rgb = NBTHelper.getInteger(compound, "rgb");
+        boolean branch = NBTHelper.getBoolean(compound, "branch");
+        EnderSkills.getProxy().spawnLightning(world, new Vector(from), new Vector(to), generations, offset, age, rgb, branch);
+    }));
+
     public static final IPacketHandler SYNC_ENDURANCE = (((compound, context) -> {
         EntityPlayer player = EnderSkills.getProxy().getPlayer();
         Capabilities.endurance(player).ifPresent(capability -> {
-            capability.setEndurance(compound.getInteger("endurance"));
-            capability.setEnduranceDelay(compound.getInteger("endurance_delay"));
-            capability.setEnduranceMax(compound.getInteger("endurance_max"));
+            capability.deserializeNBT(compound);
         });
     }));
 
@@ -325,7 +335,6 @@ public final class PacketHandler {
     public static void init() {
         register(ServerToClientPacket.Handler.class, ServerToClientPacket.class, Side.CLIENT);
         register(ClientToServerPacket.Handler.class, ClientToServerPacket.class, Side.SERVER);
-        HANDLERS.add(PARTICLE);
         HANDLERS.add(SYNC_GLOBAL_CONFIG);
         HANDLERS.add(SYNC_SKILLS_CONFIG);
         HANDLERS.add(SYNC_SKILLS);
@@ -340,6 +349,8 @@ public final class PacketHandler {
         HANDLERS.add(SKILL_UPGRADE_REQUEST);
         HANDLERS.add(SKILL_UPGRADE_SYNC);
         //TODO: REMOVE TOO HARDCODED!!
+        HANDLERS.add(PARTICLE);
+        HANDLERS.add(PARTICLE_LIGHTNING);
         HANDLERS.add(SYNC_ENDURANCE);
         HANDLERS.add(SYNC_ADVANCEMENT);
         HANDLERS.add(GUI_PIN);

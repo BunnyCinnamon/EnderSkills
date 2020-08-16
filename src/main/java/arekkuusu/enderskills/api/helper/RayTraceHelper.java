@@ -111,7 +111,21 @@ public final class RayTraceHelper {
         );
 
         RayTraceResult traceBlocks = rayTraceBlocks(world, eyesVector, targetVector);
-        return Optional.ofNullable(traceBlocks != null ? traceBlocks.getBlockPos() : null);
+        return Optional.ofNullable(traceBlocks != null && traceBlocks.typeOfHit == RayTraceResult.Type.BLOCK ? traceBlocks.getBlockPos() : null);
+    }
+
+    public static Optional<Entity> getEntityLookedAt(Entity source, double distance) {
+        World world = source.getEntityWorld();
+        Vec3d eyesVector = source.getPositionEyes(1F);
+        Vec3d lookVector = source.getLook(1F);
+        Vec3d targetVector = eyesVector.addVector(
+                lookVector.x * distance,
+                lookVector.y * distance,
+                lookVector.z * distance
+        );
+
+        RayTraceResult traceBlocks = rayTraceEntitiesExcept(world, eyesVector, targetVector, e -> e != source);
+        return Optional.ofNullable(traceBlocks != null && traceBlocks.typeOfHit == RayTraceResult.Type.ENTITY ? traceBlocks.entityHit : null);
     }
 
     public static RayTraceResult forwardsRaycast(Entity projectile, boolean includeEntities, boolean ignoreExcludedEntity, Entity excludedEntity) {

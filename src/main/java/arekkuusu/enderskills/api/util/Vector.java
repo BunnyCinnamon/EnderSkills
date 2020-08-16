@@ -85,12 +85,15 @@ public class Vector {
         return add(direction.multiply(distance));
     }
 
-    public Vector rotateRandom(Random random, float angle) {
-        Quat quatX = Quat.fromAxisAngleRad(Vector.X, (random.nextFloat() - 0.5F) * angle * (float) Math.PI / 180F);
-        Quat quatY = Quat.fromAxisAngleRad(Vector.Y, (random.nextFloat() - 0.5F) * angle * (float) Math.PI / 180F);
-        Quat quatZ = Quat.fromAxisAngleRad(Vector.Z, (random.nextFloat() - 0.5F) * angle * (float) Math.PI / 180F);
-        Quat rotation = quatX.multiply(quatY).multiply(quatZ);
-        return rotate(rotation);
+    public Vector perpendicular() {
+        if (z == 0D) {
+            double d = y;
+            double d1 = -x;
+            return new Vector(d, d1, 0D);
+        }
+        double d = z;
+        double d1 = -y;
+        return new Vector(0D, d, d1);
     }
 
     public Vector rotate(Quat quaternion) {
@@ -117,12 +120,12 @@ public class Vector {
         return new Vector(newX, newY, newZ);
     }
 
-    public Vector copy() {
-        return new Vector(x, y, z);
-    }
-
-    public Vec3d toVec3d() {
-        return new Vec3d(x, y, z);
+    public Vector rotateRandom(Random random, float angle) {
+        Quat quatX = Quat.fromAxisAngleRad(Vector.X, (random.nextFloat() - 0.5F) * angle * (float) Math.PI / 180F);
+        Quat quatY = Quat.fromAxisAngleRad(Vector.Y, (random.nextFloat() - 0.5F) * angle * (float) Math.PI / 180F);
+        Quat quatZ = Quat.fromAxisAngleRad(Vector.Z, (random.nextFloat() - 0.5F) * angle * (float) Math.PI / 180F);
+        Quat rotation = quatX.multiply(quatY).multiply(quatZ);
+        return rotate(rotation);
     }
 
     public static Vector fromSpherical(double yaw, double pitch) {
@@ -140,5 +143,21 @@ public class Vector {
         double cosPitch = MathHelper.cos(pitch);
 
         return new Vector(-sinYaw * cosPitch, -sinPitch, cosYaw * cosPitch);
+    }
+
+    public double toYaw() {
+        return Math.atan2(x, z) * (float) (180D / Math.PI) - 90F;
+    }
+
+    public double toPitch() {
+        return MathHelper.atan2(y, MathHelper.sqrt(x * x + z * z)) * (180D / Math.PI);
+    }
+
+    public Vec3d toVec3d() {
+        return new Vec3d(x, y, z);
+    }
+
+    public Vector copy() {
+        return new Vector(x, y, z);
     }
 }

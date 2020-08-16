@@ -10,8 +10,8 @@ import java.util.UUID;
 public class DynamicModifier {
 
     public final IAttribute attributeTarget;
-    private final String nameIn;
-    private final UUID uuid;
+    public final String nameIn;
+    public final UUID uuid;
 
     public DynamicModifier(String uuid, String nameIn, IAttribute attributeTarget) {
         this.attributeTarget = attributeTarget;
@@ -30,14 +30,16 @@ public class DynamicModifier {
         }
     }
 
-    public void remove(EntityLivingBase entity) {
+    public boolean remove(EntityLivingBase entity) {
         IAttributeInstance attribute = entity.getEntityAttribute(attributeTarget);
         if (attribute != null) {
             DynamicAttribute dynamicAttribute = (DynamicAttribute) attribute.getModifier(uuid);
             if (dynamicAttribute != null) {
                 attribute.removeModifier(dynamicAttribute);
+                return true;
             }
         }
+        return false;
     }
 
     private static class DynamicAttribute extends AttributeModifier {

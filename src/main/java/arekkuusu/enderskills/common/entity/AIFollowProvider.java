@@ -2,23 +2,23 @@ package arekkuusu.enderskills.common.entity;
 
 import net.minecraft.block.state.BlockFaceShape;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.ai.EntityAIBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.pathfinding.PathNavigate;
-import net.minecraft.pathfinding.PathNavigateFlying;
-import net.minecraft.pathfinding.PathNavigateGround;
 import net.minecraft.pathfinding.PathNodeType;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 
-import java.util.UUID;
+import java.util.function.Supplier;
 
-public class AIFollowOwner extends EntityAIBase {
+public class AIFollowProvider extends EntityAIBase {
 
-    public final EntityStoneGolem entity;
+    public final EntityLiving entity;
+    public Supplier<EntityLivingBase> ownerSupplier;
     public EntityLivingBase owner;
     public final double followSpeed;
     public final PathNavigate petPathfinder;
@@ -28,27 +28,19 @@ public class AIFollowOwner extends EntityAIBase {
     public float oldWaterCost;
     public World world;
 
-    public AIFollowOwner(EntityStoneGolem entity, double followSpeedIn, float minDistIn, float maxDistIn) {
+    public AIFollowProvider(EntityLiving entity, Supplier<EntityLivingBase> ownerSupplier, double followSpeedIn, float minDistIn, float maxDistIn) {
         this.entity = entity;
+        this.ownerSupplier = ownerSupplier;
         this.world = entity.world;
         this.followSpeed = followSpeedIn;
         this.petPathfinder = entity.getNavigator();
         this.minDist = minDistIn;
         this.maxDist = maxDistIn;
         this.setMutexBits(3);
-
-        if (!(entity.getNavigator() instanceof PathNavigateGround) && !(entity.getNavigator() instanceof PathNavigateFlying)) {
-            throw new IllegalArgumentException("Unsupported mob type for FollowOwnerGoal");
-        }
     }
 
     public boolean shouldExecute() {
-        UUID uuid = this.entity.getOwnerId();
-        if (uuid == null) {
-            return false;
-        }
-
-        EntityLivingBase entitylivingbase = this.entity.getEntityByUUID(uuid);
+        EntityLivingBase entitylivingbase = this.ownerSupplier.get();
         if (entitylivingbase == null) {
             return false;
         } else if (entitylivingbase instanceof EntityPlayer && ((EntityPlayer) entitylivingbase).isSpectator()) {

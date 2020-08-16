@@ -16,12 +16,10 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.SharedMonsterAttributes;
-import net.minecraft.entity.ai.attributes.RangedAttribute;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Config;
 import net.minecraftforge.event.entity.living.LivingEvent;
-import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
@@ -37,10 +35,6 @@ public class HeartBoost extends BaseAttribute implements ISkillAdvancement {
             LibMod.MOD_ID + ":" + LibNames.HEART_BOOST,
             SharedMonsterAttributes.MAX_HEALTH
     );
-
-    static {
-        ObfuscationReflectionHelper.setPrivateValue(RangedAttribute.class, (RangedAttribute) SharedMonsterAttributes.MAX_HEALTH, Double.MAX_VALUE, "maximumValue", "field_111118_b");
-    }
 
     public HeartBoost() {
         super(LibNames.HEART_BOOST, new BaseProperties());

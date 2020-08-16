@@ -50,12 +50,10 @@ import java.util.Objects;
 public class PowerBoostRenderer extends SkillRenderer<PowerBoost> {
 
     private static final ResourceLocation RES_ITEM_GLINT = new ResourceLocation("textures/misc/enchanted_item_glint.png");
-    private static final ResourceLocation PROJECTILE = new ResourceLocation(LibMod.MOD_ID, "textures/entity/pill.png");
-    private static final ResourceLocation FOLLOWING = new ResourceLocation(LibMod.MOD_ID, "textures/entity/power_boost.png");
 
     public PowerBoostRenderer() {
-        EntityThrowableDataRenderer.add(ModAbilities.POWER_BOOST, Projectile::new);
         MinecraftForge.EVENT_BUS.register(new Events());
+        EntityThrowableDataRenderer.add(ModAbilities.POWER_BOOST, ProjectileLight::new);
     }
 
     @SideOnly(Side.CLIENT)
@@ -282,64 +280,6 @@ public class PowerBoostRenderer extends SkillRenderer<PowerBoost> {
         public void setTick(Entity entity, int tick) {
             NBTTagCompound nbt = entity.getEntityData();
             nbt.setInteger(tickKey, tick);
-        }
-    }
-
-    @SideOnly(Side.CLIENT)
-    public static class Projectile extends Render<EntityThrowableData> {
-
-        protected Projectile(RenderManager renderManager) {
-            super(renderManager);
-        }
-
-        @Override
-        public void doRender(EntityThrowableData entity, double x, double y, double z, float entityYaw, float partialTicks) {
-            GlStateManager.color(1F, 1F, 1F, 1F);
-            for (int i = 0; i < 6; i++) {
-                if (entity.world.rand.nextDouble() < 0.2D && ClientProxy.canParticleSpawn()) {
-                    Vec3d vec = entity.getPositionEyes(1F);
-                    Vec3d motion = new Vec3d(entity.prevPosX, entity.prevPosY + entity.getEyeHeight(), entity.prevPosZ).subtract(vec);
-                    double offset = entity.world.rand.nextDouble();
-                    double posX = vec.x + (entity.width / 2) * (entity.world.rand.nextDouble() - 0.5) + motion.x * offset;
-                    double posY = vec.y + (entity.height / 2) * (entity.world.rand.nextDouble() - 0.5) + motion.y * offset;
-                    double posZ = vec.z + (entity.width / 2) * (entity.world.rand.nextDouble() - 0.5) + motion.z * offset;
-                    motion = new Vec3d(0, 0, 0);
-                    EnderSkills.getProxy().spawnParticle(entity.world, new Vec3d(posX, posY, posZ), motion, 0.5F, 25, 0xFFFFFF, ResourceLibrary.SPIRAL);
-                }
-            }
-            GlStateManager.pushMatrix();
-            GLHelper.BLEND_SRC_ALPHA$ONE.blend();
-            if (!ClientConfig.RENDER_CONFIG.rendering.helpMyShadersAreDying) {
-                ShaderLibrary.BRIGHT.begin();
-                ShaderLibrary.BRIGHT.set("alpha", 0.8F);
-            }
-            GlStateManager.disableLighting();
-            GlStateManager.enableBlend();
-            GlStateManager.translate((float) x, (float) y, (float) z);
-            GlStateManager.rotate(-this.renderManager.playerViewY, 0.0F, 1.0F, 0.0F);
-            GlStateManager.rotate((float) (this.renderManager.options.thirdPersonView == 2 ? -1 : 1) * this.renderManager.playerViewX, 1.0F, 0.0F, 0.0F);
-            GlStateManager.rotate(180.0F, 0.0F, 1.0F, 0.0F);
-            this.bindTexture(getEntityTexture(entity));
-            Tessellator tessellator = Tessellator.getInstance();
-            BufferBuilder buffer = tessellator.getBuffer();
-            buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
-            buffer.pos(-0.35D, -0.35D, 0).tex(0, 0).endVertex();
-            buffer.pos(0.35D, -0.35D, 0).tex(1, 0).endVertex();
-            buffer.pos(0.35D, 0.35D, 0).tex(1, 1).endVertex();
-            buffer.pos(-0.35D, 0.35D, 0).tex(0, 1).endVertex();
-            tessellator.draw();
-            GlStateManager.disableBlend();
-            GlStateManager.enableLighting();
-            if (!ClientConfig.RENDER_CONFIG.rendering.helpMyShadersAreDying) {
-                ShaderLibrary.BRIGHT.end();
-            }
-            GlStateManager.popMatrix();
-        }
-
-        @Override
-        @Nonnull
-        protected ResourceLocation getEntityTexture(EntityThrowableData entity) {
-            return PROJECTILE;
         }
     }
 }

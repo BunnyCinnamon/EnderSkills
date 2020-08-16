@@ -6,10 +6,10 @@ import arekkuusu.enderskills.api.capability.data.SkillData;
 import arekkuusu.enderskills.api.capability.data.SkillInfo;
 import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoCooldown;
 import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoUpgradeable;
-import arekkuusu.enderskills.api.capability.data.nbt.UUIDWatcher;
 import arekkuusu.enderskills.api.event.SkillDamageSource;
 import arekkuusu.enderskills.api.helper.ExpressionHelper;
 import arekkuusu.enderskills.api.helper.NBTHelper;
+import arekkuusu.enderskills.api.helper.TeamHelper;
 import arekkuusu.enderskills.api.registry.Skill;
 import arekkuusu.enderskills.client.gui.data.ISkillAdvancement;
 import arekkuusu.enderskills.client.util.ResourceLibrary;
@@ -72,7 +72,7 @@ public class LifeSteal extends BaseAbility implements ISkillAdvancement {
                     SkillData data = SkillData.of(this)
                             .by(owner)
                             .with(INDEFINITE)
-                            .put(compound, UUIDWatcher.INSTANCE)
+                            .put(compound)
                             .overrides(SkillData.Overrides.EQUAL)
                             .create();
                     apply(owner, data);
@@ -117,28 +117,30 @@ public class LifeSteal extends BaseAbility implements ISkillAdvancement {
             return;
         EntityLivingBase attacker = (EntityLivingBase) source.getTrueSource();
         EntityLivingBase attacked = event.getEntityLiving();
-        SkillHelper.getActiveFrom(attacker, this).ifPresent(data -> {
-            float heal = NBTHelper.getFloat(data.nbt, "heal");
-            attacker.heal(attacker.getMaxHealth() * heal);
-            for (int i = 0; i < 6; i++) {
-                Vec3d vec = attacked.getPositionVector();
-                double posX = vec.x;
-                double posY = vec.y + attacked.height + 0.1D;
-                double posZ = vec.z;
-                EnderSkills.getProxy().spawnParticle(attacked.world, new Vec3d(posX, posY, posZ), new Vec3d(0, 0, 0), 3, 50, 0x8A0303, ResourceLibrary.MINUS);
-            }
-            for (int i = 0; i < 6; i++) {
-                Vec3d vec = attacker.getPositionVector();
-                double posX = vec.x;
-                double posY = vec.y + attacker.height + 0.1D;
-                double posZ = vec.z;
-                EnderSkills.getProxy().spawnParticle(attacker.world, new Vec3d(posX, posY, posZ), new Vec3d(0, 0, 0), 3, 50, 0x8A0303, ResourceLibrary.PLUS);
-            }
+        if(TeamHelper.SELECTOR_ENEMY.apply(attacker).test(attacked)) {
+            SkillHelper.getActiveFrom(attacker, this).ifPresent(data -> {
+                float heal = NBTHelper.getFloat(data.nbt, "heal");
+                attacker.heal(attacker.getMaxHealth() * heal);
+                for (int i = 0; i < 6; i++) {
+                    Vec3d vec = attacked.getPositionVector();
+                    double posX = vec.x;
+                    double posY = vec.y + attacked.height + 0.1D;
+                    double posZ = vec.z;
+                    EnderSkills.getProxy().spawnParticle(attacked.world, new Vec3d(posX, posY, posZ), new Vec3d(0, 0, 0), 3, 50, 0x8A0303, ResourceLibrary.MINUS);
+                }
+                for (int i = 0; i < 6; i++) {
+                    Vec3d vec = attacker.getPositionVector();
+                    double posX = vec.x;
+                    double posY = vec.y + attacker.height + 0.1D;
+                    double posZ = vec.z;
+                    EnderSkills.getProxy().spawnParticle(attacker.world, new Vec3d(posX, posY, posZ), new Vec3d(0, 0, 0), 3, 50, 0x8A0303, ResourceLibrary.PLUS);
+                }
 
-            if (attacker.world instanceof WorldServer) {
-                ((WorldServer) attacker.world).playSound(null, attacker.posX, attacker.posY, attacker.posZ, ModSounds.LIFE_STEAL_ATTACK, SoundCategory.PLAYERS, 1.0F, (1.0F + (attacker.world.rand.nextFloat() - attacker.world.rand.nextFloat()) * 0.2F) * 0.7F);
-            }
-        });
+                if (attacker.world instanceof WorldServer) {
+                    ((WorldServer) attacker.world).playSound(null, attacker.posX, attacker.posY, attacker.posZ, ModSounds.LIFE_STEAL_ATTACK, SoundCategory.PLAYERS, 1.0F, (1.0F + (attacker.world.rand.nextFloat() - attacker.world.rand.nextFloat()) * 0.2F) * 0.7F);
+                }
+            });
+        }
     }
 
     public int getLevel(IInfoUpgradeable info) {

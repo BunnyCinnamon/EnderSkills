@@ -17,6 +17,7 @@ import arekkuusu.enderskills.client.util.ResourceLibrary;
 import arekkuusu.enderskills.client.util.helper.TextHelper;
 import arekkuusu.enderskills.common.lib.LibMod;
 import arekkuusu.enderskills.common.network.PacketHelper;
+import arekkuusu.enderskills.common.skill.attribute.mobility.Endurance;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.gui.FontRenderer;
@@ -289,8 +290,8 @@ public class Events {
         }
         Capabilities.endurance(player).ifPresent(capability -> {
             GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-            int endurance = capability.getEndurance();
-            int enduranceMax = capability.getEnduranceMax();
+            double endurance = capability.getEndurance() + capability.getAbsorption();
+            double enduranceMax = player.getEntityAttribute(Endurance.MAX_ENDURANCE).getAttributeValue() + capability.getAbsorption();
             boolean horizontal = ClientConfig.RENDER_CONFIG.endurance.orientation == ClientConfig.RenderValues.Orientation.HORIZONTAL;
             double scale = ClientConfig.RENDER_CONFIG.endurance.scale;
             double mSize = Math.pow(scale, -1D);
@@ -329,12 +330,12 @@ public class Events {
             }
             //Endurance title
             if (horizontal) {
-                renderText(TextHelper.translate("endurance.title", endurance, enduranceMax), x - 4, y - 5, 0.5D, 0xFFFFFF);
-                String text = TextHelper.translate("endurance.amount", endurance, enduranceMax);
-                renderText(TextHelper.translate("endurance.amount", endurance, enduranceMax), x - mc.fontRenderer.getStringWidth(text) / 2 + width / 2, y, 0.8D, 0xFFFFFF);
+                renderText(TextHelper.translate("endurance.title", (int) endurance, (int) enduranceMax), x - 4, y - 5, 0.5D, 0xFFFFFF);
+                String text = TextHelper.translate("endurance.amount", (int) endurance, (int) enduranceMax);
+                renderText(text, x - mc.fontRenderer.getStringWidth(text) / 2 + width / 2, y, 0.8D, 0xFFFFFF);
             } else {
-                renderText(TextHelper.translate("endurance.title", endurance, enduranceMax), x - 4, y - 5, 0.5D, 0xFFFFFF);
-                String text = TextHelper.translate("endurance.amount", endurance, enduranceMax);
+                renderText(TextHelper.translate("endurance.title", (int) endurance, (int) enduranceMax), x - 4, y - 5, 0.5D, 0xFFFFFF);
+                String text = TextHelper.translate("endurance.amount", (int) endurance, (int) enduranceMax);
                 renderText(text, x, y - mc.fontRenderer.FONT_HEIGHT / 2 + width / 2, 0.8D, 0xFFFFFF);
             }
             GlStateManager.popMatrix();
@@ -384,8 +385,8 @@ public class Events {
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public static void onTick(TickEvent.ClientTickEvent event) {
         if (event.phase == TickEvent.Phase.START) {
-            ClientProxy.PARTICLE_RENDERER.update();
             ClientProxy.LIGHTNING_MANAGER.update();
+            ClientProxy.PARTICLE_RENDERER.update();
         }
     }
 
@@ -404,7 +405,7 @@ public class Events {
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void onNextTickExecute(TickEvent.ClientTickEvent event) {
-        if (event.phase == TickEvent.Phase.END) {
+        if (event.side == Side.CLIENT && event.phase == TickEvent.Phase.END) {
             Runnable runnable;
             while ((runnable = QUEUE.poll()) != null) {
                 runnable.run();

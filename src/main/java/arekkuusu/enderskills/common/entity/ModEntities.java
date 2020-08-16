@@ -22,7 +22,6 @@ public final class ModEntities {
         register(registry, EntityWallSegment.class, LibNames.WALL + "_segment", false);
         register(registry, EntityPlaceableShockwave.class, LibNames.SHOCKWAVE, false);
         register(registry, EntityStoneGolem.class, LibNames.ANIMATED_STONE_GOLEM, true);
-        //Light
         //Blood
         register(registry, EntityPlaceableBloodPool.class, LibNames.BLOOD_POOL, false);
         //Void
@@ -38,6 +37,8 @@ public final class ModEntities {
         register(registry, EntityPlaceableFlamingRain.class, LibNames.FLAMING_RAIN, false);
         register(registry, EntityPlaceableExplode.class, LibNames.EXPLODE, false);
         register(registry, EntityTokenOrb.class, LibNames.TOKEN, true);
+        //Electric
+        register(registry, EntityVoltaicSentinel.class, LibNames.VOLTAIC_SENTINEL, true);
     }
 
     private static void register(IForgeRegistry<EntityEntry> registry, Class<? extends Entity> clazz, String name, boolean update) {

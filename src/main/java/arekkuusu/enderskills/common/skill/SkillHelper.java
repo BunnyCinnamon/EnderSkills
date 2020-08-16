@@ -31,7 +31,7 @@ public final class SkillHelper {
     }
 
     public static boolean isActive(Entity entity, Skill skill, String id) {
-        return Capabilities.get(entity).map(c -> c.getActives().stream().anyMatch(h -> h.data.skill == skill && h.data.id.equals(id))).orElse(false);
+        return Capabilities.get(entity).map(c -> c.getActives().stream().anyMatch(h -> h.data.skill == skill && !h.isDead() && h.data.id.equals(id))).orElse(false);
     }
 
     public static Optional<SkillData> getActiveFrom(Entity owner, Skill skill) {
@@ -39,7 +39,7 @@ public final class SkillHelper {
     }
 
     public static Optional<SkillData> getActive(Entity owner, Skill skill, String id) {
-        return Capabilities.get(owner).flatMap(c -> c.getActives().stream().filter(h -> h.data.skill == skill && h.data.id.equals(id)).map(h -> h.data).findFirst());
+        return Capabilities.get(owner).flatMap(c -> c.getActives().stream().filter(h -> h.data.skill == skill && !h.isDead() && h.data.id.equals(id)).map(h -> h.data).findFirst());
     }
 
     @Nullable

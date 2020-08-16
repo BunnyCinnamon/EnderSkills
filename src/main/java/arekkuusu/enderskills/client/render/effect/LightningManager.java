@@ -31,6 +31,8 @@ public final class LightningManager {
         Entity entity = Minecraft.getMinecraft().getRenderViewEntity();
         if (entity == null) entity = Minecraft.getMinecraft().player;
         if (entity != null) {
+            Lightning[] lightnings = this.lightnings.toArray(new Lightning[0]);
+
             double tx = entity.lastTickPosX + ((entity.posX - entity.lastTickPosX) * partial);
             double ty = entity.lastTickPosY + ((entity.posY - entity.lastTickPosY) * partial);
             double tz = entity.lastTickPosZ + ((entity.posZ - entity.lastTickPosZ) * partial);

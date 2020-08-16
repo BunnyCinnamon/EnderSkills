@@ -6,7 +6,6 @@ import arekkuusu.enderskills.api.capability.data.SkillData;
 import arekkuusu.enderskills.api.capability.data.SkillInfo;
 import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoCooldown;
 import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoUpgradeable;
-import arekkuusu.enderskills.api.capability.data.nbt.UUIDWatcher;
 import arekkuusu.enderskills.api.helper.ExpressionHelper;
 import arekkuusu.enderskills.api.helper.NBTHelper;
 import arekkuusu.enderskills.api.helper.TeamHelper;
@@ -44,7 +43,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-public class HealAura extends BaseAbility implements IScanEntities, IExpand, IFindEntity, ISkillAdvancement {
+public class HealAura extends BaseAbility implements IScanEntities, IExpand, IFindEntity {
 
     public HealAura() {
         super(LibNames.HEAL_AURA, new AbilityProperties());
@@ -68,7 +67,7 @@ public class HealAura extends BaseAbility implements IScanEntities, IExpand, IFi
             SkillData data = SkillData.of(this)
                     .by(owner)
                     .with(INSTANT)
-                    .put(compound, UUIDWatcher.INSTANCE)
+                    .put(compound)
                     .create();
             EntityPlaceableData spawn = new EntityPlaceableData(owner.world, owner, data, EntityPlaceableData.MIN_TIME);
             spawn.setPosition(owner.posX, owner.posY + owner.height / 2, owner.posZ);

@@ -4,13 +4,12 @@ import arekkuusu.enderskills.api.capability.AdvancementCapability;
 import arekkuusu.enderskills.api.capability.Capabilities;
 import arekkuusu.enderskills.api.capability.data.SkillData;
 import arekkuusu.enderskills.api.capability.data.SkillInfo;
-import arekkuusu.enderskills.api.capability.data.nbt.UUIDWatcher;
 import arekkuusu.enderskills.api.helper.ExpressionHelper;
 import arekkuusu.enderskills.api.helper.NBTHelper;
-import arekkuusu.enderskills.api.helper.TeamHelper;
 import arekkuusu.enderskills.api.registry.Skill;
 import arekkuusu.enderskills.client.util.helper.TextHelper;
 import arekkuusu.enderskills.common.CommonConfig;
+import arekkuusu.enderskills.common.EnderSkills;
 import arekkuusu.enderskills.common.entity.data.IExpand;
 import arekkuusu.enderskills.common.entity.data.IFindEntity;
 import arekkuusu.enderskills.common.entity.data.IScanEntities;
@@ -23,18 +22,13 @@ import arekkuusu.enderskills.common.skill.ModEffects;
 import arekkuusu.enderskills.common.skill.SkillHelper;
 import arekkuusu.enderskills.common.skill.ability.AbilityInfo;
 import arekkuusu.enderskills.common.skill.ability.BaseAbility;
-import arekkuusu.enderskills.common.sound.ModSounds;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.WorldServer;
+import net.minecraft.util.DamageSource;
 import net.minecraftforge.common.config.Config;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -61,22 +55,18 @@ public class ElectricPulse extends BaseAbility implements IScanEntities, IExpand
                 abilityInfo.setCooldown(getCooldown(abilityInfo));
             }
 
-            int time = getTime(abilityInfo);
             double range = getRange(abilityInfo);
+            double stun = getStun(abilityInfo);
             double slow = getSlow(abilityInfo);
-            double push = getPush(abilityInfo);
-            Vec3d lookVector = owner.getLook(1F);
             NBTTagCompound compound = new NBTTagCompound();
             NBTHelper.setEntity(compound, owner, "owner");
             NBTHelper.setDouble(compound, "range", range);
+            NBTHelper.setDouble(compound, "stun", stun);
             NBTHelper.setDouble(compound, "slow", slow);
-            NBTHelper.setDouble(compound, "push", push);
-            NBTHelper.setVector(compound, "origin", owner.getPositionVector());
-            NBTHelper.setVector(compound, "vector", lookVector);
             SkillData data = SkillData.of(this)
                     .by(owner)
-                    .with(time)
-                    .put(compound, UUIDWatcher.INSTANCE)
+                    .with(10)
+                    .put(compound)
                     .overrides(SkillData.Overrides.EQUAL)
                     .create();
             EntityPlaceableData spawn = new EntityPlaceableData(owner.world, owner, data, EntityPlaceableData.MIN_TIME);
@@ -85,53 +75,33 @@ public class ElectricPulse extends BaseAbility implements IScanEntities, IExpand
             owner.world.spawnEntity(spawn);
             sync(owner);
 
-            if (owner.world instanceof WorldServer) {
+            /*if (owner.world instanceof WorldServer) {
                 ((WorldServer) owner.world).playSound(null, owner.posX, owner.posY, owner.posZ, ModSounds.TAUNT, SoundCategory.PLAYERS, 5.0F, (1.0F + (owner.world.rand.nextFloat() - owner.world.rand.nextFloat()) * 0.2F) * 0.7F);
-            }
+            }*/
         }
     }
 
     //* Entity *//
     @Override
     public void onFound(Entity source, @Nullable EntityLivingBase owner, EntityLivingBase target, SkillData skillData) {
-        if(SkillHelper.isActive(target, ModEffects.ELECTRIFIED)) {
-            ModEffects.STUNNED.set(target, skillData);
+        if (SkillHelper.isActive(target, ModEffects.ELECTRIFIED)) {
+            int stun = NBTHelper.getInteger(skillData.nbt, "stun");
+            ModEffects.ELECTRIFIED.propagate(target, skillData, stun);
+        } else {
+            ModEffects.ELECTRIFIED.set(target, skillData);
         }
-        ModEffects.ELECTRIFIED.set(target, skillData);
+        if (target.isWet()) {
+            target.attackEntityFrom(DamageSource.LIGHTNING_BOLT, 4);
+        }
         apply(target, skillData);
         sync(target, skillData);
     }
     //* Entity *//
 
     @Override
-    public void update(EntityLivingBase target, SkillData data, int tick) {
-        if (isClientWorld(target) && !(target instanceof EntityPlayer)) return;
-        Vec3d vector = NBTHelper.getVector(data.nbt, "vector");
-        double push = NBTHelper.getDouble(data.nbt, "push");
-        Vec3d from = target.getPositionVector();
-        Vec3d to = from.addVector(
-                vector.x * push,
-                vector.y * push,
-                vector.z * push
-        );
-        moveEntity(to, from, target);
-        if (target.collidedHorizontally) {
-            target.motionY = 0;
-        }
-    }
-
-    @Override
-    public void end(EntityLivingBase entity, SkillData data) {
-        double slowed = NBTHelper.getDouble(data.nbt, "slowed");
-        ModEffects.SLOWED.set(entity, data, slowed);
-    }
-
-    public void moveEntity(Vec3d pullerPos, Vec3d pushedPos, Entity pulled) {
-        Vec3d distance = pullerPos.subtract(pushedPos);
-        Vec3d motion = new Vec3d(distance.x / 10D, distance.y / 10D, distance.z / 10D).scale(-1);
-        pulled.motionX = -motion.x;
-        pulled.motionY = -motion.y;
-        pulled.motionZ = -motion.z;
+    public void update(EntityLivingBase entity, SkillData data, int tick) {
+        if (isClientWorld(entity)) return;
+        EnderSkills.getProxy().addToQueue(() -> ModEffects.SLOWED.set(entity, data, data.nbt.getDouble("slowed")));
     }
 
     public int getLevel(SkillInfo.IInfoUpgradeable info) {
@@ -150,12 +120,12 @@ public class ElectricPulse extends BaseAbility implements IScanEntities, IExpand
         return (result * getEffectiveness());
     }
 
-    public double getPush(AbilityInfo info) {
+    public float getStun(AbilityInfo info) {
         int level = getLevel(info);
         int levelMax = getMaxLevel();
-        double func = ExpressionHelper.getExpression(this, Configuration.getSyncValues().extra.push, level, levelMax);
-        double result = (func * CommonConfig.getSyncValues().skill.extra.globalNeutralEffect);
-        return (result * getEffectiveness());
+        double func = ExpressionHelper.getExpression(this, Configuration.getSyncValues().extra.stun, level, levelMax);
+        double result = (func * CommonConfig.getSyncValues().skill.extra.globalPositiveEffect);
+        return (float) (result * getEffectiveness());
     }
 
     public double getRange(AbilityInfo info) {
@@ -171,14 +141,6 @@ public class ElectricPulse extends BaseAbility implements IScanEntities, IExpand
         int levelMax = getMaxLevel();
         double func = ExpressionHelper.getExpression(this, Configuration.getSyncValues().cooldown, level, levelMax);
         double result = (func * CommonConfig.getSyncValues().skill.globalCooldown);
-        return (int) (result * getEffectiveness());
-    }
-
-    public int getTime(AbilityInfo info) {
-        int level = getLevel(info);
-        int levelMax = getMaxLevel();
-        double func = ExpressionHelper.getExpression(this, Configuration.getSyncValues().time, level, levelMax);
-        double result = (func * CommonConfig.getSyncValues().skill.globalTime);
         return (int) (result * getEffectiveness());
     }
 
@@ -208,8 +170,8 @@ public class ElectricPulse extends BaseAbility implements IScanEntities, IExpand
                         }
                         description.add("Cooldown: " + TextHelper.format2FloatPoint(getCooldown(abilityInfo) / 20D) + "s");
                         description.add("Range: " + TextHelper.format2FloatPoint(getRange(abilityInfo)) + " Blocks");
-                        description.add("Duration: " + TextHelper.format2FloatPoint(getTime(abilityInfo) / 20D) + "s");
                         description.add("Slow: " + TextHelper.format2FloatPoint(getSlow(abilityInfo)) + "%");
+                        description.add("Stun: " + TextHelper.format2FloatPoint(getStun(abilityInfo) / 20D) + "s");
                         if (abilityInfo.getLevel() < getMaxLevel()) { //Copy info and set a higher level...
                             AbilityInfo infoNew = new AbilityInfo(abilityInfo.serializeNBT());
                             infoNew.setLevel(infoNew.getLevel() + 1);
@@ -217,8 +179,8 @@ public class ElectricPulse extends BaseAbility implements IScanEntities, IExpand
                             description.add("Next Level:");
                             description.add("Cooldown: " + TextHelper.format2FloatPoint(getCooldown(infoNew) / 20D) + "s");
                             description.add("Range: " + TextHelper.format2FloatPoint(getRange(infoNew)) + " Blocks");
-                            description.add("Duration: " + TextHelper.format2FloatPoint(getTime(infoNew) / 20D) + "s");
                             description.add("Slow: " + TextHelper.format2FloatPoint(getSlow(infoNew)) + "%");
+                            description.add("Stun: " + TextHelper.format2FloatPoint(getStun(infoNew) / 20D) + "s");
                         }
                     });
                 }
@@ -254,11 +216,10 @@ public class ElectricPulse extends BaseAbility implements IScanEntities, IExpand
     public void initSyncConfig() {
         Configuration.getSyncValues().maxLevel = Configuration.getValues().maxLevel;
         Configuration.getSyncValues().cooldown = Configuration.getValues().cooldown;
-        Configuration.getSyncValues().time = Configuration.getValues().time;
         Configuration.getSyncValues().range = Configuration.getValues().range;
         Configuration.getSyncValues().effectiveness = Configuration.getValues().effectiveness;
         Configuration.getSyncValues().extra.slow = Configuration.getValues().extra.slow;
-        Configuration.getSyncValues().extra.push = Configuration.getValues().extra.push;
+        Configuration.getSyncValues().extra.stun = Configuration.getValues().extra.stun;
         Configuration.getSyncValues().advancement.upgrade = Configuration.getValues().advancement.upgrade;
     }
 
@@ -266,11 +227,10 @@ public class ElectricPulse extends BaseAbility implements IScanEntities, IExpand
     public void writeSyncConfig(NBTTagCompound compound) {
         compound.setInteger("maxLevel", Configuration.getValues().maxLevel);
         NBTHelper.setArray(compound, "cooldown", Configuration.getValues().cooldown);
-        NBTHelper.setArray(compound, "time", Configuration.getValues().time);
         NBTHelper.setArray(compound, "range", Configuration.getValues().range);
         compound.setDouble("effectiveness", Configuration.getValues().effectiveness);
         NBTHelper.setArray(compound, "extra.slow", Configuration.getValues().extra.slow);
-        NBTHelper.setArray(compound, "extra.push", Configuration.getValues().extra.push);
+        NBTHelper.setArray(compound, "extra.stun", Configuration.getValues().extra.stun);
         NBTHelper.setArray(compound, "advancement.upgrade", Configuration.getValues().advancement.upgrade);
     }
 
@@ -278,19 +238,18 @@ public class ElectricPulse extends BaseAbility implements IScanEntities, IExpand
     public void readSyncConfig(NBTTagCompound compound) {
         Configuration.getSyncValues().maxLevel = compound.getInteger("maxLevel");
         Configuration.getSyncValues().cooldown = NBTHelper.getArray(compound, "cooldown");
-        Configuration.getSyncValues().time = NBTHelper.getArray(compound, "time");
         Configuration.getSyncValues().range = NBTHelper.getArray(compound, "range");
         Configuration.getSyncValues().effectiveness = compound.getDouble("effectiveness");
         Configuration.getSyncValues().extra.slow = NBTHelper.getArray(compound, "extra.slow");
-        Configuration.getSyncValues().extra.push = NBTHelper.getArray(compound, "extra.push");
+        Configuration.getSyncValues().extra.stun = NBTHelper.getArray(compound, "extra.stun");
         Configuration.getSyncValues().advancement.upgrade = NBTHelper.getArray(compound, "advancement.upgrade");
     }
 
-    @Config(modid = LibMod.MOD_ID, name = LibMod.MOD_ID + "/Ability/" + LibNames.SHOCKWAVE)
+    @Config(modid = LibMod.MOD_ID, name = LibMod.MOD_ID + "/Ability/" + LibNames.ELECTRIC_PULSE)
     public static class Configuration {
 
         @Config.Comment("Ability Values")
-        @Config.LangKey(LibMod.MOD_ID + ".config." + LibNames.SHOCKWAVE)
+        @Config.LangKey(LibMod.MOD_ID + ".config." + LibNames.ELECTRIC_PULSE)
         public static Values CONFIG = new Values();
 
         public static Values getValues() {
@@ -321,17 +280,10 @@ public class ElectricPulse extends BaseAbility implements IScanEntities, IExpand
                     "(50){(18 * 20)}"
             };
 
-            @Config.Comment("Duration Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
-            public String[] time = {
-                    "(0+){1 * 20 + 3 * 20 * (1 - (e^(-2.1 * (x/24)))) / (1 - e^(-2.1))}",
-                    "(25+){4 * 20 + 2 * 20 * ((e^(0.1 * ((x - 24) / (y - 24))) - 1)/((e^0.1) - 1))}",
-                    "(50){6 * 20}"
-            };
-
             @Config.Comment("Range Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
             public String[] range = {
-                    "(0+){3 + 2 * (1 - (e^(-2.1 * (x/24)))) / (1 - e^(-2.1))}",
-                    "(25+){5 + 2 * ((e^(0.1 * ((x - 24) / (y - 24))) - 1)/((e^0.1) - 1))}"
+                    "(0+){5 + 2 * (1 - (e^(-2.1 * (x/24)))) / (1 - e^(-2.1))}",
+                    "(25+){8 + 2 * ((e^(0.1 * ((x - 24) / (y - 24))) - 1)/((e^0.1) - 1))}"
             };
 
             @Config.Comment("Effectiveness Modifier")
@@ -344,9 +296,9 @@ public class ElectricPulse extends BaseAbility implements IScanEntities, IExpand
                         "(0+){0.5}"
                 };
 
-                @Config.Comment("Push Force Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
-                public String[] push = {
-                        "(0+){1 + ((e^(2.1 * (x / y)) - 1)/((e^2.1) - 1)) * (2 - 1)}"
+                @Config.Comment("Stun time Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
+                public String[] stun = {
+                        "(0+){20}"
                 };
             }
 

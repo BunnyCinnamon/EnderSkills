@@ -511,7 +511,7 @@ public class GuiScreenSkillAdvancements extends GuiScreen {
             this.selectedTab.tabPage = Math.min(this.selectedTab.tabPage + 1, this.selectedTab.maxPages - 1);
             Minecraft.getMinecraft().getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.UI_BUTTON_CLICK, 1.0F));
         }
-        isShifting = keyCode == 42;
+        isShifting = keyCode == 0x1D;
     }
 
     @Override

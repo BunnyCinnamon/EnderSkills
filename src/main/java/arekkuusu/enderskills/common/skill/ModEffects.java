@@ -18,8 +18,8 @@ public class ModEffects {
     }
 
     public static final Overheal OVERHEAL = empty();
-    public static final BaseEffect ELECTRIFIED = empty();
-    public static final BaseEffect OVERCHARGE = empty();
+    public static final Electrified ELECTRIFIED = empty();
+    public static final Overcharge OVERCHARGE = empty();
     public static final Stunned STUNNED = empty();
     public static final BaseEffect INVULNERABLE = empty();
     public static final BaseEffect BLEEDING = empty();
@@ -31,8 +31,8 @@ public class ModEffects {
 
     public static void register(IForgeRegistry<Skill> registry) {
         registry.register(new Overheal());
-        //registry.register(new Electrified());
-        //registry.register(new Overcharge());
+        registry.register(new Electrified());
+        registry.register(new Overcharge());
         registry.register(new Stunned());
         registry.register(new Invulnerable());
         registry.register(new Bleeding());

@@ -6,7 +6,6 @@ import arekkuusu.enderskills.api.capability.data.SkillData;
 import arekkuusu.enderskills.api.capability.data.SkillInfo;
 import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoCooldown;
 import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoUpgradeable;
-import arekkuusu.enderskills.api.capability.data.nbt.UUIDWatcher;
 import arekkuusu.enderskills.api.event.SkillDamageEvent;
 import arekkuusu.enderskills.api.event.SkillDamageSource;
 import arekkuusu.enderskills.api.helper.ExpressionHelper;
@@ -80,7 +79,7 @@ public class FocusFlame extends BaseAbility implements IImpact, ILoopSound, ISca
             NBTHelper.setInteger(compound, "dotDuration", dotDuration);
             SkillData data = SkillData.of(this)
                     .with(dotDuration)
-                    .put(compound, UUIDWatcher.INSTANCE)
+                    .put(compound)
                     .overrides(SkillData.Overrides.EQUAL)
                     .create();
             EntityThrowableData.throwFor(owner, distance, data, false);
@@ -130,7 +129,7 @@ public class FocusFlame extends BaseAbility implements IImpact, ILoopSound, ISca
         EntityLivingBase owner = SkillHelper.getOwner(data);
         double damage = data.nbt.getDouble("damage");
         SkillDamageSource source = new SkillDamageSource(BaseAbility.DAMAGE_HIT_TYPE, owner);
-        source.setFireDamage();
+        source.setExplosion();
         SkillDamageEvent event = new SkillDamageEvent(owner, this, source, damage);
         MinecraftForge.EVENT_BUS.post(event);
         entity.attackEntityFrom(event.getSource(), event.toFloat());
@@ -368,7 +367,7 @@ public class FocusFlame extends BaseAbility implements IImpact, ILoopSound, ISca
             public static class Extra {
                 @Config.Comment("Flame Range Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
                 public String[] flameRange = {
-                        "(0+){0.5}"
+                        "(0+){1.5}"
                 };
                 @Config.Comment("Flame Duration Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
                 public String[] flameDuration = {
@@ -376,9 +375,9 @@ public class FocusFlame extends BaseAbility implements IImpact, ILoopSound, ISca
                 };
                 @Config.Comment("Damage Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
                 public String[] damage = {
-                        "(0+){40 + ((e^(0.1 * (x / 49)) - 1)/((e^0.1) - 1)) * (52.96 - 40)}",
-                        "(25+){52.96 + ((e^(2.25 * ((x-24) / (y-24))) - 1)/((e^2.25) - 1)) * (85 - 52.96)}",
-                        "(50){90}"
+                        "(0+){20 + ((e^(0.1 * (x / 49)) - 1)/((e^0.1) - 1)) * (32.96 - 20)}",
+                        "(25+){32.96 + ((e^(2.25 * ((x-24) / (y-24))) - 1)/((e^2.25) - 1)) * (65 - 32.96)}",
+                        "(50){70}"
                 };
                 @Config.Comment("Damage Over Time Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
                 public String[] dot = {

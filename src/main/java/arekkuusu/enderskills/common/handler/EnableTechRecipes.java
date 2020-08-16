@@ -8,7 +8,7 @@ import net.minecraftforge.oredict.OreDictionary;
 
 import java.util.function.BooleanSupplier;
 
-public class EnableTechRecipes implements IConditionFactory {
+public final class EnableTechRecipes implements IConditionFactory {
 
     @Override
     public BooleanSupplier parse(JsonContext jsonContext, JsonObject jsonObject) {

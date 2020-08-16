@@ -36,7 +36,7 @@ public interface IProxy {
         //NO-OP
     }
 
-    default void spawnLightning(Vector from, Vector to, int generations, float offset, int age, int rgb, boolean branch) {
+    default void spawnLightning(World world, Vector from, Vector to, int generations, float offset, int age, int rgb, boolean branch) {
         //NO-OP
     }
 

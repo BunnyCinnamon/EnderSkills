@@ -16,6 +16,7 @@ import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
+import net.minecraftforge.fml.relauncher.Side;
 
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -72,7 +73,7 @@ public class Events {
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void onNextTickExecute(TickEvent.ServerTickEvent event) {
-        if (event.phase == TickEvent.Phase.END) {
+        if (event.side == Side.SERVER && event.phase == TickEvent.Phase.START) {
             Runnable runnable;
             while ((runnable = QUEUE.poll()) != null) {
                 runnable.run();

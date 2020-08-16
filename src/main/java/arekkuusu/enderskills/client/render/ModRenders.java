@@ -106,6 +106,8 @@ public final class ModRenders {
         registerSkill(Burning.class, new BurningRenderer());
         registerSkill(Invulnerable.class, new InvulnerableRenderer());
         registerSkill(Stunned.class, new StunnedRenderer());
+        registerSkill(Overheal.class, new OverhealRenderer());
+        registerSkill(Overcharge.class, new OverchargeRenderer());
     }
 
     public static void postInit() {

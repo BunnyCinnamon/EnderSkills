@@ -43,6 +43,7 @@ public class LibNames {
     public static final String POWER_DRAIN = "power_drain";
     public static final String ENERGIZE = "energize";
     public static final String VOLTAIC_SENTINEL = "voltaic_sentinel";
+    public static final String ZAP = "zap";
     //Wind
     public static final String DASH = "dash";
     public static final String EXTRA_JUMP = "extra_jump";
@@ -50,6 +51,12 @@ public class LibNames {
     public static final String SMASH = "smash";
     public static final String HASTEN = "hasten";
     public static final String SPEED_BOOST = "speed_boost";
+    public static final String SLASH = "slash";
+    public static final String PUSH = "push";
+    public static final String PULL = "pull";
+    public static final String CRUSH = "crush";
+    public static final String UPDRAFT = "updraft";
+    public static final String SUFFOCATE = "suffocate";
     //Void
     public static final String WARP = "warp";
     public static final String INVISIBILITY = "invisibility";
@@ -57,7 +64,6 @@ public class LibNames {
     public static final String UNSTABLE_PORTAL = "unstable_portal";
     public static final String PORTAL = "portal";
     public static final String TELEPORT = "teleport";
-    //Void
     public static final String SHADOW = "shadow";
     public static final String GLOOM = "gloom";
     public static final String SHADOW_JAB = "shadow_jab";
@@ -71,13 +77,6 @@ public class LibNames {
     public static final String LIFE_STEAL = "life_steal";
     public static final String SYPHON = "syphon";
     public static final String SACRIFICE = "sacrifice";
-    //Wind
-    public static final String SLASH = "slash";
-    public static final String PUSH = "push";
-    public static final String PULL = "pull";
-    public static final String CRUSH = "crush";
-    public static final String UPDRAFT = "updraft";
-    public static final String SUFFOCATE = "suffocate";
     //Fire
     public static final String FIRE_SPIRIT = "fire_spirit";
     public static final String FLAMING_BREATH = "flaming_breath";

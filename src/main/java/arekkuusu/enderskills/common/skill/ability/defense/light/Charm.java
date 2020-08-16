@@ -6,8 +6,7 @@ import arekkuusu.enderskills.api.capability.data.SkillData;
 import arekkuusu.enderskills.api.capability.data.SkillInfo;
 import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoCooldown;
 import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoUpgradeable;
-import arekkuusu.enderskills.api.capability.data.nbt.UUIDWatcher;
-import arekkuusu.enderskills.api.event.SkillsActionableEvent;
+import arekkuusu.enderskills.api.event.SkillActionableEvent;
 import arekkuusu.enderskills.api.helper.ExpressionHelper;
 import arekkuusu.enderskills.api.helper.NBTHelper;
 import arekkuusu.enderskills.api.helper.RayTraceHelper;
@@ -77,7 +76,7 @@ public class Charm extends BaseAbility implements IImpact, ISkillAdvancement {
             SkillData data = SkillData.of(this)
                     .by(CHARM_UUID)
                     .with(getTime(abilityInfo))
-                    .put(compound, UUIDWatcher.INSTANCE)
+                    .put(compound)
                     .overrides(SkillData.Overrides.ID)
                     .create();
             EntityThrowableData.throwFor(owner, distance, data, false);
@@ -137,7 +136,7 @@ public class Charm extends BaseAbility implements IImpact, ISkillAdvancement {
     }
 
     @SubscribeEvent
-    public void onSkillShouldUse(SkillsActionableEvent event) {
+    public void onSkillShouldUse(SkillActionableEvent event) {
         if (isClientWorld(event.getEntityLiving())) return;
         if (SkillHelper.isActive(event.getEntityLiving(), this)) {
             event.setCanceled(true);

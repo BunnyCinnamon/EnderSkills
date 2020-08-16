@@ -7,11 +7,14 @@ import arekkuusu.enderskills.api.capability.SkilledEntityCapability;
 import arekkuusu.enderskills.common.command.*;
 import arekkuusu.enderskills.common.handler.GuiHandler;
 import arekkuusu.enderskills.common.handler.WorldGenOre;
+import arekkuusu.enderskills.common.handler.WorldGuardHelper;
 import arekkuusu.enderskills.common.item.ModItems;
 import arekkuusu.enderskills.common.lib.LibMod;
 import arekkuusu.enderskills.common.network.PacketHandler;
 import arekkuusu.enderskills.common.potion.ModPotionTypes;
 import arekkuusu.enderskills.common.proxy.IProxy;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.SidedProxy;
@@ -57,6 +60,9 @@ public class EnderSkills {
         EnduranceCapability.init();
         AdvancementCapability.init();
         PacketHandler.init();
+        if(WorldGuardHelper.isEventHelperLoaded()) {
+            MinecraftForge.EVENT_BUS.register(new WorldGuardHelper());
+        }
     }
 
     @EventHandler

@@ -35,6 +35,6 @@ public class WatcherManager {
     }
 
     static {
-        WATCHERS.add(UUIDWatcher.INSTANCE);
+        //Nothing here
     }
 }

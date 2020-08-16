@@ -1,7 +1,7 @@
 package arekkuusu.enderskills.common.skill.effect;
 
 import arekkuusu.enderskills.api.capability.data.SkillData;
-import arekkuusu.enderskills.api.event.SkillsActionableEvent;
+import arekkuusu.enderskills.api.event.SkillActionableEvent;
 import arekkuusu.enderskills.common.entity.AIOverride;
 import arekkuusu.enderskills.common.lib.LibNames;
 import arekkuusu.enderskills.common.skill.SkillHelper;
@@ -42,7 +42,7 @@ public class Stunned extends BaseEffect {
     }
 
     @SubscribeEvent
-    public void onSkillShouldUse(SkillsActionableEvent event) {
+    public void onSkillShouldUse(SkillActionableEvent event) {
         if (isClientWorld(event.getEntityLiving())) return;
         if (SkillHelper.isActive(event.getEntityLiving(), this)) {
             event.setCanceled(true);

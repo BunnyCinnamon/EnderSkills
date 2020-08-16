@@ -2,8 +2,8 @@ package arekkuusu.enderskills.common.skill.attribute.mobility;
 
 import arekkuusu.enderskills.api.capability.Capabilities;
 import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoUpgradeable;
+import arekkuusu.enderskills.api.event.SkillActionableEvent;
 import arekkuusu.enderskills.api.event.SkillActivateEvent;
-import arekkuusu.enderskills.api.event.SkillsActionableEvent;
 import arekkuusu.enderskills.api.helper.ExpressionHelper;
 import arekkuusu.enderskills.api.helper.NBTHelper;
 import arekkuusu.enderskills.api.registry.Skill;
@@ -12,13 +12,17 @@ import arekkuusu.enderskills.common.CommonConfig;
 import arekkuusu.enderskills.common.lib.LibMod;
 import arekkuusu.enderskills.common.lib.LibNames;
 import arekkuusu.enderskills.common.network.PacketHelper;
+import arekkuusu.enderskills.common.skill.DynamicModifier;
 import arekkuusu.enderskills.common.skill.attribute.AttributeInfo;
 import arekkuusu.enderskills.common.skill.attribute.BaseAttribute;
 import arekkuusu.enderskills.common.skill.attribute.deffense.DamageResistance;
 import com.google.common.collect.ImmutableMap;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.ai.attributes.IAttribute;
+import net.minecraft.entity.ai.attributes.RangedAttribute;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
@@ -26,6 +30,7 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Config;
 import net.minecraftforge.common.util.Constants;
+import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -40,6 +45,15 @@ import java.util.Objects;
 
 public class Endurance extends BaseAttribute implements ISkillAdvancement {
 
+    //Vanilla Attribute
+    public static final IAttribute MAX_ENDURANCE = new RangedAttribute(null, "enderskills.generic.maxEndurance", 40, Float.MIN_VALUE, Float.MAX_VALUE).setDescription("Max Endurance").setShouldWatch(true);
+    //Vanilla Attribute Modifier for Endurance attribute
+    public static final DynamicModifier ENDURANCE_ATTRIBUTE = new DynamicModifier(
+            "010bf31b-320d-4ef9-91ed-6f84adc38600",
+            LibMod.MOD_ID + ":" + LibNames.ENDURANCE,
+            Endurance.MAX_ENDURANCE
+    );
+
     public Endurance() {
         super(LibNames.ENDURANCE, new BaseProperties());
         MinecraftForge.EVENT_BUS.register(this);
@@ -47,6 +61,54 @@ public class Endurance extends BaseAttribute implements ISkillAdvancement {
     }
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
+    public void onEntityUpdate(LivingEvent.LivingUpdateEvent event) {
+        if (isClientWorld(event.getEntityLiving())) return;
+        EntityLivingBase entity = event.getEntityLiving();
+        if (entity.ticksExisted % 20 != 0) return; //Slowdown cowboy! yee-haw!
+        Capabilities.get(entity).ifPresent(capability -> {
+            if (capability.isOwned(this)) {
+                capability.getOwned(this).ifPresent(skillInfo -> {
+                    AttributeInfo attributeInfo = (AttributeInfo) skillInfo;
+                    ENDURANCE_ATTRIBUTE.apply(entity, getModifier(attributeInfo));
+                });
+            } else {
+                if (ENDURANCE_ATTRIBUTE.remove(entity)) {
+                    Capabilities.endurance(entity).ifPresent(enduranceCapability -> {
+                        double amount = entity.getEntityAttribute(Endurance.MAX_ENDURANCE).getAttributeValue();
+                        if (enduranceCapability.getEndurance() > amount) {
+                            enduranceCapability.setEndurance(amount);
+                        }
+                    });
+                }
+            }
+        });
+    }
+
+    @SubscribeEvent
+    public void attachCapabilities(AttachCapabilitiesEvent<Entity> event) {
+        if (event.getObject() instanceof EntityLivingBase)
+            ((EntityLivingBase) event.getObject()).getAttributeMap().registerAttribute(MAX_ENDURANCE).setBaseValue(40);
+    }
+
+    /*@SubscribeEvent(priority = EventPriority.LOWEST)
+    public void onUpdateEnduranceAttribute(LivingEvent.LivingUpdateEvent event) {
+        if (isClientWorld(event.getEntityLiving())) return;
+        EntityLivingBase entity = event.getEntityLiving();
+        Capabilities.endurance(entity).ifPresent(capability -> {
+            double amount = entity.getEntityAttribute(Endurance.MAX_ENDURANCE).getAttributeValue();
+            if (!MathUtil.fuzzyEqual(amount, capability.getEnduranceMax())) {
+                if (capability.getEndurance() > amount) {
+                    capability.setEndurance(amount);
+                }
+                capability.setEnduranceMax(amount);
+                if (entity instanceof EntityPlayerMP) {
+                    PacketHelper.sendEnduranceSync((EntityPlayerMP) entity);
+                }
+            }
+        });
+    }*/
+
+    /*@SubscribeEvent(priority = EventPriority.LOWEST)
     public void onEntityUpdate(LivingEvent.LivingUpdateEvent event) {
         if (isClientWorld(event.getEntityLiving())) return;
         EntityLivingBase entity = event.getEntityLiving();
@@ -80,7 +142,7 @@ public class Endurance extends BaseAttribute implements ISkillAdvancement {
                 });
             }
         });
-    }
+    }*/
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public void onEnduranceTick(LivingEvent.LivingUpdateEvent event) {
@@ -88,7 +150,7 @@ public class Endurance extends BaseAttribute implements ISkillAdvancement {
             Capabilities.endurance(event.getEntityLiving()).ifPresent(capability -> {
                 if (capability.getEnduranceDelay() > 0) {
                     capability.setEnduranceDelay(capability.getEnduranceDelay() - 1);
-                } else if (capability.getEndurance() < capability.getEnduranceMax()) {
+                } else if (capability.getEndurance() < event.getEntityLiving().getEntityAttribute(Endurance.MAX_ENDURANCE).getAttributeValue()) {
                     capability.setEnduranceDelay(10); //Every half a second
                     capability.setEndurance(capability.getEndurance() + 1);
                 }
@@ -97,7 +159,7 @@ public class Endurance extends BaseAttribute implements ISkillAdvancement {
     }
 
     @SubscribeEvent
-    public void onSkillShouldUse(SkillsActionableEvent event) {
+    public void onSkillShouldUse(SkillActionableEvent event) {
         if (isClientWorld(event.getEntityLiving()) || event.isCanceled()) return;
         EntityLivingBase entity = event.getEntityLiving();
         Capabilities.endurance(entity).ifPresent(capability -> {
@@ -106,7 +168,7 @@ public class Endurance extends BaseAttribute implements ISkillAdvancement {
                 if (entity instanceof EntityPlayer && ((EntityPlayer) entity).capabilities.isCreativeMode) {
                     enduranceNeeded = 0;
                 }
-                if (capability.getEndurance() < enduranceNeeded) {
+                if (capability.getEndurance() + capability.getAbsorption() < enduranceNeeded) {
                     event.setCanceled(true);
                 }
             }
@@ -123,12 +185,11 @@ public class Endurance extends BaseAttribute implements ISkillAdvancement {
                 if (entity instanceof EntityPlayer && ((EntityPlayer) entity).capabilities.isCreativeMode) {
                     enduranceNeeded = 0;
                 }
-                if (capability.getEndurance() < enduranceNeeded) {
+                if (capability.getEndurance() + capability.getAbsorption() < enduranceNeeded) {
                     event.setCanceled(true);
                     return;
                 }
-                capability.setEndurance(capability.getEndurance() - enduranceNeeded);
-                capability.setEnduranceDelay(5 * 20);
+                capability.drain(enduranceNeeded);
                 if (entity instanceof EntityPlayerMP) {
                     PacketHelper.sendEnduranceSync((EntityPlayerMP) entity);
                 }
@@ -328,6 +389,11 @@ public class Endurance extends BaseAttribute implements ISkillAdvancement {
                         .put(LibMod.MOD_ID + ":" + LibNames.ANIMATED_STONE_GOLEM, 16)
                         //Defense-Electric
                         .put(LibMod.MOD_ID + ":" + LibNames.SHOCKING_AURA, 1)
+                        .put(LibMod.MOD_ID + ":" + LibNames.ELECTRIC_PULSE, 4)
+                        .put(LibMod.MOD_ID + ":" + LibNames.MAGNETIC_PULL, 4)
+                        .put(LibMod.MOD_ID + ":" + LibNames.POWER_DRAIN, 12)
+                        .put(LibMod.MOD_ID + ":" + LibNames.ENERGIZE, 12)
+                        .put(LibMod.MOD_ID + ":" + LibNames.VOLTAIC_SENTINEL, 16)
                         //Mobility-Wind
                         .put(LibMod.MOD_ID + ":" + LibNames.DASH, 4)
                         .put(LibMod.MOD_ID + ":" + LibNames.EXTRA_JUMP, 2)

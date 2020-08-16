@@ -4,6 +4,7 @@ import arekkuusu.enderskills.api.capability.Capabilities;
 import arekkuusu.enderskills.api.capability.EnduranceCapability;
 import arekkuusu.enderskills.common.lib.LibMod;
 import arekkuusu.enderskills.common.network.PacketHelper;
+import arekkuusu.enderskills.common.skill.attribute.mobility.Endurance;
 import com.google.common.collect.ImmutableList;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
@@ -69,7 +70,7 @@ public class CommandEnduranceReset extends CommandBase {
 
         switch (args[1]) {
             case "reset":
-                capability.setEndurance(capability.getEnduranceMax());
+                capability.setEndurance(entity.getEntityAttribute(Endurance.MAX_ENDURANCE).getAttributeValue());
                 message(sender, "endurance.reset");
                 break;
             default:
