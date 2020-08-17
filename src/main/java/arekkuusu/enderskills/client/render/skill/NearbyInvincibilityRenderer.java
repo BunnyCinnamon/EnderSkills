@@ -30,26 +30,25 @@ public class NearbyInvincibilityRenderer extends SkillRenderer<NearbyInvincibili
     public void render(Entity entity, double x, double y, double z, float partialTicks, SkillHolder skillHolder) {
         GlStateManager.color(1F, 1F, 1F, 1F);
         GlStateManager.pushMatrix();
+        GlStateManager.depthMask(false);
         GlStateManager.translate(x, y + entity.height / 2, z);
         GlStateManager.rotate(180, 1F, 0, 0);
         GlStateManager.rotate(entity.ticksExisted * 0.75F % 360F, 0F, 1F, 0F);
         GLHelper.BLEND_SRC_ALPHA$ONE.blend();
         if (!ClientConfig.RENDER_CONFIG.rendering.helpMyShadersAreDying) {
-            ShaderLibrary.BRIGHT.begin();
-            ShaderLibrary.BRIGHT.set("alpha", SkillRenderer.getDiffuseBlend(skillHolder.tick, skillHolder.data.time, 0.5F));
+            ShaderLibrary.ALPHA.begin();
+            ShaderLibrary.ALPHA.set("alpha", SkillRenderer.getDiffuseBlend(skillHolder.tick, skillHolder.data.time, 0.5F));
         }
         GlStateManager.disableLighting();
         GlStateManager.enableBlend();
         double scale = NBTHelper.getDouble(skillHolder.data.nbt, "range") * ((double) skillHolder.tick / (double) skillHolder.data.time);
         if (skillHolder.tick % 5 == 0) {
-            for (int i = 0; i < 4; i++) {
-                if (entity.world.rand.nextDouble() < 0.8D && ClientProxy.canParticleSpawn()) {
-                    Vec3d vec = entity.getPositionVector();
-                    double posX = vec.x + scale * (entity.world.rand.nextDouble() - 0.5);
-                    double posY = vec.y + (entity.height / 2) + scale * (entity.world.rand.nextDouble() - 0.5);
-                    double posZ = vec.z + scale * (entity.world.rand.nextDouble() - 0.5);
-                    EnderSkills.getProxy().spawnParticle(entity.world, new Vec3d(posX, posY, posZ), new Vec3d(0, 0, 0), 1F, 50, 0xF8E603, ResourceLibrary.GLOW_PARTICLE_EFFECT);
-                }
+            if (entity.world.rand.nextDouble() < 0.2D && ClientProxy.canParticleSpawn()) {
+                Vec3d vec = entity.getPositionVector();
+                double posX = vec.x + scale * (entity.world.rand.nextDouble() - 0.5);
+                double posY = vec.y + (entity.height / 2) + scale * (entity.world.rand.nextDouble() - 0.5);
+                double posZ = vec.z + scale * (entity.world.rand.nextDouble() - 0.5);
+                EnderSkills.getProxy().spawnParticle(entity.world, new Vec3d(posX, posY, posZ), new Vec3d(0, 0, 0), 1F, 50, 0xFFFFFF, ResourceLibrary.PLUS);
             }
         }
         this.bindTexture(FOLLOWING);
@@ -59,9 +58,10 @@ public class NearbyInvincibilityRenderer extends SkillRenderer<NearbyInvincibili
         GlStateManager.disableBlend();
         GlStateManager.enableLighting();
         if (!ClientConfig.RENDER_CONFIG.rendering.helpMyShadersAreDying) {
-            ShaderLibrary.BRIGHT.end();
+            ShaderLibrary.ALPHA.end();
         }
         GLHelper.BLEND_NORMAL.blend();
+        GlStateManager.depthMask(true);
         GlStateManager.popMatrix();
     }
 

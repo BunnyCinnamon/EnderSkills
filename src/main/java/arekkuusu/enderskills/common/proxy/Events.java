@@ -18,10 +18,7 @@ import net.minecraftforge.fml.common.gameevent.PlayerEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.relauncher.Side;
 
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.Map;
-import java.util.Queue;
+import java.util.*;
 
 import static net.minecraftforge.event.entity.player.PlayerEvent.Clone;
 
@@ -76,7 +73,11 @@ public class Events {
         if (event.side == Side.SERVER && event.phase == TickEvent.Phase.START) {
             Runnable runnable;
             while ((runnable = QUEUE.poll()) != null) {
-                runnable.run();
+                try {
+                    runnable.run();
+                } catch (ConcurrentModificationException e) {
+                    //fuck you
+                }
             }
         }
     }

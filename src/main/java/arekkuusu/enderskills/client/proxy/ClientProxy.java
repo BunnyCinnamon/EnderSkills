@@ -8,6 +8,7 @@ import arekkuusu.enderskills.client.render.ModRenders;
 import arekkuusu.enderskills.client.render.effect.*;
 import arekkuusu.enderskills.client.util.ResourceLibrary;
 import arekkuusu.enderskills.client.util.ShaderLibrary;
+import arekkuusu.enderskills.client.util.SpriteLibrary;
 import arekkuusu.enderskills.client.util.helper.ModelHelper;
 import arekkuusu.enderskills.client.util.helper.RenderMisc;
 import arekkuusu.enderskills.client.util.resource.ShaderManager;
@@ -63,6 +64,7 @@ public class ClientProxy implements IProxy {
     public void preInit(FMLPreInitializationEvent event) {
         ((IReloadableResourceManager) Minecraft.getMinecraft().getResourceManager())
                 .registerReloadListener(ShaderManager.INSTANCE);
+        SpriteLibrary.preInit();
         ModRenders.preInit();
     }
 

@@ -14,6 +14,8 @@ import arekkuusu.enderskills.client.gui.data.ISkillAdvancement;
 import arekkuusu.enderskills.client.util.helper.TextHelper;
 import arekkuusu.enderskills.common.CommonConfig;
 import arekkuusu.enderskills.common.entity.EntityStoneGolem;
+import arekkuusu.enderskills.common.entity.data.IImpact;
+import arekkuusu.enderskills.common.entity.throwable.EntityThrowableData;
 import arekkuusu.enderskills.common.lib.LibMod;
 import arekkuusu.enderskills.common.lib.LibNames;
 import arekkuusu.enderskills.common.skill.ModAbilities;
@@ -25,10 +27,13 @@ import arekkuusu.enderskills.common.skill.ability.BaseAbility;
 import arekkuusu.enderskills.common.sound.ModSounds;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.SoundCategory;
+import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.config.Config;
 import net.minecraftforge.fml.relauncher.Side;
@@ -39,7 +44,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-public class AnimatedStoneGolem extends BaseAbility implements ISkillAdvancement {
+public class AnimatedStoneGolem extends BaseAbility implements IImpact {
 
     public AnimatedStoneGolem() {
         super(LibNames.ANIMATED_STONE_GOLEM, new AbilityProperties());
@@ -52,7 +57,7 @@ public class AnimatedStoneGolem extends BaseAbility implements ISkillAdvancement
         AbilityInfo abilityInfo = (AbilityInfo) skillInfo;
 
         if (!SkillHelper.isActiveFrom(owner, this)) {
-            RayTraceHelper.getPosLookedAt(owner, 5).ifPresent(pos -> {
+            RayTraceHelper.getFloorLookedAt(owner, 5, 5).ifPresent(pos -> {
                 pos = pos.up();
                 if (!((IInfoCooldown) skillInfo).hasCooldown() && isActionable(owner) && canActivate(owner)) {
                     if (!(owner instanceof EntityPlayer) || !((EntityPlayer) owner).capabilities.isCreativeMode) {
@@ -84,6 +89,7 @@ public class AnimatedStoneGolem extends BaseAbility implements ISkillAdvancement
                             .put(compound)
                             .overrides(SkillData.Overrides.EQUAL)
                             .create();
+                    EntityThrowableData.throwFor(owner, 5, SkillData.of(this).create(), false);
                     apply(owner, data);
                     sync(owner, data);
                     sync(owner);
@@ -103,6 +109,11 @@ public class AnimatedStoneGolem extends BaseAbility implements ISkillAdvancement
                 });
             });
         }
+    }
+
+    @Override
+    public void onImpact(Entity source, @Nullable EntityLivingBase owner, SkillData skillData, RayTraceResult trace) {
+        //Do nothing
     }
 
     @Override

@@ -53,8 +53,8 @@ public class TileAltarRenderer extends TileEntitySpecialRenderer<TileAltar> {
             GlStateManager.popMatrix();
             //Draw upgrade item
             if (tile.getLevel() == 1F && !tile.isUltimate() && tile.bookSpread > 0.5F) {
-                ShaderLibrary.BRIGHT.begin();
-                ShaderLibrary.BRIGHT.set("alpha", 0.5F);
+                ShaderLibrary.ALPHA.begin();
+                ShaderLibrary.ALPHA.set("alpha", 0.5F);
                 GlStateManager.pushMatrix();
                 GlStateManager.enableBlend();
                 GlStateManager.translate(x + 0.5, y + 1.45, z + 0.5);
@@ -62,7 +62,7 @@ public class TileAltarRenderer extends TileEntitySpecialRenderer<TileAltar> {
                 RenderMisc.renderItemStack(new ItemStack(ModItems.CRYSTAL_MATRIX));
                 GlStateManager.disableBlend();
                 GlStateManager.popMatrix();
-                ShaderLibrary.BRIGHT.end();
+                ShaderLibrary.ALPHA.end();
             }
         }
         //Render Event

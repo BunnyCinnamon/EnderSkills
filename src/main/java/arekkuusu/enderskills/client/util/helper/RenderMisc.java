@@ -1,5 +1,6 @@
 package arekkuusu.enderskills.client.util.helper;
 
+import arekkuusu.enderskills.api.util.Vector;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.renderer.*;
@@ -15,6 +16,8 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.glu.Sphere;
+
+import java.util.Random;
 
 @SideOnly(Side.CLIENT)
 public final class RenderMisc {
@@ -95,6 +98,67 @@ public final class RenderMisc {
         return Minecraft.getMinecraft().player.ticksExisted;
     }
 
+    public static Vector getRenderViewVector(float partial) {
+        Entity rView = Minecraft.getMinecraft().getRenderViewEntity();
+        if (rView == null) rView = Minecraft.getMinecraft().player;
+        Entity entity = rView;
+        double tx = entity.lastTickPosX + ((entity.posX - entity.lastTickPosX) * partial);
+        double ty = entity.lastTickPosY + ((entity.posY - entity.lastTickPosY) * partial);
+        double tz = entity.lastTickPosZ + ((entity.posZ - entity.lastTickPosZ) * partial);
+        return new Vector(tx, ty, tz);
+    }
+
+    public static Vector getRenderViewVector(Entity entity, float partial) {
+        double tx = entity.lastTickPosX + ((entity.posX - entity.lastTickPosX) * partial);
+        double ty = entity.lastTickPosY + ((entity.posY - entity.lastTickPosY) * partial);
+        double tz = entity.lastTickPosZ + ((entity.posZ - entity.lastTickPosZ) * partial);
+        return new Vector(tx, ty, tz);
+    }
+
+    private static final Random RAND = new Random();
+
+    public static void renderBeams(float age, int number, int startRBG, int endRGB, float size) {
+        GL11.glDisable(GL11.GL_TEXTURE_2D);
+        GL11.glShadeModel(GL11.GL_SMOOTH);
+        GL11.glDisable(GL11.GL_ALPHA_TEST);
+
+        RAND.setSeed(432L);
+        float r_ = (startRBG >>> 16 & 0xFF) / 256F;
+        float g_ = (startRBG >>> 8 & 0xFF) / 256F;
+        float b_ = (startRBG & 0xFF) / 256F;
+
+        float r = (endRGB >>> 16 & 0xFF) / 256F;
+        float g = (endRGB >>> 8 & 0xFF) / 256F;
+        float b = (endRGB & 0xFF) / 256F;
+
+        Tessellator tessellator = Tessellator.getInstance();
+        BufferBuilder bufferbuilder = tessellator.getBuffer();
+        float rotation = age % 500;
+
+        for (int i = 0; (float) i < number; ++i) {
+            GlStateManager.rotate(RAND.nextFloat() * 360.0F, 1.0F, 0.0F, 0.0F);
+            GlStateManager.rotate(RAND.nextFloat() * 360.0F, 0.0F, 1.0F, 0.0F);
+            GlStateManager.rotate(RAND.nextFloat() * 360.0F, 0.0F, 0.0F, 1.0F);
+            GlStateManager.rotate(RAND.nextFloat() * 360.0F, 1.0F, 0.0F, 0.0F);
+            GlStateManager.rotate(RAND.nextFloat() * 360.0F, 0.0F, 1.0F, 0.0F);
+            GlStateManager.rotate(RAND.nextFloat() * 360.0F + rotation * 90.0F, 0.0F, 0.0F, 1.0F);
+            float min = (size * 0.5F);
+            float resized = RAND.nextFloat() * size + min;
+            float sizeMulti = RAND.nextFloat() * min + (min * 0.5F);
+            bufferbuilder.begin(GL11.GL_TRIANGLE_FAN, DefaultVertexFormats.POSITION_COLOR);
+            bufferbuilder.pos(0.0D, 0.0D, 0.0D).color(r_, g_, b_, 1F).endVertex();
+            bufferbuilder.pos(-0.866D * sizeMulti, resized, (-0.5F * sizeMulti)).color(r, g, b, 0F).endVertex();
+            bufferbuilder.pos(0.866D * sizeMulti, resized, (-0.5F * sizeMulti)).color(r, g, b, 0F).endVertex();
+            bufferbuilder.pos(0.0D, resized, (1.0F * sizeMulti)).color(r, g, b, 0F).endVertex();
+            bufferbuilder.pos(-0.866D * sizeMulti, resized, (-0.5F * sizeMulti)).color(r, g, b, 0F).endVertex();
+            tessellator.draw();
+        }
+
+        GL11.glEnable(GL11.GL_ALPHA_TEST);
+        GL11.glShadeModel(GL11.GL_FLAT);
+        GL11.glEnable(GL11.GL_TEXTURE_2D);
+    }
+
     public static void drawRect(int left, int top, int right, int bottom, int color) {
         if (left < right) {
             int i = left;
@@ -138,7 +202,7 @@ public final class RenderMisc {
     }
 
     public static void renderEntityOnFire(Entity entity, double x, double y, double z) {
-        if(entity.isBurning()) return;
+        if (entity.isBurning()) return;
         GlStateManager.disableLighting();
         TextureMap texturemap = Minecraft.getMinecraft().getTextureMapBlocks();
         TextureAtlasSprite textureatlassprite = texturemap.getAtlasSprite("minecraft:blocks/fire_layer_0");

@@ -1,11 +1,11 @@
 package arekkuusu.enderskills.client.render.skill.status;
 
 import arekkuusu.enderskills.client.render.skill.SkillRenderer;
-import arekkuusu.enderskills.common.skill.ModAbilities;
+import arekkuusu.enderskills.common.lib.LibMod;
 import arekkuusu.enderskills.common.skill.ModEffects;
 import arekkuusu.enderskills.common.skill.SkillHelper;
-import arekkuusu.enderskills.common.skill.effect.Overheal;
-import arekkuusu.enderskills.common.skill.effect.Stunned;
+import arekkuusu.enderskills.common.skill.effect.Electrified;
+import arekkuusu.enderskills.common.skill.effect.Overcharge;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.renderer.GlStateManager;
@@ -27,11 +27,11 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.opengl.GL11;
 
-public class OverhealRenderer extends SkillRenderer<Overheal> {
+public class ElectrifiedRenderer extends SkillRenderer<Electrified> {
 
-    private static final ResourceLocation RES_ITEM_GLINT = new ResourceLocation("textures/misc/enchanted_item_glint.png");
+    private static final ResourceLocation GLINT = new ResourceLocation(LibMod.MOD_ID, "textures/entity/electrified.png");
 
-    public OverhealRenderer() {
+    public ElectrifiedRenderer() {
         MinecraftForge.EVENT_BUS.register(new Events());
     }
 
@@ -55,25 +55,11 @@ public class OverhealRenderer extends SkillRenderer<Overheal> {
                 GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_COLOR, GlStateManager.DestFactor.ONE);
 
                 GlStateManager.pushMatrix();
-                GlStateManager.color(0.38F, 0.608F, 0.19F, 1F * (getTick(entity) / 10F));
-                Minecraft.getMinecraft().getTextureManager().bindTexture(RES_ITEM_GLINT);
+                GlStateManager.color(0.608F, 0.508F, 0.19F, 1F * (getTick(entity) / 10F));
+                Minecraft.getMinecraft().getTextureManager().bindTexture(GLINT);
                 GlStateManager.matrixMode(GL11.GL_TEXTURE);
-                GlStateManager.scale(0.25F, 0.25F, 0.25F);
-                float i = (float) (Minecraft.getSystemTime() % 5000L) / 5000.0F * 6.0F;
-                GlStateManager.translate(i, 0.0F, 0.0F);
-                GlStateManager.rotate(-50.0F, 0.0F, 0.0F, 1.0F);
-                GlStateManager.matrixMode(GL11.GL_MODELVIEW);
-                renderModel(livingRender, entity, event.getPartialRenderTick());
-                GlStateManager.popMatrix();
-
-                GlStateManager.pushMatrix();
-                GlStateManager.color(0.38F, 0.608F, 0.19F, 1F * (getTick(entity) / 10F));
-                Minecraft.getMinecraft().getTextureManager().bindTexture(RES_ITEM_GLINT);
-                GlStateManager.matrixMode(GL11.GL_TEXTURE);
-                GlStateManager.scale(0.5F, 0.5F, 0.5F);
-                float i0 = (float) (Minecraft.getSystemTime() % 6873L) / 6873.0F * 6.0F;
-                GlStateManager.translate(-i0, 0.0F, 0.0F);
-                GlStateManager.rotate(40.0F, 0.0F, 0.0F, 1.0F);
+                float i = (float) entity.ticksExisted + event.getPartialRenderTick();
+                GlStateManager.translate(i * 0.05F, i * 0.05F, 0.0F);
                 GlStateManager.matrixMode(GL11.GL_MODELVIEW);
                 renderModel(livingRender, entity, event.getPartialRenderTick());
                 GlStateManager.popMatrix();
@@ -205,7 +191,7 @@ public class OverhealRenderer extends SkillRenderer<Overheal> {
         @SubscribeEvent
         public void onLivingUpdate(LivingEvent.LivingUpdateEvent event) {
             if (!event.getEntityLiving().world.isRemote) return;
-            boolean active = SkillHelper.isActive(event.getEntity(), ModEffects.OVERHEAL);
+            boolean active = SkillHelper.isActive(event.getEntity(), ModEffects.ELECTRIFIED);
             //Handle tick
             if (active) {
                 if (getTick(event.getEntity()) < 10) {
@@ -218,7 +204,7 @@ public class OverhealRenderer extends SkillRenderer<Overheal> {
             }
         }
 
-        public final String tickKey = ModEffects.OVERHEAL.getRegistryName() + ":tick";
+        public final String tickKey = ModEffects.ELECTRIFIED.getRegistryName() + ":tick";
 
         public int getTick(Entity entity) {
             NBTTagCompound nbt = entity.getEntityData();

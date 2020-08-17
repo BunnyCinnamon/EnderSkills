@@ -12,6 +12,10 @@ import arekkuusu.enderskills.common.entity.throwable.EntityThrowableData;
 import arekkuusu.enderskills.common.skill.ability.defense.earth.Shockwave;
 import arekkuusu.enderskills.common.skill.ability.defense.earth.Taunt;
 import arekkuusu.enderskills.common.skill.ability.defense.earth.Thorny;
+import arekkuusu.enderskills.common.skill.ability.defense.electric.ElectricPulse;
+import arekkuusu.enderskills.common.skill.ability.defense.electric.MagneticPull;
+import arekkuusu.enderskills.common.skill.ability.defense.electric.PowerDrain;
+import arekkuusu.enderskills.common.skill.ability.defense.electric.ShockingAura;
 import arekkuusu.enderskills.common.skill.ability.defense.light.*;
 import arekkuusu.enderskills.common.skill.ability.mobility.ender.*;
 import arekkuusu.enderskills.common.skill.ability.mobility.wind.*;
@@ -51,6 +55,7 @@ public final class ModRenders {
         registerEntity(EntityCrush.class, EntityCrushRenderer::new);
         registerEntity(EntityPlaceableExplode.class, ExplodeRenderer.Placeable::new);
         registerEntity(EntityTokenOrb.class, RenderTokenOrb::new);
+        registerEntity(EntityVoltaicSentinel.class, VoltaicSentinelRender::new);
     }
 
     public static void init() {
@@ -100,6 +105,10 @@ public final class ModRenders {
         registerSkill(Suffocate.class, new SuffocateRenderer());
         registerSkill(Slash.class, new SlashRenderer());
         registerSkill(Crush.class, new CrushRenderer());
+        registerSkill(ShockingAura.class, new ShockingAuraRenderer());
+        registerSkill(MagneticPull.class, new MagneticPullRenderer());
+        registerSkill(PowerDrain.class, new PowerDrainRenderer());
+        registerSkill(ElectricPulse.class, new ElectricPulseRenderer());
         //Effects
         registerSkill(Bleeding.class, new BleedingRenderer());
         registerSkill(Blinded.class, new BlindedRenderer());
@@ -108,6 +117,7 @@ public final class ModRenders {
         registerSkill(Stunned.class, new StunnedRenderer());
         registerSkill(Overheal.class, new OverhealRenderer());
         registerSkill(Overcharge.class, new OverchargeRenderer());
+        registerSkill(Electrified.class, new ElectrifiedRenderer());
     }
 
     public static void postInit() {

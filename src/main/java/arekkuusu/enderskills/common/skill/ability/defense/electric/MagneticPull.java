@@ -70,6 +70,7 @@ public class MagneticPull extends BaseAbility {
                     .by(owner)
                     .with(time)
                     .put(compound)
+                    .overrides(SkillData.Overrides.EQUAL)
                     .create();
             apply(owner, data);
             sync(owner, data);

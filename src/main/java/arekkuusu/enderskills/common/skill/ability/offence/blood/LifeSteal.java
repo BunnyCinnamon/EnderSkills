@@ -117,21 +117,21 @@ public class LifeSteal extends BaseAbility implements ISkillAdvancement {
             return;
         EntityLivingBase attacker = (EntityLivingBase) source.getTrueSource();
         EntityLivingBase attacked = event.getEntityLiving();
-        if(TeamHelper.SELECTOR_ENEMY.apply(attacker).test(attacked)) {
+        if (TeamHelper.SELECTOR_ENEMY.apply(attacker).test(attacked)) {
             SkillHelper.getActiveFrom(attacker, this).ifPresent(data -> {
                 float heal = NBTHelper.getFloat(data.nbt, "heal");
                 attacker.heal(attacker.getMaxHealth() * heal);
-                for (int i = 0; i < 6; i++) {
+                {
                     Vec3d vec = attacked.getPositionVector();
                     double posX = vec.x;
-                    double posY = vec.y + attacked.height + 0.1D;
+                    double posY = vec.y + attacked.height + 0.5D;
                     double posZ = vec.z;
                     EnderSkills.getProxy().spawnParticle(attacked.world, new Vec3d(posX, posY, posZ), new Vec3d(0, 0, 0), 3, 50, 0x8A0303, ResourceLibrary.MINUS);
                 }
-                for (int i = 0; i < 6; i++) {
+                {
                     Vec3d vec = attacker.getPositionVector();
                     double posX = vec.x;
-                    double posY = vec.y + attacker.height + 0.1D;
+                    double posY = vec.y + attacker.height + 0.5D;
                     double posZ = vec.z;
                     EnderSkills.getProxy().spawnParticle(attacker.world, new Vec3d(posX, posY, posZ), new Vec3d(0, 0, 0), 3, 50, 0x8A0303, ResourceLibrary.PLUS);
                 }

@@ -55,7 +55,7 @@ public class EntityStoneGolem extends EntityGolem {
     public void initEntityAI() {
         this.tasks.addTask(1, new EntityAIAttackMelee(this, 1.0D, true));
         this.tasks.addTask(2, new EntityAIMoveTowardsTarget(this, 0.5D, 32.0F));
-        this.tasks.addTask(6, new AIFollowProvider(this, () -> getOwnerId() != null? getEntityByUUID(getOwnerId()) : null, 0.5D, 5, 64));
+        this.tasks.addTask(6, new AIFollowProvider(this, () -> getOwnerId() != null ? getEntityByUUID(getOwnerId()) : null, 0.5D, 5, 64));
         this.tasks.addTask(8, new EntityAIWatchClosest(this, EntityPlayer.class, 6.0F));
         this.tasks.addTask(9, new EntityAILookIdle(this));
         this.tasks.addTask(0, AIOverride.INSTANCE);
@@ -92,7 +92,7 @@ public class EntityStoneGolem extends EntityGolem {
         if (uuid != null) {
             owner = getEntityByUUID(uuid);
         }
-        return super.isOnSameTeam(entityIn) || (owner != null && owner == entityIn);
+        return super.isOnSameTeam(entityIn) || (owner != null && TeamHelper.SELECTOR_ALLY.apply(owner).test(entityIn));
     }
 
     @Override
@@ -127,7 +127,7 @@ public class EntityStoneGolem extends EntityGolem {
                     this.world.spawnParticle(EnumParticleTypes.BLOCK_CRACK, this.posX + ((double) this.rand.nextFloat() - 0.5D) * (double) this.width, this.getEntityBoundingBox().minY + 0.1D, this.posZ + ((double) this.rand.nextFloat() - 0.5D) * (double) this.width, 4.0D * ((double) this.rand.nextFloat() - 0.5D), 1.5D, ((double) this.rand.nextFloat() - 0.5D) * 4.0D, Block.getStateId(iblockstate));
                 }
             }
-        } else if(!isGrown) {
+        } else if (!isGrown) {
             tasks.removeTask(AIOverride.INSTANCE);
             isGrown = true;
         }
@@ -150,8 +150,11 @@ public class EntityStoneGolem extends EntityGolem {
                 if (owner.getDistance(this) > 69) { //uwu
                     teleportTo(owner);
                 }
-                if (owner.getLastAttackedEntity() != this && (owner.getLastAttackedEntity() == null || TeamHelper.SELECTOR_ENEMY.apply(owner).test(owner.getLastAttackedEntity()))) {
+                if (owner.getLastAttackedEntity() != this && owner.getLastAttackedEntity() != null && TeamHelper.SELECTOR_ENEMY.apply(owner).test(owner.getLastAttackedEntity())) {
                     setAttackTarget(owner.getLastAttackedEntity());
+                }
+                if (getRevengeTarget() != null && getRevengeTarget().isOnSameTeam(this)) {
+                    setRevengeTarget(null);
                 }
             } else {
                 setDead();
@@ -193,7 +196,7 @@ public class EntityStoneGolem extends EntityGolem {
 
     @Override
     protected boolean processInteract(EntityPlayer player, EnumHand hand) {
-        if(player.isSneaking() && player.getUniqueID().equals(getOwnerId())) {
+        if (player.isSneaking() && player.getUniqueID().equals(getOwnerId())) {
             setDead();
             return true;
         }

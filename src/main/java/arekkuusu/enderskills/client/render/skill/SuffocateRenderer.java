@@ -80,8 +80,8 @@ public class SuffocateRenderer extends SkillRenderer<Suffocate> {
             GlStateManager.translate(x, y, z);
             GLHelper.BLEND_NORMAL.blend();
             if (!ClientConfig.RENDER_CONFIG.rendering.helpMyShadersAreDying) {
-                ShaderLibrary.BRIGHT.begin();
-                ShaderLibrary.BRIGHT.set("alpha", SkillRenderer.getDiffuseBlend(entity.tick, entity.getLifeTime(), 0.4F));
+                ShaderLibrary.ALPHA.begin();
+                ShaderLibrary.ALPHA.set("alpha", SkillRenderer.getDiffuseBlend(entity.tick, entity.getLifeTime(), 0.4F));
             }
             GlStateManager.disableLighting();
             GlStateManager.enableBlend();
@@ -146,7 +146,7 @@ public class SuffocateRenderer extends SkillRenderer<Suffocate> {
             GlStateManager.disableBlend();
             GlStateManager.enableLighting();
             if (!ClientConfig.RENDER_CONFIG.rendering.helpMyShadersAreDying) {
-                ShaderLibrary.BRIGHT.end();
+                ShaderLibrary.ALPHA.end();
             }
             GLHelper.BLEND_NORMAL.blend();
             GlStateManager.popMatrix();

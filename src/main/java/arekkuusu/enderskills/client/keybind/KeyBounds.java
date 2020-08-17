@@ -26,6 +26,9 @@ public class KeyBounds {
     public static KeyBinding skillUse9;
     public static KeyBinding upgrade;
     public static KeyBinding hideOverlay;
+    public static KeyBinding dash;
+    public static KeyBinding warp;
+    public static KeyBinding smash;
 
     public static void init() {
         skillGroupRotateRight = create("rotate_right", KeyConflictContext.IN_GAME, KeyModifier.ALT, Keyboard.KEY_D);
@@ -39,8 +42,11 @@ public class KeyBounds {
         skillUse7 = create("use_7", KeyConflictContext.IN_GAME, KeyModifier.ALT, Keyboard.KEY_7);
         skillUse8 = create("use_8", KeyConflictContext.IN_GAME, KeyModifier.ALT, Keyboard.KEY_8);
         skillUse9 = create("use_9", KeyConflictContext.IN_GAME, KeyModifier.ALT, Keyboard.KEY_9);
-        upgrade = create("assisted_upgrade", KeyConflictContext.IN_GAME, KeyModifier.NONE, Keyboard.KEY_LSHIFT);
+        upgrade = create("assisted_upgrade", KeyConflictContext.GUI, KeyModifier.NONE, Keyboard.KEY_LCONTROL);
         hideOverlay = create("hide_overlay", KeyConflictContext.IN_GAME, KeyModifier.ALT, Keyboard.KEY_Y);
+        dash = create("dash", KeyConflictContext.IN_GAME, KeyModifier.NONE, Keyboard.KEY_LCONTROL);
+        warp = create("warp", KeyConflictContext.IN_GAME, KeyModifier.NONE, Keyboard.KEY_LCONTROL);
+        smash = create("smash", KeyConflictContext.IN_GAME, KeyModifier.NONE, Keyboard.KEY_LSHIFT);
         skillUseList.add(skillUse1);
         skillUseList.add(skillUse2);
         skillUseList.add(skillUse3);

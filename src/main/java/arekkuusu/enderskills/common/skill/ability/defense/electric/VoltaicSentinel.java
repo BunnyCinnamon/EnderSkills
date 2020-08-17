@@ -7,6 +7,7 @@ import arekkuusu.enderskills.api.capability.data.SkillInfo;
 import arekkuusu.enderskills.api.helper.ExpressionHelper;
 import arekkuusu.enderskills.api.helper.NBTHelper;
 import arekkuusu.enderskills.api.helper.RayTraceHelper;
+import arekkuusu.enderskills.api.helper.TeamHelper;
 import arekkuusu.enderskills.api.registry.Skill;
 import arekkuusu.enderskills.client.util.helper.TextHelper;
 import arekkuusu.enderskills.common.CommonConfig;
@@ -55,7 +56,7 @@ public class VoltaicSentinel extends BaseAbility {
                     abilityInfo.setCooldown(getCooldown(abilityInfo));
                 }
                 EntityVoltaicSentinel sentinel = new EntityVoltaicSentinel(owner.world);
-                sentinel.setPosition(owner.posX, owner.posY + owner.height + 0.01D, owner.posZ);
+                sentinel.setPosition(owner.posX, owner.posY + owner.height + 0.1D, owner.posZ);
                 sentinel.setOwnerId(owner.getUniqueID());
                 sentinel.setFollowId(owner.getUniqueID());
                 sentinel.setMaxHealth(getHealth(abilityInfo));
@@ -77,15 +78,15 @@ public class VoltaicSentinel extends BaseAbility {
                 sync(owner, data);
                 sync(owner);
 
-                if (owner.world instanceof WorldServer) {
+                /*if (owner.world instanceof WorldServer) {
                     ((WorldServer) owner.world).playSound(null, owner.posX, owner.posY, owner.posZ, ModSounds.ANIMATED_STONE, SoundCategory.PLAYERS, 5.0F, (1.0F + (owner.world.rand.nextFloat() - owner.world.rand.nextFloat()) * 0.2F) * 0.7F);
-                }
+                }*/
             }
         } else {
             SkillHelper.getActiveFrom(owner, this).ifPresent(data -> {
                 Optional.ofNullable(NBTHelper.getEntity(EntityVoltaicSentinel.class, data.nbt, "sentinel")).ifPresent(e -> {
                     Entity found = RayTraceHelper.getEntityLookedAt(owner, 5).orElse(null);
-                    if(!(found instanceof EntityLivingBase)) found = owner;
+                    if(!(found instanceof EntityLivingBase) || !TeamHelper.SELECTOR_ALLY.apply(owner).test(found)) found = owner;
                     e.setFollowId(found.getUniqueID());
                     e.teleportTo((EntityLivingBase) found);
                 });

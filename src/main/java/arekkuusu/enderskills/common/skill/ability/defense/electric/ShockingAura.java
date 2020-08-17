@@ -86,7 +86,7 @@ public class ShockingAura extends BaseAbility {
     @Override
     public void update(EntityLivingBase owner, SkillData data, int tick) {
         if (isClientWorld(owner)) return;
-        double distance = NBTHelper.getDouble(data.nbt, "range") * MathHelper.clamp(((double) tick / (10)), 0D, 1D);
+        double distance = NBTHelper.getDouble(data.nbt, "range") * MathHelper.clamp(((double) tick / 10D), 0D, 1D);
         double slow = NBTHelper.getDouble(data.nbt, "slow");
         Vec3d pos = owner.getPositionVector();
         pos = new Vec3d(pos.x, pos.y + owner.height / 2, pos.z);

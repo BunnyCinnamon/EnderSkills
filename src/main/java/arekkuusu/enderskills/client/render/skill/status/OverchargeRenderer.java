@@ -52,9 +52,9 @@ public class OverchargeRenderer extends SkillRenderer<Overcharge> {
                 GlStateManager.depthFunc(514);
                 GlStateManager.disableLighting();
                 GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_COLOR, GlStateManager.DestFactor.ONE);
-                GlStateManager.color(0.608F, 0.508F, 0.19F, 1F * (getTick(entity) / 10F));
 
                 GlStateManager.pushMatrix();
+                GlStateManager.color(0.608F, 0.508F, 0.19F, 1F * (getTick(entity) / 10F));
                 Minecraft.getMinecraft().getTextureManager().bindTexture(RES_ITEM_GLINT);
                 GlStateManager.matrixMode(GL11.GL_TEXTURE);
                 GlStateManager.scale(0.25F, 0.25F, 0.25F);
@@ -66,6 +66,7 @@ public class OverchargeRenderer extends SkillRenderer<Overcharge> {
                 GlStateManager.popMatrix();
 
                 GlStateManager.pushMatrix();
+                GlStateManager.color(0.608F, 0.508F, 0.19F, 1F * (getTick(entity) / 10F));
                 Minecraft.getMinecraft().getTextureManager().bindTexture(RES_ITEM_GLINT);
                 GlStateManager.matrixMode(GL11.GL_TEXTURE);
                 GlStateManager.scale(0.5F, 0.5F, 0.5F);

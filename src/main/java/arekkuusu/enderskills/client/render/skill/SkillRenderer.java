@@ -23,6 +23,7 @@ public abstract class SkillRenderer<T extends Skill> {
     }
 
     public static float getDiffuseBlend(int tick, int maxTick, float blend) {
+        if(tick > maxTick) return 1F;
         float startBlend = maxTick * 0.8F;
         float endBlend = maxTick * 0.2F;
         return tick < startBlend ? blend : blend * (1F - ((tick - startBlend) / endBlend));

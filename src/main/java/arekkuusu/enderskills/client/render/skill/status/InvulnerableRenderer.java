@@ -47,8 +47,8 @@ public class InvulnerableRenderer extends SkillRenderer<Invulnerable> {
                 GlStateManager.rotate(entity.ticksExisted * 0.75F % 360F, 0F, 1F, 0F);
                 GLHelper.BLEND_SRC_ALPHA$ONE.blend();
                 if (!ClientConfig.RENDER_CONFIG.rendering.helpMyShadersAreDying) {
-                    ShaderLibrary.BRIGHT.begin();
-                    ShaderLibrary.BRIGHT.set("alpha", 0.5F * (float) getTick(entity) / 10F);
+                    ShaderLibrary.ALPHA.begin();
+                    ShaderLibrary.ALPHA.set("alpha", 0.5F * (float) getTick(entity) / 10F);
                 }
                 GlStateManager.disableLighting();
                 GlStateManager.enableBlend();
@@ -57,7 +57,7 @@ public class InvulnerableRenderer extends SkillRenderer<Invulnerable> {
                 GlStateManager.disableBlend();
                 GlStateManager.enableLighting();
                 if (!ClientConfig.RENDER_CONFIG.rendering.helpMyShadersAreDying) {
-                    ShaderLibrary.BRIGHT.end();
+                    ShaderLibrary.ALPHA.end();
                 }
                 GLHelper.BLEND_NORMAL.blend();
                 GlStateManager.popMatrix();

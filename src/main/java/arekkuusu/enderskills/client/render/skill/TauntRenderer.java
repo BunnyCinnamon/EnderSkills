@@ -1,11 +1,13 @@
 package arekkuusu.enderskills.client.render.skill;
 
 import arekkuusu.enderskills.api.capability.data.SkillHolder;
+import arekkuusu.enderskills.api.util.Vector;
 import arekkuusu.enderskills.client.ClientConfig;
 import arekkuusu.enderskills.client.render.entity.EntityPlaceableDataRenderer;
 import arekkuusu.enderskills.client.util.ResourceLibrary;
 import arekkuusu.enderskills.client.util.ShaderLibrary;
 import arekkuusu.enderskills.client.util.helper.GLHelper;
+import arekkuusu.enderskills.client.util.helper.RenderMisc;
 import arekkuusu.enderskills.common.EnderSkills;
 import arekkuusu.enderskills.common.entity.placeable.EntityPlaceableData;
 import arekkuusu.enderskills.common.lib.LibMod;
@@ -32,6 +34,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.opengl.GL11;
 
 import javax.annotation.Nonnull;
+import java.util.Optional;
 
 @SideOnly(Side.CLIENT)
 public class TauntRenderer extends SkillRenderer<Taunt> {
@@ -41,18 +44,41 @@ public class TauntRenderer extends SkillRenderer<Taunt> {
 
     public TauntRenderer() {
         EntityPlaceableDataRenderer.add(ModAbilities.TAUNT, Placeable::new);
-        MinecraftForge.EVENT_BUS.register(new Shader());
+        MinecraftForge.EVENT_BUS.register(new Events());
     }
 
     @Override
     public void render(Entity entity, double x, double y, double z, float partialTicks, SkillHolder skillHolder) {
-        if (entity.ticksExisted % 5 == 0 && entity.world.rand.nextDouble() < 0.2D) {
+        if (entity.ticksExisted % 10 == 0 && entity.world.rand.nextDouble() < 0.02D) {
             Vec3d vec = entity.getPositionEyes(1F);
             double posX = vec.x + entity.world.rand.nextDouble() - 0.5D;
             double posY = vec.y + entity.world.rand.nextDouble() - 0.5D;
             double posZ = vec.z + entity.world.rand.nextDouble() - 0.5D;
             EnderSkills.getProxy().spawnParticle(entity.world, new Vec3d(posX, posY, posZ), new Vec3d(0, 0.01, 0), 2F, 50, 0xFFFFFF, ResourceLibrary.ANGRY);
         }
+        Optional.ofNullable(SkillHelper.getOwner(skillHolder.data)).ifPresent(owner -> {
+            Vector from = RenderMisc.getRenderViewVector(entity, partialTicks);
+            Vector to = RenderMisc.getRenderViewVector(owner, partialTicks).subtract(from);
+            GlStateManager.pushMatrix();
+            GlStateManager.translate(x, y, z);
+            GlStateManager.enableBlend();
+            GlStateManager.disableLighting();
+            GL11.glEnable(GL11.GL_LINE_STIPPLE);
+            GL11.glLineWidth(2);
+            GL11.glLineStipple(1, (short)0xFF);
+            Tessellator tessellator = Tessellator.getInstance();
+            BufferBuilder buffer = tessellator.getBuffer();
+            buffer.begin(GL11.GL_LINES, DefaultVertexFormats.POSITION_COLOR);
+            buffer.pos(0, entity.height / 2, 0).color(1F, 0F, 0F, 0.5F).endVertex();
+            buffer.pos(to.x, to.y + owner.getEyeHeight() - 0.1, to.z).color(1F, 0F, 0F, 0.5F).endVertex();
+            tessellator.draw();
+            GL11.glLineStipple(1, (short)0xFFFF);
+            GL11.glLineWidth(1F);
+            GL11.glDisable(GL11.GL_LINE_STIPPLE);
+            GlStateManager.enableLighting();
+            GlStateManager.disableBlend();
+            GlStateManager.popMatrix();
+        });
     }
 
     @SideOnly(Side.CLIENT)
@@ -72,8 +98,8 @@ public class TauntRenderer extends SkillRenderer<Taunt> {
             GlStateManager.translate(x, y, z);
             GLHelper.BLEND_SRC_ALPHA$ONE.blend();
             if (!ClientConfig.RENDER_CONFIG.rendering.helpMyShadersAreDying) {
-                ShaderLibrary.BRIGHT.begin();
-                ShaderLibrary.BRIGHT.set("alpha", 0.6F * (1F - (float) tick / (float) EntityPlaceableData.MIN_TIME));
+                ShaderLibrary.ALPHA.begin();
+                ShaderLibrary.ALPHA.set("alpha", 0.4F * (1F - (float) tick / (float) entity.getLifeTime()));
             }
             GlStateManager.disableLighting();
             GlStateManager.enableBlend();
@@ -138,7 +164,7 @@ public class TauntRenderer extends SkillRenderer<Taunt> {
             GlStateManager.disableBlend();
             GlStateManager.enableLighting();
             if (!ClientConfig.RENDER_CONFIG.rendering.helpMyShadersAreDying) {
-                ShaderLibrary.BRIGHT.end();
+                ShaderLibrary.ALPHA.end();
             }
             GLHelper.BLEND_NORMAL.blend();
             GlStateManager.popMatrix();
@@ -151,7 +177,7 @@ public class TauntRenderer extends SkillRenderer<Taunt> {
         }
     }
 
-    public static class Shader {
+    public static class Events {
         public boolean wasActive;
 
         @SubscribeEvent

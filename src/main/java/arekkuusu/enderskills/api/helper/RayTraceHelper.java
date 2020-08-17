@@ -128,6 +128,34 @@ public final class RayTraceHelper {
         return Optional.ofNullable(traceBlocks != null && traceBlocks.typeOfHit == RayTraceResult.Type.ENTITY ? traceBlocks.entityHit : null);
     }
 
+    public static Optional<BlockPos> getFloorLookedAt(Entity source, double distanceForward, double distanceDown) {
+        World world = source.getEntityWorld();
+        Vec3d eyesVector = source.getPositionEyes(1F);
+        Vec3d lookVector = source.getLook(1F);
+        Vec3d targetVector = eyesVector.addVector(
+                lookVector.x * distanceForward,
+                lookVector.y * distanceForward,
+                lookVector.z * distanceForward
+        );
+
+        RayTraceResult traceBlocks = rayTraceBlocks(world, eyesVector, targetVector);
+        if (traceBlocks == null || traceBlocks.typeOfHit != RayTraceResult.Type.BLOCK) {
+            Vec3d vec = traceBlocks != null ? traceBlocks.hitVec : targetVector;
+            BlockPos pos = new BlockPos(vec);
+            IBlockState state = world.getBlockState(pos);
+            int i = 0;
+            while (i++ < ((int) distanceDown + (int) Math.ceil(source.height)) && state.getCollisionBoundingBox(world, pos) == Block.NULL_AABB) {
+                pos = pos.down();
+                vec = vec.subtract(0, 1, 0);
+                state = world.getBlockState(pos);
+            }
+            if (state.getCollisionBoundingBox(world, pos) != Block.NULL_AABB) {
+                traceBlocks = new RayTraceResult(vec, EnumFacing.UP, pos);
+            }
+        }
+        return Optional.ofNullable(traceBlocks != null && traceBlocks.typeOfHit == RayTraceResult.Type.BLOCK ? traceBlocks.getBlockPos() : null);
+    }
+
     public static RayTraceResult forwardsRaycast(Entity projectile, boolean includeEntities, boolean ignoreExcludedEntity, Entity excludedEntity) {
         double d0 = projectile.posX;
         double d1 = projectile.posY;

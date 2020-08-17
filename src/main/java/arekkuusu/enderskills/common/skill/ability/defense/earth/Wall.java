@@ -52,10 +52,9 @@ public class Wall extends BaseAbility implements ISkillAdvancement {
         AbilityInfo abilityInfo = (AbilityInfo) skillInfo;
         double distance = getRange(abilityInfo);
 
-        RayTraceHelper.getPosLookedAt(owner, distance).ifPresent(pos -> {
-            IBlockState state = owner.world.getBlockState(pos);
+        RayTraceHelper.getFloorLookedAt(owner, distance, distance).ifPresent(pos -> {
             pos = pos.up();
-            if (state.isOpaqueCube() && state.isFullBlock() && isActionable(owner) && canActivate(owner)) {
+            if (isActionable(owner) && canActivate(owner)) {
                 if (!(owner instanceof EntityPlayer) || !((EntityPlayer) owner).capabilities.isCreativeMode) {
                     abilityInfo.setCooldown(getCooldown(abilityInfo));
                 }

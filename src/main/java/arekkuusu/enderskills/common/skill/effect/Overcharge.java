@@ -23,7 +23,7 @@ public class Overcharge extends BaseEffect {
 
     @Override
     public void update(EntityLivingBase entity, SkillData data, int tick) {
-        if (tick % 10 != 0) return;
+        if (tick % 20 != 0) return;
         double charge = NBTHelper.getDouble(data.nbt, "over_charge") - 1D;
         if (charge > 0) {
             NBTHelper.setDouble(data.nbt, "over_charge", charge);

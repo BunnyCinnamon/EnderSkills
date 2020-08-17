@@ -72,8 +72,8 @@ public class HealAuraRenderer extends SkillRenderer<HealAura> {
             GlStateManager.translate(x, y, z);
             GLHelper.BLEND_SRC_ALPHA$ONE.blend();
             if (!ClientConfig.RENDER_CONFIG.rendering.helpMyShadersAreDying) {
-                ShaderLibrary.BRIGHT.begin();
-                ShaderLibrary.BRIGHT.set("alpha", SkillRenderer.getDiffuseBlend(entity.tick, entity.getLifeTime(), 0.8F));
+                ShaderLibrary.ALPHA.begin();
+                ShaderLibrary.ALPHA.set("alpha", SkillRenderer.getDiffuseBlend(entity.tick, entity.getLifeTime(), 0.8F));
             }
             GlStateManager.disableLighting();
             GlStateManager.enableBlend();
@@ -87,7 +87,7 @@ public class HealAuraRenderer extends SkillRenderer<HealAura> {
             GlStateManager.disableBlend();
             GlStateManager.enableLighting();
             if (!ClientConfig.RENDER_CONFIG.rendering.helpMyShadersAreDying) {
-                ShaderLibrary.BRIGHT.end();
+                ShaderLibrary.ALPHA.end();
             }
             GlStateManager.popMatrix();
         }

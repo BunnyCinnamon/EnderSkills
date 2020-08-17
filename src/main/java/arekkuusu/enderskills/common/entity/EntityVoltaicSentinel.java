@@ -27,7 +27,6 @@ import net.minecraft.scoreboard.Team;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
@@ -55,7 +54,7 @@ public class EntityVoltaicSentinel extends EntityGolem {
         this.tasks.addTask(2, new AIFollowFlyingProvider(this, () ->
                 getFollowId() != null ? getEntityByUUID(getFollowId()) : null, 2D, 5, 64)
         );
-        //this.tasks.addTask(3, new EntityAIWanderAvoidWaterFlying(this, 1D));
+        this.tasks.addTask(4, new EntityAIWanderAvoidWaterFlying(this, 1D));
         this.tasks.addTask(4, new EntityAIWatchClosest(this, Entity.class, 8));
         this.tasks.addTask(5, new EntityAILookIdle(this));
         this.targetTasks.addTask(1, new EntityAINearestAttackableTarget<>(this, EntityLivingBase.class, 2, true, false, new AITargetSelector()));
@@ -89,18 +88,29 @@ public class EntityVoltaicSentinel extends EntityGolem {
     public void onLivingUpdate() {
         super.onLivingUpdate();
 
-        UUID uuid = getFollowId();
-        if (uuid != null) {
-            EntityLivingBase owner = getEntityByUUID(uuid);
-            if (owner != null) {
-                this.setHomePosAndDistance(owner.getPosition(), 10);
-                if (owner.getDistance(this) > 69) { //uwu
-                    teleportTo(owner);
+        if (!world.isRemote) {
+            UUID uuid = getFollowId();
+            if (uuid != null) {
+                EntityLivingBase owner = getEntityByUUID(uuid);
+                if (owner != null) {
+                    this.setHomePosAndDistance(owner.getPosition(), 10);
+                    if (owner.getDistance(this) > 69) { //uwu
+                        teleportTo(owner);
+                    }
                 }
+            } else {
+                setFollowId(getOwnerId());
+            }
+            if (getOwnerId() == null || !SkillHelper.isActiveFrom(getEntityByUUID(getOwnerId()), ModAbilities.VOLTAIC_SENTINEL)) {
+                setDead();
             }
         }
-        if (getOwnerId() == null || !SkillHelper.isActiveFrom(getEntityByUUID(getOwnerId()), ModAbilities.VOLTAIC_SENTINEL)) {
-            setDead();
+    }
+
+    public void teleportTo(EntityLivingBase entity) {
+        if (attemptTeleport(entity.posX, entity.posY, entity.posZ)) {
+            world.playSound(null, posX, posY, posZ, SoundEvents.ITEM_CHORUS_FRUIT_TELEPORT, SoundCategory.PLAYERS, 1.0F, 1.0F);
+            playSound(SoundEvents.ITEM_CHORUS_FRUIT_TELEPORT, 1.0F, 1.0F);
         }
     }
 
@@ -127,25 +137,13 @@ public class EntityVoltaicSentinel extends EntityGolem {
     }
 
     @Override
-    public float getAIMoveSpeed() {
-        return super.getAIMoveSpeed();
+    public float getEyeHeight() {
+        return height / 2;
     }
 
-    public void teleportTo(EntityLivingBase entity) {
-        for (int i = 0; i < 16; ++i) {
-            double d3 = entity.posX + (world.rand.nextDouble() - 0.5D) * 5;
-            double d4 = MathHelper.clamp(entity.posY + (((world.rand.nextDouble()) * 5D) - (5D / 2D)), 0.0D, world.getActualHeight() - 1);
-            double d5 = entity.posZ + (world.rand.nextDouble() - 0.5D) * 5;
-            if (isRiding()) {
-                dismountRidingEntity();
-            }
-
-            if (attemptTeleport(d3, d4, d5)) {
-                world.playSound(null, posX, posY, posZ, SoundEvents.ITEM_CHORUS_FRUIT_TELEPORT, SoundCategory.PLAYERS, 1.0F, 1.0F);
-                playSound(SoundEvents.ITEM_CHORUS_FRUIT_TELEPORT, 1.0F, 1.0F);
-                break;
-            }
-        }
+    @Override
+    public float getAIMoveSpeed() {
+        return super.getAIMoveSpeed();
     }
 
     @Override
@@ -296,7 +294,7 @@ public class EntityVoltaicSentinel extends EntityGolem {
                 sentinel.getNavigator().tryMoveToEntityLiving(sentinel.getAttackTarget(), 0.25D);
             } else {
                 Vec3d vec = RandomPositionGenerator.findRandomTarget(sentinel, 2, 2);
-                if(vec != null) {
+                if (vec != null) {
                     sentinel.getNavigator().clearPath();
                     sentinel.getNavigator().tryMoveToXYZ(vec.x, vec.y, vec.z, 1D);
                 }

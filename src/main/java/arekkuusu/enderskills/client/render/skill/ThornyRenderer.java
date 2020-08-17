@@ -26,8 +26,8 @@ public class ThornyRenderer extends SkillRenderer<Thorny> {
         GlStateManager.pushMatrix();
         GlStateManager.translate(x, y, z);
         if (!ClientConfig.RENDER_CONFIG.rendering.helpMyShadersAreDying) {
-            ShaderLibrary.BRIGHT.begin();
-            ShaderLibrary.BRIGHT.set("alpha", SkillRenderer.getDiffuseBlend(skillHolder.tick, skillHolder.data.time, 1F));
+            ShaderLibrary.ALPHA.begin();
+            ShaderLibrary.ALPHA.set("alpha", SkillRenderer.getDiffuseBlend(skillHolder.tick, skillHolder.data.time, 1F));
         }
         GlStateManager.disableLighting();
         this.bindTexture(FOLLOWING);
@@ -81,7 +81,7 @@ public class ThornyRenderer extends SkillRenderer<Thorny> {
         }
         GlStateManager.enableLighting();
         if (!ClientConfig.RENDER_CONFIG.rendering.helpMyShadersAreDying) {
-            ShaderLibrary.BRIGHT.end();
+            ShaderLibrary.ALPHA.end();
         }
         GlStateManager.popMatrix();
     }

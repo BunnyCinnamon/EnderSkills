@@ -8,14 +8,16 @@ import arekkuusu.enderskills.api.helper.ExpressionHelper;
 import arekkuusu.enderskills.api.helper.NBTHelper;
 import arekkuusu.enderskills.api.helper.TeamHelper;
 import arekkuusu.enderskills.api.registry.Skill;
+import arekkuusu.enderskills.client.util.ResourceLibrary;
 import arekkuusu.enderskills.client.util.helper.TextHelper;
 import arekkuusu.enderskills.common.CommonConfig;
 import arekkuusu.enderskills.common.EnderSkills;
 import arekkuusu.enderskills.common.entity.data.IExpand;
-import arekkuusu.enderskills.common.entity.data.IScanEntities;
+import arekkuusu.enderskills.common.entity.data.IFindEntity;
 import arekkuusu.enderskills.common.entity.placeable.EntityPlaceableData;
 import arekkuusu.enderskills.common.lib.LibMod;
 import arekkuusu.enderskills.common.lib.LibNames;
+import arekkuusu.enderskills.common.network.PacketHelper;
 import arekkuusu.enderskills.common.skill.ModAbilities;
 import arekkuusu.enderskills.common.skill.ModAttributes;
 import arekkuusu.enderskills.common.skill.ModEffects;
@@ -27,8 +29,10 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.DamageSource;
+import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.common.config.Config;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -38,7 +42,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-public class PowerDrain extends BaseAbility implements IScanEntities, IExpand {
+public class PowerDrain extends BaseAbility implements IFindEntity, IExpand {
 
     public PowerDrain() {
         super(LibNames.POWER_DRAIN, new AbilityProperties());
@@ -85,6 +89,12 @@ public class PowerDrain extends BaseAbility implements IScanEntities, IExpand {
     }
 
     @Override
+    public void onFound(Entity source, @Nullable EntityLivingBase owner, EntityLivingBase target, SkillData skillData) {
+        apply(target, skillData);
+        sync(target, skillData);
+    }
+
+    @Override
     public void onScan(Entity source, @Nullable EntityLivingBase owner, EntityLivingBase target, SkillData skillData) {
         if (SkillHelper.isActive(target, ModEffects.ELECTRIFIED)) {
             int stun = NBTHelper.getInteger(skillData.nbt, "stun");
@@ -93,8 +103,6 @@ public class PowerDrain extends BaseAbility implements IScanEntities, IExpand {
         if (source.isWet() && source.ticksExisted % 20 == 0) {
             source.attackEntityFrom(DamageSource.LIGHTNING_BOLT, 4);
         }
-        apply(target, skillData);
-        sync(target, skillData);
     }
     //* Entity *//
 
@@ -103,10 +111,29 @@ public class PowerDrain extends BaseAbility implements IScanEntities, IExpand {
         EntityLivingBase owner = SkillHelper.getOwner(data);
         if (owner != null) {
             Capabilities.endurance(entity).ifPresent(capability -> {
-                double power = NBTHelper.getDouble(data.nbt, "power") / 10D;
+                double power = NBTHelper.getDouble(data.nbt, "power");
                 double drain = power - capability.drain(power);
-                if (!isClientWorld(entity)) {
-                    EnderSkills.getProxy().addToQueue(() -> ModEffects.OVERCHARGE.set(owner, drain));
+                if (drain > 0) {
+                    if (!isClientWorld(entity)) {
+                        if (entity instanceof EntityPlayerMP) {
+                            PacketHelper.sendEnduranceSync((EntityPlayerMP) entity);
+                        }
+                        EnderSkills.getProxy().addToQueue(() -> ModEffects.OVERCHARGE.set(owner, drain));
+                        {
+                            Vec3d vec = entity.getPositionVector();
+                            double posX = vec.x;
+                            double posY = vec.y + entity.height + 0.5D;
+                            double posZ = vec.z;
+                            EnderSkills.getProxy().spawnParticle(entity.world, new Vec3d(posX, posY, posZ), new Vec3d(0, 0, 0), 3, 50, 0xFFECA8, ResourceLibrary.MINUS);
+                        }
+                        {
+                            Vec3d vec = owner.getPositionVector();
+                            double posX = vec.x;
+                            double posY = vec.y + owner.height + 0.5D;
+                            double posZ = vec.z;
+                            EnderSkills.getProxy().spawnParticle(owner.world, new Vec3d(posX, posY, posZ), new Vec3d(0, 0, 0), 3, 50, 0xFFA8A8, ResourceLibrary.PLUS);
+                        }
+                    }
                 }
             });
         }

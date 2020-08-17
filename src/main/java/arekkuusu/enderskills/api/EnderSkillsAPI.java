@@ -18,4 +18,5 @@ public class EnderSkillsAPI {
     public static final Function<ResourceLocation, Object2ObjectArrayMap<String, ExpressionHelper.FunctionInfo>> EXPRESSION_FUNCTION_CACHE_SUPPLIER = (s) -> new Object2ObjectArrayMap<>();
     public static final Function<Tuple<ResourceLocation, String>, Int2DoubleArrayMap> EXPRESSION_CACHE_SUPPLIER = (s) -> new Int2DoubleArrayMap();
     public static boolean defaultHumanTeam = true;
+    public static boolean defaultAnimalTeam = false;
 }

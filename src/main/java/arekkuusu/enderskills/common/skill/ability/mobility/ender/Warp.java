@@ -11,6 +11,7 @@ import arekkuusu.enderskills.api.helper.NBTHelper;
 import arekkuusu.enderskills.api.helper.RayTraceHelper;
 import arekkuusu.enderskills.api.registry.Skill;
 import arekkuusu.enderskills.client.gui.data.ISkillAdvancement;
+import arekkuusu.enderskills.client.keybind.KeyBounds;
 import arekkuusu.enderskills.client.render.skill.TeleportRenderer;
 import arekkuusu.enderskills.client.render.skill.WarpRenderer;
 import arekkuusu.enderskills.client.util.helper.TextHelper;
@@ -149,14 +150,14 @@ public class Warp extends BaseAbility implements ISkillAdvancement {
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public void onKeyPress(InputEvent.KeyInputEvent event) {
         EntityPlayerSP player = Minecraft.getMinecraft().player;
-        if (!Minecraft.getMinecraft().gameSettings.keyBindSprint.isKeyDown()) return;
+        if (!KeyBounds.warp.isKeyDown()) return;
         Capabilities.get(player).flatMap(c -> c.getOwned(this)).ifPresent(skillInfo -> {
             AbilityInfo abilityInfo = (AbilityInfo) skillInfo;
             if (abilityInfo.hasCooldown()) return;
-            boolean tapped = Minecraft.getMinecraft().gameSettings.keyBindSprint.isKeyDown();
+            boolean tapped = KeyBounds.warp.isKeyDown();
             if (tapped && !wasTapped) {
                 //Pressed same combination within 7 ticks
-                if (ticksSinceLastTap <= 7) {
+                if (ticksSinceLastTap <= 14) {
                     Capabilities.endurance(player).ifPresent(endurance -> {
                         int amount = ModAttributes.ENDURANCE.getEnduranceDrain(this);
                         if (endurance.getEndurance() - amount >= 0) {
@@ -194,7 +195,7 @@ public class Warp extends BaseAbility implements ISkillAdvancement {
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public void onKeyTapUpdate(TickEvent.ClientTickEvent event) {
         if (Minecraft.getMinecraft().gameSettings.keyBindSprint.isKeyDown()) keyWasPressed = false;
-        if (ticksSinceLastTap < 10) ticksSinceLastTap++;
+        if (ticksSinceLastTap < 17) ticksSinceLastTap++;
         boolean tapped = Minecraft.getMinecraft().gameSettings.keyBindSprint.isKeyDown();
         if (wasTapped && !tapped) wasTapped = false;
     }

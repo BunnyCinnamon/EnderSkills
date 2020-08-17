@@ -36,9 +36,6 @@ public class Zap extends BaseAbility {
                 Vector posFrom = new Vector(owner.getPositionVector()).addVector(owner.world.rand.nextDouble() * 0.05D, owner.height / 2D + owner.world.rand.nextDouble() * 0.05D, owner.world.rand.nextDouble() * 0.05D);
                 Vector posTo = new Vector(entity.getPositionVector()).addVector(entity.world.rand.nextDouble() * 0.05D, entity.height / 2D + entity.world.rand.nextDouble() * 0.05D, entity.world.rand.nextDouble() * 0.05D);
                 EnderSkills.getProxy().spawnLightning(entity.world, posFrom, posTo, 4, 0.6F, 5, 0xF4F389, false);
-                if (entity.world instanceof WorldServer) {
-                    ((WorldServer) entity.world).playSound(null, posTo.x, posTo.y, posTo.z, ModSounds.SPARK, SoundCategory.BLOCKS, 0.5F, (1.0F + (entity.world.rand.nextFloat() - entity.world.rand.nextFloat()) * 0.2F) * 0.7F);
-                }
             }
         } else {
             EnderSkills.getProxy().addToQueue(() -> {
@@ -59,6 +56,9 @@ public class Zap extends BaseAbility {
             SkillDamageEvent event = new SkillDamageEvent(owner, this, source, damage);
             MinecraftForge.EVENT_BUS.post(event);
             entity.attackEntityFrom(event.getSource(), event.toFloat());
+            if (entity.world instanceof WorldServer) {
+                ((WorldServer) entity.world).playSound(null, entity.posX, entity.posY, entity.posZ, ModSounds.SPARK, SoundCategory.BLOCKS, 0.5F, (1.0F + (entity.world.rand.nextFloat() - entity.world.rand.nextFloat()) * 0.2F) * 0.7F);
+            }
         }
     }
 

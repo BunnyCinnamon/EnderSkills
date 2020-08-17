@@ -289,7 +289,7 @@ public final class PacketHandler {
         Optional.ofNullable(NBTHelper.getEntity(EntityLivingBase.class, compound, "owner")).ifPresent(e -> {
             Capabilities.advancement(e).ifPresent(c -> {
                 if (e instanceof EntityPlayer) {
-                    int xp = XPHelper.getXPTotal((EntityPlayer) e);
+                    int xp = (int) (XPHelper.getXPTotal((EntityPlayer) e) * CommonConfig.getSyncValues().advancement.xp.xpStoreTariff);
                     c.addExperienceToTotal(xp);
                     ((EntityPlayer) e).experienceTotal = 0;
                     ((EntityPlayer) e).experienceLevel = 0;
@@ -304,7 +304,7 @@ public final class PacketHandler {
         Optional.ofNullable(NBTHelper.getEntity(EntityLivingBase.class, compound, "owner")).ifPresent(e -> {
             Capabilities.advancement(e).ifPresent(c -> {
                 if (e instanceof EntityPlayer) {
-                    int xpStored = XPHelper.getXPTotal(c.experienceLevel, c.experienceProgress);
+                    int xpStored = (int) (XPHelper.getXPTotal(c.experienceLevel, c.experienceProgress) * CommonConfig.getSyncValues().advancement.xp.xpTakeTariff);
                     int xpTotal = xpStored + XPHelper.getXPTotal((EntityPlayer) e);
                     ((EntityPlayer) e).experienceTotal = xpTotal;
                     ((EntityPlayer) e).experienceLevel = XPHelper.getLevelFromXPValue(xpTotal);

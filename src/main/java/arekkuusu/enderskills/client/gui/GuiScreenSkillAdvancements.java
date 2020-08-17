@@ -6,6 +6,7 @@ import arekkuusu.enderskills.client.gui.widgets.GuiBaseButton;
 import arekkuusu.enderskills.client.gui.widgets.GuiConfirmation;
 import arekkuusu.enderskills.client.gui.widgets.GuiCustomButton;
 import arekkuusu.enderskills.client.gui.widgets.SkillAdvancementTabType;
+import arekkuusu.enderskills.client.keybind.KeyBounds;
 import arekkuusu.enderskills.client.util.helper.RenderMisc;
 import arekkuusu.enderskills.client.util.helper.TextHelper;
 import arekkuusu.enderskills.common.CommonConfig;
@@ -138,7 +139,7 @@ public class GuiScreenSkillAdvancements extends GuiScreen {
         }
         for (GuiButton guiButton : alternateButtonList) {
             if (guiButton.id == 105) {
-                guiButton.enabled = Capabilities.advancement(this.mc.player).map(c -> c.resetCount < CommonConfig.getSyncValues().advancement.maxRetries).orElse(false);
+                guiButton.enabled = Capabilities.advancement(this.mc.player).map(c -> c.resetCount < CommonConfig.getSyncValues().advancement.maxResetUnlocks).orElse(false);
             }
         }
         for (GuiButton guiButton : buttonList) {
@@ -191,7 +192,6 @@ public class GuiScreenSkillAdvancements extends GuiScreen {
         if (this.selectedTab != null) {
             super.drawScreen(mouseX, mouseY, partialTicks);
         } else {
-            drawGuiLogo();
             for (GuiButton guiButton : this.alternateButtonList) {
                 guiButton.drawButton(this.mc, mouseX, mouseY, partialTicks);
             }
@@ -212,11 +212,6 @@ public class GuiScreenSkillAdvancements extends GuiScreen {
         GlStateManager.disableBlend();
         GlStateManager.enableLighting();
         GlStateManager.enableRescaleNormal();
-    }
-
-    public void drawGuiLogo() {
-        this.mc.getTextureManager().bindTexture(WIDGETS);
-        this.drawTexturedModalRect(this.x + this.guiWidth / 4 - 33, this.y + 15, 190, 0, 66, 61);
     }
 
     public void drawGuiBackground(int mouseX, int mouseY, float partialTicks) {
@@ -308,10 +303,13 @@ public class GuiScreenSkillAdvancements extends GuiScreen {
         //Draw Border
         this.mc.getTextureManager().bindTexture(WINDOW_0);
         this.drawTexturedModalRect(this.x, this.y, 0, 0, this.guiWidth, this.guiHeight);
-        //Draw Player Info of Main GUI
         if (this.selectedTab == null) {
+            //Draw logo and info
+            drawGuiLogo();
+            drawXpInfo();
+            //Draw Player Info of Main GUI
             this.mc.getTextureManager().bindTexture(WIDGETS);
-            RenderMisc.draw8Rect(this.x + 8 + 10, this.y + 80, (this.guiWidth / 2) - 35, 68);
+            RenderMisc.draw8Rect(this.x + 8 + 10, this.y + 80, (this.guiWidth / 2) - 30, 68);
             GlStateManager.pushMatrix();
             GlStateManager.translate(this.x + (float) (this.guiWidth / 4) - 18, this.y + 142, 0);
             //Render Entity Player
@@ -344,6 +342,30 @@ public class GuiScreenSkillAdvancements extends GuiScreen {
         }
     }
 
+    public void drawGuiLogo() {
+        this.mc.getTextureManager().bindTexture(WIDGETS);
+        this.drawTexturedModalRect(this.x + this.guiWidth / 4 - 28, this.y + 15, 190, 0, 66, 61);
+    }
+
+    public void drawXpInfo() {
+        this.mc.getTextureManager().bindTexture(WIDGETS);
+        int resets = Capabilities.advancement(this.mc.player).map(c -> c.resetCount).orElse(0);
+        int maxResets = CommonConfig.getSyncValues().advancement.maxResetUnlocks;
+        this.drawTexturedModalRect(this.x + this.guiWidth / 2 + this.guiWidth / 4 - 34, this.y + 15, 192, 61, 64, 64);
+        int xp = Capabilities.advancement(this.mc.player).map(c -> XPHelper.getXPTotal(c.experienceLevel, c.experienceProgress)).orElse(0);
+        if(xp > 0) {
+            this.drawTexturedModalRect(this.x + this.guiWidth / 2 + this.guiWidth / 4 - 34, this.y + 15, 192, 125, 64, 64);
+        }
+        //Xp text
+        String xpText = TextHelper.translate("gui.total_xp", String.valueOf(XPHelper.getXPTotal(this.mc.player)), String.valueOf(xp));
+        int xpTextWidth = this.fontRenderer.getStringWidth(xpText);
+        drawString(mc.fontRenderer, xpText, this.x + this.guiWidth / 2 + this.guiWidth / 4 - xpTextWidth / 2, this.y + 83, -0x2D2D2D);
+        //Reset text
+        String text = TextHelper.translate("gui.reset_unlocks_count", String.valueOf(resets), String.valueOf(maxResets));
+        int textWidth = this.fontRenderer.getStringWidth(text);
+        drawString(mc.fontRenderer, text, this.x + this.guiWidth / 2 + this.guiWidth / 4 - textWidth / 2, this.y + this.guiHeight - 25, -0x2D2D2D);
+    }
+
     public void drawXPBar(double percentage, int x, int y, int v) {
         this.drawTexturedModalRect(this.x + x, this.y + y, 109, v, 10, 5);
         for (int i = 0; i < 16; i++) {
@@ -367,6 +389,7 @@ public class GuiScreenSkillAdvancements extends GuiScreen {
         if (GuiScreenSkillAdvancements.confirmation != null) return;
         EntityLivingBase ent = this.mc.player;
         GlStateManager.pushMatrix();
+        GlStateManager.color(1F, 1F, 1F, 1F);
         RenderHelper.enableStandardItemLighting();
         GlStateManager.translate(posX, posY, 50.0F);
         GlStateManager.scale((-30), 30, 30);
@@ -399,6 +422,7 @@ public class GuiScreenSkillAdvancements extends GuiScreen {
         GlStateManager.setActiveTexture(OpenGlHelper.lightmapTexUnit);
         GlStateManager.disableTexture2D();
         GlStateManager.setActiveTexture(OpenGlHelper.defaultTexUnit);
+        GlStateManager.color(1F, 1F, 1F, 1F);
         GlStateManager.popMatrix();
     }
 
@@ -511,7 +535,7 @@ public class GuiScreenSkillAdvancements extends GuiScreen {
             this.selectedTab.tabPage = Math.min(this.selectedTab.tabPage + 1, this.selectedTab.maxPages - 1);
             Minecraft.getMinecraft().getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.UI_BUTTON_CLICK, 1.0F));
         }
-        isShifting = keyCode == 0x1D;
+        isShifting = KeyBounds.upgrade.getKeyCode() == keyCode;
     }
 
     @Override

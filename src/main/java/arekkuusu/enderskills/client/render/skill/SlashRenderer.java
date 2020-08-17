@@ -44,8 +44,8 @@ public class SlashRenderer extends SkillRenderer<Slash> {
             double scale = (entity.getRadius() + 3) * 2 * progress;
             GLHelper.BLEND_SRC_ALPHA$ONE.blend();
             if (!ClientConfig.RENDER_CONFIG.rendering.helpMyShadersAreDying) {
-                ShaderLibrary.BRIGHT.begin();
-                ShaderLibrary.BRIGHT.set("alpha", 0.6F * (1F - (float) progress));
+                ShaderLibrary.ALPHA.begin();
+                ShaderLibrary.ALPHA.set("alpha", 0.6F * (1F - (float) progress));
             }
             for (int i = -1; i <= 1; i++) {
                 GlStateManager.pushMatrix();
@@ -79,7 +79,7 @@ public class SlashRenderer extends SkillRenderer<Slash> {
                 GlStateManager.popMatrix();
             }
             if (!ClientConfig.RENDER_CONFIG.rendering.helpMyShadersAreDying) {
-                ShaderLibrary.BRIGHT.end();
+                ShaderLibrary.ALPHA.end();
             }
         }
 

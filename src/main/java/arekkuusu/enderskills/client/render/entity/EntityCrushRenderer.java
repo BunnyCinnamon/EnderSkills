@@ -18,8 +18,8 @@ import net.minecraft.util.math.Vec3d;
 
 public class EntityCrushRenderer extends Render<EntityCrush> {
 
-    private static final ResourceLocation TEXTURE = new ResourceLocation(LibMod.MOD_ID, "textures/entity/crush.png");
-    private final ModelCrush model = new ModelCrush();
+    public static final ResourceLocation TEXTURE = new ResourceLocation(LibMod.MOD_ID, "textures/entity/crush.png");
+    public final ModelCrush model = new ModelCrush();
 
     public EntityCrushRenderer(RenderManager manager) {
         super(manager);
@@ -54,8 +54,8 @@ public class EntityCrushRenderer extends Render<EntityCrush> {
             GlStateManager.translate(x, y, z);
             GLHelper.BLEND_NORMAL.blend();
             if (!ClientConfig.RENDER_CONFIG.rendering.helpMyFramesAreDying) {
-                ShaderLibrary.BRIGHT.begin();
-                ShaderLibrary.BRIGHT.set("alpha", SkillRenderer.getDiffuseBlend(22 - entity.lifeTicks, 22, 0.4F));
+                ShaderLibrary.ALPHA.begin();
+                ShaderLibrary.ALPHA.set("alpha", SkillRenderer.getDiffuseBlend(22 - entity.lifeTicks, 22, 0.4F));
             }
             GlStateManager.disableLighting();
             GlStateManager.enableBlend();
@@ -67,7 +67,7 @@ public class EntityCrushRenderer extends Render<EntityCrush> {
             GlStateManager.disableBlend();
             GlStateManager.enableLighting();
             if (!ClientConfig.RENDER_CONFIG.rendering.helpMyFramesAreDying) {
-                ShaderLibrary.BRIGHT.end();
+                ShaderLibrary.ALPHA.end();
             }
             GLHelper.BLEND_NORMAL.blend();
             GlStateManager.enableCull();

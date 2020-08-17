@@ -10,6 +10,7 @@ import arekkuusu.enderskills.api.helper.ExpressionHelper;
 import arekkuusu.enderskills.api.helper.NBTHelper;
 import arekkuusu.enderskills.api.registry.Skill;
 import arekkuusu.enderskills.client.gui.data.ISkillAdvancement;
+import arekkuusu.enderskills.client.keybind.KeyBounds;
 import arekkuusu.enderskills.client.util.helper.TextHelper;
 import arekkuusu.enderskills.common.CommonConfig;
 import arekkuusu.enderskills.common.entity.data.IExpand;
@@ -155,7 +156,7 @@ public class Smash extends BaseAbility implements IScanEntities, IExpand, IFindE
         Capabilities.get(player).flatMap(c -> c.getOwned(this)).ifPresent(skillInfo -> {
             AbilityInfo abilityInfo = (AbilityInfo) skillInfo;
             if (abilityInfo.hasCooldown()) return;
-            if (Minecraft.getMinecraft().gameSettings.keyBindSneak.isKeyDown() && !player.onGround) {
+            if (KeyBounds.smash.isKeyDown() && !player.onGround) {
                 Capabilities.endurance(player).ifPresent(endurance -> {
                     int amount = ModAttributes.ENDURANCE.getEnduranceDrain(this);
                     if (endurance.getEndurance() - amount >= 0) {

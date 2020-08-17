@@ -5,7 +5,7 @@ import arekkuusu.enderskills.client.util.resource.shader.ShaderResource;
 
 public class ShaderLibrary {
 
-    public static final ShaderResource BRIGHT = ShaderManager.load("bright", "bright");
+    public static final ShaderResource ALPHA = ShaderManager.load("alpha", "alpha");
     public static final ShaderResource GRAY_SCALE = ShaderManager.load("gray_scale", "gray_scale");
     public static final ShaderResource BLEED = ShaderManager.load("bleed", "bleed");
     public static final ShaderResource UNIVERSE = ShaderManager.load("universe", "universe");

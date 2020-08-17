@@ -59,8 +59,8 @@ public class ExplodeRenderer extends SkillRenderer<Explode> {
             GlStateManager.translate(x, y, z);
             GLHelper.BLEND_SRC_ALPHA$ONE.blend();
             if (!ClientConfig.RENDER_CONFIG.rendering.helpMyShadersAreDying) {
-                ShaderLibrary.BRIGHT.begin();
-                ShaderLibrary.BRIGHT.set("alpha", 0.7F * (MathHelper.clamp(entity.tick / 10F, 0F, 1F)));
+                ShaderLibrary.ALPHA.begin();
+                ShaderLibrary.ALPHA.set("alpha", 0.7F * (MathHelper.clamp(entity.tick / 10F, 0F, 1F)));
             }
             GlStateManager.disableLighting();
             GlStateManager.enableBlend();
@@ -125,7 +125,7 @@ public class ExplodeRenderer extends SkillRenderer<Explode> {
             GlStateManager.disableBlend();
             GlStateManager.enableLighting();
             if (!ClientConfig.RENDER_CONFIG.rendering.helpMyShadersAreDying) {
-                ShaderLibrary.BRIGHT.end();
+                ShaderLibrary.ALPHA.end();
             }
             GLHelper.BLEND_NORMAL.blend();
             GlStateManager.popMatrix();

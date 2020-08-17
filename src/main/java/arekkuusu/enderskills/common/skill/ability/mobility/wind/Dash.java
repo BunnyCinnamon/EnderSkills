@@ -10,6 +10,7 @@ import arekkuusu.enderskills.api.helper.ExpressionHelper;
 import arekkuusu.enderskills.api.helper.NBTHelper;
 import arekkuusu.enderskills.api.registry.Skill;
 import arekkuusu.enderskills.client.gui.data.ISkillAdvancement;
+import arekkuusu.enderskills.client.keybind.KeyBounds;
 import arekkuusu.enderskills.client.util.helper.TextHelper;
 import arekkuusu.enderskills.common.CommonConfig;
 import arekkuusu.enderskills.common.lib.LibMod;
@@ -147,21 +148,20 @@ public class Dash extends BaseAbility implements ISkillAdvancement {
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public void onKeyPress(InputEvent.KeyInputEvent event) {
         EntityPlayerSP player = Minecraft.getMinecraft().player;
-        if (!Minecraft.getMinecraft().gameSettings.keyBindSprint.isKeyDown()) return;
+        if (!KeyBounds.dash.isKeyDown()) return;
         Capabilities.get(player).flatMap(c -> c.getOwned(this)).ifPresent(skillInfo -> {
             AbilityInfo abilityInfo = (AbilityInfo) skillInfo;
             if (abilityInfo.hasCooldown()) return;
-            boolean tapped = Minecraft.getMinecraft().gameSettings.keyBindSprint.isKeyDown();
+            boolean tapped = KeyBounds.dash.isKeyDown();
             if (tapped && !wasTapped) {
                 //Pressed same combination within 7 ticks
-                if (ticksSinceLastTap <= 7 && !keyWasPressed) {
+                if (ticksSinceLastTap <= 14 && !keyWasPressed) {
                     Capabilities.endurance(player).ifPresent(endurance -> {
                         int amount = ModAttributes.ENDURANCE.getEnduranceDrain(this);
                         if (endurance.getEndurance() - amount >= 0) {
-                            //double distance = getRange(abilityInfo) / 20D;
                             Vec3d lookVec = getVectorForRotation(player);
-                            double x = lookVec.x/* * distance*/;
-                            double z = lookVec.z/* * distance*/;
+                            double x = lookVec.x;
+                            double z = lookVec.z;
                             Vec3d moveVec = new Vec3d(0, 0, 0);
                             if (Minecraft.getMinecraft().gameSettings.keyBindForward.isKeyDown()) {
                                 moveVec = moveVec.add(new Vec3d(x, 0, z));
@@ -200,7 +200,7 @@ public class Dash extends BaseAbility implements ISkillAdvancement {
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public void onKeyTapUpdate(TickEvent.ClientTickEvent event) {
         if (Minecraft.getMinecraft().gameSettings.keyBindSprint.isKeyDown()) keyWasPressed = false;
-        if (ticksSinceLastTap < 10) ticksSinceLastTap++;
+        if (ticksSinceLastTap < 17) ticksSinceLastTap++;
         boolean tapped = Minecraft.getMinecraft().gameSettings.keyBindSprint.isKeyDown();
         if (wasTapped && !tapped) wasTapped = false;
     }

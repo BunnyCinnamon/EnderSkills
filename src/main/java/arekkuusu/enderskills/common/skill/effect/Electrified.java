@@ -82,7 +82,7 @@ public class Electrified extends BaseEffect {
     }
 
     public void arc(EntityLivingBase source, SkillData data, int time) {
-        source.world.getEntitiesInAABBexcluding(source, source.getEntityBoundingBox().grow(1.5), TeamHelper.SELECTOR_ALLY.apply(source)).stream().filter(e -> canArc(e, data)).limit(1 + source.world.rand.nextInt(1)).forEach(entity -> {
+        source.world.getEntitiesWithinAABBExcludingEntity(source, source.getEntityBoundingBox().grow(1.5)).stream().filter(e -> canArc(e, data)).limit(1 + source.world.rand.nextInt(1)).forEach(entity -> {
             this.propagators.add(new Delay(source, (EntityLivingBase) entity, data, time));
         });
     }

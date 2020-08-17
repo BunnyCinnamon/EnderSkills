@@ -59,12 +59,7 @@ public class GloomRenderer extends SkillRenderer<Gloom> {
         @SubscribeEvent
         public void renderBeamAfterWorld(RenderWorldLastEvent event) {
             float partial = event.getPartialTicks();
-            Entity rView = Minecraft.getMinecraft().getRenderViewEntity();
-            if (rView == null) rView = Minecraft.getMinecraft().player;
-            Entity entity = rView;
-            double tx = entity.lastTickPosX + ((entity.posX - entity.lastTickPosX) * partial);
-            double ty = entity.lastTickPosY + ((entity.posY - entity.lastTickPosY) * partial);
-            double tz = entity.lastTickPosZ + ((entity.posZ - entity.lastTickPosZ) * partial);
+            Vector view = RenderMisc.getRenderViewVector(partial);
 
             GlStateManager.enableAlpha();
             GlStateManager.enableBlend();
@@ -73,7 +68,7 @@ public class GloomRenderer extends SkillRenderer<Gloom> {
             GlStateManager.depthMask(false);
 
             GlStateManager.pushMatrix();
-            GlStateManager.translate(-tx, -ty, -tz);
+            GlStateManager.translate(-view.x, -view.y, -view.z);
             if (!ClientConfig.RENDER_CONFIG.rendering.helpMyFramesAreDying) {
                 if (!ClientConfig.RENDER_CONFIG.rendering.vanilla) {
                     Minecraft.getMinecraft().getRenderManager().renderEngine.bindTexture(ResourceLibrary.DARK_BACKGROUND);
@@ -133,8 +128,8 @@ public class GloomRenderer extends SkillRenderer<Gloom> {
                         ShaderLibrary.UNIVERSE_DEFAULT.set("alpha", SkillRenderer.getDiffuseBlend(lifeTime, maxLifeTime, 0.6F * blend));
                     }
                 } else {
-                    ShaderLibrary.BRIGHT.begin();
-                    ShaderLibrary.BRIGHT.set("alpha", SkillRenderer.getDiffuseBlend(lifeTime, maxLifeTime, 0.6F * blend));
+                    ShaderLibrary.ALPHA.begin();
+                    ShaderLibrary.ALPHA.set("alpha", SkillRenderer.getDiffuseBlend(lifeTime, maxLifeTime, 0.6F * blend));
                 }
                 Tessellator tessellator = Tessellator.getInstance();
                 BufferBuilder buffer = tessellator.getBuffer();
@@ -151,7 +146,7 @@ public class GloomRenderer extends SkillRenderer<Gloom> {
                         ShaderLibrary.UNIVERSE_DEFAULT.end();
                     }
                 } else {
-                    ShaderLibrary.BRIGHT.end();
+                    ShaderLibrary.ALPHA.end();
                 }
             }
         }

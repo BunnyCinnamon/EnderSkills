@@ -7,7 +7,6 @@ import arekkuusu.enderskills.common.lib.LibMod;
 import arekkuusu.enderskills.common.skill.IConfigSync;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.world.BossInfo;
 import net.minecraftforge.common.config.Config;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.relauncher.Side;
@@ -36,7 +35,9 @@ public final class CommonConfig {
     @Deprecated
     public static void initSyncConfig() {
         CommonConfig.getSyncValues().skill.defaultHumanTeam = CommonConfig.getValues().skill.defaultHumanTeam;
+        CommonConfig.getSyncValues().skill.defaultAnimalTeam = CommonConfig.getValues().skill.defaultAnimalTeam;
         EnderSkillsAPI.defaultHumanTeam = CommonConfig.getSyncValues().skill.defaultHumanTeam;
+        EnderSkillsAPI.defaultAnimalTeam = CommonConfig.getSyncValues().skill.defaultAnimalTeam;
         CommonConfig.getSyncValues().skill.globalCooldown = CommonConfig.getValues().skill.globalCooldown;
         CommonConfig.getSyncValues().skill.globalTime = CommonConfig.getValues().skill.globalTime;
         CommonConfig.getSyncValues().skill.globalRange = CommonConfig.getValues().skill.globalRange;
@@ -47,7 +48,9 @@ public final class CommonConfig {
         CommonConfig.getSyncValues().advancement.oneTreePerClass = CommonConfig.getValues().advancement.oneTreePerClass;
         CommonConfig.getSyncValues().advancement.xp.globalCostMultiplier = CommonConfig.getValues().advancement.xp.globalCostMultiplier;
         CommonConfig.getSyncValues().advancement.xp.retryXPReturn = CommonConfig.getValues().advancement.xp.retryXPReturn;
-        CommonConfig.getSyncValues().advancement.maxRetries = CommonConfig.getValues().advancement.maxRetries;
+        CommonConfig.getSyncValues().advancement.xp.xpStoreTariff = CommonConfig.getValues().advancement.xp.xpStoreTariff;
+        CommonConfig.getSyncValues().advancement.xp.xpTakeTariff = CommonConfig.getValues().advancement.xp.xpTakeTariff;
+        CommonConfig.getSyncValues().advancement.maxResetUnlocks = CommonConfig.getValues().advancement.maxResetUnlocks;
         CommonConfig.getSyncValues().advancement.levels.function = CommonConfig.getValues().advancement.levels.function;
         CommonConfig.getSyncValues().advancement.levels.defaultLevel = CommonConfig.getValues().advancement.levels.defaultLevel;
         CommonConfig.getSyncValues().worldGen.enderOreQuantity = CommonConfig.getValues().worldGen.enderOreQuantity;
@@ -71,10 +74,13 @@ public final class CommonConfig {
         compound.setDouble("advancement.xp.globalCostMultiplier", CommonConfig.getValues().advancement.xp.globalCostMultiplier);
         compound.setDouble("advancement.xp.costIncrement", CommonConfig.getValues().advancement.xp.costIncrement);
         compound.setDouble("advancement.xp.retryXPReturn", CommonConfig.getValues().advancement.xp.retryXPReturn);
-        compound.setInteger("advancement.maxRetries", CommonConfig.getValues().advancement.maxRetries);
+        compound.setDouble("advancement.xp.xpStoreTariff", CommonConfig.getValues().advancement.xp.xpStoreTariff);
+        compound.setDouble("advancement.xp.xpTakeTariff", CommonConfig.getValues().advancement.xp.xpTakeTariff);
+        compound.setInteger("advancement.maxResetUnlocks", CommonConfig.getValues().advancement.maxResetUnlocks);
         NBTHelper.setArray(compound, "advancement.levels.function", CommonConfig.getValues().advancement.levels.function);
         compound.setInteger("advancement.levels.defaultLevel", CommonConfig.getValues().advancement.levels.defaultLevel);
         compound.setBoolean("defaultHumanTeam", CommonConfig.getValues().skill.defaultHumanTeam);
+        compound.setBoolean("defaultAnimalTeam", CommonConfig.getValues().skill.defaultAnimalTeam);
         compound.setDouble("globalCooldown", CommonConfig.getValues().skill.globalCooldown);
         compound.setDouble("globalTime", CommonConfig.getValues().skill.globalTime);
         compound.setDouble("globalRange", CommonConfig.getValues().skill.globalRange);
@@ -93,10 +99,13 @@ public final class CommonConfig {
         CommonConfig.getSyncValues().advancement.xp.globalCostMultiplier = compound.getDouble("advancement.xp.globalCostMultiplier");
         CommonConfig.getSyncValues().advancement.xp.costIncrement = compound.getDouble("advancement.xp.costIncrement");
         CommonConfig.getSyncValues().advancement.xp.retryXPReturn = compound.getDouble("advancement.xp.retryXPReturn");
-        CommonConfig.getSyncValues().advancement.maxRetries = compound.getInteger("advancement.maxRetries");
+        CommonConfig.getSyncValues().advancement.xp.xpStoreTariff = compound.getDouble("advancement.xp.xpStoreTariff");
+        CommonConfig.getSyncValues().advancement.xp.xpTakeTariff = compound.getDouble("advancement.xp.xpTakeTariff");
+        CommonConfig.getSyncValues().advancement.maxResetUnlocks = compound.getInteger("advancement.maxResetUnlocks");
         CommonConfig.getSyncValues().advancement.levels.function = NBTHelper.getArray(compound, "advancement.levels.function");
         CommonConfig.getSyncValues().advancement.levels.defaultLevel = compound.getInteger("advancement.levels.defaultLevel");
         CommonConfig.getSyncValues().skill.defaultHumanTeam = compound.getBoolean("defaultHumanTeam");
+        CommonConfig.getSyncValues().skill.defaultAnimalTeam = compound.getBoolean("defaultAnimalTeam");
         CommonConfig.getSyncValues().skill.globalCooldown = compound.getDouble("globalCooldown");
         CommonConfig.getSyncValues().skill.globalTime = compound.getDouble("globalTime");
         CommonConfig.getSyncValues().skill.globalRange = compound.getDouble("globalRange");
@@ -105,6 +114,7 @@ public final class CommonConfig {
         CommonConfig.getSyncValues().skill.extra.globalPositiveEffect = compound.getDouble("extra.globalPositiveEffect");
         CommonConfig.getSyncValues().skill.extra.globalNeutralEffect = compound.getDouble("extra.globalNeutralEffect");
         EnderSkillsAPI.defaultHumanTeam = CommonConfig.getSyncValues().skill.defaultHumanTeam;
+        EnderSkillsAPI.defaultAnimalTeam = CommonConfig.getSyncValues().skill.defaultAnimalTeam;
         EnderSkillsAPI.EXPRESSION_FUNCTION_CACHE.clear();
         EnderSkillsAPI.EXPRESSION_CACHE.clear();
     }
@@ -122,7 +132,11 @@ public final class CommonConfig {
 
             public final Extra extra = new Extra();
 
+            @Config.Comment("Disallows abilities to target humans")
             public boolean defaultHumanTeam = true;
+
+            @Config.Comment("Disallows abilities to target passive mobs")
+            public boolean defaultAnimalTeam = false;
 
             public double globalCooldown = 1D;
 
@@ -148,12 +162,19 @@ public final class CommonConfig {
 
             public boolean oneTreePerClass = true;
 
-            public int maxRetries = 2;
+            public int maxResetUnlocks = 2;
 
             public static class Experience {
+                @Config.Comment("Cost increment of all advancements")
                 public double globalCostMultiplier = 1D;
+                @Config.Comment("Cost increment when switching trees")
                 public double costIncrement = 0.5D;
+                @Config.Comment("Percentage of all xp spent that is returned on reset")
                 public double retryXPReturn = 0.8D;
+                @Config.Comment("Percentage of xp lost when storing xp")
+                public double xpStoreTariff = 0.8D;
+                @Config.Comment("Percentage of xp lost when taking xp")
+                public double xpTakeTariff = 0.8D;
             }
 
             public static class Levels {

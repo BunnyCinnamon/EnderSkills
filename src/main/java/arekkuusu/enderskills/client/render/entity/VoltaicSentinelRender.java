@@ -1,33 +1,85 @@
 package arekkuusu.enderskills.client.render.entity;
 
-import arekkuusu.enderskills.client.render.model.ModelStoneGolem;
-import arekkuusu.enderskills.common.entity.EntityStoneGolem;
+import arekkuusu.enderskills.client.render.model.ModelSentinel;
+import arekkuusu.enderskills.client.util.ShaderLibrary;
+import arekkuusu.enderskills.client.util.SpriteLibrary;
+import arekkuusu.enderskills.client.util.helper.RenderMisc;
+import arekkuusu.enderskills.client.util.sprite.UVFrame;
+import arekkuusu.enderskills.common.entity.EntityVoltaicSentinel;
 import arekkuusu.enderskills.common.lib.LibMod;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.OpenGlHelper;
+import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.entity.RenderLiving;
 import net.minecraft.client.renderer.entity.RenderManager;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import org.lwjgl.opengl.GL11;
 
 @SideOnly(Side.CLIENT)
-public class StoneGolemRender extends RenderLiving<EntityStoneGolem> {
+public class VoltaicSentinelRender extends RenderLiving<EntityVoltaicSentinel> {
 
-    public static final ResourceLocation IRON_GOLEM_TEXTURES = new ResourceLocation(LibMod.MOD_ID, "textures/entity/stone_golem.png");
+    public static final ResourceLocation TEXTURE = new ResourceLocation(LibMod.MOD_ID, "textures/entity/voltaic_sentinel.png");
+    public static final ResourceLocation TEXTURE_ = new ResourceLocation(LibMod.MOD_ID, "textures/entity/voltaic_sentinel_.png");
 
-    public StoneGolemRender(RenderManager renderManagerIn) {
-        super(renderManagerIn, new ModelStoneGolem(), 0.5F);
+    public VoltaicSentinelRender(RenderManager renderManagerIn) {
+        super(renderManagerIn, new ModelSentinel(), 0.5F);
     }
 
     @Override
-    public void doRender(EntityStoneGolem entity, double x, double y, double z, float entityYaw, float partialTicks) {
+    public void doRender(EntityVoltaicSentinel entity, double x, double y, double z, float entityYaw, float partialTicks) {
         if (net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(new net.minecraftforge.client.event.RenderLivingEvent.Pre<>(entity, this, partialTicks, x, y, z)))
             return;
+        //Render effects
         GlStateManager.pushMatrix();
-        GlStateManager.translate(0, -(2.7F - (entity.height / 2.7F) * 2.7F), 0);
+        GlStateManager.color(1F, 1F, 1F, 1F);
+        GlStateManager.depthMask(false);
+        GlStateManager.disableCull();
+        GlStateManager.enableBlend();
+        GlStateManager.disableLighting();
+        GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE);
+        ShaderLibrary.ALPHA.begin();
+        float bright = MathHelper.cos(RenderMisc.getRenderPlayerTime() * 0.05F) * 0.8F;
+        if (bright < 0) bright *= -1;
+        ShaderLibrary.ALPHA.set("alpha", 0.1F + bright);
+        GlStateManager.translate(x- entity.width / 2, y, z);
+        renderMirror(entity.ticksExisted + partialTicks, 0.75F, 0.5F);
+        renderMirror(-entity.ticksExisted - partialTicks, 0.5F, 0.75F);
+        renderMirror(entity.ticksExisted + partialTicks, -0.3F, 1F);
+        ShaderLibrary.ALPHA.end();
+        GlStateManager.enableLighting();
+        GlStateManager.disableBlend();
+        GlStateManager.enableCull();
+        GlStateManager.depthMask(true);
+        GlStateManager.popMatrix();
+
+        GlStateManager.pushMatrix();
+        GlStateManager.color(1F, 1F, 1F, 1F);
+        GlStateManager.depthMask(false);
+        GlStateManager.translate(x, y + 0.5D, z);
+        GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE);
+        GlStateManager.disableLighting();
+        GlStateManager.disableCull();
+        GlStateManager.enableBlend();
+        int color = entity.getAggro() ? 0xFFA8A8 : 0xFFECA8;
+        ShaderLibrary.ALPHA.begin();
+        ShaderLibrary.ALPHA.set("alpha", 0.5F + bright);
+        RenderMisc.renderBeams(RenderMisc.getRenderPlayerTime() * 0.005F, 35, color, color, entity.getAggro() ? 0.8F : 0.7F);
+        ShaderLibrary.ALPHA.end();
+        GlStateManager.disableBlend();
+        GlStateManager.enableCull();
+        GlStateManager.enableLighting();
+        GlStateManager.depthMask(true);
+        GlStateManager.popMatrix();
+
+        //Render model
+        GlStateManager.pushMatrix();
+        GlStateManager.depthMask(false);
+        GlStateManager.enableBlend();
+        GlStateManager.disableLighting();
+        GlStateManager.translate(0, -entity.height, 0);
         GlStateManager.pushMatrix();
         GlStateManager.disableCull();
         this.mainModel.swingProgress = this.getSwingProgress(entity, partialTicks);
@@ -125,21 +177,35 @@ public class StoneGolemRender extends RenderLiving<EntityStoneGolem> {
         GlStateManager.enableCull();
         GlStateManager.popMatrix();
         super.doRender(entity, x, y, z, entityYaw, partialTicks);
+        GlStateManager.enableLighting();
+        GlStateManager.disableBlend();
+        GlStateManager.depthMask(true);
         GlStateManager.popMatrix();
         net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(new net.minecraftforge.client.event.RenderLivingEvent.Post<>(entity, this, partialTicks, x, y, z));
     }
 
-    protected ResourceLocation getEntityTexture(EntityStoneGolem entity) {
-        return IRON_GOLEM_TEXTURES;
+    public static void renderMirror(float tick, float rotationOffset, float scale) {
+        GlStateManager.pushMatrix();
+        SpriteLibrary.VOLTAIC_SENTINEL.bind();
+        UVFrame frame = SpriteLibrary.VOLTAIC_SENTINEL.getFrame(tick * 0.25F);
+        Tessellator tessellator = Tessellator.getInstance();
+        BufferBuilder buff = tessellator.getBuffer();
+        GlStateManager.translate(0.5F, 0.5F, 0F);
+        GlStateManager.scale(scale, scale, scale);
+        GlStateManager.rotate(tick * rotationOffset % 360F, 0F, 1F, 0F);
+        GlStateManager.rotate(tick * rotationOffset % 360F, 1F, 0F, 0F);
+        GlStateManager.rotate(tick * rotationOffset % 360F, 0F, 0F, 1F);
+        GlStateManager.translate(-0.5F, -0.5F, 0F);
+        buff.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
+        buff.pos(0, 0, 0).tex(frame.uMin, frame.vMax).endVertex();
+        buff.pos(1, 0, 0).tex(frame.uMax, frame.vMax).endVertex();
+        buff.pos(1, 1, 0).tex(frame.uMax, frame.vMin).endVertex();
+        buff.pos(0, 1, 0).tex(frame.uMin, frame.vMin).endVertex();
+        tessellator.draw();
+        GlStateManager.popMatrix();
     }
 
-    protected void applyRotations(EntityStoneGolem entityLiving, float p_77043_2_, float rotationYaw, float partialTicks) {
-        super.applyRotations(entityLiving, p_77043_2_, rotationYaw, partialTicks);
-
-        if ((double) entityLiving.limbSwingAmount >= 0.01D) {
-            float f1 = entityLiving.limbSwing - entityLiving.limbSwingAmount * (1.0F - partialTicks) + 6.0F;
-            float f2 = (Math.abs(f1 % 13.0F - 6.5F) - 3.25F) / 3.25F;
-            GlStateManager.rotate(6.5F * f2, 0.0F, 0.0F, 1.0F);
-        }
+    protected ResourceLocation getEntityTexture(EntityVoltaicSentinel entity) {
+        return TEXTURE_;
     }
 }

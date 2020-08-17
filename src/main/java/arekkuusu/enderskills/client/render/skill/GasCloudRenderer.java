@@ -100,8 +100,8 @@ public class GasCloudRenderer extends SkillRenderer<GasCloud> {
                 }
             } else {
                 GLHelper.BLEND_SRC_ALPHA$ONE.blend();
-                ShaderLibrary.BRIGHT.begin();
-                ShaderLibrary.BRIGHT.set("alpha", SkillRenderer.getDiffuseBlend(entity.tick, entity.getLifeTime(), 0.6F));
+                ShaderLibrary.ALPHA.begin();
+                ShaderLibrary.ALPHA.set("alpha", SkillRenderer.getDiffuseBlend(entity.tick, entity.getLifeTime(), 0.6F));
             }
             GlStateManager.disableLighting();
             GlStateManager.enableBlend();
@@ -172,7 +172,7 @@ public class GasCloudRenderer extends SkillRenderer<GasCloud> {
                     ShaderLibrary.UNIVERSE_DEFAULT.end();
                 }
             } else {
-                ShaderLibrary.BRIGHT.end();
+                ShaderLibrary.ALPHA.end();
                 GLHelper.BLEND_NORMAL.blend();
             }
             GlStateManager.popMatrix();

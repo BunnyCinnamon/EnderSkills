@@ -86,16 +86,14 @@ public class UnstablePortal extends BaseAbility implements IImpact, IExpand, ISc
     //* Entity *//
     @Override
     public void onImpact(Entity source, @Nullable EntityLivingBase owner, SkillData skillData, RayTraceResult trace) {
-        if (trace.typeOfHit != RayTraceResult.Type.MISS) {
-            Vec3d hitVector = trace.hitVec;
+        Vec3d hitVector = trace.hitVec;
 
-            int time = skillData.nbt.getInteger("time");
-            double radius = skillData.nbt.getDouble("range");
-            EntityPlaceableData spawn = new EntityPlaceableData(source.world, owner, skillData, time);
-            spawn.setPosition(hitVector.x, hitVector.y, hitVector.z);
-            spawn.setRadius(radius);
-            source.world.spawnEntity(spawn); //MANIFEST!!
-        }
+        int time = skillData.nbt.getInteger("time");
+        double radius = skillData.nbt.getDouble("range");
+        EntityPlaceableData spawn = new EntityPlaceableData(source.world, owner, skillData, time);
+        spawn.setPosition(hitVector.x, hitVector.y, hitVector.z);
+        spawn.setRadius(radius);
+        source.world.spawnEntity(spawn); //MANIFEST!!
     }
 
     @Override

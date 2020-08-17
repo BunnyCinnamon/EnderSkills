@@ -113,7 +113,6 @@ public class Events {
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void onGroupRender(RenderGameOverlayEvent.Post event) {
-        if (hideOverlay) return;
         EntityPlayerSP player = Minecraft.getMinecraft().player;
         Minecraft mc = Minecraft.getMinecraft();
         if (!ClientConfig.RENDER_CONFIG.skillGroup.renderOverlay
@@ -136,6 +135,7 @@ public class Events {
                     }
                     return;
                 }
+                if (hideOverlay) return;
                 GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
                 boolean horizontal = ClientConfig.RENDER_CONFIG.skillGroup.orientation == ClientConfig.RenderValues.Orientation.HORIZONTAL;
                 double scale = ClientConfig.RENDER_CONFIG.skillGroup.scale;
