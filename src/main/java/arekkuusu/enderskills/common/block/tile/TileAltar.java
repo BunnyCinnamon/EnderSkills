@@ -98,11 +98,11 @@ public class TileAltar extends TileBase implements ITickable {
                     double posX = pos.getX() + 1 * world.rand.nextDouble();
                     double posY = pos.getY() + 0.1 * world.rand.nextDouble();
                     double posZ = pos.getZ() + 1 * world.rand.nextDouble();
-                    EnderSkills.getProxy().spawnParticle(world, new Vec3d(posX, posY, posZ), new Vec3d(0, 0.1, 0), 4F, 50, COLORS[world.rand.nextInt(COLORS.length - 1)], ResourceLibrary.GLOW_PARTICLE_EFFECT);
+                    EnderSkills.getProxy().spawnParticle(world, new Vec3d(posX, posY, posZ), new Vec3d(0, 0.1, 0), 4F, 50, COLORS[world.rand.nextInt(COLORS.length - 1)], ResourceLibrary.GLOW);
 
                     posX = pos.getX() + 10D * (world.rand.nextDouble() - 0.5D);
                     posZ = pos.getZ() + 10D * (world.rand.nextDouble() - 0.5D);
-                    EnderSkills.getProxy().spawnParticle(world, new Vec3d(posX, posY, posZ), new Vec3d(0, 0.05, 0), 1F, 25, COLORS[world.rand.nextInt(COLORS.length - 1)], ResourceLibrary.GLOW_PARTICLE_EFFECT);
+                    EnderSkills.getProxy().spawnParticle(world, new Vec3d(posX, posY, posZ), new Vec3d(0, 0.05, 0), 1F, 25, COLORS[world.rand.nextInt(COLORS.length - 1)], ResourceLibrary.GLOW);
                 }
             }
             --lastLevelAnimationTimer;

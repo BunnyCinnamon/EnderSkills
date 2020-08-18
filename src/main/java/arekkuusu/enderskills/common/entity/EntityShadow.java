@@ -11,7 +11,6 @@ import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.server.management.PreYggdrasilConverter;
-import net.minecraft.util.DamageSource;
 import net.minecraft.util.EntityDamageSource;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.SoundCategory;
@@ -53,13 +52,18 @@ public class EntityShadow extends Entity {
                         teleportNextToOwner();
                     }
                     if (ticksExisted % 10 == 0 && !attackMap.isEmpty()) {
+                        boolean animation = false;
                         for (Map.Entry<EntityLivingBase, Float> set : attackMap.entrySet()) {
                             EntityLivingBase entity = set.getKey();
                             float damage = set.getValue() + (set.getValue() * getMirrorDamage());
                             entity.attackEntityFrom(new EntityDamageSource("shadow", owner), damage);
 
-                            if (entity.world instanceof WorldServer) {
-                                ((WorldServer) entity.world).playSound(null, entity.posX, entity.posY, entity.posZ, ModSounds.SHADOW_ATTACK, SoundCategory.PLAYERS, 1.0F, (1.0F + (entity.world.rand.nextFloat() - entity.world.rand.nextFloat()) * 0.2F) * 0.7F);
+                            if (!animation) {
+                                if (entity.world instanceof WorldServer) {
+                                    ((WorldServer) entity.world).playSound(null, entity.posX, entity.posY, entity.posZ, ModSounds.SHADOW_ATTACK, SoundCategory.PLAYERS, 1.0F, (1.0F + (entity.world.rand.nextFloat() - entity.world.rand.nextFloat()) * 0.2F) * 0.7F);
+                                }
+                                teleportNextToOwner();
+                                animation = true;
                             }
                         }
                         attackMap.clear();
@@ -87,7 +91,7 @@ public class EntityShadow extends Entity {
     @Override
     public void handleStatusUpdate(byte id) {
         super.handleStatusUpdate(id);
-        if(id == 66) {
+        if (id == 66) {
             fadedCountdown = 30;
         }
     }

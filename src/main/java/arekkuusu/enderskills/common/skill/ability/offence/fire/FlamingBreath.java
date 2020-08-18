@@ -33,6 +33,7 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.SoundCategory;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Config;
@@ -72,8 +73,9 @@ public class FlamingBreath extends BaseAbility implements IScanEntities, IExpand
                     .by(owner)
                     .put(compound)
                     .create();
+            Vec3d pos = RayTraceHelper.getVecLookedAt(owner, 1).orElse(Vec3d.ZERO);
             EntityPlaceableData spawn = new EntityPlaceableData(owner.world, owner, data, EntityPlaceableData.MIN_TIME);
-            spawn.setPosition(owner.posX, owner.posY + owner.getEyeHeight(), owner.posZ);
+            spawn.setPosition(pos.x, pos.y, pos.z);
             spawn.setRadius(range);
             owner.world.spawnEntity(spawn);
             sync(owner);

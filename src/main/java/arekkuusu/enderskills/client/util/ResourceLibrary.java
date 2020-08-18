@@ -2,7 +2,6 @@ package arekkuusu.enderskills.client.util;
 
 import arekkuusu.enderskills.api.registry.Skill;
 import arekkuusu.enderskills.common.lib.LibMod;
-import arekkuusu.enderskills.common.lib.LibNames;
 import com.google.common.collect.Sets;
 import net.minecraft.util.ResourceLocation;
 
@@ -25,9 +24,10 @@ public class ResourceLibrary {
     public static final ResourceLocation DROPLET = createAtlasTexture(LibMod.MOD_ID, "effect", "droplet");
     public static final ResourceLocation CROSS = createAtlasTexture(LibMod.MOD_ID, "effect", "cross");
     public static final ResourceLocation ANGRY = createAtlasTexture(LibMod.MOD_ID, "effect", "angry");
-    public static final ResourceLocation GLOW_PARTICLE_EFFECT = createAtlasTexture(LibMod.MOD_ID, "effect", "glow_particle");
+    public static final ResourceLocation GLOW = createAtlasTexture(LibMod.MOD_ID, "effect", "glow_particle");
     public static final ResourceLocation BLOOD = createAtlasTexture(LibMod.MOD_ID, "blocks", "blood");
     public static final ResourceLocation VOLT_PARTICLE = createAtlasTexture(LibMod.MOD_ID, "effect", "volt_particle");
+    public static final ResourceLocation RAIN = createAtlasTexture(LibMod.MOD_ID, "effect", "rain");
     static {
         ATLAS_SET.add(PLUS);
         ATLAS_SET.add(MINUS);
@@ -38,9 +38,10 @@ public class ResourceLibrary {
         ATLAS_SET.add(DROPLET);
         ATLAS_SET.add(CROSS);
         ATLAS_SET.add(ANGRY);
-        ATLAS_SET.add(GLOW_PARTICLE_EFFECT);
+        ATLAS_SET.add(GLOW);
         ATLAS_SET.add(BLOOD);
         ATLAS_SET.add(VOLT_PARTICLE);
+        ATLAS_SET.add(RAIN);
     }
     //* GUI textures *//
     public static final ResourceLocation POTION_TEXTURES = new ResourceLocation(LibMod.MOD_ID, "textures/gui/potions.png");

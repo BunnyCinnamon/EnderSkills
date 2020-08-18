@@ -3,12 +3,13 @@ package arekkuusu.enderskills.client.render.skill;
 import arekkuusu.enderskills.api.util.Vector;
 import arekkuusu.enderskills.client.proxy.ClientProxy;
 import arekkuusu.enderskills.client.render.entity.EntityPlaceableDataRenderer;
+import arekkuusu.enderskills.client.util.ResourceLibrary;
+import arekkuusu.enderskills.common.EnderSkills;
 import arekkuusu.enderskills.common.entity.placeable.EntityPlaceableData;
 import arekkuusu.enderskills.common.skill.ModAbilities;
 import arekkuusu.enderskills.common.skill.ability.offence.fire.FlamingBreath;
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.entity.RenderManager;
-import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -43,7 +44,7 @@ public class FlamingBreathRenderer extends SkillRenderer<FlamingBreath> {
                         Vector speedVec = vec.rotateRandom(entity.world.rand, 80F).multiply(distance * j / 3D);
                         Vector posVec = vec.rotateRandom(entity.world.rand, 80F).multiply(distance * entity.world.rand.nextDouble()).addVector(posX, posY, posZ);
                         speedVec = new Vector(speedVec.x / 10, speedVec.y / 10, speedVec.z / 10);
-                        entity.world.spawnParticle(EnumParticleTypes.FLAME, posVec.x, posVec.y, posVec.z, speedVec.x, speedVec.y, speedVec.z);
+                        EnderSkills.getProxy().spawnParticleLuminescence(entity.world, posVec.toVec3d(), speedVec.toVec3d(), 15F, 25, ResourceLibrary.GLOW);
                     }
                 }
             }

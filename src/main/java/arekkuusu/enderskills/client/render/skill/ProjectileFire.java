@@ -24,7 +24,7 @@ public class ProjectileFire extends Render<EntityThrowableData> {
     public void doRender(EntityThrowableData entity, double x, double y, double z, float entityYaw, float partialTicks) {
         if (entity.world.rand.nextDouble() < 0.3D && ClientProxy.canParticleSpawn()) {
             Vector vec = new Vector(entity.getPositionEyes(1F));
-            Vector motion = new Vector(entity.motionX, entity.motionY, entity.motionZ);
+            Vector motion = new Vector(entity.motionX, entity.motionY, entity.motionZ).multiply(-1);
             double offset = entity.world.rand.nextDouble();
 
             for (int i = 1; i <= 3; i++) {
@@ -32,7 +32,7 @@ public class ProjectileFire extends Render<EntityThrowableData> {
                         .perpendicular().normalize()
                         .rotate(Quat.fromAxisAngleRad(motion.normalize(), (entity.ticksExisted + partialTicks + i + 1F) * 90F * (float) Math.PI / 180F)).normalize()
                         .add(vec.add(motion.multiply(offset)));
-                entity.world.spawnParticle(EnumParticleTypes.FLAME, posVec.x, posVec.y, posVec.z, 0, 0, 0);
+                EnderSkills.getProxy().spawnParticleLuminescence(entity.world, posVec.toVec3d(), new Vec3d(0, 0, 0), 3F, 25, ResourceLibrary.MOTE);
             }
         }
     }

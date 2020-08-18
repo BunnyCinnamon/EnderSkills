@@ -4,6 +4,8 @@ import arekkuusu.enderskills.client.proxy.ClientProxy;
 import arekkuusu.enderskills.client.render.effect.ParticleVanilla;
 import arekkuusu.enderskills.client.render.entity.EntityPlaceableDataRenderer;
 import arekkuusu.enderskills.client.render.entity.EntityThrowableDataRenderer;
+import arekkuusu.enderskills.client.util.ResourceLibrary;
+import arekkuusu.enderskills.common.EnderSkills;
 import arekkuusu.enderskills.common.entity.placeable.EntityPlaceableData;
 import arekkuusu.enderskills.common.skill.ModAbilities;
 import arekkuusu.enderskills.common.skill.ability.offence.fire.FocusFlame;
@@ -43,9 +45,7 @@ public class FocusFlameRenderer extends SkillRenderer<FocusFlame> {
                     double posZ = vec.z + (entity.world.rand.nextDouble() - 0.5D) * entity.width;
                     double motionX = (entity.world.rand.nextDouble() - 0.5D) * 0.25;
                     double motionZ = (entity.world.rand.nextDouble() - 0.5D) * 0.25;
-                    ParticleVanilla vanilla = new ParticleVanilla(entity.world, new Vec3d(posX, posY, posZ), new Vec3d(motionX, 0.4, motionZ), 12F, 25, 0xFFFFFF, 48);
-                    vanilla.setCanCollide(true);
-                    Minecraft.getMinecraft().effectRenderer.addEffect(vanilla);
+                    EnderSkills.getProxy().spawnParticleLuminescence(entity.world, new Vec3d(posX, posY, posZ), new Vec3d(motionX, 0.4, motionZ), 12F, 25, ResourceLibrary.GLOW);
                 }
             }
         }

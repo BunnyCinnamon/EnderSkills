@@ -32,6 +32,6 @@ public class FlamingRainSound extends MovingSound {
     @Override
     public float getVolume() {
         EntityPlaceableData entity = reference.get();
-        return super.getVolume() * (entity == null ? 0F : 1F - ((float) entity.tick / (float) entity.getLifeTime()));
+        return super.getVolume() * (entity == null ? 0F : 5F * (1F - ((float) entity.tick / (float) entity.getLifeTime())));
     }
 }

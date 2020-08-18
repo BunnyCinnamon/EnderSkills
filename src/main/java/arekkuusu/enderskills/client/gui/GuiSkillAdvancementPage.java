@@ -140,15 +140,15 @@ public class GuiSkillAdvancementPage extends Gui {
             double progress = SkillAdvancementConditionAltar.ALTAR_JUICE;
             String text = "";
             if (progress < SkillAdvancementConditionAltar.LEVEL_0) {
-                text = TextHelper.translate("gui.altar_power_0");
+                text = TextHelper.translate("gui.altar_power", TextHelper.format2FloatPoint(100 * (progress / SkillAdvancementConditionAltar.LEVEL_0)) + "%");
             } else if (progress < SkillAdvancementConditionAltar.LEVEL_1) {
-                text = TextHelper.translate("gui.altar_power_1");
+                text = TextHelper.translate("gui.altar_power", TextHelper.format2FloatPoint(100 * ((progress - SkillAdvancementConditionAltar.LEVEL_0) / (SkillAdvancementConditionAltar.LEVEL_1 - SkillAdvancementConditionAltar.LEVEL_0))) + "%");
             } else if (progress < SkillAdvancementConditionAltar.LEVEL_2) {
-                text = TextHelper.translate("gui.altar_power_2");
+                text = TextHelper.translate("gui.altar_power", TextHelper.format2FloatPoint(100 * ((progress - SkillAdvancementConditionAltar.LEVEL_1) / (SkillAdvancementConditionAltar.LEVEL_2 - SkillAdvancementConditionAltar.LEVEL_1))) + "%");
             } else if (progress < SkillAdvancementConditionAltar.LEVEL_3) {
-                text = TextHelper.translate("gui.altar_power_3");
+                text = TextHelper.translate("gui.altar_power",  TextHelper.format2FloatPoint(100 * ((progress - SkillAdvancementConditionAltar.LEVEL_2) / (SkillAdvancementConditionAltar.LEVEL_3 - SkillAdvancementConditionAltar.LEVEL_2))) + "%");
             } else {
-                text = TextHelper.translate("gui.altar_power_4");
+                text = TextHelper.translate("gui.altar_power_full");
             }
             this.gui.drawHoveringText(text, mouseX, mouseY);
         }

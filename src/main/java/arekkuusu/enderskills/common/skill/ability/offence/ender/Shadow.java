@@ -125,7 +125,6 @@ public class Shadow extends BaseAbility implements ISkillAdvancement {
             Optional.ofNullable(NBTHelper.getEntity(EntityShadow.class, data.nbt, "shadow")).ifPresent(shadow -> {
                 float mirror = NBTHelper.getFloat(data.nbt, "mirror");
                 shadow.addAttack(event.getEntityLiving(), event.getAmount() + (event.getAmount() * mirror));
-                shadow.teleportNextToOwner();
             });
         });
     }

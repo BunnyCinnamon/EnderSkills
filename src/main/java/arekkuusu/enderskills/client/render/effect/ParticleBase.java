@@ -45,17 +45,20 @@ public class ParticleBase extends Particle {
                 return;
             }
         }
-        float life = (float) particleAge / (float) particleMaxAge;
-        this.particleScale = initScale - initScale * life;
-        this.particleAlpha = 1.0f - life;
-        if (this.particleAngle != 0.0F) {
-            this.prevParticleAngle = particleAngle;
-            this.particleAngle += 1.0F;
+        if(isAlive()) {
+            float life = (float) particleAge / (float) particleMaxAge;
+            this.particleScale = initScale - initScale * life;
+            this.particleAlpha = 1.0f - life;
+            if (this.particleAngle != 0.0F) {
+                this.prevParticleAngle = particleAngle;
+                this.particleAngle += 1.0F;
+            }
         }
     }
 
     @Override
     public void renderParticle(BufferBuilder buffer, Entity entityIn, float partialTicks, float rotationX, float rotationZ, float rotationYZ, float rotationXY, float rotationXZ) {
+        if(!isAlive()) return;
         //Texture UV
         double uMin = 0F;
         double uMax = 1F;

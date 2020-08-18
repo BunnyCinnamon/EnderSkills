@@ -48,7 +48,7 @@ public class ExplodeRenderer extends SkillRenderer<Explode> {
                         double posY = vec.y + scale * (entity.world.rand.nextDouble() - 0.5);
                         double posZ = vec.z + scale * (entity.world.rand.nextDouble() - 0.5);
                         float particleScale = 2F + 3F * (float) entity.world.rand.nextGaussian();
-                        EnderSkills.getProxy().spawnParticle(entity.world, new Vec3d(posX, posY, posZ), new Vec3d(0, 0, 0), particleScale, 25, 0xFFE077, ResourceLibrary.GLOW_PARTICLE_EFFECT);
+                        EnderSkills.getProxy().spawnParticle(entity.world, new Vec3d(posX, posY, posZ), new Vec3d(0, 0, 0), particleScale, 25, 0xFFE077, ResourceLibrary.GLOW);
                     }
                 }
             }

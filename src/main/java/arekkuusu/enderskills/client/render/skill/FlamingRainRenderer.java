@@ -43,10 +43,11 @@ public class FlamingRainRenderer extends SkillRenderer<FlamingRain> {
                 double distance = spawnVec.distanceTo(vec.addVector(0, -(entity.height + 4D), 0));
                 double speed = 1.4D;
                 int time = (int) (distance / speed);
-                ParticleVanilla vanilla = new ParticleVanilla(entity.world, spawnVec, new Vec3d(0, -speed, 0), 5F, time, 0xFFFFFF, 48);
-                vanilla.noFading = true;
-                Minecraft.getMinecraft().effectRenderer.addEffect(vanilla);
-                EnderSkills.getProxy().spawnParticleLuminescence(entity.world, new Vec3d(posX, posY, posZ), new Vec3d(0, 0, 0), 12F, time, ResourceLibrary.GLOW_PARTICLE_EFFECT);
+                //ParticleVanilla vanilla = new ParticleVanilla(entity.world, spawnVec, new Vec3d(0, -speed, 0), 5F, time, 0xFFFFFF, 48);
+                //vanilla.noFading = true;
+                //Minecraft.getMinecraft().effectRenderer.addEffect(vanilla);
+                EnderSkills.getProxy().spawnParticleLuminescence(entity.world, spawnVec, new Vec3d(0, -speed, 0), 15F, time + 5, ResourceLibrary.RAIN);
+                EnderSkills.getProxy().spawnParticleLuminescence(entity.world, spawnVec, new Vec3d(0, 0, 0), 12F, time, ResourceLibrary.MOTE);
             }
         }
 

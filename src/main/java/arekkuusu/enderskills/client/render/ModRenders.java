@@ -12,10 +12,7 @@ import arekkuusu.enderskills.common.entity.throwable.EntityThrowableData;
 import arekkuusu.enderskills.common.skill.ability.defense.earth.Shockwave;
 import arekkuusu.enderskills.common.skill.ability.defense.earth.Taunt;
 import arekkuusu.enderskills.common.skill.ability.defense.earth.Thorny;
-import arekkuusu.enderskills.common.skill.ability.defense.electric.ElectricPulse;
-import arekkuusu.enderskills.common.skill.ability.defense.electric.MagneticPull;
-import arekkuusu.enderskills.common.skill.ability.defense.electric.PowerDrain;
-import arekkuusu.enderskills.common.skill.ability.defense.electric.ShockingAura;
+import arekkuusu.enderskills.common.skill.ability.defense.electric.*;
 import arekkuusu.enderskills.common.skill.ability.defense.light.*;
 import arekkuusu.enderskills.common.skill.ability.mobility.ender.*;
 import arekkuusu.enderskills.common.skill.ability.mobility.wind.*;
@@ -108,6 +105,7 @@ public final class ModRenders {
         registerSkill(ShockingAura.class, new ShockingAuraRenderer());
         registerSkill(MagneticPull.class, new MagneticPullRenderer());
         registerSkill(PowerDrain.class, new PowerDrainRenderer());
+        registerSkill(Energize.class, new EnergizeRenderer());
         registerSkill(ElectricPulse.class, new ElectricPulseRenderer());
         //Effects
         registerSkill(Bleeding.class, new BleedingRenderer());
