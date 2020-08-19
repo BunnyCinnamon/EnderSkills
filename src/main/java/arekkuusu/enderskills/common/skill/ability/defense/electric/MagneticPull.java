@@ -99,7 +99,7 @@ public class MagneticPull extends BaseAbility {
                     ModEffects.ELECTRIFIED.propagate(target, data, stun);
                 }
                 if (target.isWet() && tick % 20 == 0) {
-                    target.attackEntityFrom(DamageSource.LIGHTNING_BOLT, 4);
+                    target.attackEntityFrom(DamageSource.LIGHTNING_BOLT, 2);
                 }
                 ModEffects.SLOWED.set(target, data, slow);
             }

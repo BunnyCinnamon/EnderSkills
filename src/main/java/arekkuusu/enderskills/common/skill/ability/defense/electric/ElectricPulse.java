@@ -91,7 +91,7 @@ public class ElectricPulse extends BaseAbility implements IScanEntities, IExpand
             ModEffects.ELECTRIFIED.set(target, skillData);
         }
         if (target.isWet()) {
-            target.attackEntityFrom(DamageSource.LIGHTNING_BOLT, 4);
+            target.attackEntityFrom(DamageSource.LIGHTNING_BOLT, 2);
         }
         apply(target, skillData);
         sync(target, skillData);

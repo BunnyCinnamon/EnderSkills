@@ -16,6 +16,8 @@ public final class Capabilities {
     public static final Capability<EnduranceCapability> ENDURANCE = null;
     @CapabilityInject(AdvancementCapability.class)
     public static final Capability<AdvancementCapability> ADVANCEMENT = null;
+    @CapabilityInject(PowerBoostCapability.class)
+    public static final Capability<PowerBoostCapability> POWER_BOOST = null;
 
     public static Optional<SkilledEntityCapability> get(@Nullable Entity entity) {
         return entity != null ? Optional.ofNullable(entity.getCapability(SKILLED_ENTITY, null)) : Optional.empty();
@@ -31,5 +33,9 @@ public final class Capabilities {
 
     public static Optional<AdvancementCapability> advancement(@Nullable Entity entity) {
         return entity != null ? Optional.ofNullable(entity.getCapability(ADVANCEMENT, null)) : Optional.empty();
+    }
+
+    public static Optional<PowerBoostCapability> powerBoost(@Nullable Entity entity) {
+        return entity != null ? Optional.ofNullable(entity.getCapability(POWER_BOOST, null)) : Optional.empty();
     }
 }

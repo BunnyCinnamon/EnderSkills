@@ -44,7 +44,7 @@ public class VoltaicSentinelRender extends RenderLiving<EntityVoltaicSentinel> {
         float bright = MathHelper.cos(RenderMisc.getRenderPlayerTime() * 0.05F) * 0.8F;
         if (bright < 0) bright *= -1;
         ShaderLibrary.ALPHA.set("alpha", 0.1F + bright);
-        GlStateManager.translate(x- entity.width / 2, y, z);
+        GlStateManager.translate(x, y, z);
         renderMirror(entity.ticksExisted + partialTicks, 0.75F, 0.5F);
         renderMirror(-entity.ticksExisted - partialTicks, 0.5F, 0.75F);
         renderMirror(entity.ticksExisted + partialTicks, -0.3F, 1F);
@@ -58,7 +58,7 @@ public class VoltaicSentinelRender extends RenderLiving<EntityVoltaicSentinel> {
         GlStateManager.pushMatrix();
         GlStateManager.color(1F, 1F, 1F, 1F);
         GlStateManager.depthMask(false);
-        GlStateManager.translate(x, y + 0.5D, z);
+        GlStateManager.translate(x, y, z);
         GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE);
         GlStateManager.disableLighting();
         GlStateManager.disableCull();
@@ -79,7 +79,6 @@ public class VoltaicSentinelRender extends RenderLiving<EntityVoltaicSentinel> {
         GlStateManager.depthMask(false);
         GlStateManager.enableBlend();
         GlStateManager.disableLighting();
-        GlStateManager.translate(0, -entity.height, 0);
         GlStateManager.pushMatrix();
         GlStateManager.disableCull();
         this.mainModel.swingProgress = this.getSwingProgress(entity, partialTicks);
@@ -190,17 +189,15 @@ public class VoltaicSentinelRender extends RenderLiving<EntityVoltaicSentinel> {
         UVFrame frame = SpriteLibrary.VOLTAIC_SENTINEL.getFrame(tick * 0.25F);
         Tessellator tessellator = Tessellator.getInstance();
         BufferBuilder buff = tessellator.getBuffer();
-        GlStateManager.translate(0.5F, 0.5F, 0F);
         GlStateManager.scale(scale, scale, scale);
         GlStateManager.rotate(tick * rotationOffset % 360F, 0F, 1F, 0F);
         GlStateManager.rotate(tick * rotationOffset % 360F, 1F, 0F, 0F);
         GlStateManager.rotate(tick * rotationOffset % 360F, 0F, 0F, 1F);
-        GlStateManager.translate(-0.5F, -0.5F, 0F);
         buff.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
-        buff.pos(0, 0, 0).tex(frame.uMin, frame.vMax).endVertex();
-        buff.pos(1, 0, 0).tex(frame.uMax, frame.vMax).endVertex();
-        buff.pos(1, 1, 0).tex(frame.uMax, frame.vMin).endVertex();
-        buff.pos(0, 1, 0).tex(frame.uMin, frame.vMin).endVertex();
+        buff.pos(-0.5, -0.5, 0).tex(frame.uMin, frame.vMax).endVertex();
+        buff.pos(0.5, -0.5, 0).tex(frame.uMax, frame.vMax).endVertex();
+        buff.pos(0.5, 0.5, 0).tex(frame.uMax, frame.vMin).endVertex();
+        buff.pos(-0.5, 0.5, 0).tex(frame.uMin, frame.vMin).endVertex();
         tessellator.draw();
         GlStateManager.popMatrix();
     }

@@ -101,7 +101,7 @@ public class PowerDrain extends BaseAbility implements IFindEntity, IExpand {
             ModEffects.ELECTRIFIED.propagate(target, skillData, stun);
         }
         if (source.isWet() && source.ticksExisted % 20 == 0) {
-            source.attackEntityFrom(DamageSource.LIGHTNING_BOLT, 4);
+            source.attackEntityFrom(DamageSource.LIGHTNING_BOLT, 2);
         }
     }
     //* Entity *//

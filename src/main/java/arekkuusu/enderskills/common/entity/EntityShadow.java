@@ -10,7 +10,6 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
-import net.minecraft.server.management.PreYggdrasilConverter;
 import net.minecraft.util.EntityDamageSource;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.SoundCategory;
@@ -43,10 +42,8 @@ public class EntityShadow extends Entity {
             if (uuid != null) {
                 EntityLivingBase owner = getEntityByUUID(uuid);
                 if (owner != null) {
-                    if (ticksExisted % 20 == 0) { //Check if skill is still active every 2 seconds
-                        if (!SkillHelper.isActive(owner, ModAbilities.SHADOW)) {
-                            setDead();
-                        }
+                    if (!SkillHelper.isActiveFrom(owner, ModAbilities.SHADOW)) {
+                        setDead();
                     }
                     if (owner.getDistance(this) > 10) {
                         teleportNextToOwner();
@@ -68,7 +65,11 @@ public class EntityShadow extends Entity {
                         }
                         attackMap.clear();
                     }
-                } else setDead();
+                } else {
+                    setDead();
+                }
+            } else {
+                setDead();
             }
         }
         if (world.isRemote && fadedCountdown > 0 && ticksExisted % 2 == 0 && world.rand.nextDouble() < 0.8D) {
@@ -155,33 +156,13 @@ public class EntityShadow extends Entity {
     }
 
     @Override
-    protected void readEntityFromNBT(NBTTagCompound compound) {
-        setMirrorDamage(compound.getFloat("mirror"));
-        fadedCountdown = 30;
-        String s;
-
-        if (compound.hasKey("OwnerUUID", 8)) {
-            s = compound.getString("OwnerUUID");
-        } else {
-            String s1 = compound.getString("Owner");
-            s = PreYggdrasilConverter.convertMobOwnerIfNeeded(this.getServer(), s1);
-        }
-
-        if (!s.isEmpty()) {
-            try {
-                this.setOwnerId(UUID.fromString(s));
-            } catch (Throwable ignored) {
-            }
-        }
+    protected void writeEntityToNBT(NBTTagCompound compound) {
     }
 
     @Override
-    protected void writeEntityToNBT(NBTTagCompound compound) {
-        compound.setFloat("mirror", getMirrorDamage());
-        if (this.getOwnerId() == null) {
-            compound.setString("OwnerUUID", "");
-        } else {
-            compound.setString("OwnerUUID", this.getOwnerId().toString());
+    protected void readEntityFromNBT(NBTTagCompound compound) {
+        if (world != null && !world.isRemote) {
+            setDead();
         }
     }
 }

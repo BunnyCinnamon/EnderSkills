@@ -5,15 +5,15 @@ import net.minecraft.client.model.ModelRenderer;
 import net.minecraft.entity.Entity;
 
 public class ModelSentinel extends ModelBase {
+
     public ModelRenderer model;
 
     public ModelSentinel() {
         this.textureWidth = 16;
         this.textureHeight = 16;
         this.model = new ModelRenderer(this, 0, 0);
-        this.model.setRotationPoint(0.0F, 0.0F, 0.0F);
+        this.model.setRotationPoint(0.0F, 24.0F, 0.0F);
         this.model.addBox(-8.0F, -8.0F, -8.0F, 16, 16, 16, 0.0F);
-        this.setRotateAngle(model, 0.0F, 0.0F, 0.0F);
     }
 
     @Override

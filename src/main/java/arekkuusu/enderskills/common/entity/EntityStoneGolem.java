@@ -17,6 +17,7 @@ import net.minecraft.entity.ai.*;
 import net.minecraft.entity.monster.EntityGolem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.SoundEvents;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
@@ -53,9 +54,9 @@ public class EntityStoneGolem extends EntityGolem {
 
     @Override
     public void initEntityAI() {
-        this.tasks.addTask(1, new EntityAIAttackMelee(this, 1.0D, true));
-        this.tasks.addTask(2, new EntityAIMoveTowardsTarget(this, 0.5D, 32.0F));
-        this.tasks.addTask(6, new AIFollowProvider(this, () -> getOwnerId() != null ? getEntityByUUID(getOwnerId()) : null, 0.5D, 5, 64));
+        this.tasks.addTask(1, new EntityAIAttackMelee(this, 1D, true));
+        this.tasks.addTask(2, new EntityAIMoveTowardsTarget(this, 1D, 32.0F));
+        this.tasks.addTask(6, new AIFollowProvider(this, () -> getOwnerId() != null ? getEntityByUUID(getOwnerId()) : null, 1D, 5, 64));
         this.tasks.addTask(8, new EntityAIWatchClosest(this, EntityPlayer.class, 6.0F));
         this.tasks.addTask(9, new EntityAILookIdle(this));
         this.tasks.addTask(0, AIOverride.INSTANCE);
@@ -73,8 +74,8 @@ public class EntityStoneGolem extends EntityGolem {
     }
 
     @Override
-    protected boolean canDespawn() {
-        return true;
+    protected boolean canEquipItem(ItemStack stack) {
+        return false;
     }
 
     @Override
@@ -142,10 +143,8 @@ public class EntityStoneGolem extends EntityGolem {
             EntityLivingBase owner = getEntityByUUID(uuid);
             if (owner != null) {
                 this.setHomePosAndDistance(owner.getPosition(), 10);
-                if (ticksExisted % 20 == 0) { //Check if skill is still active every 2 seconds
-                    if (!SkillHelper.isActiveFrom(owner, ModAbilities.ANIMATED_STONE_GOLEM)) {
-                        setDead();
-                    }
+                if (!SkillHelper.isActiveFrom(owner, ModAbilities.ANIMATED_STONE_GOLEM)) {
+                    setDead();
                 }
                 if (owner.getDistance(this) > 69) { //uwu
                     teleportTo(owner);
@@ -197,7 +196,7 @@ public class EntityStoneGolem extends EntityGolem {
     @Override
     protected boolean processInteract(EntityPlayer player, EnumHand hand) {
         if (player.isSneaking() && player.getUniqueID().equals(getOwnerId())) {
-            setDead();
+            if(!world.isRemote) setDead();
             return true;
         }
         return super.processInteract(player, hand);
@@ -350,32 +349,10 @@ public class EntityStoneGolem extends EntityGolem {
         this.getEntityAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(health);
     }
 
-    public void writeEntityToNBT(NBTTagCompound compound) {
-        super.writeEntityToNBT(compound);
-        compound.setFloat("mirror", getMirrorDamage());
-        if (this.getOwnerId() == null) {
-            compound.setString("OwnerUUID", "");
-        } else {
-            compound.setString("OwnerUUID", this.getOwnerId().toString());
-        }
-    }
-
     public void readEntityFromNBT(NBTTagCompound compound) {
         super.readEntityFromNBT(compound);
-        setMirrorDamage(compound.getFloat("mirror"));
-        String s;
-        if (compound.hasKey("OwnerUUID", 8)) {
-            s = compound.getString("OwnerUUID");
-        } else {
-            String s1 = compound.getString("Owner");
-            s = PreYggdrasilConverter.convertMobOwnerIfNeeded(this.getServer(), s1);
-        }
-
-        if (!s.isEmpty()) {
-            try {
-                this.setOwnerId(UUID.fromString(s));
-            } catch (Throwable ignored) {
-            }
+        if(world != null && !world.isRemote) {
+            setDead();
         }
     }
 }

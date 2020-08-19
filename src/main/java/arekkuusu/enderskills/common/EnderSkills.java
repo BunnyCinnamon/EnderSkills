@@ -1,9 +1,6 @@
 package arekkuusu.enderskills.common;
 
-import arekkuusu.enderskills.api.capability.AdvancementCapability;
-import arekkuusu.enderskills.api.capability.EnduranceCapability;
-import arekkuusu.enderskills.api.capability.SkillGroupCapability;
-import arekkuusu.enderskills.api.capability.SkilledEntityCapability;
+import arekkuusu.enderskills.api.capability.*;
 import arekkuusu.enderskills.common.command.*;
 import arekkuusu.enderskills.common.handler.GuiHandler;
 import arekkuusu.enderskills.common.handler.WorldGenOre;
@@ -59,6 +56,7 @@ public class EnderSkills {
         SkillGroupCapability.init();
         EnduranceCapability.init();
         AdvancementCapability.init();
+        PowerBoostCapability.init();
         PacketHandler.init();
         if(WorldGuardHelper.isEventHelperLoaded()) {
             MinecraftForge.EVENT_BUS.register(new WorldGuardHelper());

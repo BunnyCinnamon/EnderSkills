@@ -11,7 +11,6 @@ import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoUpgradeable;
 import arekkuusu.enderskills.api.event.SkillDamageEvent;
 import arekkuusu.enderskills.api.helper.*;
 import arekkuusu.enderskills.api.registry.Skill;
-import arekkuusu.enderskills.client.gui.data.ISkillAdvancement;
 import arekkuusu.enderskills.client.util.helper.TextHelper;
 import arekkuusu.enderskills.common.CommonConfig;
 import arekkuusu.enderskills.common.entity.data.IImpact;
@@ -33,12 +32,14 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Config;
 import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -112,58 +113,94 @@ public class PowerBoost extends BaseAbility implements IImpact {
         });
     }
 
-    public static final String NBT_WIDTH = LibMod.MOD_ID + ":width";
-    public static final String NBT_HEIGHT = LibMod.MOD_ID + ":height";
-    public static final String NBT_EYE = LibMod.MOD_ID + ":eye";
-    public static final String NBT_WIDTH_NEW = LibMod.MOD_ID + ":width_new";
-    public static final String NBT_HEIGHT_NEW = LibMod.MOD_ID + ":height_new";
-    public static final String NBT_EYE_NEW = LibMod.MOD_ID + ":eye_new";
     public static final List<String> GROW_LIST = new ArrayList<>();
 
     @SubscribeEvent
     public void onLivingUpdate(LivingEvent.LivingUpdateEvent event) {
         EntityLivingBase entity = event.getEntityLiving();
-        String key = entityToString(entity);
-        if (GROW_LIST.contains(key)) {
-            if (SkillHelper.isActive(entity, this)) {
-                float size = 0;
+        if (entity instanceof EntityPlayer) return;
+        Capabilities.powerBoost(entity).ifPresent(c -> {
+            String key = entityToString(entity);
+            if (GROW_LIST.contains(key)) {
+                if (SkillHelper.isActive(entity, this)) {
+                    float size = 0;
 
-                SkilledEntityCapability capability = Capabilities.get(event.getEntity()).orElse(null);
-                for (SkillHolder active : Objects.requireNonNull(capability).getActives()) {
-                    if (active.data.skill == ModAbilities.POWER_BOOST) {
-                        double power = NBTHelper.getDouble(active.data.nbt, "power");
-                        if (size == 0) size = (float) power;
-                        else size *= (float) power;
+                    SkilledEntityCapability capability = Capabilities.get(event.getEntity()).orElse(null);
+                    for (SkillHolder active : Objects.requireNonNull(capability).getActives()) {
+                        if (active.data.skill == ModAbilities.POWER_BOOST) {
+                            double power = NBTHelper.getDouble(active.data.nbt, "power");
+                            if (size == 0) size = (float) power;
+                            else size *= (float) power;
+                        }
                     }
-                }
-                float scale = 1F + size;
+                    float scale = 1F + size;
 
-                if (entity instanceof EntityPlayer && !MathUtil.fuzzyEqual(entity.getEntityData().getFloat(NBT_EYE_NEW), entity.getEntityData().getFloat(NBT_EYE) * scale)) {
-                    ((EntityPlayer) entity).eyeHeight = entity.getEntityData().getFloat(NBT_EYE) * scale;
-                    entity.getEntityData().setFloat(NBT_EYE_NEW, entity.getEntityData().getFloat(NBT_EYE) * scale);
+                    if (!MathUtil.fuzzyEqual(c.eyeNew, c.eyeOriginal * scale)) {
+                        c.eyeNew = c.eyeOriginal * scale;
+                    }
+                    if (!MathUtil.fuzzyEqual(c.widthNew, c.widthOriginal * scale) || !MathUtil.fuzzyEqual(c.heightNew, c.heightOriginal * scale)) {
+                        setSize(entity, c.widthOriginal * scale, c.heightOriginal * scale);
+                        c.widthNew = c.widthOriginal * scale;
+                        c.heightNew = c.heightOriginal * scale;
+                    }
+                } else {
+                    setSize(entity, c.widthOriginal, c.heightOriginal);
+                    c.widthNew = 0;
+                    c.heightNew = 0;
+                    GROW_LIST.remove(key);
                 }
-                if (entity instanceof EntityPlayer || !MathUtil.fuzzyEqual(entity.getEntityData().getFloat(NBT_WIDTH_NEW), entity.getEntityData().getFloat(NBT_WIDTH) * scale) || !MathUtil.fuzzyEqual(entity.getEntityData().getFloat(NBT_HEIGHT_NEW), entity.getEntityData().getFloat(NBT_HEIGHT) * scale)) {
-                    setSize(entity, entity.getEntityData().getFloat(NBT_WIDTH) * scale, entity.getEntityData().getFloat(NBT_HEIGHT) * scale);
-                    entity.getEntityData().setFloat(NBT_WIDTH_NEW, entity.getEntityData().getFloat(NBT_WIDTH) * scale);
-                    entity.getEntityData().setFloat(NBT_HEIGHT_NEW, entity.getEntityData().getFloat(NBT_HEIGHT) * scale);
-                }
-            } else {
-                if (entity instanceof EntityPlayer) {
-                    ((EntityPlayer) entity).eyeHeight = entity.getEntityData().getFloat(NBT_EYE);
-                    entity.getEntityData().setFloat(NBT_EYE_NEW, 0);
-                }
-                setSize(entity, entity.getEntityData().getFloat(NBT_WIDTH), entity.getEntityData().getFloat(NBT_HEIGHT));
-                entity.getEntityData().setFloat(NBT_WIDTH_NEW, 0);
-                entity.getEntityData().setFloat(NBT_HEIGHT_NEW, 0);
-                GROW_LIST.remove(key);
+            } else if (SkillHelper.isActive(entity, this)) {
+                GROW_LIST.add(key);
+                c.widthOriginal = entity.width;
+                c.heightOriginal = entity.height;
             }
-        } else if (SkillHelper.isActive(entity, this)) {
-            GROW_LIST.add(key);
-            entity.getEntityData().setFloat(NBT_WIDTH, entity.width);
-            entity.getEntityData().setFloat(NBT_HEIGHT, entity.height);
-            if (entity instanceof EntityPlayer) {
-                entity.getEntityData().setFloat(NBT_EYE, ((EntityPlayer) entity).eyeHeight);
-            }
+        });
+    }
+
+    @SubscribeEvent
+    public void onPlayerUpdate(TickEvent.PlayerTickEvent event) {
+        if (event.phase == TickEvent.Phase.END) {
+            EntityPlayer entity = event.player;
+            Capabilities.powerBoost(entity).ifPresent(c -> {
+                String key = entityToString(entity);
+                if (GROW_LIST.contains(key)) {
+                    if (SkillHelper.isActive(entity, this)) {
+                        float size = 0;
+
+                        SkilledEntityCapability capability = Capabilities.get(event.player).orElse(null);
+                        for (SkillHolder active : Objects.requireNonNull(capability).getActives()) {
+                            if (active.data.skill == ModAbilities.POWER_BOOST) {
+                                double power = NBTHelper.getDouble(active.data.nbt, "power");
+                                if (size == 0) size = (float) power;
+                                else size *= (float) power;
+                            }
+                        }
+                        float scale = 1F + size;
+
+                        if (!MathUtil.fuzzyEqual(entity.eyeHeight, c.eyeOriginal * scale)) {
+                            entity.eyeHeight = c.eyeOriginal * scale;
+                            c.eyeNew = c.eyeOriginal * scale;
+                        }
+                        if (!MathUtil.fuzzyEqual(entity.width, c.widthOriginal * scale) || !MathUtil.fuzzyEqual(entity.height, c.heightOriginal * scale)) {
+                            setSize(entity, c.widthOriginal * scale, c.heightOriginal * scale);
+                            c.widthNew = c.widthOriginal * scale;
+                            c.heightNew = c.heightOriginal * scale;
+                        }
+                    } else {
+                        setSize(entity, c.widthOriginal, c.heightOriginal);
+                        entity.eyeHeight = entity.getDefaultEyeHeight();
+                        c.eyeNew = 0;
+                        c.widthNew = 0;
+                        c.heightNew = 0;
+                        GROW_LIST.remove(key);
+                    }
+                } else if (SkillHelper.isActive(entity, this)) {
+                    GROW_LIST.add(key);
+                    c.widthOriginal = entity.width;
+                    c.heightOriginal = entity.height;
+                    c.eyeOriginal = entity.eyeHeight;
+                }
+            });
         }
     }
 
@@ -174,12 +211,9 @@ public class PowerBoost extends BaseAbility implements IImpact {
     public void setSize(EntityLivingBase entity, float width, float height) {
         entity.width = width;
         entity.height = height;
-        if(!isClientWorld(entity)) {
-            double w = (double) width / 2;
-            double h = height;// / 2;
-            AxisAlignedBB axisalignedbb = entity.getEntityBoundingBox();
-            entity.setEntityBoundingBox(new AxisAlignedBB(axisalignedbb.minX, axisalignedbb.minY, axisalignedbb.minZ, axisalignedbb.minX + w, axisalignedbb.minY + h, axisalignedbb.minZ + w));
-        }
+        Vec3d pos = entity.getPositionVector();
+        entity.setEntityBoundingBox(new AxisAlignedBB(pos.x - width / 2, pos.y, pos.z - width / 2, pos.x + width / 2, pos.y + entity.height, pos.z + width / 2));
+        entity.resetPositionToBB();
     }
 
     public int getLevel(IInfoUpgradeable info) {

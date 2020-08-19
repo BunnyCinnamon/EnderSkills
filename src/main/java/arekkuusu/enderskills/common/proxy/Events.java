@@ -1,6 +1,7 @@
 package arekkuusu.enderskills.common.proxy;
 
 import arekkuusu.enderskills.api.capability.Capabilities;
+import arekkuusu.enderskills.api.capability.SkilledEntityCapability;
 import arekkuusu.enderskills.api.capability.data.SkillHolder;
 import arekkuusu.enderskills.api.capability.data.SkillInfo;
 import arekkuusu.enderskills.api.registry.Skill;
@@ -10,6 +11,8 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
+import net.minecraftforge.event.entity.EntityTravelToDimensionEvent;
+import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
@@ -52,6 +55,33 @@ public class Events {
     }
 
     @SubscribeEvent
+    public static void onEntityDeath(LivingDeathEvent event) {
+        Capabilities.get(event.getEntity()).ifPresent(c -> {
+            c.clearActive();
+            c.getActives().forEach(h -> h.tick((EntityLivingBase) event.getEntity()));
+            c.skillHolders.clear();
+        });
+    }
+
+    @SubscribeEvent
+    public static void onEntityDimensionChange(EntityTravelToDimensionEvent event) {
+        Capabilities.get(event.getEntity()).ifPresent(c -> {
+            c.clearActive();
+            c.getActives().forEach(h -> h.tick((EntityLivingBase) event.getEntity()));
+            c.skillHolders.clear();
+        });
+    }
+
+    @SubscribeEvent
+    public static void onPlayerDimensionChange(PlayerEvent.PlayerChangedDimensionEvent event) {
+        Capabilities.get(event.player).ifPresent(c -> {
+            c.clearActive();
+            c.getActives().forEach(h -> h.tick(event.player));
+            c.skillHolders.clear();
+        });
+    }
+
+    @SubscribeEvent
     public void onPlayerClone(Clone event) {
         EntityPlayer oldPlayer = event.getOriginal();
         EntityPlayer newPlayer = event.getEntityPlayer();
@@ -61,6 +91,27 @@ public class Events {
                     Capabilities.get(newPlayer).ifPresent(replacement -> {
                         replacement.deserializeNBT(original.serializeNBT());
                     });
+                });
+                Capabilities.advancement(oldPlayer).ifPresent(original -> {
+                    Capabilities.advancement(newPlayer).ifPresent(replacement -> {
+                        replacement.deserializeNBT(original.serializeNBT());
+                    });
+                });
+                Capabilities.weight(oldPlayer).ifPresent(original -> {
+                    Capabilities.weight(newPlayer).ifPresent(replacement -> {
+                        replacement.deserializeNBT(original.serializeNBT());
+                    });
+                });
+                Capabilities.powerBoost(oldPlayer).ifPresent(original -> {
+                    Capabilities.powerBoost(newPlayer).ifPresent(replacement -> {
+                        replacement.deserializeNBT(original.serializeNBT());
+                    });
+                });
+            } else {
+                Capabilities.get(oldPlayer).ifPresent(c -> {
+                    c.clearActive();
+                    c.getActives().forEach(h -> h.tick(oldPlayer));
+                    c.skillHolders.clear();
                 });
             }
         }

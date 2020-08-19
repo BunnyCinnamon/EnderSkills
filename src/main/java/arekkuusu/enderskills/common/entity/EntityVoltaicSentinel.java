@@ -18,14 +18,17 @@ import net.minecraft.entity.ai.*;
 import net.minecraft.entity.monster.EntityGolem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.SoundEvents;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.pathfinding.PathNavigate;
 import net.minecraft.scoreboard.Team;
+import net.minecraft.server.management.PreYggdrasilConverter;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.SoundCategory;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
@@ -71,6 +74,11 @@ public class EntityVoltaicSentinel extends EntityGolem {
     }
 
     @Override
+    protected boolean canEquipItem(ItemStack stack) {
+        return false;
+    }
+
+    @Override
     public void applyEntityAttributes() {
         super.applyEntityAttributes();
         this.getAttributeMap().registerAttribute(SharedMonsterAttributes.ATTACK_DAMAGE);
@@ -97,6 +105,8 @@ public class EntityVoltaicSentinel extends EntityGolem {
                     if (owner.getDistance(this) > 69) { //uwu
                         teleportTo(owner);
                     }
+                } else {
+                    setFollowId(getOwnerId());
                 }
             } else {
                 setFollowId(getOwnerId());
@@ -137,6 +147,45 @@ public class EntityVoltaicSentinel extends EntityGolem {
     }
 
     @Override
+    public void setEntityBoundingBox(AxisAlignedBB bb) {
+        super.setEntityBoundingBox(bb);
+        this.width = (float) Math.max(Math.abs(bb.maxX - bb.minX), Math.abs(bb.maxZ - bb.minZ));
+        this.height = (float) Math.abs(bb.maxY - bb.minY);
+    }
+
+    @Override
+    protected void setSize(float width, float height) {
+        AxisAlignedBB axisalignedbb = this.getEntityBoundingBox();
+        double w = width / 2D;
+        double h = height / 2D;
+        this.width = width;
+        this.height = height;
+        setEntityBoundingBox(new AxisAlignedBB(axisalignedbb.minX - w, axisalignedbb.minY - h, axisalignedbb.minZ - w, axisalignedbb.minX + w, axisalignedbb.minY + h, axisalignedbb.minZ + w));
+    }
+
+    @Override
+    public void setPosition(double x, double y, double z) {
+        this.posX = x;
+        this.posY = y;
+        this.posZ = z;
+        if (this.isAddedToWorld() && !this.world.isRemote)
+            this.world.updateEntityWithOptionalForce(this, false); // Forge - Process chunk registration after moving.
+        float f = this.width / 2F;
+        float f1 = this.height / 2F;
+        this.setEntityBoundingBox(new AxisAlignedBB(x - (double) f, y - f1, z - (double) f, x + (double) f, y + (double) f1, z + (double) f));
+    }
+
+    @Override
+    public void resetPositionToBB() {
+        AxisAlignedBB axisalignedbb = this.getEntityBoundingBox();
+        this.posX = (axisalignedbb.minX + axisalignedbb.maxX) / 2.0D;
+        this.posY = (axisalignedbb.minY + axisalignedbb.maxY) / 2.0D;
+        this.posZ = (axisalignedbb.minZ + axisalignedbb.maxZ) / 2.0D;
+        if (this.isAddedToWorld() && !this.world.isRemote)
+            this.world.updateEntityWithOptionalForce(this, false); // Forge - Process chunk registration after moving.
+    }
+
+    @Override
     public float getEyeHeight() {
         return height / 2;
     }
@@ -149,7 +198,7 @@ public class EntityVoltaicSentinel extends EntityGolem {
     @Override
     protected boolean processInteract(EntityPlayer player, EnumHand hand) {
         if (player.isSneaking() && player.getUniqueID().equals(getOwnerId())) {
-            setDead();
+            if(!world.isRemote) setDead();
             return true;
         }
         return super.processInteract(player, hand);
@@ -258,6 +307,13 @@ public class EntityVoltaicSentinel extends EntityGolem {
     public void setMaxHealth(float health) {
         this.dataManager.set(MAX_HEALTH, health);
         this.getEntityAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(health);
+    }
+
+    public void readEntityFromNBT(NBTTagCompound compound) {
+        super.readEntityFromNBT(compound);
+        if(world != null && !world.isRemote) {
+            setDead();
+        }
     }
 
     public class AITargetSelector implements Predicate<Entity> {
