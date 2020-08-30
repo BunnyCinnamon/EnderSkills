@@ -8,6 +8,7 @@ import arekkuusu.enderskills.api.helper.ExpressionHelper;
 import arekkuusu.enderskills.api.helper.NBTHelper;
 import arekkuusu.enderskills.api.helper.TeamHelper;
 import arekkuusu.enderskills.api.registry.Skill;
+import arekkuusu.enderskills.api.util.Vector;
 import arekkuusu.enderskills.client.util.ResourceLibrary;
 import arekkuusu.enderskills.client.util.helper.TextHelper;
 import arekkuusu.enderskills.common.CommonConfig;
@@ -24,6 +25,7 @@ import arekkuusu.enderskills.common.skill.ModEffects;
 import arekkuusu.enderskills.common.skill.SkillHelper;
 import arekkuusu.enderskills.common.skill.ability.AbilityInfo;
 import arekkuusu.enderskills.common.skill.ability.BaseAbility;
+import arekkuusu.enderskills.common.sound.ModSounds;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.Entity;
@@ -32,7 +34,9 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.DamageSource;
+import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.config.Config;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -76,9 +80,9 @@ public class PowerDrain extends BaseAbility implements IFindEntity, IExpand {
             owner.world.spawnEntity(spawn);
             sync(owner);
 
-            /*if (owner.world instanceof WorldServer) {
-                ((WorldServer) owner.world).playSound(null, owner.posX, owner.posY, owner.posZ, ModSounds.HEAL_AURA, SoundCategory.PLAYERS, 5.0F, (1.0F + (owner.world.rand.nextFloat() - owner.world.rand.nextFloat()) * 0.2F) * 0.7F);
-            }*/
+            if (owner.world instanceof WorldServer) {
+                ((WorldServer) owner.world).playSound(null, owner.posX, owner.posY, owner.posZ, ModSounds.POWER_DRAIN, SoundCategory.PLAYERS, 5.0F, (1.0F + (owner.world.rand.nextFloat() - owner.world.rand.nextFloat()) * 0.2F) * 0.7F);
+            }
         }
     }
 
@@ -132,6 +136,16 @@ public class PowerDrain extends BaseAbility implements IFindEntity, IExpand {
                             double posY = vec.y + owner.height + 0.5D;
                             double posZ = vec.z;
                             EnderSkills.getProxy().spawnParticle(owner.world, new Vec3d(posX, posY, posZ), new Vec3d(0, 0, 0), 3, 50, 0xFFA8A8, ResourceLibrary.PLUS);
+                        }
+                        {
+                            EntityLivingBase from = entity;
+                            EntityLivingBase to = owner;
+                            Vector posFrom = new Vector(from.getPositionVector()).addVector(from.world.rand.nextDouble() * 0.05D, from.height / 2D + from.world.rand.nextDouble() * 0.05D, from.world.rand.nextDouble() * 0.05D);
+                            Vector posTo = new Vector(to.getPositionVector()).addVector(to.world.rand.nextDouble() * 0.05D, to.height / 2D + to.world.rand.nextDouble() * 0.05D, to.world.rand.nextDouble() * 0.05D);
+                            EnderSkills.getProxy().spawnLightning(to.world, posFrom, posTo, 4, 0.6F, 5, 0xF4F389, false);
+                            if (to.world instanceof WorldServer) {
+                                ((WorldServer) to.world).playSound(null, posTo.x, posTo.y, posTo.z, ModSounds.SPARK, SoundCategory.BLOCKS, 0.5F, (1.0F + (to.world.rand.nextFloat() - to.world.rand.nextFloat()) * 0.2F) * 0.7F);
+                            }
                         }
                     }
                 }

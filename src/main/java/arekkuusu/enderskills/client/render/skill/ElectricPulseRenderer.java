@@ -3,7 +3,9 @@ package arekkuusu.enderskills.client.render.skill;
 import arekkuusu.enderskills.client.ClientConfig;
 import arekkuusu.enderskills.client.render.entity.EntityPlaceableDataRenderer;
 import arekkuusu.enderskills.client.util.ShaderLibrary;
+import arekkuusu.enderskills.client.util.SpriteLibrary;
 import arekkuusu.enderskills.client.util.helper.GLHelper;
+import arekkuusu.enderskills.client.util.sprite.UVFrame;
 import arekkuusu.enderskills.common.entity.placeable.EntityPlaceableData;
 import arekkuusu.enderskills.common.lib.LibMod;
 import arekkuusu.enderskills.common.skill.ModAbilities;
@@ -15,6 +17,7 @@ import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+import net.minecraft.entity.Entity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.MinecraftForgeClient;
 import net.minecraftforge.fml.relauncher.Side;
@@ -26,7 +29,6 @@ import javax.annotation.Nonnull;
 @SideOnly(Side.CLIENT)
 public class ElectricPulseRenderer extends SkillRenderer<ElectricPulse> {
 
-    private static final ResourceLocation PLACEABLE = new ResourceLocation(LibMod.MOD_ID, "textures/entity/electric_pulse.png");
     private static final ResourceLocation GLINT = new ResourceLocation(LibMod.MOD_ID, "textures/entity/shocking_aura.png");
 
     public ElectricPulseRenderer() {
@@ -47,19 +49,24 @@ public class ElectricPulseRenderer extends SkillRenderer<ElectricPulse> {
             double scale = entity.getRadius() * ((double) tick / (double) EntityPlaceableData.MIN_TIME);
             double offset = entity.getRadius() * ((double) tick / (double) EntityPlaceableData.MIN_TIME);
             GlStateManager.color(1F, 1F, 1F, 1F);
-            //Render flat square
+            //Render electricity
             GlStateManager.pushMatrix();
-            GlStateManager.translate(x, y, z);
+            GlStateManager.color(0.608F, 0.508F, 0.19F, 1F);
+            SpriteLibrary.ELECTRIC_RING.bind();
             GLHelper.BLEND_SRC_ALPHA$ONE.blend();
             if (!ClientConfig.RENDER_CONFIG.rendering.helpMyShadersAreDying) {
                 ShaderLibrary.ALPHA.begin();
-                ShaderLibrary.ALPHA.set("alpha",  0.4F * (1F - (float) tick / (float) entity.getLifeTime()));
+                ShaderLibrary.ALPHA.set("alpha", 1F);
             }
             GlStateManager.disableLighting();
             GlStateManager.enableBlend();
-            this.bindTexture(getEntityTexture(entity));
-            drawSquareWithOffset(scale, offset);
-            drawSquareWithOffset(scale, -offset);
+            GlStateManager.translate(x, y, z);
+            renderFence(entity, 0F, (float) scale + (((entity.ticksExisted + partialTicks) % 10F) / 10F) * 0.5F, 0, partialTicks, 1.5F, 3, scale);
+            renderFence(entity, 0F, (float) scale + (((entity.ticksExisted + partialTicks) % 10F) / 10F) * 0.5F, 0, partialTicks, 3F, 6, scale);
+            renderFence(entity, 0F, 0F + (((entity.ticksExisted + partialTicks) % 10F) / 10F) * 0.5F, 0, partialTicks, 1.5F, 2, scale);
+            renderFence(entity, 0F, 0F + (((entity.ticksExisted + partialTicks) % 10F) / 10F) * 0.5F, 0, partialTicks, 2.5F, 4, scale);
+            renderFence(entity, 0F, -(float) scale + (((entity.ticksExisted + partialTicks) % 10F) / 10F) * 0.5F, 0, partialTicks, 1.5F, 1, scale);
+            renderFence(entity, 0F, -(float) scale + (((entity.ticksExisted + partialTicks) % 10F) / 10F) * 0.5F, 0, partialTicks, 3F, 6, scale);
             GlStateManager.disableBlend();
             GlStateManager.enableLighting();
             if (!ClientConfig.RENDER_CONFIG.rendering.helpMyShadersAreDying) {
@@ -101,22 +108,29 @@ public class ElectricPulseRenderer extends SkillRenderer<ElectricPulse> {
             GlStateManager.matrixMode(GL11.GL_MODELVIEW);
         }
 
-        public void drawSquareWithOffset(double scale, double offset) {
+        public void renderFence(Entity entity, float x, float y, float z, float partialTicks, float angleOffset, int textureOffset, double scale) {
             GlStateManager.pushMatrix();
-            GlStateManager.translate(0, offset, 0);
-            Tessellator tessellator = Tessellator.getInstance();
-            BufferBuilder buffer = tessellator.getBuffer();
-            buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
-            buffer.pos(scale, 0, -scale).tex(1, 0).endVertex();
-            buffer.pos(scale, 0, scale).tex(1, 1).endVertex();
-            buffer.pos(-scale, 0, scale).tex(0, 1).endVertex();
-            buffer.pos(-scale, 0, -scale).tex(0, 0).endVertex();
+            GlStateManager.translate(x, y, z);
 
-            buffer.pos(-scale, 0, -scale).tex(0, 0).endVertex();
-            buffer.pos(-scale, 0, scale).tex(0, 1).endVertex();
-            buffer.pos(scale, 0, scale).tex(1, 1).endVertex();
-            buffer.pos(scale, 0, -scale).tex(1, 0).endVertex();
-            tessellator.draw();
+            for (int i = 0; i < 4; i++) {
+                UVFrame frame = SpriteLibrary.ELECTRIC_RING.getFrame(entity.ticksExisted + textureOffset + partialTicks + i);
+                GlStateManager.pushMatrix();
+                GlStateManager.rotate(((360F / 4F) * i) + (entity.ticksExisted * angleOffset + partialTicks) % 360, 0F, 1F, 0F);
+                Tessellator tessellator = Tessellator.getInstance();
+                BufferBuilder buffer = tessellator.getBuffer();
+                buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
+                buffer.pos(-scale, -scale, -scale).tex(frame.uMin, frame.vMin).endVertex();
+                buffer.pos(scale, -scale, -scale).tex(frame.uMax, frame.vMin).endVertex();
+                buffer.pos(scale, scale, -scale).tex(frame.uMax, frame.vMax).endVertex();
+                buffer.pos(-scale, scale, -scale).tex(frame.uMin, frame.vMax).endVertex();
+                buffer.pos(-scale, scale, -scale).tex(frame.uMin, frame.vMax).endVertex();
+                buffer.pos(scale, scale, -scale).tex(frame.uMax, frame.vMax).endVertex();
+                buffer.pos(scale, -scale, -scale).tex(frame.uMax, frame.vMin).endVertex();
+                buffer.pos(-scale, -scale, -scale).tex(frame.uMin, frame.vMin).endVertex();
+                tessellator.draw();
+                GlStateManager.popMatrix();
+            }
+
             GlStateManager.popMatrix();
         }
 
@@ -178,7 +192,7 @@ public class ElectricPulseRenderer extends SkillRenderer<ElectricPulse> {
         @Override
         @Nonnull
         protected ResourceLocation getEntityTexture(EntityPlaceableData entity) {
-            return PLACEABLE;
+            return GLINT;
         }
     }
 }

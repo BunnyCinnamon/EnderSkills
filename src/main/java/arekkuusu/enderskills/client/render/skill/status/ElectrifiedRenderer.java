@@ -5,7 +5,6 @@ import arekkuusu.enderskills.common.lib.LibMod;
 import arekkuusu.enderskills.common.skill.ModEffects;
 import arekkuusu.enderskills.common.skill.SkillHelper;
 import arekkuusu.enderskills.common.skill.effect.Electrified;
-import arekkuusu.enderskills.common.skill.effect.Overcharge;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.renderer.GlStateManager;
@@ -61,7 +60,9 @@ public class ElectrifiedRenderer extends SkillRenderer<Electrified> {
                 float i = (float) entity.ticksExisted + event.getPartialRenderTick();
                 GlStateManager.translate(i * 0.05F, i * 0.05F, 0.0F);
                 GlStateManager.matrixMode(GL11.GL_MODELVIEW);
-                renderModel(livingRender, entity, event.getPartialRenderTick());
+                for (int j = 0; j < 4; j++) {
+                    renderModel(livingRender, entity, event.getPartialRenderTick());
+                }
                 GlStateManager.popMatrix();
 
                 GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);

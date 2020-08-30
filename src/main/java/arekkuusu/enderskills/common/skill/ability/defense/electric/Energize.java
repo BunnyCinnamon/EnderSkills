@@ -69,9 +69,9 @@ public class Energize extends BaseAbility implements IImpact {
             EntityThrowableData.throwFor(owner, distance, data, false);
             sync(owner);
 
-            /*if (owner.world instanceof WorldServer) {
-                ((WorldServer) owner.world).playSound(null, owner.posX, owner.posY, owner.posZ, ModSounds.POWER_BOOST, SoundCategory.PLAYERS, 5.0F, (1.0F + (owner.world.rand.nextFloat() - owner.world.rand.nextFloat()) * 0.2F) * 0.7F);
-            }*/
+            if (owner.world instanceof WorldServer) {
+                ((WorldServer) owner.world).playSound(null, owner.posX, owner.posY, owner.posZ, ModSounds.ENERGIZE, SoundCategory.PLAYERS, 5.0F, (1.0F + (owner.world.rand.nextFloat() - owner.world.rand.nextFloat()) * 0.2F) * 0.7F);
+            }
         }
     }
 
@@ -82,7 +82,7 @@ public class Energize extends BaseAbility implements IImpact {
             ModEffects.OVERCHARGE.set((EntityLivingBase) trace.entityHit, ((EntityLivingBase) trace.entityHit).getEntityAttribute(Endurance.MAX_ENDURANCE).getAttributeValue() * NBTHelper.getDouble(skillData.nbt, "power"));
 
             if (trace.entityHit.world instanceof WorldServer) {
-                ((WorldServer) trace.entityHit.world).playSound(null, trace.entityHit.posX, trace.entityHit.posY, trace.entityHit.posZ, ModSounds.LIGHT_HIT, SoundCategory.PLAYERS, 5.0F, (1.0F + (trace.entityHit.world.rand.nextFloat() - trace.entityHit.world.rand.nextFloat()) * 0.2F) * 0.7F);
+                ((WorldServer) trace.entityHit.world).playSound(null, trace.entityHit.posX, trace.entityHit.posY, trace.entityHit.posZ, ModSounds.ELECTRIC_HIT, SoundCategory.PLAYERS, 5.0F, (1.0F + (trace.entityHit.world.rand.nextFloat() - trace.entityHit.world.rand.nextFloat()) * 0.2F) * 0.7F);
             }
         }
     }

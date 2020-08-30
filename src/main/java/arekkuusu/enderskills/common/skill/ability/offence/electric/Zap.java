@@ -56,8 +56,9 @@ public class Zap extends BaseAbility {
             SkillDamageEvent event = new SkillDamageEvent(owner, this, source, damage);
             MinecraftForge.EVENT_BUS.post(event);
             entity.attackEntityFrom(event.getSource(), event.toFloat());
+
             if (entity.world instanceof WorldServer) {
-                ((WorldServer) entity.world).playSound(null, entity.posX, entity.posY, entity.posZ, ModSounds.SPARK, SoundCategory.BLOCKS, 0.5F, (1.0F + (entity.world.rand.nextFloat() - entity.world.rand.nextFloat()) * 0.2F) * 0.7F);
+                ((WorldServer) entity.world).playSound(null, entity.posX, entity.posY, entity.posZ, ModSounds.ELECTRIC_HIT, SoundCategory.BLOCKS, 0.5F, (1.0F + (entity.world.rand.nextFloat() - entity.world.rand.nextFloat()) * 0.2F) * 0.7F);
             }
         }
     }

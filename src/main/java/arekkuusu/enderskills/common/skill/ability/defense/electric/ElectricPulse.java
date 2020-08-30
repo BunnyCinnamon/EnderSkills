@@ -22,6 +22,7 @@ import arekkuusu.enderskills.common.skill.ModEffects;
 import arekkuusu.enderskills.common.skill.SkillHelper;
 import arekkuusu.enderskills.common.skill.ability.AbilityInfo;
 import arekkuusu.enderskills.common.skill.ability.BaseAbility;
+import arekkuusu.enderskills.common.sound.ModSounds;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.Entity;
@@ -29,6 +30,8 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.DamageSource;
+import net.minecraft.util.SoundCategory;
+import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.config.Config;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -75,9 +78,9 @@ public class ElectricPulse extends BaseAbility implements IScanEntities, IExpand
             owner.world.spawnEntity(spawn);
             sync(owner);
 
-            /*if (owner.world instanceof WorldServer) {
-                ((WorldServer) owner.world).playSound(null, owner.posX, owner.posY, owner.posZ, ModSounds.TAUNT, SoundCategory.PLAYERS, 5.0F, (1.0F + (owner.world.rand.nextFloat() - owner.world.rand.nextFloat()) * 0.2F) * 0.7F);
-            }*/
+            if (owner.world instanceof WorldServer) {
+                ((WorldServer) owner.world).playSound(null, owner.posX, owner.posY, owner.posZ, ModSounds.ELECTRIC_PULSE, SoundCategory.PLAYERS, 5.0F, (1.0F + (owner.world.rand.nextFloat() - owner.world.rand.nextFloat()) * 0.2F) * 0.7F);
+            }
         }
     }
 

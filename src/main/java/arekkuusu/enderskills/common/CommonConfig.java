@@ -171,9 +171,9 @@ public final class CommonConfig {
                 public double costIncrement = 0.5D;
                 @Config.Comment("Percentage of all xp spent that is returned on reset")
                 public double retryXPReturn = 0.8D;
-                @Config.Comment("Percentage of xp lost when storing xp")
-                public double xpStoreTariff = 0.8D;
-                @Config.Comment("Percentage of xp lost when taking xp")
+                @Config.Comment("Percentage of xp stored")
+                public double xpStoreTariff = 1D;
+                @Config.Comment("Percentage of xp taken")
                 public double xpTakeTariff = 0.8D;
             }
 

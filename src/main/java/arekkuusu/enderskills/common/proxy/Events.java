@@ -4,6 +4,7 @@ import arekkuusu.enderskills.api.capability.Capabilities;
 import arekkuusu.enderskills.api.capability.SkilledEntityCapability;
 import arekkuusu.enderskills.api.capability.data.SkillHolder;
 import arekkuusu.enderskills.api.capability.data.SkillInfo;
+import arekkuusu.enderskills.api.event.SkillActionableEvent;
 import arekkuusu.enderskills.api.registry.Skill;
 import arekkuusu.enderskills.common.lib.LibMod;
 import arekkuusu.enderskills.common.network.PacketHelper;
@@ -162,6 +163,13 @@ public class Events {
                     }
                 }
             });
+        }
+    }
+
+    @SubscribeEvent(priority = EventPriority.HIGHEST)
+    public static void onSkillActionable(SkillActionableEvent event) {
+        if(event.getEntityLiving() instanceof EntityPlayer && ((EntityPlayer) event.getEntityLiving()).isSpectator()) {
+            event.setCanceled(true);
         }
     }
 }

@@ -442,5 +442,65 @@
       "enderskills:light_hit"
     ],
     "subtitle": "enderskills.subtitle.light_hit"
+  },
+  "electric_hit": {
+    "sounds": [
+      "enderskills:electric_hit"
+    ],
+    "subtitle": "enderskills.subtitle.electric_hit"
+  },
+  "electric_stun": {
+    "sounds": [
+      "enderskills:electric_stun"
+    ],
+    "subtitle": "enderskills.subtitle.electric_stun"
+  },
+  "electric_pulse": {
+    "sounds": [
+      "enderskills:electric_pulse"
+    ],
+    "subtitle": "enderskills.subtitle.electric_pulse"
+  },
+  "energize": {
+    "sounds": [
+      "enderskills:energize"
+    ],
+    "subtitle": "enderskills.subtitle.energize"
+  },
+  "magnetic_pull": {
+    "sounds": [
+      "enderskills:magnetic_pull"
+    ],
+    "subtitle": "enderskills.subtitle.magnetic_pull"
+  },
+  "power_drain": {
+    "sounds": [
+      "enderskills:power_drain"
+    ],
+    "subtitle": "enderskills.subtitle.power_drain"
+  },
+  "shocking_aura": {
+    "sounds": [
+      "enderskills:shocking_aura"
+    ],
+    "subtitle": "enderskills.subtitle.shocking_aura"
+  },
+  "voltaic_sentinel_summon": {
+    "sounds": [
+      "enderskills:voltaic_sentinel_summon"
+    ],
+    "subtitle": "enderskills.subtitle.voltaic_sentinel_summon"
+  },
+  "voltaic_sentinel_v1": {
+    "sounds": [
+      "enderskills:voltaic_sentinel_v1"
+    ],
+    "subtitle": "enderskills.subtitle.voltaic_sentinel_v1"
+  },
+  "voltaic_sentinel_v2": {
+    "sounds": [
+      "enderskills:voltaic_sentinel_v2"
+    ],
+    "subtitle": "enderskills.subtitle.voltaic_sentinel_v2"
   }
 }

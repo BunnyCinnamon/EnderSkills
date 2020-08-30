@@ -8,6 +8,8 @@ import arekkuusu.enderskills.api.helper.ExpressionHelper;
 import arekkuusu.enderskills.api.helper.NBTHelper;
 import arekkuusu.enderskills.api.helper.TeamHelper;
 import arekkuusu.enderskills.api.registry.Skill;
+import arekkuusu.enderskills.client.sounds.MagneticPullSound;
+import arekkuusu.enderskills.client.sounds.SacrificeSound;
 import arekkuusu.enderskills.client.util.helper.TextHelper;
 import arekkuusu.enderskills.common.CommonConfig;
 import arekkuusu.enderskills.common.entity.throwable.MotionHelper;
@@ -19,15 +21,18 @@ import arekkuusu.enderskills.common.skill.ModEffects;
 import arekkuusu.enderskills.common.skill.SkillHelper;
 import arekkuusu.enderskills.common.skill.ability.AbilityInfo;
 import arekkuusu.enderskills.common.skill.ability.BaseAbility;
+import arekkuusu.enderskills.common.sound.ModSounds;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.DamageSource;
+import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.config.Config;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -75,11 +80,19 @@ public class MagneticPull extends BaseAbility {
             apply(owner, data);
             sync(owner, data);
             sync(owner);
-
-            /*if (owner.world instanceof WorldServer) {
-                ((WorldServer) owner.world).playSound(null, owner.posX, owner.posY, owner.posZ, ModSounds.TAUNT, SoundCategory.PLAYERS, 5.0F, (1.0F + (owner.world.rand.nextFloat() - owner.world.rand.nextFloat()) * 0.2F) * 0.7F);
-            }*/
         }
+    }
+
+    @Override
+    public void begin(EntityLivingBase owner, SkillData data) {
+        if (isClientWorld(owner)) {
+            makeSound(owner);
+        }
+    }
+
+    @SideOnly(Side.CLIENT)
+    public void makeSound(EntityLivingBase entity) {
+        Minecraft.getMinecraft().getSoundHandler().playSound(new MagneticPullSound(entity));
     }
 
     @Override

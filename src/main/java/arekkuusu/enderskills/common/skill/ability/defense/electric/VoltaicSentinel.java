@@ -78,9 +78,9 @@ public class VoltaicSentinel extends BaseAbility {
                 sync(owner, data);
                 sync(owner);
 
-                /*if (owner.world instanceof WorldServer) {
-                    ((WorldServer) owner.world).playSound(null, owner.posX, owner.posY, owner.posZ, ModSounds.ANIMATED_STONE, SoundCategory.PLAYERS, 5.0F, (1.0F + (owner.world.rand.nextFloat() - owner.world.rand.nextFloat()) * 0.2F) * 0.7F);
-                }*/
+                if (owner.world instanceof WorldServer) {
+                    ((WorldServer) owner.world).playSound(null, owner.posX, owner.posY, owner.posZ, ModSounds.VOLTAIC_SENTINEL_SUMMON, SoundCategory.PLAYERS, 5.0F, (1.0F + (owner.world.rand.nextFloat() - owner.world.rand.nextFloat()) * 0.2F) * 0.7F);
+                }
             }
         } else {
             SkillHelper.getActiveFrom(owner, this).ifPresent(data -> {

@@ -90,6 +90,16 @@ public final class ModSounds {
     public static final SoundEvent POWER_BOOST = empty();
     public static final SoundEvent CHARM = empty();
     public static final SoundEvent LIGHT_HIT = empty();
+    public static final SoundEvent ELECTRIC_HIT = empty();
+    public static final SoundEvent ELECTRIC_STUN = empty();
+    public static final SoundEvent ELECTRIC_PULSE = empty();
+    public static final SoundEvent ENERGIZE = empty();
+    public static final SoundEvent MAGNETIC_PULL = empty();
+    public static final SoundEvent POWER_DRAIN = empty();
+    public static final SoundEvent SHOCKING_AURA = empty();
+    public static final SoundEvent VOLTAIC_SENTINEL_SUMMON = empty();
+    public static final SoundEvent VOLTAIC_SENTINEL_V1 = empty();
+    public static final SoundEvent VOLTAIC_SENTINEL_V2 = empty();
 
     public static void register(IForgeRegistry<SoundEvent> registry) {
         registry.register(new SoundBase("page_turn"));
@@ -166,5 +176,15 @@ public final class ModSounds {
         registry.register(new SoundBase("power_boost"));
         registry.register(new SoundBase("charm"));
         registry.register(new SoundBase("light_hit"));
+        registry.register(new SoundBase("electric_hit"));
+        registry.register(new SoundBase("electric_stun"));
+        registry.register(new SoundBase("electric_pulse"));
+        registry.register(new SoundBase("energize"));
+        registry.register(new SoundBase("magnetic_pull"));
+        registry.register(new SoundBase("power_drain"));
+        registry.register(new SoundBase("shocking_aura"));
+        registry.register(new SoundBase("voltaic_sentinel_summon"));
+        registry.register(new SoundBase("voltaic_sentinel_v1"));
+        registry.register(new SoundBase("voltaic_sentinel_v2"));
     }
 }

@@ -34,6 +34,7 @@ public class MagneticPullRenderer extends SkillRenderer<MagneticPull> {
         GlStateManager.translate(x, y + 0.1, z);
         GlStateManager.rotate(-this.renderManager.playerViewY, 0.0F, 1.0F, 0.0F);
         double angle = (this.renderManager.options.thirdPersonView == 2 ? -1 : 1) * this.renderManager.playerViewX;
+        double scale = NBTHelper.getDouble(skillHolder.data.nbt, "range") * MathHelper.clamp(((float) skillHolder.tick / 10F), 0F, 1F);
 
         if (entity == Minecraft.getMinecraft().getRenderViewEntity()) {
             if (entity.onGround && angle > 0) angle = 0;
@@ -53,10 +54,25 @@ public class MagneticPullRenderer extends SkillRenderer<MagneticPull> {
         }
         GlStateManager.disableLighting();
         GlStateManager.enableBlend();
-        double scale = NBTHelper.getDouble(skillHolder.data.nbt, "range") * MathHelper.clamp(((float) skillHolder.tick / 10F), 0F, 1F);
-        SpriteLibrary.MAGNETIC_PULL.bind();
 
-        UVFrame frame = SpriteLibrary.MAGNETIC_PULL.getFrame(skillHolder.tick);
+        renderRing(scale, skillHolder.tick);
+        renderFence(entity, 0F, 0F + (((entity.ticksExisted + partialTicks) % 10F) / 10F) * 0.5F, 0, partialTicks, 1.5F, 1, scale);
+        renderFence(entity, 0F, 0.5F + (((entity.ticksExisted + partialTicks) % 10F) / 10F) * 0.5F, 0, partialTicks, 2.5F, 4, scale * 0.5F);
+        renderFence(entity, 0F, 1F + (((entity.ticksExisted + partialTicks) % 10F) / 10F) * 0.5F, 0, partialTicks, 1.5F, 3, scale * 0.2F);
+
+        GlStateManager.disableBlend();
+        GlStateManager.enableLighting();
+        if (!ClientConfig.RENDER_CONFIG.rendering.helpMyShadersAreDying) {
+            ShaderLibrary.ALPHA.end();
+        }
+        GLHelper.BLEND_NORMAL.blend();
+        GlStateManager.depthMask(true);
+        GlStateManager.popMatrix();
+    }
+
+    public void renderRing(double scale, int tick) {
+        SpriteLibrary.MAGNETIC_PULL.bind();
+        UVFrame frame = SpriteLibrary.MAGNETIC_PULL.getFrame(tick);
         Tessellator tessellator = Tessellator.getInstance();
         BufferBuilder buffer = tessellator.getBuffer();
         buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
@@ -70,14 +86,29 @@ public class MagneticPullRenderer extends SkillRenderer<MagneticPull> {
         buffer.pos(scale, 0, scale).tex(frame.uMax, frame.vMax).endVertex();
         buffer.pos(scale, 0, -scale).tex(frame.uMax, frame.vMin).endVertex();
         tessellator.draw();
+    }
 
-        GlStateManager.disableBlend();
-        GlStateManager.enableLighting();
-        if (!ClientConfig.RENDER_CONFIG.rendering.helpMyShadersAreDying) {
-            ShaderLibrary.ALPHA.end();
+    public void renderFence(Entity entity, float x, float y, float z, float partialTicks, float angleOffset, int textureOffset, double scale) {
+        GlStateManager.pushMatrix();
+        SpriteLibrary.ELECTRIC_RING.bind();
+        for (int i = 0; i < 4; i++) {
+            UVFrame frame = SpriteLibrary.ELECTRIC_RING.getFrame(entity.ticksExisted + textureOffset + partialTicks + i);
+            GlStateManager.pushMatrix();
+            GlStateManager.rotate(((360F / 4F) * i) + (entity.ticksExisted * angleOffset + partialTicks) % 360, 0F, 1F, 0F);
+            Tessellator tessellator = Tessellator.getInstance();
+            BufferBuilder buffer = tessellator.getBuffer();
+            buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
+            buffer.pos(-scale, -scale, -scale).tex(frame.uMin, frame.vMin).endVertex();
+            buffer.pos(scale, -scale, -scale).tex(frame.uMax, frame.vMin).endVertex();
+            buffer.pos(scale, scale, -scale).tex(frame.uMax, frame.vMax).endVertex();
+            buffer.pos(-scale, scale, -scale).tex(frame.uMin, frame.vMax).endVertex();
+            buffer.pos(-scale, scale, -scale).tex(frame.uMin, frame.vMax).endVertex();
+            buffer.pos(scale, scale, -scale).tex(frame.uMax, frame.vMax).endVertex();
+            buffer.pos(scale, -scale, -scale).tex(frame.uMax, frame.vMin).endVertex();
+            buffer.pos(-scale, -scale, -scale).tex(frame.uMin, frame.vMin).endVertex();
+            tessellator.draw();
+            GlStateManager.popMatrix();
         }
-        GLHelper.BLEND_NORMAL.blend();
-        GlStateManager.depthMask(true);
         GlStateManager.popMatrix();
     }
 }

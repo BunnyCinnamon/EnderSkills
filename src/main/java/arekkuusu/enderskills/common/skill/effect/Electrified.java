@@ -1,7 +1,6 @@
 package arekkuusu.enderskills.common.skill.effect;
 
 import arekkuusu.enderskills.api.capability.data.SkillData;
-import arekkuusu.enderskills.api.helper.TeamHelper;
 import arekkuusu.enderskills.api.util.Vector;
 import arekkuusu.enderskills.common.EnderSkills;
 import arekkuusu.enderskills.common.lib.LibMod;
@@ -61,13 +60,12 @@ public class Electrified extends BaseEffect {
                         EnderSkills.getProxy().addToQueue(delay::apply);
                         EntityLivingBase from = delay.entityFrom;
                         EntityLivingBase to = delay.entityTo;
-                        for (int i = 0; i < 3; i++) {
-                            Vector posFrom = new Vector(from.getPositionVector()).addVector(from.world.rand.nextDouble() * 0.05D, from.height / 2D + from.world.rand.nextDouble() * 0.05D, from.world.rand.nextDouble() * 0.05D);
-                            Vector posTo = new Vector(to.getPositionVector()).addVector(to.world.rand.nextDouble() * 0.05D, to.height / 2D + to.world.rand.nextDouble() * 0.05D, to.world.rand.nextDouble() * 0.05D);
-                            EnderSkills.getProxy().spawnLightning(delay.entityTo.world, posFrom, posTo, 4, 0.6F, 5, 0xF4F389, false);
-                            if (delay.entityTo.world instanceof WorldServer) {
-                                ((WorldServer) delay.entityTo.world).playSound(null, posTo.x, posTo.y, posTo.z, ModSounds.SPARK, SoundCategory.BLOCKS, 0.5F, (1.0F + (delay.entityTo.world.rand.nextFloat() - delay.entityTo.world.rand.nextFloat()) * 0.2F) * 0.7F);
-                            }
+                        Vector posFrom = new Vector(from.getPositionVector()).addVector(from.world.rand.nextDouble() * 0.05D, from.height / 2D + from.world.rand.nextDouble() * 0.05D, from.world.rand.nextDouble() * 0.05D);
+                        Vector posTo = new Vector(to.getPositionVector()).addVector(to.world.rand.nextDouble() * 0.05D, to.height / 2D + to.world.rand.nextDouble() * 0.05D, to.world.rand.nextDouble() * 0.05D);
+                        EnderSkills.getProxy().spawnLightning(to.world, posFrom, posTo, 4, 0.6F, 5, 0xF4F389, false);
+
+                        if (to.world instanceof WorldServer) {
+                            ((WorldServer) to.world).playSound(null, posTo.x, posTo.y, posTo.z, ModSounds.ELECTRIC_HIT, SoundCategory.BLOCKS, 0.5F, (1.0F + (to.world.rand.nextFloat() - to.world.rand.nextFloat()) * 0.2F) * 0.7F);
                         }
                     }
                     iterator.remove();

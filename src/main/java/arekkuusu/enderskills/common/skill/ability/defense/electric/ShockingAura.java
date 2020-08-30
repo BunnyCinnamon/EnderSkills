@@ -8,6 +8,8 @@ import arekkuusu.enderskills.api.helper.ExpressionHelper;
 import arekkuusu.enderskills.api.helper.NBTHelper;
 import arekkuusu.enderskills.api.helper.TeamHelper;
 import arekkuusu.enderskills.api.registry.Skill;
+import arekkuusu.enderskills.client.sounds.SacrificeSound;
+import arekkuusu.enderskills.client.sounds.ShockingAuraSound;
 import arekkuusu.enderskills.client.util.helper.TextHelper;
 import arekkuusu.enderskills.common.CommonConfig;
 import arekkuusu.enderskills.common.lib.LibMod;
@@ -70,10 +72,6 @@ public class ShockingAura extends BaseAbility {
                 apply(owner, data);
                 sync(owner, data);
                 sync(owner);
-
-                /*if (owner.world instanceof WorldServer) {
-                    ((WorldServer) owner.world).playSound(null, owner.posX, owner.posY, owner.posZ, ModSounds.TAUNT, SoundCategory.PLAYERS, 5.0F, (1.0F + (owner.world.rand.nextFloat() - owner.world.rand.nextFloat()) * 0.2F) * 0.7F);
-                }*/
             }
         } else {
             SkillHelper.getActiveFrom(owner, this).ifPresent(data -> {
@@ -81,6 +79,18 @@ public class ShockingAura extends BaseAbility {
                 async(owner, data);
             });
         }
+    }
+
+    @Override
+    public void begin(EntityLivingBase owner, SkillData data) {
+        if (isClientWorld(owner)) {
+            makeSound(owner);
+        }
+    }
+
+    @SideOnly(Side.CLIENT)
+    public void makeSound(EntityLivingBase entity) {
+        Minecraft.getMinecraft().getSoundHandler().playSound(new ShockingAuraSound(entity));
     }
 
     @Override

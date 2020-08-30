@@ -2,6 +2,7 @@ package arekkuusu.enderskills.client.util;
 
 import arekkuusu.enderskills.client.render.entity.VoltaicSentinelRender;
 import arekkuusu.enderskills.client.render.skill.MagneticPullRenderer;
+import arekkuusu.enderskills.client.render.skill.ShockingAuraRenderer;
 import arekkuusu.enderskills.client.util.sprite.SpriteAtlasResource;
 import arekkuusu.enderskills.client.util.sprite.SpriteFrameResource;
 import arekkuusu.enderskills.client.util.sprite.SpriteResource;
@@ -19,6 +20,10 @@ public final class SpriteLibrary {
 
     public static final SpriteFrameResource MAGNETIC_PULL = load(
             MagneticPullRenderer.TEXTURE, 8, 1
+    );
+
+    public static final SpriteFrameResource ELECTRIC_RING = load(
+            ShockingAuraRenderer.TEXTURE, 8, 1
     );
 
     public static SpriteAtlasResource find(ResourceLocation location) {

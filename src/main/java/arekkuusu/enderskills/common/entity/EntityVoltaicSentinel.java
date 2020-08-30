@@ -8,6 +8,7 @@ import arekkuusu.enderskills.common.entity.ai.FlightPathNavigate;
 import arekkuusu.enderskills.common.skill.ModAbilities;
 import arekkuusu.enderskills.common.skill.SkillHelper;
 import arekkuusu.enderskills.common.skill.ability.BaseAbility;
+import arekkuusu.enderskills.common.sound.ModSounds;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import net.minecraft.block.state.IBlockState;
@@ -26,8 +27,10 @@ import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.pathfinding.PathNavigate;
 import net.minecraft.scoreboard.Team;
 import net.minecraft.server.management.PreYggdrasilConverter;
+import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.SoundCategory;
+import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
@@ -257,6 +260,24 @@ public class EntityVoltaicSentinel extends EntityGolem {
     @Override
     public int decreaseAirSupply(int air) {
         return air;
+    }
+
+    @Nullable
+    @Override
+    protected SoundEvent getAmbientSound() {
+        return rand.nextBoolean() ? ModSounds.VOLTAIC_SENTINEL_V2 : ModSounds.VOLTAIC_SENTINEL_V1;
+    }
+
+    @Nullable
+    @Override
+    protected SoundEvent getHurtSound(DamageSource damageSourceIn) {
+        return ModSounds.ELECTRIC_HIT;
+    }
+
+    @Nullable
+    @Override
+    protected SoundEvent getDeathSound() {
+        return ModSounds.VOLTAIC_SENTINEL_V2;
     }
 
     @Nullable

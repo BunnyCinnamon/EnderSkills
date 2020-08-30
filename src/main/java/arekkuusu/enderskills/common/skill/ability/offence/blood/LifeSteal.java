@@ -309,8 +309,8 @@ public class LifeSteal extends BaseAbility implements ISkillAdvancement {
                 @Config.Comment("Function f(x)=? where 'x' is [Next Level] and 'y' is [Max Level], XP Cost is in units [NOT LEVELS]")
                 public String[] upgrade = {
                         "(0){600}",
-                        "(1+){((22070 / y) * (0 ^ (0 ^ x)))}",
-                        "(50){((22070 / y) * (0 ^ (0 ^ x))) + ((22070 / y) * (0 ^ (0 ^ x))) * 0.1}"
+                        "(1+){4 * x}",
+                        "(50){4 * x + 4 * x * 0.1}"
                 };
             }
         }
