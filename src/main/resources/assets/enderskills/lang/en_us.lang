@@ -3,7 +3,7 @@
 itemGroup.enderskills.misc_tab=Ender Skills Items & Blocks
 #Objects
 tile.acacia_break_altar.name=Acacia Break Altar
-tile.birch_break_altar.name=Brirch Break Altar
+tile.birch_break_altar.name=Birch Break Altar
 tile.dark_oak_break_altar.name=Dark Oak Break Altar
 tile.jungle_break_altar.name=Jungle Break Altar
 tile.oak_break_altar.name=Oak Break Altar
@@ -175,7 +175,7 @@ ui.enderskills.skill.heal_other.title=Heal Other
 ui.enderskills.skill.heal_other.description=Heals an ally.
 ui.enderskills.skill.heal_self.title=Heal Self
 ui.enderskills.skill.heal_self.description=Heals yourself.
-ui.enderskills.skill.nearby_invisibility.title=Nearby Invinsibility
+ui.enderskills.skill.nearby_invisibility.title=Nearby Invinсibility
 ui.enderskills.skill.nearby_invisibility.description=Grants invulnerability to all attacks except knockback to everyone in range including the user.
 
 ui.enderskills.skill.shocking_aura.title=Shocking Aura
