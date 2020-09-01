@@ -188,9 +188,9 @@ public class FireSpirit extends BaseAbility implements ISkillAdvancement {
                         description.add("Endurance Drain: " + ModAttributes.ENDURANCE.getEnduranceDrain(this));
                         description.add("");
                         if (abilityInfo.getLevel() >= getMaxLevel()) {
-                            description.add("Max Level:");
+                            description.add("Level: Max");
                         } else {
-                            description.add("Current Level:");
+                            description.add("Level: Current");
                         }
                         description.add("Cooldown: " + TextHelper.format2FloatPoint(getCooldown(abilityInfo) / 20D) + "s");
                         description.add("Duration: " + TextHelper.format2FloatPoint(getTime(abilityInfo) / 20D) + "s");
@@ -199,7 +199,7 @@ public class FireSpirit extends BaseAbility implements ISkillAdvancement {
                             AbilityInfo infoNew = new AbilityInfo(abilityInfo.serializeNBT());
                             infoNew.setLevel(infoNew.getLevel() + 1);
                             description.add("");
-                            description.add("Next Level:");
+                            description.add("Level: Next");
                             description.add("Cooldown: " + TextHelper.format2FloatPoint(getCooldown(infoNew) / 20D) + "s");
                             description.add("Duration: " + TextHelper.format2FloatPoint(getTime(infoNew) / 20D) + "s");
                             description.add("DoT: " + TextHelper.format2FloatPoint(getDoT(infoNew) / 2D) + " Hearts");

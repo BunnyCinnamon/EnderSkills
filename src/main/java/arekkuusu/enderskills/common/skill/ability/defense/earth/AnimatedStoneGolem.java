@@ -201,27 +201,27 @@ public class AnimatedStoneGolem extends BaseAbility implements IImpact {
                         description.add("Endurance Drain: " + ModAttributes.ENDURANCE.getEnduranceDrain(this));
                         description.add("");
                         if (abilityInfo.getLevel() >= getMaxLevel()) {
-                            description.add("Max Level:");
+                            description.add("Level: Max");
                         } else {
-                            description.add("Current Level:");
+                            description.add("Level: Current");
                         }
                         description.add("Cooldown: " + TextHelper.format2FloatPoint(getCooldown(abilityInfo) / 20D) + "s");
                         description.add("Duration: " + TextHelper.format2FloatPoint(getTime(abilityInfo) / 20D) + "s");
                         description.add("Mirror Damage: +" + TextHelper.format2FloatPoint(getMirror(abilityInfo) * 100D) + "%");
-                        description.add("Stun Duration: " + TextHelper.format2FloatPoint(getStunTime(abilityInfo) / 20D) + "s");
-                        description.add("Golem Health: " + TextHelper.format2FloatPoint(getHealth(abilityInfo) / 2D) + " Hearts");
-                        description.add("Golem Base Damage: " + TextHelper.format2FloatPoint(getDamage(abilityInfo) / 2D) + " Hearts");
+                        description.add("Stun: " + TextHelper.format2FloatPoint(getStunTime(abilityInfo) / 20D) + "s");
+                        description.add("Health: " + TextHelper.format2FloatPoint(getHealth(abilityInfo) / 2D) + " Hearts");
+                        description.add("Damage: " + TextHelper.format2FloatPoint(getDamage(abilityInfo) / 2D) + " Hearts");
                         if (abilityInfo.getLevel() < getMaxLevel()) { //Copy info and set a higher level...
                             AbilityInfo infoNew = new AbilityInfo(abilityInfo.serializeNBT());
                             infoNew.setLevel(infoNew.getLevel() + 1);
                             description.add("");
-                            description.add("Next Level:");
+                            description.add("Level: Next");
                             description.add("Cooldown: " + TextHelper.format2FloatPoint(getCooldown(infoNew) / 20D) + "s");
                             description.add("Duration: " + TextHelper.format2FloatPoint(getTime(infoNew) / 20D) + "s");
                             description.add("Mirror Damage: +" + TextHelper.format2FloatPoint(getMirror(infoNew) * 100D) + "%");
                             description.add("Stun Duration: " + TextHelper.format2FloatPoint(getStunTime(infoNew) / 20D) + "s");
-                            description.add("Golem Health: " + TextHelper.format2FloatPoint(getHealth(infoNew) / 2D) + " Hearts");
-                            description.add("Golem Base Damage: " + TextHelper.format2FloatPoint(getDamage(infoNew) / 2D) + " Hearts");
+                            description.add("Health: " + TextHelper.format2FloatPoint(getHealth(infoNew) / 2D) + " Hearts");
+                            description.add("Damage: " + TextHelper.format2FloatPoint(getDamage(infoNew) / 2D) + " Hearts");
                         }
                     });
                 }

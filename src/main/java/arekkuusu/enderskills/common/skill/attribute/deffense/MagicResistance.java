@@ -86,16 +86,16 @@ public class MagicResistance extends BaseAttribute implements ISkillAdvancement 
                         AttributeInfo attributeInfo = (AttributeInfo) skillInfo;
                         description.clear();
                         if (attributeInfo.getLevel() >= getMaxLevel()) {
-                            description.add("Max Level:");
+                            description.add("Level: Max");
                         } else {
-                            description.add("Current Level:");
+                            description.add("Level: Current");
                         }
                         description.add("Reduction: " + TextHelper.format2FloatPoint(getModifier(attributeInfo) * 100) + "%");
                         if (attributeInfo.getLevel() < getMaxLevel()) { //Copy info and set a higher level...
                             AttributeInfo infoNew = new AttributeInfo(attributeInfo.serializeNBT());
                             infoNew.setLevel(infoNew.getLevel() + 1);
                             description.add("");
-                            description.add("Next Level:");
+                            description.add("Level: Next");
                             description.add("Reduction: " + TextHelper.format2FloatPoint(getModifier(infoNew) * 100) + "%");
                         }
                     });

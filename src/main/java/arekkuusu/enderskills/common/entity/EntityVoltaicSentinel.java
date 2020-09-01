@@ -394,8 +394,10 @@ public class EntityVoltaicSentinel extends EntityGolem {
             if (!sentinel.canEntityBeSeen(target)) {
                 sentinel.setAttackTarget(null);
             } else if (tickCounter++ >= 10) {
-                sentinel.attackEntityAsMob(target);
-                sentinel.setAttackTarget(null);
+                if(!sentinel.world.isRemote){
+                    sentinel.attackEntityAsMob(target);
+                    sentinel.setAttackTarget(null);
+                }
             }
             sentinel.getLookHelper().setLookPosition(target.posX, target.posY + (double) target.getEyeHeight(), target.posZ, (float) sentinel.getHorizontalFaceSpeed(), (float) sentinel.getVerticalFaceSpeed());
         }

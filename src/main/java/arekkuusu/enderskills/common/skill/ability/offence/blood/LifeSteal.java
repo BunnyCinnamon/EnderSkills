@@ -187,9 +187,9 @@ public class LifeSteal extends BaseAbility implements ISkillAdvancement {
                         description.add("Endurance Drain: " + ModAttributes.ENDURANCE.getEnduranceDrain(this));
                         description.add("");
                         if (abilityInfo.getLevel() >= getMaxLevel()) {
-                            description.add("Max Level:");
+                            description.add("Level: Max");
                         } else {
-                            description.add("Current Level:");
+                            description.add("Level: Current");
                         }
                         description.add("Cooldown: " + TextHelper.format2FloatPoint(getCooldown(abilityInfo) / 20D) + "s");
                         description.add("Heal: " + TextHelper.format2FloatPoint(getHeal(abilityInfo) * 100) + "%");
@@ -197,7 +197,7 @@ public class LifeSteal extends BaseAbility implements ISkillAdvancement {
                             AbilityInfo infoNew = new AbilityInfo(abilityInfo.serializeNBT());
                             infoNew.setLevel(infoNew.getLevel() + 1);
                             description.add("");
-                            description.add("Next Level:");
+                            description.add("Level: Next");
                             description.add("Cooldown: " + TextHelper.format2FloatPoint(getCooldown(infoNew) / 20D) + "s");
                             description.add("Heal: " + TextHelper.format2FloatPoint(getHeal(infoNew) * 100) + "%");
                         }

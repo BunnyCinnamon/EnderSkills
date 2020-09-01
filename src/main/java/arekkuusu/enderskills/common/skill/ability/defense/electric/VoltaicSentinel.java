@@ -114,7 +114,7 @@ public class VoltaicSentinel extends BaseAbility {
     public float getDamage(AbilityInfo info) {
         int level = getLevel(info);
         int levelMax = getMaxLevel();
-        double func = ExpressionHelper.getExpression(this, AnimatedStoneGolem.Configuration.getSyncValues().extra.damage, level, levelMax);
+        double func = ExpressionHelper.getExpression(this, Configuration.getSyncValues().extra.damage, level, levelMax);
         double result = (func * CommonConfig.getSyncValues().skill.extra.globalPositiveEffect);
         return (float) (result * getEffectiveness());
     }
@@ -122,7 +122,7 @@ public class VoltaicSentinel extends BaseAbility {
     public float getHealth(AbilityInfo info) {
         int level = getLevel(info);
         int levelMax = getMaxLevel();
-        double func = ExpressionHelper.getExpression(this, AnimatedStoneGolem.Configuration.getSyncValues().extra.health, level, levelMax);
+        double func = ExpressionHelper.getExpression(this, Configuration.getSyncValues().extra.health, level, levelMax);
         double result = (func * CommonConfig.getSyncValues().skill.extra.globalNegativeEffect);
         return (float) (result * getEffectiveness());
     }
@@ -171,25 +171,25 @@ public class VoltaicSentinel extends BaseAbility {
                         description.add("Endurance Drain: " + ModAttributes.ENDURANCE.getEnduranceDrain(this));
                         description.add("");
                         if (abilityInfo.getLevel() >= getMaxLevel()) {
-                            description.add("Max Level:");
+                            description.add("Level: Max");
                         } else {
-                            description.add("Current Level:");
+                            description.add("Level: Current");
                         }
                         description.add("Cooldown: " + TextHelper.format2FloatPoint(getCooldown(abilityInfo) / 20D) + "s");
                         description.add("Duration: " + TextHelper.format2FloatPoint(getTime(abilityInfo) / 20D) + "s");
                         description.add("Range: " + TextHelper.format2FloatPoint(getRange(abilityInfo)) + " Blocks");
-                        description.add("Sentinel Health: " + TextHelper.format2FloatPoint(getHealth(abilityInfo) / 2D) + " Hearts");
-                        description.add("Sentinel Base Damage: " + TextHelper.format2FloatPoint(getDamage(abilityInfo) / 2D) + " Hearts");
+                        description.add("Health: " + TextHelper.format2FloatPoint(getHealth(abilityInfo) / 2D) + " Hearts");
+                        description.add("Damage: " + TextHelper.format2FloatPoint(getDamage(abilityInfo) / 2D) + " Hearts");
                         if (abilityInfo.getLevel() < getMaxLevel()) { //Copy info and set a higher level...
                             AbilityInfo infoNew = new AbilityInfo(abilityInfo.serializeNBT());
                             infoNew.setLevel(infoNew.getLevel() + 1);
                             description.add("");
-                            description.add("Next Level:");
+                            description.add("Level: Next");
                             description.add("Cooldown: " + TextHelper.format2FloatPoint(getCooldown(infoNew) / 20D) + "s");
                             description.add("Duration: " + TextHelper.format2FloatPoint(getTime(infoNew) / 20D) + "s");
                             description.add("Range: " + TextHelper.format2FloatPoint(getRange(infoNew)) + " Blocks");
-                            description.add("Sentinel Health: " + TextHelper.format2FloatPoint(getHealth(abilityInfo) / 2D) + " Hearts");
-                            description.add("Sentinel Base Damage: " + TextHelper.format2FloatPoint(getDamage(abilityInfo) / 2D) + " Hearts");
+                            description.add("Health: " + TextHelper.format2FloatPoint(getHealth(abilityInfo) / 2D) + " Hearts");
+                            description.add("Damage: " + TextHelper.format2FloatPoint(getDamage(abilityInfo) / 2D) + " Hearts");
                         }
                     });
                 }
@@ -229,6 +229,7 @@ public class VoltaicSentinel extends BaseAbility {
         Configuration.getSyncValues().range = Configuration.getValues().range;
         Configuration.getSyncValues().effectiveness = Configuration.getValues().effectiveness;
         Configuration.getSyncValues().extra.damage = Configuration.getValues().extra.damage;
+        Configuration.getSyncValues().extra.health = Configuration.getValues().extra.health;
         Configuration.getSyncValues().advancement.upgrade = Configuration.getValues().advancement.upgrade;
     }
 
@@ -240,6 +241,7 @@ public class VoltaicSentinel extends BaseAbility {
         NBTHelper.setArray(compound, "range", Configuration.getValues().range);
         compound.setDouble("effectiveness", Configuration.getValues().effectiveness);
         NBTHelper.setArray(compound, "extra.damage", Configuration.getValues().extra.damage);
+        NBTHelper.setArray(compound, "extra.health", Configuration.getValues().extra.health);
         NBTHelper.setArray(compound, "advancement.upgrade", Configuration.getValues().advancement.upgrade);
     }
 
@@ -251,6 +253,7 @@ public class VoltaicSentinel extends BaseAbility {
         Configuration.getSyncValues().range = NBTHelper.getArray(compound, "range");
         Configuration.getSyncValues().effectiveness = compound.getDouble("effectiveness");
         Configuration.getSyncValues().extra.damage = NBTHelper.getArray(compound, "extra.damage");
+        Configuration.getSyncValues().extra.health = NBTHelper.getArray(compound, "extra.health");
         Configuration.getSyncValues().advancement.upgrade = NBTHelper.getArray(compound, "advancement.upgrade");
     }
 
@@ -312,6 +315,10 @@ public class VoltaicSentinel extends BaseAbility {
                         "(0+){5 + ((e^(0.1 * (x / 49)) - 1)/((e^0.1) - 1)) * (6.44 - 5)}",
                         "(25+){6.44 + ((e^(3.25 * ((x-24) / (y-24))) - 1)/((e^3.25) - 1)) * (22 - 6.44)}",
                         "(50){25}"
+                };
+                @Config.Comment("Golem Health Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
+                public String[] health = {
+                        "(0+){15 + (1 * x)}"
                 };
             }
 

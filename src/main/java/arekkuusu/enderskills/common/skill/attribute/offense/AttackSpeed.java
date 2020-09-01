@@ -25,6 +25,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Config;
+import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
@@ -51,8 +52,8 @@ public class AttackSpeed extends BaseAttribute implements ISkillAdvancement {
     public static final DynamicModifier SPEED_ATTRIBUTE = new DynamicModifier(
             "2b3b2ec9-00d5-43e7-86f4-bb51d6c5c1e7",
             LibMod.MOD_ID + ":" + LibNames.ATTACK_SPEED,
-            SharedMonsterAttributes.ATTACK_SPEED
-    );
+            SharedMonsterAttributes.ATTACK_SPEED,
+            Constants.AttributeModifierOperation.ADD);
 
     public AttackSpeed() {
         super(LibNames.ATTACK_SPEED, new BaseProperties());
@@ -132,16 +133,16 @@ public class AttackSpeed extends BaseAttribute implements ISkillAdvancement {
                         AttributeInfo attributeInfo = (AttributeInfo) skillInfo;
                         description.clear();
                         if (attributeInfo.getLevel() >= getMaxLevel()) {
-                            description.add("Max Level:");
+                            description.add("Level: Max");
                         } else {
-                            description.add("Current Level:");
+                            description.add("Level: Current");
                         }
                         description.add("Boost: +" + TextHelper.format2FloatPoint(getModifier(attributeInfo) * 100) + "%");
                         if (attributeInfo.getLevel() < getMaxLevel()) { //Copy info and set a higher level...
                             AttributeInfo infoNew = new AttributeInfo(attributeInfo.serializeNBT());
                             infoNew.setLevel(infoNew.getLevel() + 1);
                             description.add("");
-                            description.add("Next Level:");
+                            description.add("Level: Next");
                             description.add("Boost: +" + TextHelper.format2FloatPoint(getModifier(infoNew) * 100) + "%");
                         }
                     });

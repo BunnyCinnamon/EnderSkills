@@ -103,7 +103,7 @@ ui.enderskills.altar_drop_line_1=on top to upgrade
 #----------------------------------------------------------------------------------------------------------------------#
 ui.enderskills.gui.reset_unlocks_count=%1$s / %2$s
 ui.enderskills.gui.reset_unlocks=§4Reset Unlocks§r
-ui.enderskills.gui.total_xp=Stored %2$s
+ui.enderskills.gui.total_xp=Stored %2$s XP
 ui.enderskills.gui.store_xp=Store XP
 ui.enderskills.gui.take_xp=Take XP
 ui.enderskills.gui.xp=%s XP

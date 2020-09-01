@@ -51,8 +51,8 @@ public class Endurance extends BaseAttribute implements ISkillAdvancement {
     public static final DynamicModifier ENDURANCE_ATTRIBUTE = new DynamicModifier(
             "010bf31b-320d-4ef9-91ed-6f84adc38600",
             LibMod.MOD_ID + ":" + LibNames.ENDURANCE,
-            Endurance.MAX_ENDURANCE
-    );
+            Endurance.MAX_ENDURANCE,
+            Constants.AttributeModifierOperation.ADD);
 
     public Endurance() {
         super(LibNames.ENDURANCE, new BaseProperties());
@@ -239,16 +239,16 @@ public class Endurance extends BaseAttribute implements ISkillAdvancement {
                         AttributeInfo attributeInfo = (AttributeInfo) skillInfo;
                         description.clear();
                         if (attributeInfo.getLevel() >= getMaxLevel()) {
-                            description.add("Max Level:");
+                            description.add("Level: Max");
                         } else {
-                            description.add("Current Level:");
+                            description.add("Level: Current");
                         }
                         description.add("Boost: +" + getModifier(attributeInfo) + " Endurance");
                         if (attributeInfo.getLevel() < getMaxLevel()) { //Copy info and set a higher level...
                             AttributeInfo infoNew = new AttributeInfo(attributeInfo.serializeNBT());
                             infoNew.setLevel(infoNew.getLevel() + 1);
                             description.add("");
-                            description.add("Next Level:");
+                            description.add("Level: Next");
                             description.add("Boost: +" + getModifier(infoNew) + " Endurance");
                         }
                     });

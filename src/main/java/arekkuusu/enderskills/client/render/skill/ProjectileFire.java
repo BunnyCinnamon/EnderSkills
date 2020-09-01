@@ -29,7 +29,7 @@ public class ProjectileFire extends Render<EntityThrowableData> {
 
             for (int i = 1; i <= 3; i++) {
                 Vector posVec = motion.normalize()
-                        .perpendicular().normalize()
+                        .perpendicular().normalize().multiply(0.5D)
                         .rotate(Quat.fromAxisAngleRad(motion.normalize(), (entity.ticksExisted + partialTicks + i + 1F) * 90F * (float) Math.PI / 180F)).normalize()
                         .add(vec.add(motion.multiply(offset)));
                 EnderSkills.getProxy().spawnParticleLuminescence(entity.world, posVec.toVec3d(), new Vec3d(0, 0, 0), 3F, 25, ResourceLibrary.MOTE);

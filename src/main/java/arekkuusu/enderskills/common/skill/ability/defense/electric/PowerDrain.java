@@ -213,22 +213,24 @@ public class PowerDrain extends BaseAbility implements IFindEntity, IExpand {
                         description.add("Endurance Drain: " + ModAttributes.ENDURANCE.getEnduranceDrain(this));
                         description.add("");
                         if (abilityInfo.getLevel() >= getMaxLevel()) {
-                            description.add("Max Level:");
+                            description.add("Level: Max");
                         } else {
-                            description.add("Current Level:");
+                            description.add("Level: Current");
                         }
                         description.add("Cooldown: " + TextHelper.format2FloatPoint(getCooldown(abilityInfo) / 20D) + "s");
                         description.add("Range: " + TextHelper.format2FloatPoint(getRange(abilityInfo)) + " Blocks");
                         description.add("Endurance Drain: " + TextHelper.format2FloatPoint(getPower(abilityInfo)));
+                        description.add("* When electrified");
                         description.add("Stun: " + TextHelper.format2FloatPoint(getStun(abilityInfo) / 20D) + "s");
                         if (abilityInfo.getLevel() < getMaxLevel()) { //Copy info and set a higher level...
                             AbilityInfo infoNew = new AbilityInfo(abilityInfo.serializeNBT());
                             infoNew.setLevel(infoNew.getLevel() + 1);
                             description.add("");
-                            description.add("Next Level:");
+                            description.add("Level: Next");
                             description.add("Cooldown: " + TextHelper.format2FloatPoint(getCooldown(infoNew) / 20D) + "s");
                             description.add("Range: " + TextHelper.format2FloatPoint(getRange(infoNew)) + " Blocks");
                             description.add("Endurance Drain: " + TextHelper.format2FloatPoint(getPower(infoNew)));
+                            description.add("* When electrified");
                             description.add("Stun: " + TextHelper.format2FloatPoint(getStun(infoNew) / 20D) + "s");
                         }
                     });
@@ -354,7 +356,7 @@ public class PowerDrain extends BaseAbility implements IFindEntity, IExpand {
             public static class Advancement {
                 @Config.Comment("Function f(x)=? where 'x' is [Next Level] and 'y' is [Max Level], XP Cost is in units [NOT LEVELS]")
                 public String[] upgrade = {
-                        "(0){170}",
+                        "(0){600}",
                         "(1+){4 * x}",
                         "(50){4 * x + 4 * x * 0.1}"
                 };

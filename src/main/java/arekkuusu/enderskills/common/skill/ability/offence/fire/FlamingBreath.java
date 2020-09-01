@@ -158,9 +158,9 @@ public class FlamingBreath extends BaseAbility implements IScanEntities, IExpand
                         description.add("Endurance Drain: " + ModAttributes.ENDURANCE.getEnduranceDrain(this));
                         description.add("");
                         if (abilityInfo.getLevel() >= getMaxLevel()) {
-                            description.add("Max Level:");
+                            description.add("Level: Max");
                         } else {
-                            description.add("Current Level:");
+                            description.add("Level: Current");
                         }
                         description.add("Cooldown: " + TextHelper.format2FloatPoint(getCooldown(abilityInfo) / 20D) + "s");
                         description.add("Range: " + TextHelper.format2FloatPoint(getRange(abilityInfo)) + " Blocks");
@@ -170,7 +170,7 @@ public class FlamingBreath extends BaseAbility implements IScanEntities, IExpand
                             AbilityInfo infoNew = new AbilityInfo(abilityInfo.serializeNBT());
                             infoNew.setLevel(infoNew.getLevel() + 1);
                             description.add("");
-                            description.add("Next Level:");
+                            description.add("Level: Next");
                             description.add("Cooldown: " + TextHelper.format2FloatPoint(getCooldown(infoNew) / 20D) + "s");
                             description.add("Range: " + TextHelper.format2FloatPoint(getRange(infoNew)) + " Blocks");
                             description.add("Duration: " + TextHelper.format2FloatPoint(getTime(infoNew) / 20D) + "s");

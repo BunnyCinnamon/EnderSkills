@@ -32,6 +32,7 @@ import net.minecraft.util.SoundCategory;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Config;
+import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -49,8 +50,8 @@ public class SpeedBoost extends BaseAbility implements ISkillAdvancement {
     public static final DynamicModifier SPEED_ATTRIBUTE = new DynamicModifier(
             "c6668d81-8274-418e-b598-37b2cabd3813",
             LibMod.MOD_ID + ":" + LibNames.SPEED_BOOST,
-            SharedMonsterAttributes.MOVEMENT_SPEED
-    );
+            SharedMonsterAttributes.MOVEMENT_SPEED,
+            Constants.AttributeModifierOperation.ADD);
 
     public SpeedBoost() {
         super(LibNames.SPEED_BOOST, new AbilityProperties());
@@ -192,9 +193,9 @@ public class SpeedBoost extends BaseAbility implements ISkillAdvancement {
                         description.add("Endurance Drain: " + ModAttributes.ENDURANCE.getEnduranceDrain(this));
                         description.add("");
                         if (abilityInfo.getLevel() >= getMaxLevel()) {
-                            description.add("Max Level:");
+                            description.add("Level: Max");
                         } else {
-                            description.add("Current Level:");
+                            description.add("Level: Current");
                         }
                         description.add("Cooldown: " + TextHelper.format2FloatPoint(getCooldown(abilityInfo) / 20D) + "s");
                         description.add("Duration: " + TextHelper.format2FloatPoint(getTime(abilityInfo) / 20D) + "s");
@@ -203,7 +204,7 @@ public class SpeedBoost extends BaseAbility implements ISkillAdvancement {
                             AbilityInfo infoNew = new AbilityInfo(abilityInfo.serializeNBT());
                             infoNew.setLevel(infoNew.getLevel() + 1);
                             description.add("");
-                            description.add("Next Level:");
+                            description.add("Level: Next");
                             description.add("Cooldown: " + TextHelper.format2FloatPoint(getCooldown(infoNew) / 20D) + "s");
                             description.add("Duration: " + TextHelper.format2FloatPoint(getTime(infoNew) / 20D) + "s");
                             description.add("Boost: +" + TextHelper.format2FloatPoint(getSpeed(infoNew) * 100) + "%");
@@ -326,8 +327,8 @@ public class SpeedBoost extends BaseAbility implements ISkillAdvancement {
                 @Config.Comment("Function f(x)=? where 'x' is [Next Level] and 'y' is [Max Level], XP Cost is in units [NOT LEVELS]")
                 public String[] upgrade = {
                         "(0){900}",
-                        "(1+){5730 * x}",
-                        "(50){5730 * x + 5730 * x * 0.1}"
+                        "(1+){4 * x}",
+                        "(50){4 * x + 4 * x * 0.1}"
                 };
             }
         }

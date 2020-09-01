@@ -265,8 +265,8 @@ public class GuiScreenSkillAdvancements extends GuiScreen {
         //Draw XP on book
         Capabilities.advancement(this.mc.player).ifPresent(c -> {
             int xpValue = c.getExperienceTotal(this.mc.player);
-            int xpTotal = XPHelper.getLevelFromXPValue(xpValue);
-            double xpCurrent = XPHelper.getLevelProgressFromXPValue(xpValue);
+            int xpLevel = XPHelper.getLevelFromXPValue(XPHelper.getXPTotal(this.mc.player));
+            double xpCurrent = XPHelper.getLevelProgressFromXPValue(XPHelper.getXPTotal(this.mc.player));
 
             this.mc.getTextureManager().bindTexture(WIDGETS);
             drawXPBar(xpCurrent, 25, -13, 52);
@@ -291,7 +291,7 @@ public class GuiScreenSkillAdvancements extends GuiScreen {
             GlStateManager.color(1F, 1F, 1F, 1F);
             GlStateManager.popMatrix();
             GlStateManager.pushMatrix();
-            String xpTotalString = TextHelper.translate("gui.xp_level", xpTotal);
+            String xpTotalString = TextHelper.translate("gui.xp_level", xpLevel);
             int width = fontRenderer.getStringWidth(xpTotalString);
             GlStateManager.translate(this.x + 25 + 24 - (width / 2D) + 10 * 8, this.y - 13, 0);
             GlStateManager.scale(0.7F, 0.7F, 0.7F);

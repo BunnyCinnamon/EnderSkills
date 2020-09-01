@@ -19,6 +19,7 @@ import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Config;
+import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -33,8 +34,8 @@ public class KnockbackResistance extends BaseAttribute implements ISkillAdvancem
     public static final DynamicModifier KNOCKBACK_ATTRIBUTE = new DynamicModifier(
             "34122574-5ceb-4d76-9c49-d8cbc01ec6a6",
             LibMod.MOD_ID + ":" + LibNames.KNOCKBACK_RESISTANCE,
-            SharedMonsterAttributes.KNOCKBACK_RESISTANCE
-    );
+            SharedMonsterAttributes.KNOCKBACK_RESISTANCE,
+            Constants.AttributeModifierOperation.ADD);
 
     public KnockbackResistance() {
         super(LibNames.KNOCKBACK_RESISTANCE, new BaseProperties());
@@ -92,16 +93,16 @@ public class KnockbackResistance extends BaseAttribute implements ISkillAdvancem
                         AttributeInfo attributeInfo = (AttributeInfo) skillInfo;
                         description.clear();
                         if (attributeInfo.getLevel() >= getMaxLevel()) {
-                            description.add("Max Level:");
+                            description.add("Level: Max");
                         } else {
-                            description.add("Current Level:");
+                            description.add("Level: Current");
                         }
                         description.add("Reduction: " + TextHelper.format2FloatPoint(getModifier(attributeInfo) / 100) + "%");
                         if (attributeInfo.getLevel() < getMaxLevel()) { //Copy info and set a higher level...
                             AttributeInfo infoNew = new AttributeInfo(attributeInfo.serializeNBT());
                             infoNew.setLevel(infoNew.getLevel() + 1);
                             description.add("");
-                            description.add("Next Level:");
+                            description.add("Level: Next");
                             description.add("Reduction: " + TextHelper.format2FloatPoint(getModifier(infoNew) / 100) + "%");
                         }
                     });

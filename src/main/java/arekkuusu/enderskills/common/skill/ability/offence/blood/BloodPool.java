@@ -210,9 +210,9 @@ public class BloodPool extends BaseAbility implements IImpact, ILoopSound, IExpa
                         description.add("Endurance Drain: " + ModAttributes.ENDURANCE.getEnduranceDrain(this));
                         description.add("");
                         if (abilityInfo.getLevel() >= getMaxLevel()) {
-                            description.add("Max Level:");
+                            description.add("Level: Max");
                         } else {
-                            description.add("Current Level:");
+                            description.add("Level: Current");
                         }
                         description.add("Cooldown: " + TextHelper.format2FloatPoint(getCooldown(abilityInfo) / 20D) + "s");
                         description.add("Bleed: " + TextHelper.format2FloatPoint(getTime(abilityInfo)) + "s");
@@ -223,7 +223,7 @@ public class BloodPool extends BaseAbility implements IImpact, ILoopSound, IExpa
                             AbilityInfo infoNew = new AbilityInfo(abilityInfo.serializeNBT());
                             infoNew.setLevel(infoNew.getLevel() + 1);
                             description.add("");
-                            description.add("Next Level:");
+                            description.add("Level: Next");
                             description.add("Cooldown: " + TextHelper.format2FloatPoint(getCooldown(infoNew) / 20D) + "s");
                             description.add("Bleed: " + TextHelper.format2FloatPoint(getTime(infoNew)) + "s");
                             description.add("Pool Duration: " + TextHelper.format2FloatPoint(getPoolDuration(infoNew)) + "s");

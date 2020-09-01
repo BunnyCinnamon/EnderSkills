@@ -12,11 +12,13 @@ public class DynamicModifier {
     public final IAttribute attributeTarget;
     public final String nameIn;
     public final UUID uuid;
+    public final int op;
 
-    public DynamicModifier(String uuid, String nameIn, IAttribute attributeTarget) {
+    public DynamicModifier(String uuid, String nameIn, IAttribute attributeTarget, int op) {
         this.attributeTarget = attributeTarget;
         this.uuid = UUID.fromString(uuid);
         this.nameIn = nameIn;
+        this.op = op;
     }
 
     public void apply(EntityLivingBase entity, double amount) {
@@ -47,7 +49,7 @@ public class DynamicModifier {
         public double amount;
 
         public DynamicAttribute(DynamicModifier dynamicModifier) {
-            super(dynamicModifier.uuid, dynamicModifier.nameIn, 0, 0);
+            super(dynamicModifier.uuid, dynamicModifier.nameIn, 0, dynamicModifier.op);
         }
 
         public double getAmount() {
