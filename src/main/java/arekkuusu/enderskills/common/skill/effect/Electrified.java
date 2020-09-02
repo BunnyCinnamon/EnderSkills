@@ -66,6 +66,7 @@ public class Electrified extends BaseEffect {
 
                         if (to.world instanceof WorldServer) {
                             ((WorldServer) to.world).playSound(null, posTo.x, posTo.y, posTo.z, ModSounds.ELECTRIC_HIT, SoundCategory.BLOCKS, 0.5F, (1.0F + (to.world.rand.nextFloat() - to.world.rand.nextFloat()) * 0.2F) * 0.7F);
+                            ((WorldServer) to.world).playSound(null, posTo.x, posTo.y, posTo.z, ModSounds.ELECTRIC_STUN, SoundCategory.BLOCKS, 0.5F, (1.0F + (to.world.rand.nextFloat() - to.world.rand.nextFloat()) * 0.2F) * 0.7F);
                         }
                     }
                     iterator.remove();
@@ -76,6 +77,9 @@ public class Electrified extends BaseEffect {
 
     public void propagate(EntityLivingBase source, SkillData data, int time) {
         ModEffects.STUNNED.set(source, data, time);
+        if (source.world instanceof WorldServer) {
+            ((WorldServer) source.world).playSound(null, source.posX, source.posY, source.posZ, ModSounds.ELECTRIC_STUN, SoundCategory.BLOCKS, 0.5F, (1.0F + (source.world.rand.nextFloat() - source.world.rand.nextFloat()) * 0.2F) * 0.7F);
+        }
         this.arc(source, data, time);
     }
 
