@@ -140,7 +140,7 @@ ui.enderskills.attack_speed.info=Маг. Урон: %s
 ui.enderskills.armor.info=Броня: %s
 ui.enderskills.armor_toughness.info=Твёрдость: %s
 ui.enderskills.move_speed.info=Скорость: %s
-ui.enderskills.knockback_resistance.info=Сопротивление отдаче: %s
+ui.enderskills.knockback_resistance.info=Сопр. отдаче: %s
 
 ui.enderskills.page.light.title=Свет
 ui.enderskills.page.earth.title=Земля
