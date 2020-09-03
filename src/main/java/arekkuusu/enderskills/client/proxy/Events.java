@@ -18,6 +18,7 @@ import arekkuusu.enderskills.client.util.helper.TextHelper;
 import arekkuusu.enderskills.common.lib.LibMod;
 import arekkuusu.enderskills.common.network.PacketHelper;
 import arekkuusu.enderskills.common.skill.attribute.mobility.Endurance;
+import com.google.common.collect.Lists;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.gui.FontRenderer;
@@ -418,12 +419,12 @@ public class Events {
         if (event.getEntityLiving().getEntityWorld().isRemote) {
             EntityLivingBase entity = event.getEntityLiving();
             Capabilities.get(entity).ifPresent(skills -> {
+                if(skills.getActives().isEmpty()) return;
                 //Iterate Entity-level SkillHolders
-                Iterator<SkillHolder> iterator = skills.getActives().iterator();
-                while (iterator.hasNext()) {
-                    SkillHolder holder = iterator.next();
+                List<SkillHolder> iterated = Lists.newLinkedList(skills.getActives());
+                for (SkillHolder holder : iterated) {
                     holder.tick(entity);
-                    if (holder.isDead()) iterator.remove();
+                    if (holder.isDead()) skills.getActives().remove(holder);
                 }
             });
         }
@@ -434,6 +435,7 @@ public class Events {
         if (event.getEntityLiving().getEntityWorld().isRemote) {
             EntityLivingBase entity = event.getEntityLiving();
             Capabilities.get(entity).ifPresent(skills -> {
+                if(skills.getAllOwned().isEmpty()) return;
                 //Iterate Cooldowns
                 for (Map.Entry<Skill, SkillInfo> entry : skills.getAllOwned().entrySet()) {
                     SkillInfo skillInfo = entry.getValue();
