@@ -12,6 +12,7 @@ import arekkuusu.enderskills.api.helper.ExpressionHelper;
 import arekkuusu.enderskills.api.helper.NBTHelper;
 import arekkuusu.enderskills.api.registry.Skill;
 import arekkuusu.enderskills.client.gui.data.ISkillAdvancement;
+import arekkuusu.enderskills.client.util.helper.TextHelper;
 import arekkuusu.enderskills.client.sounds.SuffocateSound;
 import arekkuusu.enderskills.client.util.helper.TextHelper;
 import arekkuusu.enderskills.common.CommonConfig;
@@ -194,33 +195,33 @@ public class Suffocate extends BaseAbility implements IImpact, ILoopSound, IScan
             if (c.isOwned(this)) {
                 if (!GuiScreen.isShiftKeyDown()) {
                     description.add("");
-                    description.add("Hold SHIFT for stats.");
+                    description.add(TextHelper.translate("desc.stats.shift"));
                 } else {
                     c.getOwned(this).ifPresent(skillInfo -> {
                         AbilityInfo abilityInfo = (AbilityInfo) skillInfo;
                         description.clear();
-                        description.add("Endurance Drain: " + ModAttributes.ENDURANCE.getEnduranceDrain(this));
+                        description.add(TextHelper.translate("desc.stats.endurance", String.valueOf(ModAttributes.ENDURANCE.getEnduranceDrain(this))));
                         description.add("");
                         if (abilityInfo.getLevel() >= getMaxLevel()) {
-                            description.add("Level: Max");
+                            description.add(TextHelper.translate("desc.stats.level_max"));
                         } else {
-                            description.add("Level: Current");
+                            description.add(TextHelper.translate("desc.stats.level_current"));
                         }
-                        description.add("Cooldown: " + TextHelper.format2FloatPoint(getCooldown(abilityInfo) / 20D) + "s");
-                        description.add("Duration: " + TextHelper.format2FloatPoint(getTime(abilityInfo) / 20D) + "s");
-                        description.add("Distance: " + TextHelper.format2FloatPoint(getRange(abilityInfo)) + " Blocks");
-                        description.add("Suffocate Range: " + TextHelper.format2FloatPoint(getSuffocateRange(abilityInfo)) + " Blocks");
-                        description.add("Suffocate DoT: " + TextHelper.format2FloatPoint(getSuffocateDoT(abilityInfo)));
+                        description.add(TextHelper.translate("desc.stats.cooldown", TextHelper.format2FloatPoint(getCooldown(abilityInfo) / 20D), TextHelper.getTextComponent("desc.stats.suffix_time")));
+                        description.add(TextHelper.translate("desc.stats.duration", TextHelper.format2FloatPoint(getTime(abilityInfo) / 20D), TextHelper.getTextComponent("desc.stats.suffix_time")));
+                        description.add(TextHelper.translate("desc.stats.distance", TextHelper.format2FloatPoint(getRange(abilityInfo)), TextHelper.getTextComponent("desc.stats.suffix_blocks")));
+                        description.add(TextHelper.translate("desc.stats.suffocate_range", TextHelper.format2FloatPoint(getSuffocateRange(abilityInfo)), TextHelper.getTextComponent("desc.stats.suffix_blocks")));
+                        description.add(TextHelper.translate("desc.stats.suffocate_dot", TextHelper.format2FloatPoint(getSuffocateDoT(abilityInfo) / 2D), TextHelper.getTextComponent("desc.stats.suffix_hearts")));
                         if (abilityInfo.getLevel() < getMaxLevel()) { //Copy info and set a higher level...
                             AbilityInfo infoNew = new AbilityInfo(abilityInfo.serializeNBT());
                             infoNew.setLevel(infoNew.getLevel() + 1);
                             description.add("");
-                            description.add("Level: Next");
-                            description.add("Cooldown: " + TextHelper.format2FloatPoint(getCooldown(infoNew) / 20D) + "s");
-                            description.add("Duration: " + TextHelper.format2FloatPoint(getTime(infoNew) / 20D) + "s");
-                            description.add("Distance: " + TextHelper.format2FloatPoint(getRange(infoNew)) + " Blocks");
-                            description.add("Suffocate Range: " + TextHelper.format2FloatPoint(getSuffocateRange(infoNew)) + " Blocks");
-                            description.add("Suffocate DoT: " + TextHelper.format2FloatPoint(getSuffocateDoT(infoNew)));
+                            description.add(TextHelper.translate("desc.stats.level_next"));
+                            description.add(TextHelper.translate("desc.stats.cooldown", TextHelper.format2FloatPoint(getCooldown(infoNew) / 20D), TextHelper.getTextComponent("desc.stats.suffix_time")));
+                            description.add(TextHelper.translate("desc.stats.duration", TextHelper.format2FloatPoint(getTime(infoNew) / 20D), TextHelper.getTextComponent("desc.stats.suffix_time")));
+                            description.add(TextHelper.translate("desc.stats.distance", TextHelper.format2FloatPoint(getRange(infoNew)), TextHelper.getTextComponent("desc.stats.suffix_blocks")));
+                            description.add(TextHelper.translate("desc.stats.suffocate_range", TextHelper.format2FloatPoint(getSuffocateRange(infoNew)), TextHelper.getTextComponent("desc.stats.suffix_blocks")));
+                            description.add(TextHelper.translate("desc.stats.suffocate_dot", TextHelper.format2FloatPoint(getSuffocateDoT(infoNew) / 2D), TextHelper.getTextComponent("desc.stats.suffix_hearts")));
                         }
                     });
                 }

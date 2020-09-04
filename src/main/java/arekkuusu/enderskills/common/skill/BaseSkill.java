@@ -2,6 +2,7 @@ package arekkuusu.enderskills.common.skill;
 
 import arekkuusu.enderskills.api.registry.Skill;
 import arekkuusu.enderskills.client.gui.data.ISkillAdvancement;
+import arekkuusu.enderskills.client.util.helper.TextHelper;
 
 import java.util.function.IntSupplier;
 

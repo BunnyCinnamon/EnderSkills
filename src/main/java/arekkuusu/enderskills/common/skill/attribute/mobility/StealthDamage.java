@@ -7,6 +7,7 @@ import arekkuusu.enderskills.api.helper.ExpressionHelper;
 import arekkuusu.enderskills.api.helper.NBTHelper;
 import arekkuusu.enderskills.client.gui.data.ISkillAdvancement;
 import arekkuusu.enderskills.client.util.helper.TextHelper;
+import arekkuusu.enderskills.client.util.helper.TextHelper;
 import arekkuusu.enderskills.common.CommonConfig;
 import arekkuusu.enderskills.common.lib.LibMod;
 import arekkuusu.enderskills.common.lib.LibNames;
@@ -107,23 +108,23 @@ public class StealthDamage extends BaseAttribute implements ISkillAdvancement {
             if (c.isOwned(this)) {
                 if (!GuiScreen.isShiftKeyDown()) {
                     description.add("");
-                    description.add("Hold SHIFT for stats.");
+                    description.add(TextHelper.translate("desc.stats.shift"));
                 } else {
                     c.getOwned(this).ifPresent(skillInfo -> {
                         AttributeInfo attributeInfo = (AttributeInfo) skillInfo;
                         description.clear();
                         if (attributeInfo.getLevel() >= getMaxLevel()) {
-                            description.add("Level: Max");
+                            description.add(TextHelper.translate("desc.stats.level_max"));
                         } else {
-                            description.add("Level: Current");
+                            description.add(TextHelper.translate("desc.stats.level_current"));
                         }
-                        description.add("Dmg: +" + TextHelper.format2FloatPoint(getModifier(attributeInfo) * 100) + "%");
+                        description.add(TextHelper.translate("desc.stats.dmg", TextHelper.format2FloatPoint(getModifier(attributeInfo) * 100), TextHelper.getTextComponent("desc.stats.suffix_percentage")));
                         if (attributeInfo.getLevel() < getMaxLevel()) { //Copy info and set a higher level...
                             AttributeInfo infoNew = new AttributeInfo(attributeInfo.serializeNBT());
                             infoNew.setLevel(infoNew.getLevel() + 1);
                             description.add("");
-                            description.add("Level: Next");
-                            description.add("Dmg: +" + TextHelper.format2FloatPoint(getModifier(infoNew) * 100) + "%");
+                            description.add(TextHelper.translate("desc.stats.level_next"));
+                            description.add(TextHelper.translate("desc.stats.dmg", TextHelper.format2FloatPoint(getModifier(infoNew) * 100), TextHelper.getTextComponent("desc.stats.suffix_percentage")));
                         }
                     });
                 }

@@ -81,7 +81,9 @@ public class EntityStoneGolem extends EntityGolem {
     @Override
     public void applyEntityAttributes() {
         super.applyEntityAttributes();
-        this.getEntityAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(this.dataManager.get(MAX_HEALTH));
+        this.getAttributeMap().registerAttribute(SharedMonsterAttributes.ATTACK_DAMAGE);
+        this.getEntityAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(0);
+        this.getEntityAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).setBaseValue(0);
         this.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(0.25D);
         this.getEntityAttribute(SharedMonsterAttributes.KNOCKBACK_RESISTANCE).setBaseValue(1.0D);
     }
@@ -257,8 +259,9 @@ public class EntityStoneGolem extends EntityGolem {
         if (uuid != null) {
             EntityLivingBase owner = getEntityByUUID(uuid);
             if (owner != null) {
+                float golemDamage = (float) getEntityAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).getAttributeValue();
                 float ownerDamage = (float) owner.getEntityAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).getAttributeValue();
-                float damage = getDamage() + ownerDamage + (ownerDamage * getMirrorDamage());
+                float damage = golemDamage + ownerDamage + (ownerDamage * getMirrorDamage());
                 attacked = entityIn.attackEntityFrom(DamageSource.causeMobDamage(this), damage);
                 if (entityIn instanceof EntityLivingBase) {
                     SkillData data = getData().copy();
@@ -342,6 +345,7 @@ public class EntityStoneGolem extends EntityGolem {
 
     public void setDamage(float damage) {
         this.dataManager.set(DAMAGE, damage);
+        this.getEntityAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).setBaseValue(damage);
     }
 
     public void setMaxHealth(float health) {

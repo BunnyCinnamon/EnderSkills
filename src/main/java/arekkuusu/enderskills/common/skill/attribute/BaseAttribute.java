@@ -3,6 +3,7 @@ package arekkuusu.enderskills.common.skill.attribute;
 import arekkuusu.enderskills.api.capability.Capabilities;
 import arekkuusu.enderskills.api.capability.data.SkillInfo;
 import arekkuusu.enderskills.client.gui.data.ISkillAdvancement;
+import arekkuusu.enderskills.client.util.helper.TextHelper;
 import arekkuusu.enderskills.common.skill.BaseSkill;
 import arekkuusu.enderskills.common.skill.ModAttributes;
 import net.minecraft.entity.EntityLivingBase;

@@ -11,6 +11,7 @@ import arekkuusu.enderskills.api.helper.NBTHelper;
 import arekkuusu.enderskills.api.helper.TeamHelper;
 import arekkuusu.enderskills.api.registry.Skill;
 import arekkuusu.enderskills.client.gui.data.ISkillAdvancement;
+import arekkuusu.enderskills.client.util.helper.TextHelper;
 import arekkuusu.enderskills.client.sounds.BloodPoolSound;
 import arekkuusu.enderskills.client.util.helper.TextHelper;
 import arekkuusu.enderskills.common.CommonConfig;
@@ -202,33 +203,33 @@ public class BloodPool extends BaseAbility implements IImpact, ILoopSound, IExpa
             if (c.isOwned(this)) {
                 if (!GuiScreen.isShiftKeyDown()) {
                     description.add("");
-                    description.add("Hold SHIFT for stats.");
+                    description.add(TextHelper.translate("desc.stats.shift"));
                 } else {
                     c.getOwned(this).ifPresent(skillInfo -> {
                         AbilityInfo abilityInfo = (AbilityInfo) skillInfo;
                         description.clear();
-                        description.add("Endurance Drain: " + ModAttributes.ENDURANCE.getEnduranceDrain(this));
+                        description.add(TextHelper.translate("desc.stats.endurance", String.valueOf(ModAttributes.ENDURANCE.getEnduranceDrain(this))));
                         description.add("");
                         if (abilityInfo.getLevel() >= getMaxLevel()) {
-                            description.add("Level: Max");
+                            description.add(TextHelper.translate("desc.stats.level_max"));
                         } else {
-                            description.add("Level: Current");
+                            description.add(TextHelper.translate("desc.stats.level_current"));
                         }
-                        description.add("Cooldown: " + TextHelper.format2FloatPoint(getCooldown(abilityInfo) / 20D) + "s");
-                        description.add("Bleed: " + TextHelper.format2FloatPoint(getTime(abilityInfo)) + "s");
-                        description.add("Pool Duration: " + TextHelper.format2FloatPoint(getPoolDuration(abilityInfo)) + "s");
-                        description.add("Pool Size: " + TextHelper.format2FloatPoint(getPoolRange(abilityInfo)) + " Blocks");
-                        description.add("DoT: " + TextHelper.format2FloatPoint(getDoT(abilityInfo) / 2D) + " Hearts");
+                        description.add(TextHelper.translate("desc.stats.cooldown", TextHelper.format2FloatPoint(getCooldown(abilityInfo) / 20D), TextHelper.getTextComponent("desc.stats.suffix_time")));
+                        description.add(TextHelper.translate("desc.stats.bleed", TextHelper.format2FloatPoint(getTime(abilityInfo) / 20D), TextHelper.getTextComponent("desc.stats.suffix_time")));
+                        description.add(TextHelper.translate("desc.stats.pool_duration", TextHelper.format2FloatPoint(getPoolDuration(abilityInfo) / 20D), TextHelper.getTextComponent("desc.stats.suffix_time")));
+                        description.add(TextHelper.translate("desc.stats.pool_size", TextHelper.format2FloatPoint(getPoolRange(abilityInfo) / 20D), TextHelper.getTextComponent("desc.stats.suffix_blocks")));
+                        description.add(TextHelper.translate("desc.stats.dot", TextHelper.format2FloatPoint(getDoT(abilityInfo) / 2D), TextHelper.getTextComponent("desc.stats.suffix_hearts")));
                         if (abilityInfo.getLevel() < getMaxLevel()) { //Copy info and set a higher level...
                             AbilityInfo infoNew = new AbilityInfo(abilityInfo.serializeNBT());
                             infoNew.setLevel(infoNew.getLevel() + 1);
                             description.add("");
-                            description.add("Level: Next");
-                            description.add("Cooldown: " + TextHelper.format2FloatPoint(getCooldown(infoNew) / 20D) + "s");
-                            description.add("Bleed: " + TextHelper.format2FloatPoint(getTime(infoNew)) + "s");
-                            description.add("Pool Duration: " + TextHelper.format2FloatPoint(getPoolDuration(infoNew)) + "s");
-                            description.add("Pool Size: " + TextHelper.format2FloatPoint(getPoolRange(infoNew)) + " Blocks");
-                            description.add("DoT: " + TextHelper.format2FloatPoint(getDoT(infoNew) / 2D) + " Hearts");
+                            description.add(TextHelper.translate("desc.stats.level_next"));
+                            description.add(TextHelper.translate("desc.stats.cooldown", TextHelper.format2FloatPoint(getCooldown(infoNew) / 20D), TextHelper.getTextComponent("desc.stats.suffix_time")));
+                            description.add(TextHelper.translate("desc.stats.bleed", TextHelper.format2FloatPoint(getTime(infoNew) / 20D), TextHelper.getTextComponent("desc.stats.suffix_time")));
+                            description.add(TextHelper.translate("desc.stats.pool_duration", TextHelper.format2FloatPoint(getPoolDuration(infoNew) / 20D), TextHelper.getTextComponent("desc.stats.suffix_time")));
+                            description.add(TextHelper.translate("desc.stats.pool_size", TextHelper.format2FloatPoint(getPoolRange(infoNew) / 20D), TextHelper.getTextComponent("desc.stats.suffix_blocks")));
+                            description.add(TextHelper.translate("desc.stats.dot", TextHelper.format2FloatPoint(getDoT(infoNew) / 2D), TextHelper.getTextComponent("desc.stats.suffix_hearts")));
                         }
                     });
                 }

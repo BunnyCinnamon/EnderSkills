@@ -8,6 +8,7 @@ import arekkuusu.enderskills.api.helper.ExpressionHelper;
 import arekkuusu.enderskills.api.helper.NBTHelper;
 import arekkuusu.enderskills.api.registry.Skill;
 import arekkuusu.enderskills.client.gui.data.ISkillAdvancement;
+import arekkuusu.enderskills.client.util.helper.TextHelper;
 import arekkuusu.enderskills.common.CommonConfig;
 import arekkuusu.enderskills.common.lib.LibMod;
 import arekkuusu.enderskills.common.lib.LibNames;
@@ -89,60 +90,6 @@ public class Endurance extends BaseAttribute implements ISkillAdvancement {
         if (event.getObject() instanceof EntityLivingBase)
             ((EntityLivingBase) event.getObject()).getAttributeMap().registerAttribute(MAX_ENDURANCE).setBaseValue(40);
     }
-
-    /*@SubscribeEvent(priority = EventPriority.LOWEST)
-    public void onUpdateEnduranceAttribute(LivingEvent.LivingUpdateEvent event) {
-        if (isClientWorld(event.getEntityLiving())) return;
-        EntityLivingBase entity = event.getEntityLiving();
-        Capabilities.endurance(entity).ifPresent(capability -> {
-            double amount = entity.getEntityAttribute(Endurance.MAX_ENDURANCE).getAttributeValue();
-            if (!MathUtil.fuzzyEqual(amount, capability.getEnduranceMax())) {
-                if (capability.getEndurance() > amount) {
-                    capability.setEndurance(amount);
-                }
-                capability.setEnduranceMax(amount);
-                if (entity instanceof EntityPlayerMP) {
-                    PacketHelper.sendEnduranceSync((EntityPlayerMP) entity);
-                }
-            }
-        });
-    }*/
-
-    /*@SubscribeEvent(priority = EventPriority.LOWEST)
-    public void onEntityUpdate(LivingEvent.LivingUpdateEvent event) {
-        if (isClientWorld(event.getEntityLiving())) return;
-        EntityLivingBase entity = event.getEntityLiving();
-        if (entity.ticksExisted % 20 != 0) return; //Slowdown cowboy! yee-haw!
-        Capabilities.get(entity).ifPresent(capability -> {
-            if (capability.isOwned(this)) {
-                capability.getOwned(this).ifPresent(skillInfo -> {
-                    AttributeInfo attributeInfo = (AttributeInfo) skillInfo;
-                    Capabilities.endurance(entity).ifPresent(cap -> {
-                        int amount = cap.getEnduranceDefault() + getModifier(attributeInfo);
-                        if (amount != cap.getEnduranceMax()) {
-                            if (cap.getEndurance() > amount) {
-                                cap.setEndurance(amount);
-                            }
-                            cap.setEnduranceMax(amount);
-                            if (entity instanceof EntityPlayerMP) {
-                                PacketHelper.sendEnduranceSync((EntityPlayerMP) entity);
-                            }
-                        }
-                    });
-                });
-            } else {
-                Capabilities.endurance(entity).ifPresent(cap -> {
-                    if (cap.getEndurance() > cap.getEnduranceDefault()) {
-                        cap.setEndurance(cap.getEnduranceDefault());
-                    }
-                    cap.setEnduranceMax(cap.getEnduranceDefault());
-                    if (entity instanceof EntityPlayerMP) {
-                        PacketHelper.sendEnduranceSync((EntityPlayerMP) entity);
-                    }
-                });
-            }
-        });
-    }*/
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public void onEnduranceTick(LivingEvent.LivingUpdateEvent event) {
@@ -233,23 +180,23 @@ public class Endurance extends BaseAttribute implements ISkillAdvancement {
             if (c.isOwned(this)) {
                 if (!GuiScreen.isShiftKeyDown()) {
                     description.add("");
-                    description.add("Hold SHIFT for stats.");
+                    description.add(TextHelper.translate("desc.stats.shift"));
                 } else {
                     c.getOwned(this).ifPresent(skillInfo -> {
                         AttributeInfo attributeInfo = (AttributeInfo) skillInfo;
                         description.clear();
                         if (attributeInfo.getLevel() >= getMaxLevel()) {
-                            description.add("Level: Max");
+                            description.add(TextHelper.translate("desc.stats.level_max"));
                         } else {
-                            description.add("Level: Current");
+                            description.add(TextHelper.translate("desc.stats.level_current"));
                         }
-                        description.add("Boost: +" + getModifier(attributeInfo) + " Endurance");
+                        description.add(TextHelper.translate("desc.stats.boost", TextHelper.format2FloatPoint(getModifier(attributeInfo))));
                         if (attributeInfo.getLevel() < getMaxLevel()) { //Copy info and set a higher level...
                             AttributeInfo infoNew = new AttributeInfo(attributeInfo.serializeNBT());
                             infoNew.setLevel(infoNew.getLevel() + 1);
                             description.add("");
-                            description.add("Level: Next");
-                            description.add("Boost: +" + getModifier(infoNew) + " Endurance");
+                            description.add(TextHelper.translate("desc.stats.level_next"));
+                            description.add(TextHelper.translate("desc.stats.boost", TextHelper.format2FloatPoint(getModifier(infoNew))));
                         }
                     });
                 }

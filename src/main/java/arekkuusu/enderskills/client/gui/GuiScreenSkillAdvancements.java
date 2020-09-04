@@ -70,6 +70,7 @@ public class GuiScreenSkillAdvancements extends GuiScreen {
     public int scrollMouseY;
     public boolean isScrolling;
     public boolean isShifting;
+    public int shiftingCountdown;
 
     public GuiScreenSkillAdvancements() {
         this.allowUserInput = true;
@@ -147,16 +148,21 @@ public class GuiScreenSkillAdvancements extends GuiScreen {
                 boolean tabSelected = tabPin == -1 || (this.selectedTab != null && tabPin == this.tabs.indexOf(this.selectedTab));
                 boolean tabPageSelected = tabPagePin == -1 || (this.selectedTab != null && tabPagePin == this.selectedTab.tabPage);
                 guiButton.enabled = tabSelected && tabPageSelected && this.selectedTab != null;
-            } else if(guiButton.id == 102) {
+            } else if (guiButton.id == 102) {
                 guiButton.enabled = this.selectedTab != null && this.selectedTab.pages.indexOf(this.selectedTab.selectedPage) > 0;
-            } else if(guiButton.id == 103) {
+            } else if (guiButton.id == 103) {
                 guiButton.enabled = this.selectedTab != null && this.selectedTab.pages.indexOf(this.selectedTab.selectedPage) < this.selectedTab.maxPages - 1;
-            } else if(guiButton.id == 101) {
+            } else if (guiButton.id == 101) {
                 guiButton.enabled = this.selectedTab != null;
             }
         }
         if (GuiScreenSkillAdvancements.confirmation != null) {
             GuiScreenSkillAdvancements.confirmation.update();
+        }
+        if(this.shiftingCountdown > 0) {
+            if(--this.shiftingCountdown <= 0) {
+                this.isShifting = false;
+            }
         }
     }
 
@@ -353,7 +359,7 @@ public class GuiScreenSkillAdvancements extends GuiScreen {
         int maxResets = CommonConfig.getSyncValues().advancement.maxResetUnlocks;
         this.drawTexturedModalRect(this.x + this.guiWidth / 2 + this.guiWidth / 4 - 34, this.y + 15, 192, 61, 64, 64);
         int xp = Capabilities.advancement(this.mc.player).map(c -> XPHelper.getXPTotal(c.experienceLevel, c.experienceProgress)).orElse(0);
-        if(xp > 0) {
+        if (xp > 0) {
             this.drawTexturedModalRect(this.x + this.guiWidth / 2 + this.guiWidth / 4 - 34, this.y + 15, 192, 125, 64, 64);
         }
         //Xp text
@@ -511,7 +517,8 @@ public class GuiScreenSkillAdvancements extends GuiScreen {
         } else {
             GuiScreenSkillAdvancements.confirmation.mouseClicked(mouseX, mouseY, mouseButton);
         }
-        isShifting = false;
+        this.isShifting = false;
+        this.shiftingCountdown = 5;
     }
 
     @Override
@@ -560,10 +567,19 @@ public class GuiScreenSkillAdvancements extends GuiScreen {
             }
         } else {
             if (button.id == 105) {
-                GuiScreenSkillAdvancements.confirmation = new GuiConfirmation(this.mc, TextHelper.translate("gui.reset_unlocks_title"), TextHelper.translate("gui.reset_unlocks_description"), (g) -> {
-                    PacketHelper.sendResetSkillsRequestPacket(this.mc.player);
-                }, true, true, false);
-                GuiScreenSkillAdvancements.confirmation.initGui();
+                Capabilities.get(this.mc.player).ifPresent(c -> {
+                    if (!c.getAllOwned().isEmpty()) {
+                        GuiScreenSkillAdvancements.confirmation = new GuiConfirmation(this.mc, TextHelper.translate("gui.reset_unlocks_title"), TextHelper.translate("gui.reset_unlocks_description"), (g) -> {
+                            PacketHelper.sendResetSkillsRequestPacket(this.mc.player);
+                        }, true, true, false);
+                        GuiScreenSkillAdvancements.confirmation.initGui();
+                    } else {
+                        GuiScreenSkillAdvancements.confirmation = new GuiConfirmation(this.mc, TextHelper.translate("gui.reset_no_unlocks_title"), TextHelper.translate("gui.reset_no_unlocks_description"), (g) -> {
+                            PacketHelper.sendResetSkillsRequestPacket(this.mc.player);
+                        }, false, true, false);
+                        GuiScreenSkillAdvancements.confirmation.initGui();
+                    }
+                });
             } else if (button.id == 106) {
                 PacketHelper.sendStoreXPRequestPacket(this.mc.player);
             } else if (button.id == 107) {

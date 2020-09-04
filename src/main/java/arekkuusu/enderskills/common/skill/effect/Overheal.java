@@ -3,7 +3,6 @@ package arekkuusu.enderskills.common.skill.effect;
 import arekkuusu.enderskills.api.capability.data.SkillData;
 import arekkuusu.enderskills.api.helper.NBTHelper;
 import arekkuusu.enderskills.common.lib.LibNames;
-import arekkuusu.enderskills.common.skill.ModEffects;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.MathHelper;

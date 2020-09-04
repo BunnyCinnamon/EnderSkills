@@ -85,8 +85,8 @@ public class EntityVoltaicSentinel extends EntityGolem {
     public void applyEntityAttributes() {
         super.applyEntityAttributes();
         this.getAttributeMap().registerAttribute(SharedMonsterAttributes.ATTACK_DAMAGE);
-        this.getEntityAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(this.dataManager.get(MAX_HEALTH));
-        this.getEntityAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).setBaseValue(this.dataManager.get(DAMAGE));
+        this.getEntityAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(0);
+        this.getEntityAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).setBaseValue(0);
         this.getEntityAttribute(SharedMonsterAttributes.KNOCKBACK_RESISTANCE).setBaseValue(1.0D);
     }
 
@@ -315,6 +315,7 @@ public class EntityVoltaicSentinel extends EntityGolem {
 
     public void setDamage(float damage) {
         this.dataManager.set(DAMAGE, damage);
+        this.getEntityAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).setBaseValue(damage);
     }
 
     public boolean getAggro() {
