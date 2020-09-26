@@ -1,7 +1,7 @@
-#PARSE_ESCAPES
-#Creative tab
+# PARSE_ESCAPES
+# Creative tab
 itemGroup.enderskills.misc_tab=Ender Skills Предметы и Блоки
-#Objects
+# Objects
 tile.acacia_break_altar.name=Акациевый алтарь Края
 tile.birch_break_altar.name=Березовый алтарь Края
 tile.dark_oak_break_altar.name=Алтарь Края из темного дуба
@@ -11,11 +11,11 @@ tile.spruce_break_altar.name=Еловый алтарь Края
 tile.altar_ultimate.name=Максимальный алтарь Края
 tile.crystal.name=Кристальный блок
 tile.ender_ore.name=Руда Края
-#----------------------------------------------------------------------------------------------------------------------#
+# ----------------------------------------------------------------------------------------------------------------------#
 item.token.name=Жетон Края
 item.crystal_matrix.name=Матрица Края
 item.ender_dust.name=Пыль Края
-#----------------------------------------------------------------------------------------------------------------------#
+# ----------------------------------------------------------------------------------------------------------------------#
 entity.throwable_data.name=
 entity.placeable_data.name=
 entity.wall.name=
@@ -34,10 +34,10 @@ entity.flaming_rain.name=
 entity.explode.name=
 entity.token.name=
 entity.voltaic_sentinel.name=Гальванический страж
-#----------------------------------------------------------------------------------------------------------------------#
+# ----------------------------------------------------------------------------------------------------------------------#
 death.attack.skill=%1$s был раздавлен
 death.attack.skill.player=%1$s был раздавлен %2$s
-#----------------------------------------------------------------------------------------------------------------------#
+# ----------------------------------------------------------------------------------------------------------------------#
 potion.effect.enderskills.potion_type_ender_effect=Странное зелье
 potion.effect.enderskills.potion_type_ability_power_effect_normal=Зелье мощности навыков
 potion.effect.enderskills.potion_type_ability_power_effect_long=Зелье мощности навыков
@@ -66,7 +66,7 @@ lingering_potion.effect.enderskills.potion_type_endurance_effect_strong=Тума
 lingering_potion.effect.enderskills.potion_type_cooldown_effect_normal=Туманное зелье перезарядки
 lingering_potion.effect.enderskills.potion_type_cooldown_effect_long=Туманное зелье перезарядки
 lingering_potion.effect.enderskills.potion_type_cooldown_effect_strong=Туманное зелье перезарядки II
-#Comands
+# Comands
 command.enderskills.not_allowed.es_reload=You cannot reload configs! If you wish to reload change "syncValuesToClient" to true in the global config or update your client's modpack config files!
 command.enderskills.not_found.player=Player %1$s not found
 command.enderskills.not_found.arguments=Missing arguments
@@ -92,15 +92,15 @@ command.enderskills.cooldown.invalid=Invalid! Must have reset
 command.enderskills.endurance.reset=Success! Endurance is no more
 command.enderskills.endurance.invalid=Invalid! Must have reset
 command.enderskills.config.reload.success=Success! Realoaded config files
-#UI
+# UI
 enderskills.potion_ability_power_effect=Эффект мощности навыков
 enderskills.potion_cooldown_effect=Эффект перезарядки
 enderskills.potion_endurance_effect=Эффект выносливости
-#----------------------------------------------------------------------------------------------------------------------#
+# ----------------------------------------------------------------------------------------------------------------------#
 ui.enderskills.rotate_skill_group=%s
 ui.enderskills.altar_drop_line_0=Брось матрицу Края
 ui.enderskills.altar_drop_line_1=на алтарь для улучшения
-#----------------------------------------------------------------------------------------------------------------------#
+# ----------------------------------------------------------------------------------------------------------------------#
 ui.enderskills.gui.reset_unlocks_count=%1$s / %2$s
 ui.enderskills.gui.reset_unlocks=§4Сбросить навыки§r
 ui.enderskills.gui.total_xp=Баланс: %2$s XP
@@ -116,6 +116,8 @@ ui.enderskills.gui.prevPage=Предыдущая страница
 ui.enderskills.gui.nextPage=Следующая страница
 ui.enderskills.gui.reset_unlocks_title=Подтвердить сброс всего прогресса?
 ui.enderskills.gui.reset_unlocks_description=\n§4Это действие нельзя отменить.§r
+ui.enderskills.gui.reset_no_unlocks_title=4This action cannot be performed.
+ui.enderskills.gui.reset_no_unlocks_description=\n§No skills to reset.§r
 ui.enderskills.gui.altar_power=%s силы алтаря Края для следующего уровня
 ui.enderskills.gui.altar_power_full=Полная сила алтаря Края
 ui.enderskills.gui.advancement.or=ИЛИ
@@ -149,7 +151,62 @@ ui.enderskills.page.wind.title=Ветер
 ui.enderskills.page.void.title=Пустота
 ui.enderskills.page.blood.title=Кровь
 ui.enderskills.page.fire.title=Огонь
-#----------------------------------------------------------------------------------------------------------------------#
+# ----------------------------------------------------------------------------------------------------------------------#
+ui.enderskills.desc.stats.shift=§f§l§oHold SHIFT for stats.
+ui.enderskills.desc.stats.endurance=§fEndurance Drain: %1$s
+ui.enderskills.desc.stats.level_max=§f§lLevel: §r§oMAX
+ui.enderskills.desc.stats.level_current=§f§lLevel: §r§oCurrent
+ui.enderskills.desc.stats.level_next=§f§lLevel: §r§oNext
+ui.enderskills.desc.stats.when_electrified=§o* When electrified
+ui.enderskills.desc.stats.cooldown=§fCooldown: §r§o%1$s§l%2$s
+ui.enderskills.desc.stats.duration=§fDuration: §r%1$s%2$s
+ui.enderskills.desc.stats.mirror_damage=§fMirror Damage: §r%1$s%2$s
+ui.enderskills.desc.stats.stun=§fStun: §r%1$s%2$s
+ui.enderskills.desc.stats.heal=§fHeal: §r%1$s%2$s
+ui.enderskills.desc.stats.health=§fHealth: §r%1$s%2$s
+ui.enderskills.desc.stats.damage=§fDamage: §r%1$s%2$s
+ui.enderskills.desc.stats.push_distance=§fPush Distance: §r%1$s%2$s
+ui.enderskills.desc.stats.launch_force=§fLaunch Force: §r%1$s%2$s
+ui.enderskills.desc.stats.portal_range=§fPortal Range: §r%1$s%2$s
+ui.enderskills.desc.stats.portal_teleport_range=§fPortal Teleport Range: §r%1$s%2$s
+ui.enderskills.desc.stats.jumps=§fJumps: §r+%1$s
+ui.enderskills.desc.stats.boost=§fBoost: §r+%1$s%2$s
+ui.enderskills.desc.stats.slow=§fSlow: §r+%1$s%2$s
+ui.enderskills.desc.stats.distance=§fDistance: §r%1$s%2$s
+ui.enderskills.desc.stats.range=§fRange: §r%1$s%2$s
+ui.enderskills.desc.stats.dot=§fDoT: §r%1$s%2$s
+ui.enderskills.desc.stats.initial_dot=§fInital DoT: §r%1$s
+ui.enderskills.desc.stats.bleed=§fBleed: §r%1$s%2$s
+ui.enderskills.desc.stats.pool_duration=§fPool Duration: §r%1$s%2$s
+ui.enderskills.desc.stats.pool_size=§fPool Size: §r%1$s%2$s
+ui.enderskills.desc.stats.reduction=§fReduction: §r%1$s%2$s
+ui.enderskills.desc.stats.ap=§fAP: §r+%1$s%2$s
+ui.enderskills.desc.stats.dmg=§fDmg: §r+%1$s%2$s
+ui.enderskills.desc.stats.piercing=§fPiercing: §r+%1$s%2$s
+ui.enderskills.desc.stats.strength=§fStrength: §r+%1$s%2$s
+ui.enderskills.desc.stats.black_hole_duration=§fBlack Hole Duration: §r%1$s
+ui.enderskills.desc.stats.black_hole_range=§fBlack Hole Range: §r%1$s%2$s
+ui.enderskills.desc.stats.grasp_duration=§fGrasp Duration: §r%1$s
+ui.enderskills.desc.stats.grasp_range=§fGrasp Range: §r%1$s%2$s
+ui.enderskills.desc.stats.gas_duration=§fGas Duration: §r%1$s
+ui.enderskills.desc.stats.gas_range=§fGas Range: §r%1$s%2$s
+ui.enderskills.desc.stats.rain_duration=§fRain Duration: §r%1$s%2$s
+ui.enderskills.desc.stats.rain_range=§fRain Range: §r%1$s%2$s
+ui.enderskills.desc.stats.suffocate_range=§fSuffocate Range: §r%1$s%2$s
+ui.enderskills.desc.stats.suffocate_dot=§fSuffocate DoT: §r%1$s%2$s
+ui.enderskills.desc.stats.lift_range=§fLift Range: §r%1$s%2$s
+ui.enderskills.desc.stats.lift_launch=§fLift Launch: §r%1$s%2$s
+ui.enderskills.desc.stats.explode_range=§fExplosion Range: §r%1$s%2$s
+ui.enderskills.desc.stats.crush_range=§fCrush Range: §r%1$s%2$s
+ui.enderskills.desc.stats.thorns_damage=§fThorns Damage: §r%1$s%2$s
+ui.enderskills.desc.stats.restore=§fRestore: §r%1$s%2$s
+ui.enderskills.desc.stats.cooldown_reduction=§fCooldown Reduction: §r%1$s%2$s
+
+ui.enderskills.desc.stats.suffix_time=s
+ui.enderskills.desc.stats.suffix_percentage=%%
+ui.enderskills.desc.stats.suffix_blocks=⠀Blocks
+ui.enderskills.desc.stats.suffix_hearts=⠀Hearts
+# ----------------------------------------------------------------------------------------------------------------------#
 ui.enderskills.tab.defense.title=Защита
 
 ui.enderskills.skill.explosion_resistance.title=Сопротивление урону от взрывов
@@ -203,7 +260,7 @@ ui.enderskills.skill.shockwave.title=Ударная волна
 ui.enderskills.skill.shockwave.description=Оглушает и отбрасывает всех в радиусе действия навыка.
 ui.enderskills.skill.animated_stone_golem.title=Оживленный каменный голем
 ui.enderskills.skill.animated_stone_golem.description=Вызывает голема, сражающегося на Вашей стороне.
-#----------------------------------------------------------------------------------------------------------------------#
+# ----------------------------------------------------------------------------------------------------------------------#
 ui.enderskills.tab.mobility.title=Мобильность
 
 ui.enderskills.skill.jump_height.title=Высота прыжка
@@ -245,7 +302,7 @@ ui.enderskills.skill.portal.description=Вызывает 2 связанных п
 ui.enderskills.skill.teleport.title=Телепортация
 ui.enderskills.skill.teleport.description=Позволяет телепортироваться в направлении курсора.
 
-#----------------------------------------------------------------------------------------------------------------------#
+# ----------------------------------------------------------------------------------------------------------------------#
 ui.enderskills.tab.offense.title=Нападение
 
 ui.enderskills.skill.damage.title=Урон
