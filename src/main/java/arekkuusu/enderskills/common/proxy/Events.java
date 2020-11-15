@@ -47,6 +47,13 @@ public class Events {
     }
 
     @SubscribeEvent
+    public static void onPlayerTrackEntity(net.minecraftforge.event.entity.player.PlayerEvent.StartTracking event) {
+        if(event.getTarget() instanceof EntityLivingBase) {
+            PacketHelper.sendSkillsSyncTracking((EntityPlayerMP) event.getEntity(), (EntityLivingBase) event.getTarget());
+        }
+    }
+
+    @SubscribeEvent
     public static void onPlayerRespawn(PlayerEvent.PlayerRespawnEvent event) {
         if (event.player instanceof EntityPlayerMP) {
             EntityPlayerMP player = (EntityPlayerMP) event.player;

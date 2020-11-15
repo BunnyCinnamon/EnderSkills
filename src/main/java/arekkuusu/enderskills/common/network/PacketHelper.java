@@ -58,6 +58,15 @@ public final class PacketHelper {
         });
     }
 
+    public static void sendSkillsSyncTracking(EntityPlayerMP player, EntityLivingBase entity) {
+        Capabilities.get(entity).ifPresent(s -> {
+            NBTTagCompound compound = new NBTTagCompound();
+            NBTHelper.setNBT(compound, "skills", s.serializeNBT());
+            NBTHelper.setEntity(compound, entity, "entity");
+            PacketHandler.NETWORK.sendTo(new ServerToClientPacket(PacketHandler.SYNC_SKILLS_TRACKING, compound), player);
+        });
+    }
+
     public static void sendSkillSync(EntityPlayerMP player, Skill skill) {
         Capabilities.get(player).flatMap(s -> s.getOwned(skill)).ifPresent(info -> {
             NBTTagCompound compound = new NBTTagCompound();

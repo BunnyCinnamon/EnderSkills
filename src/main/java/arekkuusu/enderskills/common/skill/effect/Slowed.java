@@ -20,7 +20,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 public class Slowed extends BaseEffect {
 
     public static final DynamicModifier SLOW_ATTRIBUTE = new DynamicModifier(
-            "7fda4255-02cd-4f20-b961-53c8530916be",
+            "9b5b0b97-d8a6-4a46-aaf6-d937e75ce5a4",
             LibMod.MOD_ID + ":" + LibNames.SLOWED,
             SharedMonsterAttributes.MOVEMENT_SPEED,
             Constants.AttributeModifierOperation.MULTIPLY

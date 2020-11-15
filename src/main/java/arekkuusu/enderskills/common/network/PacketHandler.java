@@ -61,6 +61,13 @@ public final class PacketHandler {
         });
     }));
 
+    public static final IPacketHandler SYNC_SKILLS_TRACKING = (((compound, context) -> {
+        EntityLivingBase entity = NBTHelper.getEntity(EntityLivingBase.class, compound, "entity");
+        Capabilities.get(entity).ifPresent(s -> {
+            s.deserializeNBT(compound.getCompoundTag("skills"));
+        });
+    }));
+
     public static final IPacketHandler SYNC_SKILL = (((compound, context) -> {
         EntityPlayer player = EnderSkills.getProxy().getPlayer();
         Capabilities.get(player).ifPresent(skills -> {
@@ -338,6 +345,7 @@ public final class PacketHandler {
         HANDLERS.add(SYNC_GLOBAL_CONFIG);
         HANDLERS.add(SYNC_SKILLS_CONFIG);
         HANDLERS.add(SYNC_SKILLS);
+        HANDLERS.add(SYNC_SKILLS_TRACKING);
         HANDLERS.add(SYNC_SKILL);
         HANDLERS.add(SYNC_WEIGHT);
         HANDLERS.add(CHANGE_WEIGHT);
