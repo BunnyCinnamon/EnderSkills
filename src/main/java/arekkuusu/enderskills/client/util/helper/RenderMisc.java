@@ -22,27 +22,19 @@ import java.util.Random;
 @SideOnly(Side.CLIENT)
 public final class RenderMisc {
 
-    public static int sphereId = 0;
-    public static int cubeId = 0;
-
-    public static void init() {
-        Sphere sphere = new Sphere();
-        sphereId = create(() -> {
-            GlStateManager.rotate(90F, 1F, 0F, 0F);
-            sphere.draw(1F, 32, 16);
-            GlStateManager.rotate(-90F, 1F, 0F, 0F);
-        });
-        cubeId = create(() -> {
-            drawCubeRaw();
-        });
-    }
-
-    public static void drawObj(int color, float alpha, int id) {
+    public static void drawObj(int color, float alpha, Runnable runnable) {
         float r = (color >> 16 & 255) / 255F;
         float g = (color >> 8 & 255) / 255F;
         float b = (color & 255) / 255F;
         GlStateManager.color(r, g, b, alpha);
-        GlStateManager.callList(id);
+        runnable.run();
+    }
+
+    public static void drawSphereRaw() {
+        Sphere sphere = new Sphere();
+        GlStateManager.rotate(90F, 1F, 0F, 0F);
+        sphere.draw(1F, 32, 16);
+        GlStateManager.rotate(-90F, 1F, 0F, 0F);
     }
 
     public static void drawCubeRaw() {

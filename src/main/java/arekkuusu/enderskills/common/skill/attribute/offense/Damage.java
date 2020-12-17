@@ -102,7 +102,7 @@ public class Damage extends BaseAttribute implements ISkillAdvancement {
                         if (attributeInfo.getLevel() >= getMaxLevel()) {
                             description.add(TextHelper.translate("desc.stats.level_max"));
                         } else {
-                            description.add(TextHelper.translate("desc.stats.level_current"));
+                            description.add(TextHelper.translate("desc.stats.level_current", attributeInfo.getLevel(), attributeInfo.getLevel() + 1));
                         }
                         if (Configuration.getSyncValues().extra.multiplyDamage) {
                             description.add(TextHelper.translate("desc.stats.dmg", TextHelper.format2FloatPoint(getModifierMultiplication(attributeInfo) * 100), TextHelper.getTextComponent("desc.stats.suffix_percentage")));
@@ -113,7 +113,7 @@ public class Damage extends BaseAttribute implements ISkillAdvancement {
                             AttributeInfo infoNew = new AttributeInfo(attributeInfo.serializeNBT());
                             infoNew.setLevel(infoNew.getLevel() + 1);
                             description.add("");
-                            description.add(TextHelper.translate("desc.stats.level_next"));
+                            description.add(TextHelper.translate("desc.stats.level_next", attributeInfo.getLevel(), infoNew.getLevel()));
                             if (Configuration.getSyncValues().extra.multiplyDamage) {
                                 description.add(TextHelper.translate("desc.stats.dmg", TextHelper.format2FloatPoint(getModifierMultiplication(infoNew) * 100), TextHelper.getTextComponent("desc.stats.suffix_percentage")));
                             } else {

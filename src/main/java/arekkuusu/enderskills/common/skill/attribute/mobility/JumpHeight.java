@@ -86,14 +86,14 @@ public class JumpHeight extends BaseAttribute implements ISkillAdvancement {
                         if (attributeInfo.getLevel() >= getMaxLevel()) {
                             description.add(TextHelper.translate("desc.stats.level_max"));
                         } else {
-                            description.add(TextHelper.translate("desc.stats.level_current"));
+                            description.add(TextHelper.translate("desc.stats.level_current", attributeInfo.getLevel(), attributeInfo.getLevel() + 1));
                         }
                         description.add(TextHelper.translate("desc.stats.boost", TextHelper.format2FloatPoint(getModifier(attributeInfo)), TextHelper.getTextComponent("desc.stats.suffix_blocks")));
                         if (attributeInfo.getLevel() < getMaxLevel()) { //Copy info and set a higher level.
                             AttributeInfo infoNew = new AttributeInfo(attributeInfo.serializeNBT());
                             infoNew.setLevel(infoNew.getLevel() + 1);
                             description.add("");
-                            description.add(TextHelper.translate("desc.stats.level_next"));
+                            description.add(TextHelper.translate("desc.stats.level_next", attributeInfo.getLevel(), infoNew.getLevel()));
                             description.add(TextHelper.translate("desc.stats.boost", TextHelper.format2FloatPoint(getModifier(infoNew)), TextHelper.getTextComponent("desc.stats.suffix_blocks")));
                         }
                     });

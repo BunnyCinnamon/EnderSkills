@@ -102,7 +102,6 @@ public class GuiSkillAdvancementSimple extends GuiSkillAdvancement {
                 if (skillTier > 0) {
                     String tier = String.valueOf(skillTier);
                     if (skillTier > 9999) tier = "9999+";
-                    if (skillTier >= ((BaseSkill.BaseProperties) advancement.info.skill.getProperties()).getMaxLevel()) tier = "MAX";
                     drawString(mc.fontRenderer, tier, this.xOffset + 18 + 10 - mc.fontRenderer.getStringWidth(tier),
                             this.yOffset + 18 + mc.fontRenderer.FONT_HEIGHT / 2, -1);
                 }

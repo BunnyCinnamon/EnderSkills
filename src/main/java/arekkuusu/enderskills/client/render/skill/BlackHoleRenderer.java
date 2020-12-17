@@ -99,7 +99,7 @@ public class BlackHoleRenderer extends SkillRenderer<BlackHole> {
             scale *= entity.getRadius() * 1.5F;
             GlStateManager.scale(scale, scale, scale);
             GlStateManager.scale(0.6F, 0.6F, 0.6F);
-            RenderMisc.drawObj(0xFFFFFF, 1F, RenderMisc.sphereId);
+            RenderMisc.drawObj(0xFFFFFF, 1F, RenderMisc::drawSphereRaw);
             GlStateManager.popMatrix();
         }
 

@@ -42,7 +42,7 @@ public class InvulnerableRenderer extends SkillRenderer<Invulnerable> {
                 Entity entity = event.getEntity();
                 GlStateManager.color(1F, 1F, 1F, 1F);
                 GlStateManager.pushMatrix();
-                GlStateManager.translate(event.getX(), event.getY() + entity.height + 0.5D, event.getZ());
+                GlStateManager.translate(event.getX(), event.getY() + entity.height + 0.25D, event.getZ());
                 GlStateManager.rotate(180, 1F, 0, 0);
                 GlStateManager.rotate(entity.ticksExisted * 0.75F % 360F, 0F, 1F, 0F);
                 GLHelper.BLEND_SRC_ALPHA$ONE.blend();

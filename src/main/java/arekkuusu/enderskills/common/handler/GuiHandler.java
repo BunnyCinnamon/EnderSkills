@@ -26,14 +26,7 @@ public final class GuiHandler implements IGuiHandler {
 
     @Override
     public Object getServerGuiElement(int id, EntityPlayer player, World world, int x, int y, int z) {
-        switch (id) {
-            case LibGui.LEVEL_EDITING:
-                return null;
-            case LibGui.PAUSE_ALL:
-                return null;
-            default:
-                return null;
-        }
+        return null;
     }
 
     @SideOnly(Side.CLIENT)

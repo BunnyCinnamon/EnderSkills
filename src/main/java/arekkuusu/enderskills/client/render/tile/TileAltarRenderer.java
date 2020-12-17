@@ -96,7 +96,7 @@ public class TileAltarRenderer extends TileEntitySpecialRenderer<TileAltar> {
             drawVoid();
             float scale = 1 + (tile.lastLevelAnimationTimer / 50F) * 4F;
             GlStateManager.scale(scale, scale, scale);
-            RenderMisc.drawObj(0xFFFFFF, tile.lastLevelAnimationTimer / 50F, RenderMisc.sphereId);
+            RenderMisc.drawObj(0xFFFFFF, tile.lastLevelAnimationTimer / 50F, RenderMisc::drawSphereRaw);
             GL11.glDisable(3042);
             if (!ClientConfig.RENDER_CONFIG.rendering.helpMyFramesAreDying) {
                 if (!ClientConfig.RENDER_CONFIG.rendering.vanilla) {

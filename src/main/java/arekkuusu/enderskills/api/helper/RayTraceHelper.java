@@ -361,7 +361,10 @@ public final class RayTraceHelper {
                     Block block1 = state.getBlock();
 
                     if (state.getCollisionBoundingBox(world, blockpos) != Block.NULL_AABB && block1.canCollideCheck(state, false)) {
-                        return state.collisionRayTrace(world, blockpos, vecFrom, vecTo);
+                        RayTraceResult temp = state.collisionRayTrace(world, blockpos, vecFrom, vecTo);
+                        if (temp != null || state.getCollisionBoundingBox(world, blockpos) == Block.FULL_BLOCK_AABB) {
+                            return temp;
+                        }
                     }
                 }
                 return null;

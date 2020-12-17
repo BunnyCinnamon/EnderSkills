@@ -73,7 +73,6 @@ public class ClientProxy implements IProxy {
         KeyBounds.init();
         ShaderLibrary.init();
         ModRenders.init();
-        RenderMisc.init();
     }
 
     @Override
