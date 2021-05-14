@@ -6,7 +6,6 @@ import arekkuusu.enderskills.client.util.ResourceLibrary;
 import arekkuusu.enderskills.common.EnderSkills;
 import arekkuusu.enderskills.common.skill.ModAbilities;
 import arekkuusu.enderskills.common.skill.ability.defense.electric.Energize;
-import arekkuusu.enderskills.common.skill.ability.defense.light.HealOther;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.fml.relauncher.Side;
@@ -16,7 +15,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public class EnergizeRenderer extends SkillRenderer<Energize> {
 
     public EnergizeRenderer() {
-        EntityThrowableDataRenderer.add(ModAbilities.ENERGIZE, ProjectileElectric::new);
+        EntityThrowableDataRenderer.add(ModAbilities.ENERGIZE, ProjectileElectricRenderer::new);
     }
 
     @Override

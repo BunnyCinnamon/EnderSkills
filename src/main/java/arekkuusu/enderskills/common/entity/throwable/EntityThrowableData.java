@@ -1,6 +1,7 @@
 package arekkuusu.enderskills.common.entity.throwable;
 
 import arekkuusu.enderskills.api.capability.data.SkillData;
+import arekkuusu.enderskills.api.helper.RayTraceHelper;
 import arekkuusu.enderskills.common.entity.data.IImpact;
 import arekkuusu.enderskills.common.entity.data.SkillExtendedData;
 import net.minecraft.entity.EntityLivingBase;
@@ -30,9 +31,11 @@ public class EntityThrowableData extends EntityThrowableCustom {
         this.dataManager.register(DATA, new SkillExtendedData(null));
     }
 
+    @Override
     public void onImpact(RayTraceResult result) {
         if (getData().skill instanceof IImpact) {
-            ((IImpact) getData().skill).onImpact(this, getThrower(), getData().copy(), result);
+            EntityLivingBase thrower = getEntityByUUID(getOwnerId());
+            ((IImpact) getData().skill).onImpact(this, thrower, getData().copy(), result);
         }
     }
 
@@ -57,15 +60,33 @@ public class EntityThrowableData extends EntityThrowableCustom {
     }
 
     public void throwAndSpawn() {
-        EntityLivingBase owner = getThrower();
-        if (owner != null) {
-            shoot(owner, owner.rotationPitch, owner.rotationYaw, 0F, 3F, 0F);
-            owner.world.spawnEntity(this);
+        EntityLivingBase thrower = getEntityByUUID(getOwnerId());
+        if (thrower != null) {
+            shoot(thrower, thrower.rotationPitch, thrower.rotationYaw, 0F, 3F, 0F);
+            thrower.world.spawnEntity(this);
         }
     }
 
     public static void throwFor(EntityLivingBase owner, double distance, SkillData data, boolean gravity) {
         EntityThrowableData throwable = new EntityThrowableData(owner.world, owner, distance, data, gravity);
+        throwable.setOwnerId(owner.getUniqueID());
+        throwable.throwAndSpawn();
+    }
+
+    public static void throwFor(EntityLivingBase owner, EntityLivingBase target, double distance, SkillData data, boolean gravity) {
+        EntityThrowableData throwable = new EntityThrowableData(owner.world, owner, distance, data, gravity);
+        throwable.setOwnerId(owner.getUniqueID());
+        throwable.setFollowId(target.getUniqueID());
+        throwable.throwAndSpawn();
+    }
+
+    public static void throwForTarget(EntityLivingBase owner, double distance, SkillData data, boolean gravity) {
+        EntityThrowableData throwable = new EntityThrowableData(owner.world, owner, distance, data, gravity);
+        throwable.setOwnerId(owner.getUniqueID());
+        RayTraceHelper.getEntityLookedAt(owner, distance)
+                .filter(e -> e instanceof EntityLivingBase)
+                .map(e -> (EntityLivingBase) e)
+                .ifPresent(e -> throwable.setFollowId(e.getUniqueID()));
         throwable.throwAndSpawn();
     }
 }

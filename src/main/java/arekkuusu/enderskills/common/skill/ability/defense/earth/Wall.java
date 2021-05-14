@@ -60,10 +60,11 @@ public class Wall extends BaseAbility implements ISkillAdvancement {
                 }
                 EnumFacing cardinal = owner.getHorizontalFacing();
                 int size = getSize(abilityInfo);
+                int width = getWidth(abilityInfo);
 
                 EntityWall wall = new EntityWall(owner.world, SkillData.of(this).by(owner).create());
                 wall.setPosition(pos.getX() + 0.5D, pos.getY(), pos.getZ() + 0.5D);
-                wall.create(pos, cardinal, size, size, getTime(abilityInfo));
+                wall.create(pos, cardinal, width, size, getTime(abilityInfo));
                 wall.setLaunch(getLaunch(abilityInfo));
                 owner.world.spawnEntity(wall); //MANIFEST W A L L!!
                 sync(owner);
@@ -95,6 +96,14 @@ public class Wall extends BaseAbility implements ISkillAdvancement {
         int level = getLevel(info);
         int levelMax = getMaxLevel();
         double func = ExpressionHelper.getExpression(this, Configuration.getSyncValues().extra.size, level, levelMax);
+        double result = (func * CommonConfig.getSyncValues().skill.globalRange);
+        return (int) (result * getEffectiveness());
+    }
+
+    public int getWidth(AbilityInfo info) {
+        int level = getLevel(info);
+        int levelMax = getMaxLevel();
+        double func = ExpressionHelper.getExpression(this, Configuration.getSyncValues().extra.width, level, levelMax);
         double result = (func * CommonConfig.getSyncValues().skill.globalRange);
         return (int) (result * getEffectiveness());
     }
@@ -143,7 +152,7 @@ public class Wall extends BaseAbility implements ISkillAdvancement {
                         description.add(TextHelper.translate("desc.stats.endurance", String.valueOf(ModAttributes.ENDURANCE.getEnduranceDrain(this))));
                         description.add("");
                         if (abilityInfo.getLevel() >= getMaxLevel()) {
-                            description.add(TextHelper.translate("desc.stats.level_max"));
+                            description.add(TextHelper.translate("desc.stats.level_max", getMaxLevel()));
                         } else {
                             description.add(TextHelper.translate("desc.stats.level_current", abilityInfo.getLevel(), abilityInfo.getLevel() + 1));
                         }
@@ -199,6 +208,7 @@ public class Wall extends BaseAbility implements ISkillAdvancement {
         Configuration.getSyncValues().range = Configuration.getValues().range;
         Configuration.getSyncValues().effectiveness = Configuration.getValues().effectiveness;
         Configuration.getSyncValues().extra.size = Configuration.getValues().extra.size;
+        Configuration.getSyncValues().extra.width = Configuration.getValues().extra.width;
         Configuration.getSyncValues().extra.launch = Configuration.getValues().extra.launch;
         Configuration.getSyncValues().advancement.upgrade = Configuration.getValues().advancement.upgrade;
     }
@@ -211,6 +221,7 @@ public class Wall extends BaseAbility implements ISkillAdvancement {
         NBTHelper.setArray(compound, "range", Configuration.getValues().range);
         compound.setDouble("effectiveness", Configuration.getValues().effectiveness);
         NBTHelper.setArray(compound, "extra.size", Configuration.getValues().extra.size);
+        NBTHelper.setArray(compound, "extra.width", Configuration.getValues().extra.width);
         NBTHelper.setArray(compound, "extra.launch", Configuration.getValues().extra.launch);
         NBTHelper.setArray(compound, "advancement.upgrade", Configuration.getValues().advancement.upgrade);
     }
@@ -224,6 +235,7 @@ public class Wall extends BaseAbility implements ISkillAdvancement {
         Configuration.getSyncValues().range = NBTHelper.getArray(compound, "range");
         Configuration.getSyncValues().effectiveness = compound.getDouble("effectiveness");
         Configuration.getSyncValues().extra.size = NBTHelper.getArray(compound, "extra.size");
+        Configuration.getSyncValues().extra.width = NBTHelper.getArray(compound, "extra.width");
         Configuration.getSyncValues().extra.launch = NBTHelper.getArray(compound, "extra.launch");
         Configuration.getSyncValues().advancement.upgrade = NBTHelper.getArray(compound, "advancement.upgrade");
     }
@@ -283,6 +295,10 @@ public class Wall extends BaseAbility implements ISkillAdvancement {
             public static class Extra {
                 @Config.Comment("Wall Size Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
                 public String[] size = {
+                        "(0+){5}"
+                };
+                @Config.Comment("Wall Width Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
+                public String[] width = {
                         "(0+){5}"
                 };
                 @Config.Comment("Wall Launch Force Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")

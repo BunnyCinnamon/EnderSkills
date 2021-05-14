@@ -1,5 +1,6 @@
 package arekkuusu.enderskills.client.util.helper;
 
+import arekkuusu.enderskills.api.util.Quat;
 import arekkuusu.enderskills.api.util.Vector;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
@@ -12,6 +13,7 @@ import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.Entity;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.opengl.GL11;
@@ -105,6 +107,26 @@ public final class RenderMisc {
         double ty = entity.lastTickPosY + ((entity.posY - entity.lastTickPosY) * partial);
         double tz = entity.lastTickPosZ + ((entity.posZ - entity.lastTickPosZ) * partial);
         return new Vector(tx, ty, tz);
+    }
+
+    public static Vector getPositionVectorWithPartialTicks(Entity entity, float partialTicks) {
+        Vec3d vec = entity.getPositionEyes(1F);
+        Vector motion = new Vector(entity.motionX, entity.motionY, entity.motionZ);
+        double posX = vec.x + (entity.width / 2) * (entity.world.rand.nextDouble() - 0.5) + motion.x * partialTicks;
+        double posY = vec.y + (entity.height / 2) * (entity.world.rand.nextDouble() - 0.5) + motion.y * partialTicks;
+        double posZ = vec.z + (entity.width / 2) * (entity.world.rand.nextDouble() - 0.5) + motion.z * partialTicks;
+        return new Vector(posX, posY, posZ);
+    }
+
+    public static Vector getPerpendicularPositionVectorWithPartialTicks(Entity entity, float partialTicks, float i) {
+        Vector vec = new Vector(entity.getPositionEyes(1F));
+        Vector motion = new Vector(entity.motionX, entity.motionY, entity.motionZ);
+        double offset = entity.world.rand.nextDouble();
+
+        return motion.normalize()
+                .perpendicular().normalize().multiply(0.5D)
+                .rotate(Quat.fromAxisAngleRad(motion.normalize(), (entity.ticksExisted + partialTicks + i + 1F) * 90F * (float) Math.PI / 180F)).normalize()
+                .add(vec.add(motion.multiply(partialTicks).multiply(offset)));
     }
 
     private static final Random RAND = new Random();

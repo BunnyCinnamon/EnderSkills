@@ -203,7 +203,7 @@ public class Suffocate extends BaseAbility implements IImpact, ILoopSound, IScan
                         description.add(TextHelper.translate("desc.stats.endurance", String.valueOf(ModAttributes.ENDURANCE.getEnduranceDrain(this))));
                         description.add("");
                         if (abilityInfo.getLevel() >= getMaxLevel()) {
-                            description.add(TextHelper.translate("desc.stats.level_max"));
+                            description.add(TextHelper.translate("desc.stats.level_max", getMaxLevel()));
                         } else {
                             description.add(TextHelper.translate("desc.stats.level_current", abilityInfo.getLevel(), abilityInfo.getLevel() + 1));
                         }

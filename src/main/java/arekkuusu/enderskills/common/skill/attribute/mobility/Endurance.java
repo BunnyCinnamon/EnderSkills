@@ -78,6 +78,9 @@ public class Endurance extends BaseAttribute implements ISkillAdvancement {
                         double amount = entity.getEntityAttribute(Endurance.MAX_ENDURANCE).getAttributeValue();
                         if (enduranceCapability.getEndurance() > amount) {
                             enduranceCapability.setEndurance(amount);
+                            if (entity instanceof EntityPlayerMP) {
+                                PacketHelper.sendEnduranceSync((EntityPlayerMP) entity);
+                            }
                         }
                     });
                 }
@@ -88,7 +91,7 @@ public class Endurance extends BaseAttribute implements ISkillAdvancement {
     @SubscribeEvent
     public void attachCapabilities(AttachCapabilitiesEvent<Entity> event) {
         if (event.getObject() instanceof EntityLivingBase)
-            ((EntityLivingBase) event.getObject()).getAttributeMap().registerAttribute(MAX_ENDURANCE).setBaseValue(40);
+            ((EntityLivingBase) event.getObject()).getAttributeMap().registerAttribute(MAX_ENDURANCE).setBaseValue(40F);
     }
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
@@ -100,6 +103,9 @@ public class Endurance extends BaseAttribute implements ISkillAdvancement {
                 } else if (capability.getEndurance() < event.getEntityLiving().getEntityAttribute(Endurance.MAX_ENDURANCE).getAttributeValue()) {
                     capability.setEnduranceDelay(10); //Every half a second
                     capability.setEndurance(capability.getEndurance() + 1);
+                } else if(capability.getEndurance() > event.getEntityLiving().getEntityAttribute(Endurance.MAX_ENDURANCE).getAttributeValue()) {
+                    capability.setEnduranceDelay(10); //Every half a second
+                    capability.setEndurance(capability.getEndurance() - 1);
                 }
             });
         }
@@ -341,6 +347,13 @@ public class Endurance extends BaseAttribute implements ISkillAdvancement {
                         .put(LibMod.MOD_ID + ":" + LibNames.POWER_DRAIN, 12)
                         .put(LibMod.MOD_ID + ":" + LibNames.ENERGIZE, 12)
                         .put(LibMod.MOD_ID + ":" + LibNames.VOLTAIC_SENTINEL, 16)
+                        //Defense-Fire
+                        .put(LibMod.MOD_ID + ":" + LibNames.FLARES, 1)
+                        .put(LibMod.MOD_ID + ":" + LibNames.RING_OF_FIRE, 4)
+                        .put(LibMod.MOD_ID + ":" + LibNames.BLAZING_AURA, 1)
+                        .put(LibMod.MOD_ID + ":" + LibNames.OVERHEAT, 12)
+                        .put(LibMod.MOD_ID + ":" + LibNames.WARM_HEART, 12)
+                        .put(LibMod.MOD_ID + ":" + LibNames.HOME_STAR, 16)
                         //Mobility-Wind
                         .put(LibMod.MOD_ID + ":" + LibNames.DASH, 4)
                         .put(LibMod.MOD_ID + ":" + LibNames.EXTRA_JUMP, 2)

@@ -5,6 +5,7 @@ import arekkuusu.enderskills.common.lib.LibMod;
 import arekkuusu.enderskills.common.skill.ability.BaseAbility;
 import arekkuusu.enderskills.common.skill.ability.defense.earth.*;
 import arekkuusu.enderskills.common.skill.ability.defense.electric.*;
+import arekkuusu.enderskills.common.skill.ability.defense.fire.*;
 import arekkuusu.enderskills.common.skill.ability.defense.light.*;
 import arekkuusu.enderskills.common.skill.ability.mobility.ender.*;
 import arekkuusu.enderskills.common.skill.ability.mobility.wind.*;
@@ -48,6 +49,13 @@ public final class ModAbilities {
     public static final Skill POWER_DRAIN = empty();
     public static final Skill ENERGIZE = empty();
     public static final Skill VOLTAIC_SENTINEL = empty();
+    //Defense-Fire
+    public static final Skill FLARES = empty();
+    public static final Skill BLAZING_AURA = empty();
+    public static final Skill RING_OF_FIRE = empty();
+    public static final Skill OVERHEAT = empty();
+    public static final Skill WARM_HEART = empty();
+    public static final Skill HOME_STAR = empty();
     //Mobility-Wind
     public static final Dash DASH = empty();
     public static final Skill EXTRA_JUMP = empty();
@@ -115,6 +123,13 @@ public final class ModAbilities {
         registry.register(new PowerDrain());
         registry.register(new Energize());
         registry.register(new VoltaicSentinel());
+        //Defense-Fire
+        registry.register(new Flares());
+        registry.register(new BlazingAura());
+        registry.register(new RingOfFire());
+        registry.register(new Overheat());
+        registry.register(new WarmHeart());
+        registry.register(new HomeStar());
         //Mobility-Wind
         registry.register(new Dash());
         registry.register(new ExtraJump());

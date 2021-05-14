@@ -39,7 +39,7 @@ public class GloomRenderer extends SkillRenderer<Gloom> {
     public static final List<Beam> BEAMS = Lists.newArrayList();
 
     public GloomRenderer() {
-        EntityThrowableDataRenderer.add(ModAbilities.GLOOM, ProjectileVoid::new);
+        EntityThrowableDataRenderer.add(ModAbilities.GLOOM, ProjectileVoidRenderer::new);
         MinecraftForge.EVENT_BUS.register(new Events());
     }
 

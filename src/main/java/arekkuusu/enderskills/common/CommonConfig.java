@@ -79,6 +79,7 @@ public final class CommonConfig {
         compound.setInteger("advancement.maxResetUnlocks", CommonConfig.getValues().advancement.maxResetUnlocks);
         NBTHelper.setArray(compound, "advancement.levels.function", CommonConfig.getValues().advancement.levels.function);
         compound.setInteger("advancement.levels.defaultLevel", CommonConfig.getValues().advancement.levels.defaultLevel);
+        compound.setBoolean("destroyBlocks", CommonConfig.getValues().skill.destroyBlocks);
         compound.setBoolean("defaultHumanTeam", CommonConfig.getValues().skill.defaultHumanTeam);
         compound.setBoolean("defaultAnimalTeam", CommonConfig.getValues().skill.defaultAnimalTeam);
         compound.setDouble("globalCooldown", CommonConfig.getValues().skill.globalCooldown);
@@ -104,6 +105,7 @@ public final class CommonConfig {
         CommonConfig.getSyncValues().advancement.maxResetUnlocks = compound.getInteger("advancement.maxResetUnlocks");
         CommonConfig.getSyncValues().advancement.levels.function = NBTHelper.getArray(compound, "advancement.levels.function");
         CommonConfig.getSyncValues().advancement.levels.defaultLevel = compound.getInteger("advancement.levels.defaultLevel");
+        CommonConfig.getSyncValues().skill.destroyBlocks = compound.getBoolean("destroyBlocks");
         CommonConfig.getSyncValues().skill.defaultHumanTeam = compound.getBoolean("defaultHumanTeam");
         CommonConfig.getSyncValues().skill.defaultAnimalTeam = compound.getBoolean("defaultAnimalTeam");
         CommonConfig.getSyncValues().skill.globalCooldown = compound.getDouble("globalCooldown");
@@ -131,6 +133,9 @@ public final class CommonConfig {
         public static class SkillGlobalConfig {
 
             public final Extra extra = new Extra();
+
+            @Config.Comment("Disallows abilities to break blocks")
+            public boolean destroyBlocks = false;
 
             @Config.Comment("Disallows abilities to target humans")
             public boolean defaultHumanTeam = true;

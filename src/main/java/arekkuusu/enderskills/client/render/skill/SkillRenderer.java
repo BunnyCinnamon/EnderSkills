@@ -34,11 +34,11 @@ public abstract class SkillRenderer<T extends Skill> {
         return tick < midBlend ? blend * (tick / midBlend) : blend * (1F - ((tick - midBlend) / midBlend));
     }
 
-    public void bindTexture(ResourceLocation location) {
-        Minecraft.getMinecraft().getRenderManager().renderEngine.bindTexture(location);
-    }
-
     public void setDispatcher(SkillRendererDispatcher dispatcher) {
         this.dispatcher = dispatcher;
+    }
+
+    public static void bindTexture(ResourceLocation location) {
+        Minecraft.getMinecraft().getRenderManager().renderEngine.bindTexture(location);
     }
 }

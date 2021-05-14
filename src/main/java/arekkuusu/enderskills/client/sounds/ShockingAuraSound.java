@@ -24,6 +24,7 @@ public class ShockingAuraSound extends MovingSound {
         this.yPosF = (float) entity.posY;
         this.zPosF = (float) entity.posZ;
         this.repeat = true;
+        this.volume = 0.25F;
     }
 
     @Override

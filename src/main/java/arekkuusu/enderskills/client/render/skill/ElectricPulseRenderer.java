@@ -47,8 +47,11 @@ public class ElectricPulseRenderer extends SkillRenderer<ElectricPulse> {
             if (MinecraftForgeClient.getRenderPass() != 1) return;
             int tick = Math.min(entity.tick, EntityPlaceableData.MIN_TIME);
             double scale = entity.getRadius() * ((double) tick / (double) EntityPlaceableData.MIN_TIME);
-            double offset = entity.getRadius() * ((double) tick / (double) EntityPlaceableData.MIN_TIME);
-            GlStateManager.color(1F, 1F, 1F, 1F);
+            renderAuraFence(x, y, z, scale, entity.tick, partialTicks);
+            renderAura(x, y, z, scale, entity.tick, Minecraft.getSystemTime(), (tick / (float) EntityPlaceableData.MIN_TIME));
+        }
+
+        public void renderAuraFence(double x, double y, double z, double scale, float tick, float partialTicks) {
             //Render electricity
             GlStateManager.pushMatrix();
             GlStateManager.color(0.608F, 0.508F, 0.19F, 1F);
@@ -61,12 +64,13 @@ public class ElectricPulseRenderer extends SkillRenderer<ElectricPulse> {
             GlStateManager.disableLighting();
             GlStateManager.enableBlend();
             GlStateManager.translate(x, y, z);
-            renderFence(entity, 0F, (float) scale + (((entity.ticksExisted + partialTicks) % 10F) / 10F) * 0.5F, 0, partialTicks, 1.5F, 3, scale);
-            renderFence(entity, 0F, (float) scale + (((entity.ticksExisted + partialTicks) % 10F) / 10F) * 0.5F, 0, partialTicks, 3F, 6, scale);
-            renderFence(entity, 0F, 0F + (((entity.ticksExisted + partialTicks) % 10F) / 10F) * 0.5F, 0, partialTicks, 1.5F, 2, scale);
-            renderFence(entity, 0F, 0F + (((entity.ticksExisted + partialTicks) % 10F) / 10F) * 0.5F, 0, partialTicks, 2.5F, 4, scale);
-            renderFence(entity, 0F, -(float) scale + (((entity.ticksExisted + partialTicks) % 10F) / 10F) * 0.5F, 0, partialTicks, 1.5F, 1, scale);
-            renderFence(entity, 0F, -(float) scale + (((entity.ticksExisted + partialTicks) % 10F) / 10F) * 0.5F, 0, partialTicks, 3F, 6, scale);
+            float y1 = 0F + (((tick + partialTicks) % 10F) / 10F) * 0.5F;
+            renderFence(0F, (float) scale + (((tick + partialTicks) % 10F) / 10F) * 0.5F, 0, tick, partialTicks, 1.5F, 3, scale);
+            renderFence(0F, (float) scale + (((tick + partialTicks) % 10F) / 10F) * 0.5F, 0, tick, partialTicks, 3F, 6, scale);
+            renderFence(0F, y1, 0, tick, partialTicks, 1.5F, 2, scale);
+            renderFence(0F, y1, 0, tick, partialTicks, 2.5F, 4, scale);
+            renderFence(0F, -(float) scale + (((tick + partialTicks) % 10F) / 10F) * 0.5F, 0, tick, partialTicks, 1.5F, 1, scale);
+            renderFence(0F, -(float) scale + (((tick + partialTicks) % 10F) / 10F) * 0.5F, 0, tick, partialTicks, 3F, 6, scale);
             GlStateManager.disableBlend();
             GlStateManager.enableLighting();
             if (!ClientConfig.RENDER_CONFIG.rendering.helpMyShadersAreDying) {
@@ -74,16 +78,20 @@ public class ElectricPulseRenderer extends SkillRenderer<ElectricPulse> {
             }
             GLHelper.BLEND_NORMAL.blend();
             GlStateManager.popMatrix();
+        }
+
+        public void renderAura(double x, double y, double z, double scale, float tick, long systemTime, float alpha) {
+            GlStateManager.color(1F, 1F, 1F, 1F);
             //Render cube
             GlStateManager.pushMatrix();
             GlStateManager.depthMask(false);
             GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_COLOR, GlStateManager.DestFactor.ONE);
             GlStateManager.pushMatrix();
-            GlStateManager.color(0.608F, 0.508F, 0.19F, 1F *((float) tick / (float) EntityPlaceableData.MIN_TIME));
+            GlStateManager.color(0.608F, 0.508F, 0.19F, alpha);
             Minecraft.getMinecraft().getTextureManager().bindTexture(GLINT);
             GlStateManager.matrixMode(GL11.GL_TEXTURE);
             //GlStateManager.scale(0.25F, 0.25F, 0.25F);
-            float i = (float) (Minecraft.getSystemTime() % 5000L) / 5000.0F * 6.0F;
+            float i = (systemTime % 5000L) / 5000.0F * 6.0F;
             GlStateManager.translate(i, 0.0F, 0.0F);
             //GlStateManager.rotate(-50.0F, 0.0F, 0.0F, 1.0F);
             GlStateManager.matrixMode(GL11.GL_MODELVIEW);
@@ -91,11 +99,11 @@ public class ElectricPulseRenderer extends SkillRenderer<ElectricPulse> {
             GlStateManager.popMatrix();
             //Render cube
             GlStateManager.pushMatrix();
-            GlStateManager.color(0.608F, 0.508F, 0.19F, 1F * ((float) tick / (float) EntityPlaceableData.MIN_TIME));
+            GlStateManager.color(0.608F, 0.508F, 0.19F, alpha);
             Minecraft.getMinecraft().getTextureManager().bindTexture(GLINT);
             GlStateManager.matrixMode(GL11.GL_TEXTURE);
             //GlStateManager.scale(0.25F, 0.25F, 0.25F);
-            float i0 = (float) (Minecraft.getSystemTime() % 6873L) / 6873.0F * 6.0F;
+            float i0 = (systemTime % 6873L) / 6873.0F * 6.0F;
             GlStateManager.translate(-i0, 0.0F, 0.0F);
             //GlStateManager.rotate(40.0F, 0.0F, 0.0F, 1.0F);
             GlStateManager.matrixMode(GL11.GL_MODELVIEW);
@@ -108,14 +116,14 @@ public class ElectricPulseRenderer extends SkillRenderer<ElectricPulse> {
             GlStateManager.matrixMode(GL11.GL_MODELVIEW);
         }
 
-        public void renderFence(Entity entity, float x, float y, float z, float partialTicks, float angleOffset, int textureOffset, double scale) {
+        public void renderFence(float x, float y, float z, float tick, float partialTicks, float angleOffset, int textureOffset, double scale) {
             GlStateManager.pushMatrix();
             GlStateManager.translate(x, y, z);
 
             for (int i = 0; i < 4; i++) {
-                UVFrame frame = SpriteLibrary.ELECTRIC_RING.getFrame(entity.ticksExisted + textureOffset + partialTicks + i);
+                UVFrame frame = SpriteLibrary.ELECTRIC_RING.getFrame(tick + textureOffset + partialTicks + i);
                 GlStateManager.pushMatrix();
-                GlStateManager.rotate(((360F / 4F) * i) + (entity.ticksExisted * angleOffset + partialTicks) % 360, 0F, 1F, 0F);
+                GlStateManager.rotate(((360F / 4F) * i) + (tick * angleOffset + partialTicks) % 360, 0F, 1F, 0F);
                 Tessellator tessellator = Tessellator.getInstance();
                 BufferBuilder buffer = tessellator.getBuffer();
                 buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);

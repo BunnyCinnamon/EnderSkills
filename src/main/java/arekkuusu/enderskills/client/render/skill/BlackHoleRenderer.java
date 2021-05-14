@@ -24,7 +24,7 @@ import javax.annotation.Nonnull;
 public class BlackHoleRenderer extends SkillRenderer<BlackHole> {
 
     public BlackHoleRenderer() {
-        EntityThrowableDataRenderer.add(ModAbilities.BLACK_HOLE, ProjectileVoid::new);
+        EntityThrowableDataRenderer.add(ModAbilities.BLACK_HOLE, ProjectileVoidRenderer::new);
     }
 
     public static class Placeable extends Render<EntityBlackHole> {

@@ -28,6 +28,7 @@ public class ModEffects {
     public static final BaseEffect VOIDED = empty();
     public static final BaseEffect ROOTED = empty();
     public static final BaseEffect BLINDED = empty();
+    public static final BaseEffect PULSAR = empty();
 
     public static void register(IForgeRegistry<Skill> registry) {
         registry.register(new Overheal());
@@ -41,5 +42,6 @@ public class ModEffects {
         registry.register(new Voided());
         registry.register(new Rooted());
         registry.register(new Blinded());
+        registry.register(new Pulsar());
     }
 }

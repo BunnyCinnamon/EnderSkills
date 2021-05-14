@@ -58,22 +58,25 @@ public class Gloom extends BaseAbility implements IImpact, ISkillAdvancement {
     public void use(EntityLivingBase owner, SkillInfo skillInfo) {
         if (((IInfoCooldown) skillInfo).hasCooldown() || isClientWorld(owner)) return;
         AbilityInfo abilityInfo = (AbilityInfo) skillInfo;
-        double distance = getRange(abilityInfo);
 
         if (isActionable(owner) && canActivate(owner)) {
             if (!(owner instanceof EntityPlayer) || !((EntityPlayer) owner).capabilities.isCreativeMode) {
                 abilityInfo.setCooldown(getCooldown(abilityInfo));
             }
+            int time = getTime(abilityInfo);
+            double dot = getDoT(abilityInfo);
+            double damage = getDamage(abilityInfo);
+            double distance = getRange(abilityInfo);
             NBTTagCompound compound = new NBTTagCompound();
             NBTHelper.setEntity(compound, owner, "owner");
-            NBTHelper.setDouble(compound, "dot", getDoT(abilityInfo));
-            NBTHelper.setInteger(compound, "dotDuration", getTime(abilityInfo));
-            NBTHelper.setDouble(compound, "damage", getDamage(abilityInfo));
+            NBTHelper.setDouble(compound, "dot", dot);
+            NBTHelper.setInteger(compound, "dotDuration", time);
+            NBTHelper.setDouble(compound, "damage", damage);
             SkillData data = SkillData.of(this)
                     .with(getTime(abilityInfo))
                     .put(compound)
                     .create();
-            EntityThrowableData.throwFor(owner, distance, data, false);
+            EntityThrowableData.throwForTarget(owner, distance, data, false);
             sync(owner);
 
             if (owner.world instanceof WorldServer) {
@@ -178,7 +181,7 @@ public class Gloom extends BaseAbility implements IImpact, ISkillAdvancement {
                         description.add(TextHelper.translate("desc.stats.endurance", String.valueOf(ModAttributes.ENDURANCE.getEnduranceDrain(this))));
                         description.add("");
                         if (abilityInfo.getLevel() >= getMaxLevel()) {
-                            description.add(TextHelper.translate("desc.stats.level_max"));
+                            description.add(TextHelper.translate("desc.stats.level_max", getMaxLevel()));
                         } else {
                             description.add(TextHelper.translate("desc.stats.level_current", abilityInfo.getLevel(), abilityInfo.getLevel() + 1));
                         }
@@ -295,9 +298,9 @@ public class Gloom extends BaseAbility implements IImpact, ISkillAdvancement {
 
             @Config.Comment("Cooldown Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
             public String[] cooldown = {
-                    "(0+){20 * 20 + 8 * 20 * (1 - ((1 - (e^(-2.1 * (x/24)))) / (1 - e^(-2.1))))}",
-                    "(25+){16 * 20 + 4 * 20 * (1- (((e^(0.1 * ((x-24) / (y-24))) - 1)/((e^0.1) - 1))))}",
-                    "(50){14 * 20}"
+                    "(0+){8 * 20 + 4 * 20 * (1 - ((1 - (e^(-2.1 * (x/24)))) / (1 - e^(-2.1))))}",
+                    "(25+){12 * 20 + 4 * 20 * (1- (((e^(0.1 * ((x-24) / (y-24))) - 1)/((e^0.1) - 1))))}",
+                    "(50){16 * 20}"
             };
 
             @Config.Comment("Duration Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")

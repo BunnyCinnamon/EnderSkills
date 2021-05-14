@@ -5,8 +5,10 @@ import arekkuusu.enderskills.api.capability.data.SkillData;
 import arekkuusu.enderskills.api.helper.MathUtil;
 import arekkuusu.enderskills.api.helper.NBTHelper;
 import arekkuusu.enderskills.common.lib.LibNames;
+import arekkuusu.enderskills.common.network.PacketHelper;
 import arekkuusu.enderskills.common.skill.attribute.mobility.Endurance;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.common.MinecraftForge;
@@ -59,6 +61,9 @@ public class Overcharge extends BaseEffect {
             double endurance = capability.getEndurance();
             double remainingCharge = MathHelper.clamp((amount + endurance) - maxEndurance, 0, (maxEndurance * 1.5));
             capability.setEndurance(Math.min(endurance + amount, maxEndurance));
+            if (entity instanceof EntityPlayerMP) {
+                PacketHelper.sendEnduranceSync((EntityPlayerMP) entity);
+            }
             if (remainingCharge > 0) {
                 NBTTagCompound compound = new NBTTagCompound();
                 NBTHelper.setDouble(compound, "over_charge", remainingCharge);

@@ -22,10 +22,10 @@ public class TeamHelper {
     public static final Function<Entity, Predicate<Entity>> SELECTOR_ENEMY = (e) -> Predicates.and(NOT_SAME_TEAM.apply(e), NOT_CREATIVE, input -> input != e);
 
     public static <T extends Entity> Predicate<T> getAllyTeamPredicate(Entity owner) {
-        return Predicates.and(EntitySelectors.NOT_SPECTATING, Predicates.or(target -> target.isOnSameTeam(owner), HUMAN_TEAM));
+        return Predicates.and(EntitySelectors.NOT_SPECTATING, Predicates.or(target -> target != null && target.isOnSameTeam(owner), HUMAN_TEAM));
     }
 
     public static <T extends Entity> Predicate<T> getEnemyTeamPredicate(Entity owner) {
-        return Predicates.and(EntitySelectors.NOT_SPECTATING, Predicates.and(target -> !target.isOnSameTeam(owner), NOT_HUMAN_TEAM));
+        return Predicates.and(EntitySelectors.NOT_SPECTATING, Predicates.and(target -> target != null && !target.isOnSameTeam(owner), NOT_HUMAN_TEAM));
     }
 }

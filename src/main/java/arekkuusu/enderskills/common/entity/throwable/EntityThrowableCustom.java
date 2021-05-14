@@ -1,10 +1,12 @@
 package arekkuusu.enderskills.common.entity.throwable;
 
+import arekkuusu.enderskills.api.helper.NBTHelper;
 import arekkuusu.enderskills.api.helper.RayTraceHelper;
+import arekkuusu.enderskills.api.util.Vector;
+import com.google.common.base.Optional;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.IProjectile;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
@@ -14,7 +16,6 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
-import net.minecraft.world.WorldServer;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -24,10 +25,11 @@ import java.util.UUID;
 @SuppressWarnings("ConstantConditions")
 public abstract class EntityThrowableCustom extends Entity implements IProjectile {
 
-    public static final DataParameter<Integer> LIFE_TIME = EntityDataManager.createKey(EntityThrowableCustom.class, DataSerializers.VARINT);
-    public EntityLivingBase thrower;
+    public static final DataParameter<Float> DISTANCE = EntityDataManager.createKey(EntityThrowableCustom.class, DataSerializers.FLOAT);
+    public static final DataParameter<Optional<UUID>> OWNER_UNIQUE_ID = EntityDataManager.createKey(EntityThrowableCustom.class, DataSerializers.OPTIONAL_UNIQUE_ID);
+    public static final DataParameter<Optional<UUID>> FOLLOW_UNIQUE_ID = EntityDataManager.createKey(EntityThrowableCustom.class, DataSerializers.OPTIONAL_UNIQUE_ID);
+    public Vec3d startVector = Vec3d.ZERO;
     public int throwableShake;
-    public String throwerName;
     public int ticksInAir;
 
     public EntityThrowableCustom(World worldIn) {
@@ -36,7 +38,7 @@ public abstract class EntityThrowableCustom extends Entity implements IProjectil
         setSize(0.25F, 0.25F);
     }
 
-    public EntityThrowableCustom(World worldIn, EntityLivingBase owner, int lifeTime) {
+    public EntityThrowableCustom(World worldIn, EntityLivingBase owner, int distance) {
         this(worldIn);
         Vec3d posVec = new Vec3d(owner.posX, owner.posY + owner.getEyeHeight() - 0.10000000149011612D, owner.posZ);
         Vec3d lookVec = owner.getLookVec().normalize();
@@ -45,14 +47,17 @@ public abstract class EntityThrowableCustom extends Entity implements IProjectil
                 lookVec.y * 0.5,
                 lookVec.z * 0.5
         );
-        this.thrower = owner;
         setPosition(posVec.x, posVec.y, posVec.z);
         setNoGravity(true);
-        setLifeTime(lifeTime);
+        setDistance(distance);
+        this.startVector = posVec;
     }
 
+    @Override
     public void entityInit() {
-        this.dataManager.register(LIFE_TIME, 0);
+        this.dataManager.register(OWNER_UNIQUE_ID, Optional.absent());
+        this.dataManager.register(FOLLOW_UNIQUE_ID, Optional.absent());
+        this.dataManager.register(DISTANCE, 0F);
     }
 
     public abstract void onImpact(RayTraceResult result);
@@ -103,9 +108,10 @@ public abstract class EntityThrowableCustom extends Entity implements IProjectil
     public void onUpdate() {
         super.onUpdate();
         rotateTowardsMovement(this, 1F);
-        if (this.world.isRemote || (this.thrower == null || !this.thrower.isDead) && this.world.isBlockLoaded(new BlockPos(this))) {
+        EntityLivingBase thrower = getEntityByUUID(getOwnerId());
+        if (this.world.isRemote || (thrower == null || !thrower.isDead) && this.world.isBlockLoaded(new BlockPos(this))) {
             ++this.ticksInAir;
-            if (this.getLifeTime() <= ticksInAir) {
+            if (this.getDistance() <= this.startVector.distanceTo(getPositionVector())) {
                 if (!world.isRemote) {
                     RayTraceResult missResult = new RayTraceResult(RayTraceResult.Type.MISS, getPositionVector(), null, null);
                     onImpact(missResult);
@@ -113,10 +119,37 @@ public abstract class EntityThrowableCustom extends Entity implements IProjectil
                 }
             } else {
                 if (!world.isRemote) {
-                    RayTraceResult raytraceresult = RayTraceHelper.forwardsRaycast(this, true, this.ticksInAir >= 25, this.thrower);
+                    RayTraceResult raytraceresult = RayTraceHelper.forwardsRaycast(this, true, this.ticksInAir >= 25, thrower);
                     if (raytraceresult != null && !net.minecraftforge.event.ForgeEventFactory.onProjectileImpact(this, raytraceresult)) {
                         onImpact(raytraceresult);
                         setDead();
+                    }
+                }
+                if (getFollowId() != null) {
+                    EntityLivingBase follow = getEntityByUUID(getFollowId());
+                    if (follow != null && !follow.isDead) {
+                        Vec3d pos = follow.getPositionEyes(1F);
+                        Vec3d mov = new Vec3d(follow.motionX, follow.motionY, follow.motionZ);
+                        Vec3d nextPos = pos.add(mov);
+                        Vec3d currPos = getPositionEyes(1F);
+
+                        Vec3d diffPos = nextPos.subtract(currPos);
+                        diffPos = new Vector(diffPos).divide(diffPos.lengthVector()).toVec3d();
+
+                        double distEffect = 0.25D;
+                        if (diffPos.lengthVector() > 2)
+                            distEffect = diffPos.lengthVector() / startVector.distanceTo(pos);
+                        if(distEffect > 0.6)
+                            distEffect = 0.6;
+                        double strength = (0.2D - 0.2D * distEffect);
+                        this.motionX += diffPos.x * strength;
+                        if (hasNoGravity())
+                            this.motionY += diffPos.y * strength;
+                        this.motionZ += diffPos.z * strength;
+                        this.motionX *= 1 - distEffect;
+                        if (hasNoGravity())
+                            this.motionY *= 1 - distEffect;
+                        this.motionZ *= 1 - distEffect;
                     }
                 }
 
@@ -160,63 +193,67 @@ public abstract class EntityThrowableCustom extends Entity implements IProjectil
         projectile.rotationYaw = projectile.prevRotationYaw + (projectile.rotationYaw - projectile.prevRotationYaw) * rotationSpeed;
     }
 
+    @Nullable
+    public EntityLivingBase getEntityByUUID(UUID uuid) {
+        for (Entity entity : world.loadedEntityList) {
+            if (entity.getUniqueID().equals(uuid) && entity instanceof EntityLivingBase)
+                return (EntityLivingBase) entity;
+        }
+        return null;
+    }
+
+    @Nullable
+    public UUID getFollowId() {
+        return this.dataManager.get(FOLLOW_UNIQUE_ID).orNull();
+    }
+
+    @SuppressWarnings("Guava")
+    public void setFollowId(@Nullable UUID owner) {
+        this.dataManager.set(FOLLOW_UNIQUE_ID, Optional.fromNullable(owner));
+    }
+
+    @Nullable
+    public UUID getOwnerId() {
+        return this.dataManager.get(OWNER_UNIQUE_ID).orNull();
+    }
+
+    @SuppressWarnings("Guava")
+    public void setOwnerId(@Nullable UUID owner) {
+        this.dataManager.set(OWNER_UNIQUE_ID, Optional.fromNullable(owner));
+    }
+
     @Override
     public float getEyeHeight() {
         return this.height / 2;
     }
 
-    public void setLifeTime(int age) {
-        dataManager.set(LIFE_TIME, age);
+    public void setDistance(float distance) {
+        dataManager.set(DISTANCE, distance);
     }
 
-    public int getLifeTime() {
-        return dataManager.get(LIFE_TIME);
+    public float getDistance() {
+        return dataManager.get(DISTANCE);
     }
 
     @Override
     public void writeEntityToNBT(NBTTagCompound compound) {
-        compound.setInteger("lifeTime", getLifeTime());
+        compound.setFloat("distance", getDistance());
         compound.setByte("shake", (byte) this.throwableShake);
-
-        if ((this.throwerName == null || this.throwerName.isEmpty()) && this.thrower instanceof EntityPlayer) {
-            this.throwerName = this.thrower.getName();
+        compound.setUniqueId("thrower", getOwnerId());
+        NBTHelper.setVector(compound, "startVector", this.startVector);
+        if (getFollowId() != null) {
+            compound.setUniqueId("follow", getFollowId());
         }
-
-        compound.setString("ownerName", this.throwerName == null ? "" : this.throwerName);
     }
 
     @Override
     public void readEntityFromNBT(NBTTagCompound compound) {
-        setLifeTime(compound.getInteger("lifeTime"));
+        setDistance(compound.getFloat("distance"));
         this.throwableShake = compound.getByte("shake") & 255;
-        this.thrower = null;
-        this.throwerName = compound.getString("ownerName");
-
-        if (this.throwerName != null && this.throwerName.isEmpty()) {
-            this.throwerName = null;
+        this.startVector = NBTHelper.getVector(compound, "startVector");
+        setOwnerId(compound.getUniqueId("thrower"));
+        if (compound.hasKey("follow")) {
+            setFollowId(compound.getUniqueId("follow"));
         }
-
-        this.thrower = this.getThrower();
-    }
-
-    @Nullable
-    public EntityLivingBase getThrower() {
-        if (this.thrower == null && this.throwerName != null && !this.throwerName.isEmpty()) {
-            this.thrower = this.world.getPlayerEntityByName(this.throwerName);
-
-            if (this.thrower == null && this.world instanceof WorldServer) {
-                try {
-                    Entity entity = ((WorldServer) this.world).getEntityFromUuid(UUID.fromString(this.throwerName));
-
-                    if (entity instanceof EntityLivingBase) {
-                        this.thrower = (EntityLivingBase) entity;
-                    }
-                } catch (Throwable var2) {
-                    this.thrower = null;
-                }
-            }
-        }
-
-        return this.thrower;
     }
 }

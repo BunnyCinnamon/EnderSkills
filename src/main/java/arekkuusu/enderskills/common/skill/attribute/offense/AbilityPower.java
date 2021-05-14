@@ -4,22 +4,30 @@ import arekkuusu.enderskills.api.capability.Capabilities;
 import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoUpgradeable;
 import arekkuusu.enderskills.api.event.SkillDamageEvent;
 import arekkuusu.enderskills.api.helper.ExpressionHelper;
+import arekkuusu.enderskills.api.helper.MathUtil;
 import arekkuusu.enderskills.api.helper.NBTHelper;
 import arekkuusu.enderskills.client.gui.data.ISkillAdvancement;
-import arekkuusu.enderskills.client.util.helper.TextHelper;
 import arekkuusu.enderskills.client.util.helper.TextHelper;
 import arekkuusu.enderskills.common.CommonConfig;
 import arekkuusu.enderskills.common.lib.LibMod;
 import arekkuusu.enderskills.common.lib.LibNames;
+import arekkuusu.enderskills.common.skill.DynamicModifier;
 import arekkuusu.enderskills.common.skill.SkillHelper;
 import arekkuusu.enderskills.common.skill.attribute.AttributeInfo;
 import arekkuusu.enderskills.common.skill.attribute.BaseAttribute;
+import arekkuusu.enderskills.common.skill.attribute.mobility.Endurance;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.ai.attributes.IAttribute;
+import net.minecraft.entity.ai.attributes.RangedAttribute;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Config;
+import net.minecraftforge.common.util.Constants;
+import net.minecraftforge.event.AttachCapabilitiesEvent;
+import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
@@ -30,10 +38,36 @@ import java.util.List;
 
 public class AbilityPower extends BaseAttribute implements ISkillAdvancement {
 
+    //Vanilla Attribute
+    public static final IAttribute ABILITY_POWER = new RangedAttribute(null, "enderskills.generic.abilityPower", 0F, 0F, Float.MAX_VALUE).setDescription("Ability Power").setShouldWatch(true);
+    //Vanilla Attribute Modifier for Endurance attribute
+    public static final DynamicModifier ABILITY_POWER_ATTRIBUTE = new DynamicModifier(
+            "010bf31b-320d-4ef9-91ed-6f84adc38600",
+            LibMod.MOD_ID + ":" + LibNames.ABILITY_POWER,
+            AbilityPower.ABILITY_POWER,
+            Constants.AttributeModifierOperation.ADD);
+
     public AbilityPower() {
         super(LibNames.ABILITY_POWER, new BaseProperties());
         MinecraftForge.EVENT_BUS.register(this);
         ((BaseProperties) getProperties()).setMaxLevelGetter(this::getMaxLevel);
+    }
+
+    @SubscribeEvent(priority = EventPriority.LOWEST)
+    public void onEntityUpdate(LivingEvent.LivingUpdateEvent event) {
+        if (isClientWorld(event.getEntityLiving())) return;
+        EntityLivingBase entity = event.getEntityLiving();
+        if (entity.ticksExisted % 20 != 0) return; //Slowdown cowboy! yee-haw!
+        Capabilities.get(entity).ifPresent(capability -> {
+            if (capability.isOwned(this)) {
+                capability.getOwned(this).ifPresent(skillInfo -> {
+                    AttributeInfo attributeInfo = (AttributeInfo) skillInfo;
+                    ABILITY_POWER_ATTRIBUTE.apply(entity, getModifier(attributeInfo));
+                });
+            } else {
+                ABILITY_POWER_ATTRIBUTE.remove(entity);
+            }
+        });
     }
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
@@ -42,18 +76,20 @@ public class AbilityPower extends BaseAttribute implements ISkillAdvancement {
         if (isClientWorld(event.getEntityLiving()) || !SkillHelper.isSkillDamage(event.getSource())) return;
         if (event.getAmount() <= 0) return;
         EntityLivingBase entity = event.getEntityLiving();
-        Capabilities.get(entity).ifPresent(capability -> {
-            if (capability.isOwned(this)) {
-                capability.getOwned(this).ifPresent(skillInfo -> {
-                    AttributeInfo attributeInfo = (AttributeInfo) skillInfo;
-                    if (Configuration.getSyncValues().extra.multiplyDamage) {
-                        event.setAmount(event.getAmount() + event.getAmount() * getModifierMultiplication(attributeInfo));
-                    } else {
-                        event.setAmount(event.getAmount() + getModifierAddition(attributeInfo));
-                    }
-                });
+        double amount = entity.getEntityAttribute(AbilityPower.ABILITY_POWER).getAttributeValue();
+        if (!MathUtil.fuzzyEqual(0, amount)) {
+            if (Configuration.getSyncValues().extra.multiplyDamage) {
+                event.setAmount(event.getAmount() + event.getAmount() * amount);
+            } else {
+                event.setAmount(event.getAmount() + amount);
             }
-        });
+        }
+    }
+
+    @SubscribeEvent
+    public void attachCapabilities(AttachCapabilitiesEvent<Entity> event) {
+        if (event.getObject() instanceof EntityLivingBase)
+            ((EntityLivingBase) event.getObject()).getAttributeMap().registerAttribute(ABILITY_POWER).setBaseValue(0F);
     }
 
     public int getLevel(IInfoUpgradeable info) {
@@ -64,18 +100,11 @@ public class AbilityPower extends BaseAttribute implements ISkillAdvancement {
         return Configuration.getSyncValues().maxLevel;
     }
 
-    public int getModifierAddition(AttributeInfo info) {
+    public double getModifier(AttributeInfo info) {
         int level = getLevel(info);
         int levelMax = getMaxLevel();
         double func = ExpressionHelper.getExpression(this, Configuration.getSyncValues().modifier, level, levelMax);
-        return (int) (func * getEffectiveness());
-    }
-
-    public float getModifierMultiplication(AttributeInfo info) {
-        int level = getLevel(info);
-        int levelMax = getMaxLevel();
-        double func = ExpressionHelper.getExpression(this, Configuration.getSyncValues().modifier, level, levelMax);
-        return (float) (func * getEffectiveness());
+        return (func * getEffectiveness());
     }
 
     public double getEffectiveness() {
@@ -101,9 +130,9 @@ public class AbilityPower extends BaseAttribute implements ISkillAdvancement {
                             description.add(TextHelper.translate("desc.stats.level_current", attributeInfo.getLevel(), attributeInfo.getLevel() + 1));
                         }
                         if (Configuration.getSyncValues().extra.multiplyDamage) {
-                            description.add(TextHelper.translate("desc.stats.ap", TextHelper.format2FloatPoint(getModifierMultiplication(attributeInfo) * 100), TextHelper.getTextComponent("desc.stats.suffix_percentage")));
+                            description.add(TextHelper.translate("desc.stats.ap", TextHelper.format2FloatPoint(getModifier(attributeInfo) * 100), TextHelper.getTextComponent("desc.stats.suffix_percentage")));
                         } else {
-                            description.add(TextHelper.translate("desc.stats.ap", TextHelper.format2FloatPoint(getModifierAddition(attributeInfo) * 100)));
+                            description.add(TextHelper.translate("desc.stats.ap", TextHelper.format2FloatPoint(getModifier(attributeInfo))));
                         }
                         if (attributeInfo.getLevel() < getMaxLevel()) { //Copy info and set a higher level...
                             AttributeInfo infoNew = new AttributeInfo(attributeInfo.serializeNBT());
@@ -111,9 +140,9 @@ public class AbilityPower extends BaseAttribute implements ISkillAdvancement {
                             description.add("");
                             description.add(TextHelper.translate("desc.stats.level_next", attributeInfo.getLevel(), infoNew.getLevel()));
                             if (Configuration.getSyncValues().extra.multiplyDamage) {
-                                description.add(TextHelper.translate("desc.stats.ap", TextHelper.format2FloatPoint(getModifierMultiplication(infoNew) * 100), TextHelper.getTextComponent("desc.stats.suffix_percentage")));
+                                description.add(TextHelper.translate("desc.stats.ap", TextHelper.format2FloatPoint(getModifier(infoNew) * 100), TextHelper.getTextComponent("desc.stats.suffix_percentage")));
                             } else {
-                                description.add(TextHelper.translate("desc.stats.ap", TextHelper.format2FloatPoint(getModifierAddition(infoNew) * 100)));
+                                description.add(TextHelper.translate("desc.stats.ap", TextHelper.format2FloatPoint(getModifier(infoNew))));
                             }
                         }
                     });

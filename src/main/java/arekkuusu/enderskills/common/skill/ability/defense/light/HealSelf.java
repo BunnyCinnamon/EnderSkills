@@ -10,7 +10,7 @@ import arekkuusu.enderskills.api.helper.ExpressionHelper;
 import arekkuusu.enderskills.api.helper.NBTHelper;
 import arekkuusu.enderskills.api.registry.Skill;
 import arekkuusu.enderskills.client.gui.data.ISkillAdvancement;
-import arekkuusu.enderskills.client.util.helper.TextHelper;
+import arekkuusu.enderskills.client.util.ResourceLibrary;
 import arekkuusu.enderskills.client.util.helper.TextHelper;
 import arekkuusu.enderskills.common.CommonConfig;
 import arekkuusu.enderskills.common.EnderSkills;
@@ -28,6 +28,7 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.SoundCategory;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.config.Config;
 import net.minecraftforge.fml.relauncher.Side;
@@ -81,6 +82,17 @@ public class HealSelf extends BaseAbility implements ISkillAdvancement {
         });
     }
 
+    @Override
+    public void update(EntityLivingBase entity, SkillData data, int tick) {
+        if (isClientWorld(entity)) {
+            Vec3d vec = entity.getPositionVector();
+            double posX = vec.x;
+            double posY = vec.y + entity.height + 0.5D;
+            double posZ = vec.z;
+            EnderSkills.getProxy().spawnParticle(entity.world, new Vec3d(posX, posY, posZ), new Vec3d(0, 0.1, 0), 1, 50, 0x58DB11, ResourceLibrary.PLUS);
+        }
+    }
+
     public int getLevel(IInfoUpgradeable info) {
         return info.getLevel();
     }
@@ -125,7 +137,7 @@ public class HealSelf extends BaseAbility implements ISkillAdvancement {
                         description.add(TextHelper.translate("desc.stats.endurance", String.valueOf(ModAttributes.ENDURANCE.getEnduranceDrain(this))));
                         description.add("");
                         if (abilityInfo.getLevel() >= getMaxLevel()) {
-                            description.add(TextHelper.translate("desc.stats.level_max"));
+                            description.add(TextHelper.translate("desc.stats.level_max", getMaxLevel()));
                         } else {
                             description.add(TextHelper.translate("desc.stats.level_current", abilityInfo.getLevel(), abilityInfo.getLevel() + 1));
                         }

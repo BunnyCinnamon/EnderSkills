@@ -17,6 +17,7 @@ public class Vector {
     public static final Vector Forward = new Vector(0, 0, 1);
     public static final Vector Left = new Vector(-1, 0, 0);
     public static final Vector Right = new Vector(1, 0, 0);
+    public static final Vector Up = new Vector(0, 1, 0);
     public static final Vector Backward = new Vector(0, 0, -1);
 
     public final double x;
@@ -123,6 +124,14 @@ public class Vector {
     public Vector rotateRandom(Random random, float angle) {
         Quat quatX = Quat.fromAxisAngleRad(Vector.X, (random.nextFloat() - 0.5F) * angle * (float) Math.PI / 180F);
         Quat quatY = Quat.fromAxisAngleRad(Vector.Y, (random.nextFloat() - 0.5F) * angle * (float) Math.PI / 180F);
+        Quat quatZ = Quat.fromAxisAngleRad(Vector.Z, (random.nextFloat() - 0.5F) * angle * (float) Math.PI / 180F);
+        Quat rotation = quatX.multiply(quatY).multiply(quatZ);
+        return rotate(rotation);
+    }
+
+    public Vector rotateRandomXZ(Random random, float angle) {
+        Quat quatX = Quat.fromAxisAngleRad(Vector.X, (random.nextFloat() - 0.5F) * angle * (float) Math.PI / 180F);
+        Quat quatY = Quat.fromAxisAngleRad(Vector.Y, (random.nextFloat() - 0.5F) * 360F * (float) Math.PI / 180F);
         Quat quatZ = Quat.fromAxisAngleRad(Vector.Z, (random.nextFloat() - 0.5F) * angle * (float) Math.PI / 180F);
         Quat rotation = quatX.multiply(quatY).multiply(quatZ);
         return rotate(rotation);

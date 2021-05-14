@@ -538,14 +538,184 @@ public final class GuiHandler implements IGuiHandler {
                         electric.addAdvancement(explosion_resistance, damage_resistance, knockback_resistance);
                         electric.addAdvancement(magic_resistance, heart_boost, fire_resistance);
                     }
+                    GuiSkillAdvancementPage fire = defense.addPage(new TextComponentTranslation(get("page.fire.title")));
+                    SkillAdvancementConditionSimple flares = new SkillAdvancementConditionSimple(
+                            new SkillAdvancementInfo(
+                                    new TextComponentTranslation(get("skill.flares.title")),
+                                    new TextComponentTranslation(get("skill.flares.description")),
+                                    SkillAdvancementInfo.Frame.NORMAL,
+                                    ModAbilities.FLARES,
+                                    false
+                            ),
+                            0, 1
+                    );
+                    {
+                        //Attribute
+                        SkillAdvancementConditionAttribute explosion_resistance = new SkillAdvancementConditionAttribute(
+                                new SkillAdvancementInfo(
+                                        new TextComponentTranslation(get("skill.explosion_resistance.title")),
+                                        new TextComponentTranslation(get("skill.explosion_resistance.description")),
+                                        SkillAdvancementInfo.Frame.NORMAL,
+                                        ModAttributes.EXPLOSION_RESISTANCE,
+                                        false
+                                ),
+                                0, 5
+                        );
+                        SkillAdvancementConditionAttribute damage_resistance = new SkillAdvancementConditionAttribute(
+                                new SkillAdvancementInfo(
+                                        new TextComponentTranslation(get("skill.damage_resistance.title")),
+                                        new TextComponentTranslation(get("skill.damage_resistance.description")),
+                                        SkillAdvancementInfo.Frame.NORMAL,
+                                        ModAttributes.DAMAGE_RESISTANCE,
+                                        false
+                                ),
+                                0, 6
+                        );
+                        SkillAdvancementConditionAttribute knockback_resistance = new SkillAdvancementConditionAttribute(
+                                new SkillAdvancementInfo(
+                                        new TextComponentTranslation(get("skill.knockback_resistance.title")),
+                                        new TextComponentTranslation(get("skill.knockback_resistance.description")),
+                                        SkillAdvancementInfo.Frame.NORMAL,
+                                        ModAttributes.KNOCKBACK_RESISTANCE,
+                                        false
+                                ),
+                                0, 7
+                        );
+                        SkillAdvancementConditionAttribute magic_resistance = new SkillAdvancementConditionAttribute(
+                                new SkillAdvancementInfo(
+                                        new TextComponentTranslation(get("skill.magic_resistance.title")),
+                                        new TextComponentTranslation(get("skill.magic_resistance.description")),
+                                        SkillAdvancementInfo.Frame.NORMAL,
+                                        ModAttributes.MAGIC_RESISTANCE,
+                                        false
+                                ),
+                                2, 5
+                        );
+                        SkillAdvancementConditionAttribute heart_boost = new SkillAdvancementConditionAttribute(
+                                new SkillAdvancementInfo(
+                                        new TextComponentTranslation(get("skill.heart_boost.title")),
+                                        new TextComponentTranslation(get("skill.heart_boost.description")),
+                                        SkillAdvancementInfo.Frame.NORMAL,
+                                        ModAttributes.HEART_BOOST,
+                                        false
+                                ),
+                                2, 6
+                        );
+                        SkillAdvancementConditionAttribute fire_resistance = new SkillAdvancementConditionAttribute(
+                                new SkillAdvancementInfo(
+                                        new TextComponentTranslation(get("skill.fire_resistance.title")),
+                                        new TextComponentTranslation(get("skill.fire_resistance.description")),
+                                        SkillAdvancementInfo.Frame.NORMAL,
+                                        ModAttributes.FIRE_RESISTANCE,
+                                        false
+                                ),
+                                2, 7
+                        );
+                        //Ability
+                        SkillAdvancementConditionSimple blazing_aura = new SkillAdvancementConditionSimple(
+                                new SkillAdvancementInfo(
+                                        new TextComponentTranslation(get("skill.blazing_aura.title")),
+                                        new TextComponentTranslation(get("skill.blazing_aura.description")),
+                                        SkillAdvancementInfo.Frame.ROUNDED,
+                                        ModAbilities.BLAZING_AURA,
+                                        false
+                                ),
+                                2, 0
+                        );
+                        SkillAdvancementConditionSimple ring_of_fire = new SkillAdvancementConditionSimple(
+                                new SkillAdvancementInfo(
+                                        new TextComponentTranslation(get("skill.ring_of_fire.title")),
+                                        new TextComponentTranslation(get("skill.ring_of_fire.description")),
+                                        SkillAdvancementInfo.Frame.ROUNDED,
+                                        ModAbilities.RING_OF_FIRE,
+                                        false
+                                ),
+                                2, 2
+                        );
+                        SkillAdvancementConditionSimple overheat = new SkillAdvancementConditionSimple(
+                                new SkillAdvancementInfo(
+                                        new TextComponentTranslation(get("skill.overheat.title")),
+                                        new TextComponentTranslation(get("skill.overheat.description")),
+                                        SkillAdvancementInfo.Frame.ROUNDED,
+                                        ModAbilities.OVERHEAT,
+                                        false
+                                ),
+                                4, 0
+                        );
+                        SkillAdvancementConditionSimple warm_heart = new SkillAdvancementConditionSimple(
+                                new SkillAdvancementInfo(
+                                        new TextComponentTranslation(get("skill.warm_heart.title")),
+                                        new TextComponentTranslation(get("skill.warm_heart.description")),
+                                        SkillAdvancementInfo.Frame.ROUNDED,
+                                        ModAbilities.WARM_HEART,
+                                        false
+                                ),
+                                4, 2
+                        );
+                        SkillAdvancementConditionSimple home_star = new SkillAdvancementConditionSimple(
+                                new SkillAdvancementInfo(
+                                        new TextComponentTranslation(get("skill.home_star.title")),
+                                        new TextComponentTranslation(get("skill.home_star.description")),
+                                        SkillAdvancementInfo.Frame.SPECIAL,
+                                        ModAbilities.HOME_STAR,
+                                        false
+                                ),
+                                6, 1
+                        );
+
+                        //Requirements
+                        blazing_aura.addCondition(flares);
+                        blazing_aura.addCondition(new SkillAdvancementConditionNotOrOverride(ring_of_fire, home_star));
+                        ring_of_fire.addCondition(flares);
+                        ring_of_fire.addCondition(new SkillAdvancementConditionNotOrOverride(blazing_aura, home_star));
+                        overheat.addCondition(new SkillAdvancementConditionOr(blazing_aura, ring_of_fire));
+                        overheat.addCondition(new SkillAdvancementConditionNotOrOverride(warm_heart, home_star));
+                        overheat.addCondition(new SkillAdvancementConditionWhenOverrideOrUpgraded(overheat, home_star, blazing_aura, ring_of_fire));
+                        warm_heart.addCondition(new SkillAdvancementConditionOr(blazing_aura, ring_of_fire));
+                        warm_heart.addCondition(new SkillAdvancementConditionNotOrOverride(overheat, home_star));
+                        warm_heart.addCondition(new SkillAdvancementConditionWhenOverrideOrUpgraded(warm_heart, home_star, blazing_aura, ring_of_fire));
+                        home_star.addCondition(new SkillAdvancementConditionOr(warm_heart, overheat));
+                        explosion_resistance.addCondition(flares);
+                        damage_resistance.addCondition(flares);
+                        knockback_resistance.addCondition(flares);
+                        magic_resistance.addCondition(new SkillAdvancementConditionOr(blazing_aura, ring_of_fire));
+                        heart_boost.addCondition(new SkillAdvancementConditionOr(blazing_aura, ring_of_fire));
+                        fire_resistance.addCondition(new SkillAdvancementConditionOr(blazing_aura, ring_of_fire));
+                        //Altar Requirements
+                        magic_resistance.addCondition(new SkillAdvancementConditionAltar(SkillAdvancementConditionAltar.LEVEL_1));
+                        heart_boost.addCondition(new SkillAdvancementConditionAltar(SkillAdvancementConditionAltar.LEVEL_1));
+                        fire_resistance.addCondition(new SkillAdvancementConditionAltar(SkillAdvancementConditionAltar.LEVEL_1));
+                        flares.addCondition(new SkillAdvancementConditionAltar(SkillAdvancementConditionAltar.LEVEL_0));
+                        blazing_aura.addCondition(new SkillAdvancementConditionAltar(SkillAdvancementConditionAltar.LEVEL_1));
+                        ring_of_fire.addCondition(new SkillAdvancementConditionAltar(SkillAdvancementConditionAltar.LEVEL_1));
+                        overheat.addCondition(new SkillAdvancementConditionAltar(SkillAdvancementConditionAltar.LEVEL_2));
+                        warm_heart.addCondition(new SkillAdvancementConditionAltar(SkillAdvancementConditionAltar.LEVEL_2));
+                        home_star.addCondition(new SkillAdvancementConditionAltarUltimate());
+                        //GUI
+                        GuiSkillAdvancement gui0 = fire.addAdvancement(flares);
+                        GuiSkillAdvancement gui1 = fire.addAdvancement(blazing_aura, ring_of_fire);
+                        GuiSkillAdvancement gui2 = fire.addAdvancement(overheat, warm_heart);
+                        GuiSkillAdvancement gui3 = fire.addAdvancement(home_star);
+                        gui0.addChildren(gui1);
+                        gui1.addChildren(gui2);
+                        gui2.addChildren(gui3);
+                        fire.addAdvancement(explosion_resistance, damage_resistance, knockback_resistance);
+                        fire.addAdvancement(magic_resistance, heart_boost, fire_resistance);
+                    }
 
                     if (CommonConfig.getValues().advancement.oneTreePerClass) {
                         charm.addCondition(new SkillAdvancementConditionNot(taunt));
                         charm.addCondition(new SkillAdvancementConditionNot(shocking_aura));
+                        charm.addCondition(new SkillAdvancementConditionNot(flares));
                         taunt.addCondition(new SkillAdvancementConditionNot(charm));
                         taunt.addCondition(new SkillAdvancementConditionNot(shocking_aura));
+                        taunt.addCondition(new SkillAdvancementConditionNot(flares));
                         shocking_aura.addCondition(new SkillAdvancementConditionNot(taunt));
                         shocking_aura.addCondition(new SkillAdvancementConditionNot(charm));
+                        flares.addCondition(new SkillAdvancementConditionNot(flares));
+                        flares.addCondition(new SkillAdvancementConditionNot(taunt));
+                        flares.addCondition(new SkillAdvancementConditionNot(shocking_aura));
+                        flares.addCondition(new SkillAdvancementConditionNot(charm));
                     }
                 }
                 GuiSkillAdvancementTab mobility = window.addTab(new TextComponentTranslation(get("tab.mobility.title")), SkillAdvancementTabType.BELOW, 0x329CA2, 1);

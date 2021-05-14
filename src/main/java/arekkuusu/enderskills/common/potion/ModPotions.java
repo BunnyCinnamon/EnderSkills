@@ -19,10 +19,14 @@ public final class ModPotions {
     public static Potion POTION_ABILITY_POWER_EFFECT = empty();
     public static Potion POTION_COOLDOWN_EFFECT = empty();
     public static Potion POTION_ENDURANCE_EFFECT = empty();
+    public static Potion ENDURANCE_PERMANENT_EFFECT = empty();
+    public static Potion ENDURANCE_REGEN_EFFECT = empty();
 
     public static void register(IForgeRegistry<Potion> registry) {
         registry.register(POTION_ABILITY_POWER_EFFECT = new PotionAbilityPower());
         registry.register(POTION_COOLDOWN_EFFECT = new PotionCooldown());
         registry.register(POTION_ENDURANCE_EFFECT = new PotionEndurance());
+        registry.register(ENDURANCE_PERMANENT_EFFECT = new PotionEndurancePermanent());
+        registry.register(ENDURANCE_REGEN_EFFECT = new PotionEnduranceRegen());
     }
 }

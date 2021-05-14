@@ -199,7 +199,7 @@ public class ShadowJab extends BaseAbility implements ISkillAdvancement {
                         description.add(TextHelper.translate("desc.stats.endurance", String.valueOf(ModAttributes.ENDURANCE.getEnduranceDrain(this))));
                         description.add("");
                         if (abilityInfo.getLevel() >= getMaxLevel()) {
-                            description.add(TextHelper.translate("desc.stats.level_max"));
+                            description.add(TextHelper.translate("desc.stats.level_max", getMaxLevel()));
                         } else {
                             description.add(TextHelper.translate("desc.stats.level_current", abilityInfo.getLevel(), abilityInfo.getLevel() + 1));
                         }
@@ -328,7 +328,7 @@ public class ShadowJab extends BaseAbility implements ISkillAdvancement {
 
             @Config.Comment("Range Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
             public String[] range = {
-                    "(0+){2}"
+                    "(0+){6}"
             };
 
             @Config.Comment("Effectiveness Modifier")

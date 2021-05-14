@@ -35,7 +35,7 @@ public class CharmRenderer extends SkillRenderer<Charm> {
 
     public CharmRenderer() {
         MinecraftForge.EVENT_BUS.register(new Events());
-        EntityThrowableDataRenderer.add(ModAbilities.CHARM, ProjectileLight::new);
+        EntityThrowableDataRenderer.add(ModAbilities.CHARM, ProjectileLightRenderer::new);
     }
 
     @Override

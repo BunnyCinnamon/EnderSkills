@@ -1,5 +1,6 @@
 package arekkuusu.enderskills.client.render.skill;
 
+import arekkuusu.enderskills.client.ClientConfig;
 import arekkuusu.enderskills.client.proxy.ClientProxy;
 import arekkuusu.enderskills.client.render.effect.ParticleVanilla;
 import arekkuusu.enderskills.client.render.entity.EntityPlaceableDataRenderer;
@@ -8,7 +9,6 @@ import arekkuusu.enderskills.client.util.ResourceLibrary;
 import arekkuusu.enderskills.client.util.ShaderLibrary;
 import arekkuusu.enderskills.client.util.helper.GLHelper;
 import arekkuusu.enderskills.client.util.helper.RenderMisc;
-import arekkuusu.enderskills.client.ClientConfig;
 import arekkuusu.enderskills.common.entity.placeable.EntityPlaceableData;
 import arekkuusu.enderskills.common.lib.LibMod;
 import arekkuusu.enderskills.common.skill.ModAbilities;
@@ -37,7 +37,7 @@ public class GasCloudRenderer extends SkillRenderer<GasCloud> {
 
     public GasCloudRenderer() {
         EntityPlaceableDataRenderer.add(ModAbilities.GAS_CLOUD, Placeable::new);
-        EntityThrowableDataRenderer.add(ModAbilities.GAS_CLOUD, ProjectileVoid::new);
+        EntityThrowableDataRenderer.add(ModAbilities.GAS_CLOUD, ProjectileVoidRenderer::new);
     }
 
     @SideOnly(Side.CLIENT)
@@ -63,10 +63,10 @@ public class GasCloudRenderer extends SkillRenderer<GasCloud> {
 
         @Override
         public void doRender(EntityPlaceableData entity, double x, double y, double z, float entityYaw, float partialTicks) {
-            double scale = entity.getRadius() * 2 * MathHelper.clamp(entity.tick / 5D, 0D, 1D);
+            double scale = entity.getRadius() * 2 * MathHelper.clamp((entity.tick + partialTicks)  / 5D, 0D, 1D);
             if (entity.tick % 2 == 0) {
                 for (int i = 0; i < 4; i++) {
-                    if (entity.world.rand.nextDouble() < 0.8D && ClientProxy.canParticleSpawn()) {
+                    if (entity.world.rand.nextDouble() < 0.6D && ClientProxy.canParticleSpawn()) {
                         Vec3d vec = entity.getPositionVector();
                         double posX = vec.x + scale * (entity.world.rand.nextDouble() - 0.5);
                         double posY = vec.y + scale * (entity.world.rand.nextDouble() - 0.5);

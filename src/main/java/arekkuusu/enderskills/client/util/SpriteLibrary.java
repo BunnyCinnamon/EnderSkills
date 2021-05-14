@@ -1,6 +1,7 @@
 package arekkuusu.enderskills.client.util;
 
 import arekkuusu.enderskills.client.render.entity.VoltaicSentinelRender;
+import arekkuusu.enderskills.client.render.skill.HomeStarRenderer;
 import arekkuusu.enderskills.client.render.skill.MagneticPullRenderer;
 import arekkuusu.enderskills.client.render.skill.ShockingAuraRenderer;
 import arekkuusu.enderskills.client.util.sprite.SpriteAtlasResource;

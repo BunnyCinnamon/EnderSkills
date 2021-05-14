@@ -1,7 +1,6 @@
 package arekkuusu.enderskills.client.render.skill;
 
 import arekkuusu.enderskills.client.proxy.ClientProxy;
-import arekkuusu.enderskills.client.render.effect.ParticleVanilla;
 import arekkuusu.enderskills.client.render.entity.EntityPlaceableDataRenderer;
 import arekkuusu.enderskills.client.render.entity.EntityThrowableDataRenderer;
 import arekkuusu.enderskills.client.util.ResourceLibrary;
@@ -9,10 +8,8 @@ import arekkuusu.enderskills.common.EnderSkills;
 import arekkuusu.enderskills.common.entity.placeable.EntityPlaceableData;
 import arekkuusu.enderskills.common.skill.ModAbilities;
 import arekkuusu.enderskills.common.skill.ability.offence.fire.FocusFlame;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.entity.RenderManager;
-import net.minecraft.entity.Entity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.fml.relauncher.Side;
@@ -25,7 +22,7 @@ public class FocusFlameRenderer extends SkillRenderer<FocusFlame> {
 
     public FocusFlameRenderer() {
         EntityPlaceableDataRenderer.add(ModAbilities.FOCUS_FLAME, Placeable::new);
-        EntityThrowableDataRenderer.add(ModAbilities.FOCUS_FLAME, ProjectileFire::new);
+        EntityThrowableDataRenderer.add(ModAbilities.FOCUS_FLAME, ProjectileFireRenderer::new);
     }
 
     @SideOnly(Side.CLIENT)

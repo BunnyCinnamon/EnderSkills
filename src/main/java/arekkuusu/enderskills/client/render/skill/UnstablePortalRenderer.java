@@ -26,7 +26,7 @@ public class UnstablePortalRenderer extends SkillRenderer<UnstablePortal> {
 
     public UnstablePortalRenderer() {
         EntityPlaceableDataRenderer.add(ModAbilities.UNSTABLE_PORTAL, Placeable::new);
-        EntityThrowableDataRenderer.add(ModAbilities.UNSTABLE_PORTAL, ProjectileVoid::new);
+        EntityThrowableDataRenderer.add(ModAbilities.UNSTABLE_PORTAL, ProjectileVoidRenderer::new);
     }
 
     @SideOnly(Side.CLIENT)

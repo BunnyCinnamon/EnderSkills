@@ -110,6 +110,9 @@ public class Fireball extends BaseAbility implements IImpact, IScanEntities, IEx
         spawn.growTicks = 5;
         source.world.spawnEntity(spawn); //MANIFEST B L O O D!!
 
+        if(CommonConfig.getSyncValues().skill.destroyBlocks)
+            spawn.world.createExplosion(spawn, spawn.posX, spawn.posY, spawn.posZ, (float) radius, false);
+
         if (source.world instanceof WorldServer) {
             ((WorldServer) source.world).playSound(null, hitVector.x, hitVector.y, hitVector.z, ModSounds.FIREBALL_EXPLODE, SoundCategory.BLOCKS, 1.0F, (1.0F + (source.world.rand.nextFloat() - source.world.rand.nextFloat()) * 0.2F) * 0.7F);
         }
@@ -227,7 +230,7 @@ public class Fireball extends BaseAbility implements IImpact, IScanEntities, IEx
                         description.add(TextHelper.translate("desc.stats.endurance", String.valueOf(ModAttributes.ENDURANCE.getEnduranceDrain(this))));
                         description.add("");
                         if (abilityInfo.getLevel() >= getMaxLevel()) {
-                            description.add(TextHelper.translate("desc.stats.level_max"));
+                            description.add(TextHelper.translate("desc.stats.level_max", getMaxLevel()));
                         } else {
                             description.add(TextHelper.translate("desc.stats.level_current", abilityInfo.getLevel(), abilityInfo.getLevel() + 1));
                         }

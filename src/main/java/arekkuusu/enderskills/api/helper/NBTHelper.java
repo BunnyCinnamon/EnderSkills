@@ -23,7 +23,6 @@ import javax.annotation.Nullable;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.WeakHashMap;
 import java.util.stream.Stream;
 
 public final class NBTHelper {

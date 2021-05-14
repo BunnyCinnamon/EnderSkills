@@ -106,7 +106,6 @@ public class EnduranceCapability implements ICapabilitySerializable<NBTTagCompou
     //** NBT **//
     public static final String ENDURANCE_NBT = "endurance";
     public static final String ENDURANCE_DELAY_NBT = "endurance_delay";
-    public static final String ENDURANCE_MAX_NBT = "endurance_max";
 
     @Override
     @Nullable

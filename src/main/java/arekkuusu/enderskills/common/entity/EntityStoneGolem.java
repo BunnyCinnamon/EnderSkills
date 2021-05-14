@@ -7,6 +7,7 @@ import arekkuusu.enderskills.common.skill.ModAbilities;
 import arekkuusu.enderskills.common.skill.ModEffects;
 import arekkuusu.enderskills.common.skill.SkillHelper;
 import com.google.common.base.Optional;
+import com.google.common.base.Predicate;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
@@ -23,7 +24,6 @@ import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.scoreboard.Team;
-import net.minecraft.server.management.PreYggdrasilConverter;
 import net.minecraft.util.*;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
@@ -42,10 +42,12 @@ public class EntityStoneGolem extends EntityGolem {
     public static final DataParameter<Float> MAX_HEALTH = EntityDataManager.createKey(EntityStoneGolem.class, DataSerializers.FLOAT);
     public static final DataParameter<Float> MIRROR_DAMAGE = EntityDataManager.createKey(EntityStoneGolem.class, DataSerializers.FLOAT);
     public static final DataParameter<Float> DAMAGE = EntityDataManager.createKey(EntityStoneGolem.class, DataSerializers.FLOAT);
-    public int growTime = 5 * 20; //Used to make the golem come out of the ground on spawning
+    public int growTime = 2 * 20; //Used to make the golem come out of the ground on spawning
     public boolean isGrown; //When the golem is fully out of the ground
     public int attackTimer;
+    public int attackSwapTimer;
     public BlockPos spawn;
+    public AIFollowProvider provider;
 
     public EntityStoneGolem(World worldIn) {
         super(worldIn);
@@ -55,8 +57,9 @@ public class EntityStoneGolem extends EntityGolem {
     @Override
     public void initEntityAI() {
         this.tasks.addTask(1, new EntityAIAttackMelee(this, 1D, true));
-        this.tasks.addTask(2, new EntityAIMoveTowardsTarget(this, 1D, 32.0F));
-        this.tasks.addTask(6, new AIFollowProvider(this, () -> getOwnerId() != null ? getEntityByUUID(getOwnerId()) : null, 1D, 5, 64));
+        this.tasks.addTask(2, new EntityAIMoveTowardsTarget(this, 1D, 64.0F));
+        this.provider = new AIFollowProvider(this, () -> getOwnerId() != null ? getEntityByUUID(getOwnerId()) : null, 1D, 5, 64);
+        this.tasks.addTask(6, provider);
         this.tasks.addTask(8, new EntityAIWatchClosest(this, EntityPlayer.class, 6.0F));
         this.tasks.addTask(9, new EntityAILookIdle(this));
         this.tasks.addTask(0, AIOverride.INSTANCE);
@@ -84,7 +87,7 @@ public class EntityStoneGolem extends EntityGolem {
         this.getAttributeMap().registerAttribute(SharedMonsterAttributes.ATTACK_DAMAGE);
         this.getEntityAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(0);
         this.getEntityAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).setBaseValue(0);
-        this.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(0.25D);
+        this.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(0.5D);
         this.getEntityAttribute(SharedMonsterAttributes.KNOCKBACK_RESISTANCE).setBaseValue(1.0D);
     }
 
@@ -140,28 +143,57 @@ public class EntityStoneGolem extends EntityGolem {
     public void onLivingUpdate() {
         super.onLivingUpdate();
 
-        UUID uuid = getOwnerId();
-        if (uuid != null) {
-            EntityLivingBase owner = getEntityByUUID(uuid);
-            if (owner != null) {
-                this.setHomePosAndDistance(owner.getPosition(), 10);
-                if (!SkillHelper.isActiveFrom(owner, ModAbilities.ANIMATED_STONE_GOLEM)) {
+        if (!world.isRemote) {
+            UUID uuid = getOwnerId();
+            if (uuid != null) {
+                EntityLivingBase owner = getEntityByUUID(uuid);
+                if (owner != null) {
+                    this.setHomePosAndDistance(owner.getPosition(), 10);
+                    if (!SkillHelper.isActiveFrom(owner, ModAbilities.ANIMATED_STONE_GOLEM)) {
+                        setDead();
+                    }
+
+                    if (owner.getDistance(this) > 64) {
+                        setAttackTarget(null);
+                        teleportTo(owner);
+                    }
+                    if (getAttackTarget() != null && (!getAttackTarget().isEntityAlive() || getAttackTarget().getDistance(owner) > 64)) {
+                        setAttackTarget(null);
+                        this.provider.minDist = 5F;
+                    }
+                    if (getRevengeTarget() != null && getRevengeTarget().isOnSameTeam(this)) {
+                        setRevengeTarget(null);
+                    }
+                    if (getAttackTarget() != null) {
+                        this.provider.minDist = 64F;
+                    }
+
+                    if(owner.getLastAttackedEntity() != null && getAttackingEntity() != null && owner.getLastAttackedEntity() == getAttackTarget()) {
+                        attackSwapTimer = 60;
+                    }
+
+                    if (attackSwapTimer <= 0) {
+                        if (TeamHelper.SELECTOR_ENEMY.apply(owner).test(owner.getLastAttackedEntity()) && owner.getLastAttackedEntity().getDistance(owner) < 16) {
+                            setAttackTarget(owner.getLastAttackedEntity());
+                        } else if (TeamHelper.SELECTOR_ENEMY.apply(owner).test(owner.getLastAttackedEntity()) && owner.getLastAttackedEntity().getDistance(this) < 16) {
+                            setAttackTarget(owner.getLastAttackedEntity());
+                        } else if (owner.getDistance(this) > 16 && (getAttackTarget() == null || getRevengeTarget() != null)) {
+                            world.getEntitiesInAABBexcluding(this, getEntityBoundingBox().grow(16), TeamHelper.SELECTOR_ENEMY.apply(owner))
+                                    .stream().filter(e -> e instanceof EntityLivingBase)
+                                    .filter(this::canEntityBeSeen)
+                                    .findAny()
+                                    .map(e -> (EntityLivingBase) e)
+                                    .ifPresent(this::setAttackTarget);
+                        }
+                    } else {
+                        attackSwapTimer--;
+                    }
+                } else {
                     setDead();
-                }
-                if (owner.getDistance(this) > 69) { //uwu
-                    teleportTo(owner);
-                }
-                if (owner.getLastAttackedEntity() != this && owner.getLastAttackedEntity() != null && TeamHelper.SELECTOR_ENEMY.apply(owner).test(owner.getLastAttackedEntity())) {
-                    setAttackTarget(owner.getLastAttackedEntity());
-                }
-                if (getRevengeTarget() != null && getRevengeTarget().isOnSameTeam(this)) {
-                    setRevengeTarget(null);
                 }
             } else {
                 setDead();
             }
-        } else {
-            setDead();
         }
         if (this.attackTimer > 0) {
             --this.attackTimer;
@@ -198,7 +230,7 @@ public class EntityStoneGolem extends EntityGolem {
     @Override
     protected boolean processInteract(EntityPlayer player, EnumHand hand) {
         if (player.isSneaking() && player.getUniqueID().equals(getOwnerId())) {
-            if(!world.isRemote) setDead();
+            if (!world.isRemote) setDead();
             return true;
         }
         return super.processInteract(player, hand);
@@ -355,7 +387,7 @@ public class EntityStoneGolem extends EntityGolem {
 
     public void readEntityFromNBT(NBTTagCompound compound) {
         super.readEntityFromNBT(compound);
-        if(world != null && !world.isRemote) {
+        if (world != null && !world.isRemote) {
             setDead();
         }
     }

@@ -7,7 +7,6 @@ import arekkuusu.enderskills.client.render.entity.EntityThrowableDataRenderer;
 import arekkuusu.enderskills.client.util.ResourceLibrary;
 import arekkuusu.enderskills.common.EnderSkills;
 import arekkuusu.enderskills.common.skill.ModAbilities;
-import arekkuusu.enderskills.common.skill.SkillHelper;
 import arekkuusu.enderskills.common.skill.ability.offence.blood.Syphon;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
@@ -19,7 +18,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public class SyphonRenderer extends SkillRenderer<Syphon> {
 
     public SyphonRenderer() {
-        EntityThrowableDataRenderer.add(ModAbilities.SYPHON, ProjectileBlood::new);
+        EntityThrowableDataRenderer.add(ModAbilities.SYPHON, ProjectileBloodRenderer::new);
     }
 
     @Override

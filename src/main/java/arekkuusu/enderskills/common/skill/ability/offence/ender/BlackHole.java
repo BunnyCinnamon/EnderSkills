@@ -96,6 +96,9 @@ public class BlackHole extends BaseAbility implements IImpact, ISkillAdvancement
         spawn.setRadius(radius);
         source.world.spawnEntity(spawn);
 
+        if(CommonConfig.getSyncValues().skill.destroyBlocks)
+            spawn.world.createExplosion(spawn, spawn.posX, spawn.posY, spawn.posZ, (float) radius, false);
+
         if (spawn.world instanceof WorldServer) {
             ((WorldServer) spawn.world).playSound(null, spawn.posX, spawn.posY, spawn.posZ, ModSounds.BLACKHOLE, SoundCategory.PLAYERS, 1.0F, (1.0F + (spawn.world.rand.nextFloat() - spawn.world.rand.nextFloat()) * 0.2F) * 0.7F);
         }
@@ -198,7 +201,7 @@ public class BlackHole extends BaseAbility implements IImpact, ISkillAdvancement
                         description.add(TextHelper.translate("desc.stats.endurance", String.valueOf(ModAttributes.ENDURANCE.getEnduranceDrain(this))));
                         description.add("");
                         if (abilityInfo.getLevel() >= getMaxLevel()) {
-                            description.add(TextHelper.translate("desc.stats.level_max"));
+                            description.add(TextHelper.translate("desc.stats.level_max", getMaxLevel()));
                         } else {
                             description.add(TextHelper.translate("desc.stats.level_current", abilityInfo.getLevel(), abilityInfo.getLevel() + 1));
                         }

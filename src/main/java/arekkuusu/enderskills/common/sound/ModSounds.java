@@ -100,6 +100,14 @@ public final class ModSounds {
     public static final SoundEvent VOLTAIC_SENTINEL_SUMMON = empty();
     public static final SoundEvent VOLTAIC_SENTINEL_V1 = empty();
     public static final SoundEvent VOLTAIC_SENTINEL_V2 = empty();
+    public static final SoundEvent BLAZING_AURA_ACTIVE = empty();
+    public static final SoundEvent FLARES = empty();
+    public static final SoundEvent FLARES_ACTIVE = empty();
+    public static final SoundEvent OVERHEAT_ACTIVE = empty();
+    public static final SoundEvent RING_OF_FIRE = empty();
+    public static final SoundEvent WARM_HEART = empty();
+    public static final SoundEvent HOME_STAR_ACTIVE = empty();
+    public static final SoundEvent HOME_STAR_BOOM = empty();
 
     public static void register(IForgeRegistry<SoundEvent> registry) {
         registry.register(new SoundBase("page_turn"));
@@ -186,5 +194,13 @@ public final class ModSounds {
         registry.register(new SoundBase("voltaic_sentinel_summon"));
         registry.register(new SoundBase("voltaic_sentinel_v1"));
         registry.register(new SoundBase("voltaic_sentinel_v2"));
+        registry.register(new SoundBase("blazing_aura_active"));
+        registry.register(new SoundBase("flares"));
+        registry.register(new SoundBase("flares_active"));
+        registry.register(new SoundBase("overheat_active"));
+        registry.register(new SoundBase("ring_of_fire"));
+        registry.register(new SoundBase("warm_heart"));
+        registry.register(new SoundBase("home_star_active"));
+        registry.register(new SoundBase("home_star_boom"));
     }
 }

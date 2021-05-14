@@ -30,10 +30,10 @@ public final class WorldGuardHelper {
     static {
         try {
             Class.forName("com.gamerforea.eventhelper.EventHelperMod");
+            Class.forName("org.spongepowered.api.Server");
+            IS_LOADED = Loader.isModLoaded("eventhelper");
         } catch (ClassNotFoundException ignored) {
             IS_LOADED = false;
-        } finally {
-            IS_LOADED = Loader.isModLoaded("eventhelper");
         }
     }
 

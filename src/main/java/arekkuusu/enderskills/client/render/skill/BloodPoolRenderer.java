@@ -1,6 +1,5 @@
 package arekkuusu.enderskills.client.render.skill;
 
-import arekkuusu.enderskills.api.capability.data.SkillHolder;
 import arekkuusu.enderskills.client.proxy.ClientProxy;
 import arekkuusu.enderskills.client.render.entity.EntityThrowableDataRenderer;
 import arekkuusu.enderskills.client.util.ResourceLibrary;
@@ -18,7 +17,6 @@ import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.entity.Entity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
@@ -33,7 +31,7 @@ import javax.annotation.Nonnull;
 public class BloodPoolRenderer extends SkillRenderer<BloodPool> {
 
     public BloodPoolRenderer() {
-        EntityThrowableDataRenderer.add(ModAbilities.BLOOD_POOL, ProjectileBlood::new);
+        EntityThrowableDataRenderer.add(ModAbilities.BLOOD_POOL, ProjectileBloodRenderer::new);
     }
 
     @SideOnly(Side.CLIENT)

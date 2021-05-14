@@ -17,7 +17,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public class PullRenderer extends SkillRenderer<Pull> {
 
     public PullRenderer() {
-        EntityThrowableDataRenderer.add(ModAbilities.PULL, ProjectileWind::new);
+        EntityThrowableDataRenderer.add(ModAbilities.PULL, ProjectileWindRenderer::new);
     }
 
     @Override

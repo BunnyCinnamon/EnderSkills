@@ -17,6 +17,7 @@ public final class ModEntities {
     public static void register(IForgeRegistry<EntityEntry> registry) {
         register(registry, EntityThrowableData.class, "throwable_data", true);
         register(registry, EntityPlaceableData.class, "placeable_data", true);
+        register(registry, EntityPlaceableFloor.class, "placeable_floor", false);
         //Earth
         register(registry, EntityWall.class, LibNames.WALL, false);
         register(registry, EntityWallSegment.class, LibNames.WALL + "_segment", false);
@@ -37,6 +38,7 @@ public final class ModEntities {
         register(registry, EntityPlaceableFlamingRain.class, LibNames.FLAMING_RAIN, false);
         register(registry, EntityPlaceableExplode.class, LibNames.EXPLODE, false);
         register(registry, EntityTokenOrb.class, LibNames.TOKEN, true);
+        register(registry, EntityPlaceableRingOfFire.class, LibNames.RING_OF_FIRE, false);
         //Electric
         register(registry, EntityVoltaicSentinel.class, LibNames.VOLTAIC_SENTINEL, true);
     }

@@ -66,7 +66,7 @@ public class Energize extends BaseAbility implements IImpact {
                     .with(INSTANT)
                     .put(compound)
                     .create();
-            EntityThrowableData.throwFor(owner, distance, data, false);
+            EntityThrowableData.throwForTarget(owner, distance, data, false);
             sync(owner);
 
             if (owner.world instanceof WorldServer) {
@@ -140,7 +140,7 @@ public class Energize extends BaseAbility implements IImpact {
                         description.add(TextHelper.translate("desc.stats.endurance", String.valueOf(ModAttributes.ENDURANCE.getEnduranceDrain(this))));
                         description.add("");
                         if (abilityInfo.getLevel() >= getMaxLevel()) {
-                            description.add(TextHelper.translate("desc.stats.level_max"));
+                            description.add(TextHelper.translate("desc.stats.level_max", getMaxLevel()));
                         } else {
                             description.add(TextHelper.translate("desc.stats.level_current", abilityInfo.getLevel(), abilityInfo.getLevel() + 1));
                         }

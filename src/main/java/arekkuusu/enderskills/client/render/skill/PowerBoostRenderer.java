@@ -4,27 +4,15 @@ import arekkuusu.enderskills.api.capability.Capabilities;
 import arekkuusu.enderskills.api.capability.SkilledEntityCapability;
 import arekkuusu.enderskills.api.capability.data.SkillHolder;
 import arekkuusu.enderskills.api.helper.NBTHelper;
-import arekkuusu.enderskills.client.ClientConfig;
-import arekkuusu.enderskills.client.proxy.ClientProxy;
 import arekkuusu.enderskills.client.render.entity.EntityThrowableDataRenderer;
-import arekkuusu.enderskills.client.util.ResourceLibrary;
-import arekkuusu.enderskills.client.util.ShaderLibrary;
-import arekkuusu.enderskills.client.util.helper.GLHelper;
-import arekkuusu.enderskills.common.EnderSkills;
-import arekkuusu.enderskills.common.entity.throwable.EntityThrowableData;
-import arekkuusu.enderskills.common.lib.LibMod;
 import arekkuusu.enderskills.common.skill.ModAbilities;
 import arekkuusu.enderskills.common.skill.SkillHelper;
 import arekkuusu.enderskills.common.skill.ability.defense.light.PowerBoost;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.ModelBase;
-import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.entity.RenderLivingBase;
-import net.minecraft.client.renderer.entity.RenderManager;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
@@ -32,7 +20,6 @@ import net.minecraft.entity.player.EnumPlayerModelParts;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.client.event.RenderLivingEvent;
 import net.minecraftforge.common.MinecraftForge;
@@ -43,7 +30,6 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.opengl.GL11;
 
-import javax.annotation.Nonnull;
 import java.util.Objects;
 
 @SideOnly(Side.CLIENT)
@@ -53,7 +39,7 @@ public class PowerBoostRenderer extends SkillRenderer<PowerBoost> {
 
     public PowerBoostRenderer() {
         MinecraftForge.EVENT_BUS.register(new Events());
-        EntityThrowableDataRenderer.add(ModAbilities.POWER_BOOST, ProjectileLight::new);
+        EntityThrowableDataRenderer.add(ModAbilities.POWER_BOOST, ProjectileLightRenderer::new);
     }
 
     @SideOnly(Side.CLIENT)

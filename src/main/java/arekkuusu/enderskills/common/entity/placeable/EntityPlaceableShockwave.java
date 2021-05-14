@@ -129,13 +129,10 @@ public class EntityPlaceableShockwave extends EntityPlaceableData {
     }
 
     public boolean isWithingRadius(BlockPos origin, BlockPos pos, int distance) {
-        int x = origin.getX() - pos.getX();
-        x = Math.abs(x);
-        int y = origin.getY() - pos.getY();
-        y = Math.abs(y);
-        int z = origin.getZ() - pos.getZ();
-        z = Math.abs(z);
-        return x <= distance && y <= distance && z <= distance;
+        double x = (origin.getX() + 0.5D) - (pos.getX() + 0.5D);
+        double y = (origin.getY() + 0.5D) - (pos.getY() + 0.5D);
+        double z = (origin.getZ() + 0.5D) - (pos.getZ() + 0.5D);
+        return Math.sqrt(x * x + y * y + z * z) < distance;
     }
 
     public boolean isSolid(BlockPos pos) {

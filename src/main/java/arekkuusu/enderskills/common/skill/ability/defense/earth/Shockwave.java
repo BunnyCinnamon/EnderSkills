@@ -82,7 +82,7 @@ public class Shockwave extends BaseAbility implements IScanEntities, IExpand, IF
                     .with(10)
                     .put(compound)
                     .create();
-            EntityPlaceableShockwave spawn = new EntityPlaceableShockwave(owner.world, owner, data, EntityPlaceableData.MIN_TIME * 2);
+            EntityPlaceableShockwave spawn = new EntityPlaceableShockwave(owner.world, owner, data, Math.max((int) range * 5, EntityPlaceableData.MIN_TIME));
             spawn.setPosition(owner.posX, owner.posY, owner.posZ);
             spawn.setRadius(range);
             spawn.spreadOnTerrain();
@@ -205,7 +205,7 @@ public class Shockwave extends BaseAbility implements IScanEntities, IExpand, IF
                         description.add(TextHelper.translate("desc.stats.endurance", String.valueOf(ModAttributes.ENDURANCE.getEnduranceDrain(this))));
                         description.add("");
                         if (abilityInfo.getLevel() >= getMaxLevel()) {
-                            description.add(TextHelper.translate("desc.stats.level_max"));
+                            description.add(TextHelper.translate("desc.stats.level_max", getMaxLevel()));
                         } else {
                             description.add(TextHelper.translate("desc.stats.level_current", abilityInfo.getLevel(), abilityInfo.getLevel() + 1));
                         }

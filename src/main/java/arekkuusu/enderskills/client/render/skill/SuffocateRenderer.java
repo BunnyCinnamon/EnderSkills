@@ -38,7 +38,7 @@ public class SuffocateRenderer extends SkillRenderer<Suffocate> {
 
     public SuffocateRenderer() {
         EntityPlaceableDataRenderer.add(ModAbilities.SUFFOCATE, Placeable::new);
-        EntityThrowableDataRenderer.add(ModAbilities.SUFFOCATE, ProjectileWind::new);
+        EntityThrowableDataRenderer.add(ModAbilities.SUFFOCATE, ProjectileWindRenderer::new);
     }
 
     @SideOnly(Side.CLIENT)

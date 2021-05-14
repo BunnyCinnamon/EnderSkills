@@ -13,6 +13,7 @@ import arekkuusu.enderskills.common.skill.ability.defense.earth.Shockwave;
 import arekkuusu.enderskills.common.skill.ability.defense.earth.Taunt;
 import arekkuusu.enderskills.common.skill.ability.defense.earth.Thorny;
 import arekkuusu.enderskills.common.skill.ability.defense.electric.*;
+import arekkuusu.enderskills.common.skill.ability.defense.fire.*;
 import arekkuusu.enderskills.common.skill.ability.defense.light.*;
 import arekkuusu.enderskills.common.skill.ability.mobility.ender.*;
 import arekkuusu.enderskills.common.skill.ability.mobility.wind.*;
@@ -53,6 +54,7 @@ public final class ModRenders {
         registerEntity(EntityPlaceableExplode.class, ExplodeRenderer.Placeable::new);
         registerEntity(EntityTokenOrb.class, RenderTokenOrb::new);
         registerEntity(EntityVoltaicSentinel.class, VoltaicSentinelRender::new);
+        registerEntity(EntityPlaceableRingOfFire.class, RingOfFireRenderer.Placeable::new);
     }
 
     public static void init() {
@@ -107,6 +109,11 @@ public final class ModRenders {
         registerSkill(PowerDrain.class, new PowerDrainRenderer());
         registerSkill(Energize.class, new EnergizeRenderer());
         registerSkill(ElectricPulse.class, new ElectricPulseRenderer());
+        registerSkill(Flares.class, new FlaresRenderer());
+        registerSkill(RingOfFire.class, new RingOfFireRenderer());
+        registerSkill(BlazingAura.class, new BlazingAuraRenderer());
+        registerSkill(Overheat.class, new OverheatRenderer());
+        registerSkill(HomeStar.class, new HomeStarRenderer());
         //Effects
         registerSkill(Bleeding.class, new BleedingRenderer());
         registerSkill(Blinded.class, new BlindedRenderer());
@@ -116,6 +123,7 @@ public final class ModRenders {
         registerSkill(Overheal.class, new OverhealRenderer());
         registerSkill(Overcharge.class, new OverchargeRenderer());
         registerSkill(Electrified.class, new ElectrifiedRenderer());
+        registerSkill(Pulsar.class, new PulsarRenderer());
     }
 
     public static void postInit() {

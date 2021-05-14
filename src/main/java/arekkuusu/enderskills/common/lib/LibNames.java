@@ -84,6 +84,12 @@ public class LibNames {
     public static final String FOCUS_FLAME = "focus_flame";
     public static final String FIREBALL = "fireball";
     public static final String EXPLODE = "explode";
+    public static final String FLARES = "flares";
+    public static final String RING_OF_FIRE = "ring_of_fire";
+    public static final String BLAZING_AURA = "blazing_aura";
+    public static final String OVERHEAT = "overheat";
+    public static final String WARM_HEART = "warm_heart";
+    public static final String HOME_STAR = "home_star";
     //Status
     public static final String OVERHEAL = "overheal";
     public static final String ELECTRIFIED = "electrified";
@@ -96,6 +102,7 @@ public class LibNames {
     public static final String VOIDED = "voided";
     public static final String ROOTED = "rooted";
     public static final String BLINDED = "blinded";
+    public static final String PULSAR = "pulsar";
     //Misc
     public static final String BOOK = "book";
     public static final String ALTAR = "altar";
@@ -115,4 +122,6 @@ public class LibNames {
     public static final String ABILITY_POWER_EFFECT = "ability_power_effect";
     public static final String COOLDOWN_EFFECT = "cooldown_effect";
     public static final String ENDURANCE_EFFECT = "endurance_effect";
+    public static final String ENDURANCE_PERMANENT_EFFECT = "endurance_permanent_effect";
+    public static final String ENDURANCE_REGEN_EFFECT = "endurance_regen_effect";
 }

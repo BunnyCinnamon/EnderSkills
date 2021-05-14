@@ -26,7 +26,7 @@ public class PushRenderer extends SkillRenderer<Push> {
 
     public PushRenderer() {
         EntityPlaceableDataRenderer.add(ModAbilities.PUSH, Placeable::new);
-        EntityThrowableDataRenderer.add(ModAbilities.PUSH, ProjectileWind::new);
+        EntityThrowableDataRenderer.add(ModAbilities.PUSH, ProjectileWindRenderer::new);
     }
 
     @Override

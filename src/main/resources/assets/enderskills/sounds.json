@@ -502,5 +502,53 @@
       "enderskills:voltaic_sentinel_v2"
     ],
     "subtitle": "enderskills.subtitle.voltaic_sentinel_v2"
+  },
+  "blazing_aura_active": {
+    "sounds": [
+      "enderskills:blazing_aura_active"
+    ],
+    "subtitle": "enderskills.subtitle.blazing_aura_active"
+  },
+  "flares": {
+    "sounds": [
+      "enderskills:flares"
+    ],
+    "subtitle": "enderskills.subtitle.flares"
+  },
+  "flares_active": {
+    "sounds": [
+      "enderskills:flares_active"
+    ],
+    "subtitle": "enderskills.subtitle.flares_active"
+  },
+  "overheat_active": {
+    "sounds": [
+      "enderskills:overheat_active"
+    ],
+    "subtitle": "enderskills.subtitle.overheat_active"
+  },
+  "ring_of_fire": {
+    "sounds": [
+      "enderskills:ring_of_fire"
+    ],
+    "subtitle": "enderskills.subtitle.ring_of_fire"
+  },
+  "warm_heart": {
+    "sounds": [
+      "enderskills:warm_heart"
+    ],
+    "subtitle": "enderskills.subtitle.warm_heart"
+  },
+  "home_star_active": {
+    "sounds": [
+      "enderskills:home_star_active"
+    ],
+    "subtitle": "enderskills.subtitle.home_star_active"
+  },
+  "home_star_boom": {
+    "sounds": [
+      "enderskills:home_star_boom"
+    ],
+    "subtitle": "enderskills.subtitle.home_star_boom"
   }
 }

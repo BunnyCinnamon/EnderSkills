@@ -38,7 +38,7 @@ import javax.annotation.Nonnull;
 public class GraspRenderer extends SkillRenderer<Grasp> {
 
     public GraspRenderer() {
-        EntityThrowableDataRenderer.add(ModAbilities.GRASP, ProjectileVoid::new);
+        EntityThrowableDataRenderer.add(ModAbilities.GRASP, ProjectileVoidRenderer::new);
     }
 
     @Override

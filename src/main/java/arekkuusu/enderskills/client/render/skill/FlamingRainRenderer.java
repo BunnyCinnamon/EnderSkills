@@ -1,14 +1,12 @@
 package arekkuusu.enderskills.client.render.skill;
 
 import arekkuusu.enderskills.client.proxy.ClientProxy;
-import arekkuusu.enderskills.client.render.effect.ParticleVanilla;
 import arekkuusu.enderskills.client.render.entity.EntityThrowableDataRenderer;
 import arekkuusu.enderskills.client.util.ResourceLibrary;
 import arekkuusu.enderskills.common.EnderSkills;
 import arekkuusu.enderskills.common.entity.placeable.EntityPlaceableFlamingRain;
 import arekkuusu.enderskills.common.skill.ModAbilities;
 import arekkuusu.enderskills.common.skill.ability.offence.fire.FlamingRain;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.util.ResourceLocation;
@@ -22,7 +20,7 @@ import javax.annotation.Nullable;
 public class FlamingRainRenderer extends SkillRenderer<FlamingRain> {
 
     public FlamingRainRenderer() {
-        EntityThrowableDataRenderer.add(ModAbilities.FLAMING_RAIN, ProjectileFire::new);
+        EntityThrowableDataRenderer.add(ModAbilities.FLAMING_RAIN, ProjectileFireRenderer::new);
     }
 
     @SideOnly(Side.CLIENT)

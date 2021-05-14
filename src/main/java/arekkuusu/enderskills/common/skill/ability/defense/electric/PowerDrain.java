@@ -124,20 +124,6 @@ public class PowerDrain extends BaseAbility implements IFindEntity, IExpand {
                         }
                         EnderSkills.getProxy().addToQueue(() -> ModEffects.OVERCHARGE.set(owner, drain));
                         {
-                            Vec3d vec = entity.getPositionVector();
-                            double posX = vec.x;
-                            double posY = vec.y + entity.height + 0.5D;
-                            double posZ = vec.z;
-                            EnderSkills.getProxy().spawnParticle(entity.world, new Vec3d(posX, posY, posZ), new Vec3d(0, 0, 0), 3, 50, 0xFFECA8, ResourceLibrary.MINUS);
-                        }
-                        {
-                            Vec3d vec = owner.getPositionVector();
-                            double posX = vec.x;
-                            double posY = vec.y + owner.height + 0.5D;
-                            double posZ = vec.z;
-                            EnderSkills.getProxy().spawnParticle(owner.world, new Vec3d(posX, posY, posZ), new Vec3d(0, 0, 0), 3, 50, 0xFFA8A8, ResourceLibrary.PLUS);
-                        }
-                        {
                             EntityLivingBase from = entity;
                             EntityLivingBase to = owner;
                             Vector posFrom = new Vector(from.getPositionVector()).addVector(from.world.rand.nextDouble() * 0.05D, from.height / 2D + from.world.rand.nextDouble() * 0.05D, from.world.rand.nextDouble() * 0.05D);
@@ -213,7 +199,7 @@ public class PowerDrain extends BaseAbility implements IFindEntity, IExpand {
                         description.add(TextHelper.translate("desc.stats.endurance", String.valueOf(ModAttributes.ENDURANCE.getEnduranceDrain(this))));
                         description.add("");
                         if (abilityInfo.getLevel() >= getMaxLevel()) {
-                            description.add(TextHelper.translate("desc.stats.level_max"));
+                            description.add(TextHelper.translate("desc.stats.level_max", getMaxLevel()));
                         } else {
                             description.add(TextHelper.translate("desc.stats.level_current", abilityInfo.getLevel(), abilityInfo.getLevel() + 1));
                         }

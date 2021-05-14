@@ -10,6 +10,6 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public class CrushRenderer extends SkillRenderer<Crush> {
 
     public CrushRenderer() {
-        EntityThrowableDataRenderer.add(ModAbilities.CRUSH, ProjectileWind::new);
+        EntityThrowableDataRenderer.add(ModAbilities.CRUSH, ProjectileWindRenderer::new);
     }
 }
