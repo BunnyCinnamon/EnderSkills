@@ -214,11 +214,11 @@ public class Damage extends BaseAttribute implements ISkillAdvancement {
 
             @Config.Comment("The Maximum level of this Skill")
             @Config.RangeInt(min = 0)
-            public int maxLevel = Integer.MAX_VALUE;
+            public int maxLevel = 50;
 
             @Config.Comment("Modifier Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
             public String[] modifier = {
-                    "(0+){(2.1 * x) * ((0.4 * x) * 0.03)}"
+                    "(0+){(0.8 * x) * ((0.2 * x) * 0.03)}"
             };
 
             @Config.Comment("Effectiveness Modifier")
@@ -233,7 +233,7 @@ public class Damage extends BaseAttribute implements ISkillAdvancement {
             public static class Advancement {
                 @Config.Comment("Function f(x)=? where 'x' is [Next Level] and 'y' is [Max Level], XP Cost is in units [NOT LEVELS]")
                 public String[] upgrade = {
-                        "(0+){(75 * (1 - (0 ^ (0 ^ x)))) + 5 + 7 * x}"
+                        "(0+){(75 * (1 - (0 ^ (0 ^ x)))) + 5 + 19 * x}"
                 };
             }
         }

@@ -179,13 +179,13 @@ public class Events {
                     drawTexturedRectangle(x, y, 48, 0, size, size, 16, 16, 64);
                     //Draw icon
                     mc.getTextureManager().bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
-                    int cool = info instanceof SkillInfo.IInfoCooldown ? ((SkillInfo.IInfoCooldown) info).getCooldown() / 20 : 0;
+                    double remaining = getOwnerActiveRemainingTime(skill);
+                    int cool = info instanceof SkillInfo.IInfoCooldown ? (int) Math.ceil(((SkillInfo.IInfoCooldown) info).getCooldown() / 20D) : 0;
                     boolean hasCool = cool > 0 || info == null;
-                    float color = hasCool ? 0.4F : 1F;
+                    float color = hasCool && remaining <= 0D ? 0.4F : 1F;
                     GlStateManager.color(color, color, color, 1F);
                     drawSprite(x, y, ResourceLibrary.getSkillTexture(skill), size);
                     GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-                    double remaining = getOwnerActiveRemainingTime(skill);
                     if (remaining != -1) { //Draw white overlay
                         GlStateManager.disableTexture2D();
                         double progress = 1D - remaining;
@@ -292,7 +292,7 @@ public class Events {
         Capabilities.endurance(player).ifPresent(capability -> {
             GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
             double endurance = capability.getEndurance() + capability.getAbsorption();
-            double enduranceMax = player.getEntityAttribute(Endurance.MAX_ENDURANCE).getAttributeValue() + capability.getAbsorption();
+            double enduranceMax = Math.max(player.getEntityAttribute(Endurance.MAX_ENDURANCE).getAttributeValue(), capability.getEndurance()) + capability.getAbsorption();
             boolean horizontal = ClientConfig.RENDER_CONFIG.endurance.orientation == ClientConfig.RenderValues.Orientation.HORIZONTAL;
             double scale = ClientConfig.RENDER_CONFIG.endurance.scale;
             double mSize = Math.pow(scale, -1D);

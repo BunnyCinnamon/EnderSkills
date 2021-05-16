@@ -111,7 +111,7 @@ public class Fireball extends BaseAbility implements IImpact, IScanEntities, IEx
         source.world.spawnEntity(spawn); //MANIFEST B L O O D!!
 
         if(CommonConfig.getSyncValues().skill.destroyBlocks)
-            spawn.world.createExplosion(spawn, spawn.posX, spawn.posY, spawn.posZ, (float) radius, false);
+            spawn.world.createExplosion(spawn, spawn.posX, spawn.posY, spawn.posZ, (float) radius, true);
 
         if (source.world instanceof WorldServer) {
             ((WorldServer) source.world).playSound(null, hitVector.x, hitVector.y, hitVector.z, ModSounds.FIREBALL_EXPLODE, SoundCategory.BLOCKS, 1.0F, (1.0F + (source.world.rand.nextFloat() - source.world.rand.nextFloat()) * 0.2F) * 0.7F);

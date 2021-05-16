@@ -82,6 +82,9 @@ public class ExtraJump extends BaseAbility implements ISkillAdvancement {
                 owner.motionY += 0.3F;
             }
         }
+        if(owner.motionY > 0 || owner instanceof EntityLiving) {
+            owner.fallDistance = 0;
+        }
         if (owner.world instanceof WorldServer) {
             ((WorldServer) owner.world).playSound(null, owner.posX, owner.posY, owner.posZ, ModSounds.JUMP, SoundCategory.PLAYERS, 1.0F, (1.0F + (owner.world.rand.nextFloat() - owner.world.rand.nextFloat()) * 0.2F) * 0.7F);
         }

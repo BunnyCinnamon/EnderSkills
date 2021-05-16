@@ -12,7 +12,6 @@ import arekkuusu.enderskills.api.helper.NBTHelper;
 import arekkuusu.enderskills.api.helper.TeamHelper;
 import arekkuusu.enderskills.api.registry.Skill;
 import arekkuusu.enderskills.client.gui.data.ISkillAdvancement;
-import arekkuusu.enderskills.client.util.helper.TextHelper;
 import arekkuusu.enderskills.client.sounds.ThornySound;
 import arekkuusu.enderskills.client.util.helper.TextHelper;
 import arekkuusu.enderskills.common.CommonConfig;
@@ -31,7 +30,7 @@ import net.minecraft.util.DamageSource;
 import net.minecraft.util.EntityDamageSource;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Config;
-import net.minecraftforge.event.entity.living.LivingHurtEvent;
+import net.minecraftforge.event.entity.living.LivingDamageEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -94,7 +93,7 @@ public class Thorny extends BaseAbility implements ISkillAdvancement {
     }
 
     @SubscribeEvent
-    public void onDamaged(LivingHurtEvent event) {
+    public void onDamaged(LivingDamageEvent event) {
         if (isClientWorld(event.getEntityLiving())) return;
         EntityLivingBase entity = event.getEntityLiving();
         DamageSource source = event.getSource();
@@ -290,8 +289,8 @@ public class Thorny extends BaseAbility implements ISkillAdvancement {
             public static class Extra {
                 @Config.Comment("Damage Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
                 public String[] damage = {
-                        "(0+){0.1 + ((e^(0.1 * (x / 49)) - 1)/((e^0.1) - 1)) * (0.33 - 0.1)}",
-                        "(25+){0.33 + ((e^(2.25 * ((x-24) / (y-24))) - 1)/((e^2.25) - 1)) * (0.95 - 0.33)}",
+                        "(0+){0.3 + ((e^(0.1 * (x / 49)) - 1)/((e^0.1) - 1)) * (0.33 - 0.1)}",
+                        "(25+){0.6 + ((e^(2.25 * ((x-24) / (y-24))) - 1)/((e^2.25) - 1)) * (0.95 - 0.6)}",
                         "(50){1}"
                 };
             }

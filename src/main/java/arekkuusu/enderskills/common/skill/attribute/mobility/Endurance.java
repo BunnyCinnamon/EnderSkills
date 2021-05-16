@@ -47,11 +47,17 @@ import java.util.Objects;
 public class Endurance extends BaseAttribute implements ISkillAdvancement {
 
     //Vanilla Attribute
-    public static final IAttribute MAX_ENDURANCE = new RangedAttribute(null, "enderskills.generic.maxEndurance", 40, Float.MIN_VALUE, Float.MAX_VALUE).setDescription("Max Endurance").setShouldWatch(true);
+    public static final IAttribute MAX_ENDURANCE = new RangedAttribute(null, "enderskills.generic.maxEndurance", 0F, 0F, Float.MAX_VALUE).setDescription("Max Endurance").setShouldWatch(true);
     //Vanilla Attribute Modifier for Endurance attribute
     public static final DynamicModifier ENDURANCE_ATTRIBUTE = new DynamicModifier(
             "010bf31b-320d-4ef9-91ed-6f84adc38600",
             LibMod.MOD_ID + ":" + LibNames.ENDURANCE,
+            Endurance.MAX_ENDURANCE,
+            Constants.AttributeModifierOperation.ADD);
+    //Vanilla Attribute Modifier for default Endurance attribute
+    public static final DynamicModifier ENDURANCE_DEFAULT_ATTRIBUTE = new DynamicModifier(
+            "010bf31b-320d-4ef9-91ed-6f84a3c38600",
+            LibMod.MOD_ID + ":" + LibNames.ENDURANCE + "_default",
             Endurance.MAX_ENDURANCE,
             Constants.AttributeModifierOperation.ADD);
 
@@ -90,24 +96,30 @@ public class Endurance extends BaseAttribute implements ISkillAdvancement {
 
     @SubscribeEvent
     public void attachCapabilities(AttachCapabilitiesEvent<Entity> event) {
-        if (event.getObject() instanceof EntityLivingBase)
-            ((EntityLivingBase) event.getObject()).getAttributeMap().registerAttribute(MAX_ENDURANCE).setBaseValue(40F);
+        if (event.getObject() instanceof EntityLivingBase) {
+            ((EntityLivingBase) event.getObject()).getAttributeMap().registerAttribute(MAX_ENDURANCE).setBaseValue(0F);
+        }
     }
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public void onEnduranceTick(LivingEvent.LivingUpdateEvent event) {
-        if (event.getEntityLiving() instanceof EntityPlayer || !event.getEntityLiving().getEntityWorld().isRemote) {
+        if (!event.getEntityLiving().getEntityWorld().isRemote) {
             Capabilities.endurance(event.getEntityLiving()).ifPresent(capability -> {
+                double maxEndurance = event.getEntityLiving().getEntityAttribute(Endurance.MAX_ENDURANCE).getAttributeValue();
                 if (capability.getEnduranceDelay() > 0) {
                     capability.setEnduranceDelay(capability.getEnduranceDelay() - 1);
-                } else if (capability.getEndurance() < event.getEntityLiving().getEntityAttribute(Endurance.MAX_ENDURANCE).getAttributeValue()) {
+                } else if (capability.getEndurance() < maxEndurance) {
                     capability.setEnduranceDelay(10); //Every half a second
-                    capability.setEndurance(capability.getEndurance() + 1);
-                } else if(capability.getEndurance() > event.getEntityLiving().getEntityAttribute(Endurance.MAX_ENDURANCE).getAttributeValue()) {
+                    capability.setEndurance(Math.min(capability.getEndurance() + (maxEndurance / (maxEndurance - capability.getEndurance())), maxEndurance));
+                } else if (capability.getEndurance() > maxEndurance) {
                     capability.setEnduranceDelay(10); //Every half a second
-                    capability.setEndurance(capability.getEndurance() - 1);
+                    capability.setEndurance(Math.max(capability.getEndurance() - (capability.getEndurance() / maxEndurance), 0D));
+                }
+                if (event.getEntityLiving() instanceof EntityPlayerMP) {
+                    PacketHelper.sendEnduranceSync((EntityPlayerMP) event.getEntityLiving());
                 }
             });
+            ENDURANCE_DEFAULT_ATTRIBUTE.apply(event.getEntityLiving(), Configuration.getSyncValues().endurance);
         }
     }
 
@@ -248,6 +260,7 @@ public class Endurance extends BaseAttribute implements ISkillAdvancement {
     public void initSyncConfig() {
         Configuration.getSyncValues().maxLevel = Configuration.getValues().maxLevel;
         Configuration.getSyncValues().modifier = Configuration.getValues().modifier;
+        Configuration.getSyncValues().endurance = Configuration.getValues().endurance;
         Configuration.getSyncValues().effectiveness = Configuration.getValues().effectiveness;
         Configuration.getSyncValues().extra.enduranceMap = new HashMap<>(Configuration.getValues().extra.enduranceMap);
         DamageResistance.Configuration.getSyncValues().advancement.upgrade = DamageResistance.Configuration.getValues().advancement.upgrade;
@@ -257,6 +270,7 @@ public class Endurance extends BaseAttribute implements ISkillAdvancement {
     public void writeSyncConfig(NBTTagCompound compound) {
         compound.setInteger("maxLevel", Configuration.getValues().maxLevel);
         NBTHelper.setArray(compound, "modifier", Configuration.getValues().modifier);
+        compound.setDouble("endurance", Configuration.getValues().endurance);
         compound.setDouble("effectiveness", Configuration.getValues().effectiveness);
         NBTHelper.setArray(compound, "advancement.upgrade", Configuration.getValues().advancement.upgrade);
         NBTTagList list = new NBTTagList();
@@ -274,6 +288,7 @@ public class Endurance extends BaseAttribute implements ISkillAdvancement {
     public void readSyncConfig(NBTTagCompound compound) {
         Configuration.getSyncValues().maxLevel = compound.getInteger("maxLevel");
         Configuration.getSyncValues().modifier = NBTHelper.getArray(compound, "modifier");
+        Configuration.getSyncValues().endurance = compound.getDouble("endurance");
         Configuration.getSyncValues().effectiveness = compound.getDouble("effectiveness");
         Configuration.getSyncValues().advancement.upgrade = NBTHelper.getArray(compound, "advancement.upgrade");
         NBTTagList list = compound.getTagList("extra.enduranceMap", Constants.NBT.TAG_COMPOUND);
@@ -318,6 +333,9 @@ public class Endurance extends BaseAttribute implements ISkillAdvancement {
             public String[] modifier = {
                     "(0+){x * 1}"
             };
+
+            @Config.Comment("Default start endurance")
+            public double endurance = 40D;
 
             @Config.Comment("Effectiveness Modifier")
             @Config.RangeDouble

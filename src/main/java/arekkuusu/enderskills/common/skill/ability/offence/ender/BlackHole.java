@@ -97,7 +97,7 @@ public class BlackHole extends BaseAbility implements IImpact, ISkillAdvancement
         source.world.spawnEntity(spawn);
 
         if(CommonConfig.getSyncValues().skill.destroyBlocks)
-            spawn.world.createExplosion(spawn, spawn.posX, spawn.posY, spawn.posZ, (float) radius, false);
+            spawn.world.createExplosion(spawn, spawn.posX, spawn.posY, spawn.posZ, (float) radius, true);
 
         if (spawn.world instanceof WorldServer) {
             ((WorldServer) spawn.world).playSound(null, spawn.posX, spawn.posY, spawn.posZ, ModSounds.BLACKHOLE, SoundCategory.PLAYERS, 1.0F, (1.0F + (spawn.world.rand.nextFloat() - spawn.world.rand.nextFloat()) * 0.2F) * 0.7F);

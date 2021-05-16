@@ -7,6 +7,7 @@ import arekkuusu.enderskills.client.util.ShaderLibrary;
 import arekkuusu.enderskills.client.util.SpriteLibrary;
 import arekkuusu.enderskills.client.util.helper.GLHelper;
 import arekkuusu.enderskills.client.util.sprite.UVFrame;
+import arekkuusu.enderskills.common.entity.placeable.EntityPlaceableData;
 import arekkuusu.enderskills.common.lib.LibMod;
 import arekkuusu.enderskills.common.skill.ability.defense.electric.MagneticPull;
 import arekkuusu.enderskills.common.skill.ability.defense.fire.HomeStar;
@@ -35,7 +36,8 @@ public class HomeStarRenderer extends SkillRenderer<HomeStar> {
         GlStateManager.translate(x, y + 0.1, z);
         GlStateManager.rotate(-this.renderManager.playerViewY, 0.0F, 1.0F, 0.0F);
         double angle = (this.renderManager.options.thirdPersonView == 2 ? -1 : 1) * this.renderManager.playerViewX;
-        double scale = NBTHelper.getDouble(skillHolder.data.nbt, "range") * MathHelper.clamp(((float) skillHolder.tick / 10F), 0F, 1F);
+        double progress = MathHelper.clamp((double) skillHolder.tick / (double) Math.min(skillHolder.data.time, EntityPlaceableData.MIN_TIME), 0D, 1D);
+        double scale = NBTHelper.getDouble(skillHolder.data.nbt, "range") * progress;
 
         if (entity == Minecraft.getMinecraft().getRenderViewEntity()) {
             if (entity.onGround && angle > 0) angle = 0;

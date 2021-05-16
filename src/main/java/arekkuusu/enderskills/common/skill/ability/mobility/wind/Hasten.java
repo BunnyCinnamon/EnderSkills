@@ -8,23 +8,28 @@ import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoCooldown;
 import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoUpgradeable;
 import arekkuusu.enderskills.api.event.SkillActivateEvent;
 import arekkuusu.enderskills.api.helper.ExpressionHelper;
+import arekkuusu.enderskills.api.helper.MathUtil;
 import arekkuusu.enderskills.api.helper.NBTHelper;
 import arekkuusu.enderskills.api.registry.Skill;
 import arekkuusu.enderskills.client.gui.data.ISkillAdvancement;
-import arekkuusu.enderskills.client.util.helper.TextHelper;
 import arekkuusu.enderskills.client.util.helper.TextHelper;
 import arekkuusu.enderskills.common.CommonConfig;
 import arekkuusu.enderskills.common.lib.LibMod;
 import arekkuusu.enderskills.common.lib.LibNames;
 import arekkuusu.enderskills.common.network.PacketHelper;
+import arekkuusu.enderskills.common.skill.DynamicModifier;
 import arekkuusu.enderskills.common.skill.ModAbilities;
 import arekkuusu.enderskills.common.skill.ModAttributes;
+import arekkuusu.enderskills.common.skill.SkillHelper;
 import arekkuusu.enderskills.common.skill.ability.AbilityInfo;
 import arekkuusu.enderskills.common.skill.ability.BaseAbility;
 import arekkuusu.enderskills.common.sound.ModSounds;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.ai.attributes.IAttribute;
+import net.minecraft.entity.ai.attributes.RangedAttribute;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
@@ -34,6 +39,10 @@ import net.minecraft.util.SoundCategory;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Config;
+import net.minecraftforge.common.util.Constants;
+import net.minecraftforge.event.AttachCapabilitiesEvent;
+import net.minecraftforge.event.entity.living.LivingEvent;
+import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -42,6 +51,15 @@ import javax.annotation.Nullable;
 import java.util.*;
 
 public class Hasten extends BaseAbility implements ISkillAdvancement {
+
+    //Vanilla Attribute
+    public static final IAttribute HASTEN = new RangedAttribute(null, "enderskills.generic.cooldownReduction", 0F, 0F, 1F).setDescription("Cooldown Reduction").setShouldWatch(true);
+    //Vanilla Attribute Modifier for Endurance attribute
+    public static final DynamicModifier HASTEN_ATTRIBUTE = new DynamicModifier(
+            "010af31b-320d-4ef9-91ed-6f84adc38610",
+            LibMod.MOD_ID + ":" + LibNames.HASTEN,
+            Hasten.HASTEN,
+            Constants.AttributeModifierOperation.ADD);
 
     public Hasten() {
         super(LibNames.HASTEN, new AbilityProperties());
@@ -59,10 +77,12 @@ public class Hasten extends BaseAbility implements ISkillAdvancement {
                 abilityInfo.setCooldown(getCooldown(abilityInfo));
             }
             int time = getTime(abilityInfo);
+            double cdr = getCDR(abilityInfo);
             NBTTagCompound compound = new NBTTagCompound();
-            NBTHelper.setNBT(compound, "list", new NBTTagList());
+            NBTHelper.setDouble(compound, "cdr", cdr);
             NBTHelper.setEntity(compound, owner, "owner");
             SkillData data = SkillData.of(this)
+                    .by(owner)
                     .with(time)
                     .put(compound)
                     .overrides(SkillData.Overrides.SAME)
@@ -80,62 +100,83 @@ public class Hasten extends BaseAbility implements ISkillAdvancement {
         }
     }
 
-    @Override
-    public void update(EntityLivingBase entity, SkillData data, int tick) {
-        if (isClientWorld(entity)) return;
-        Capabilities.get(entity).flatMap(s -> s.getOwned(this)).ifPresent(skillInfo -> {
-            AbilityInfo abilityInfo = (AbilityInfo) skillInfo;
-            NBTHelper.getNBTList(data.nbt, "list").ifPresent(list -> {
-                List<ResourceLocation> locations = new ArrayList<>();
-                list.iterator().forEachRemaining(nbt -> {
-                    locations.add(NBTHelper.getResourceLocation((NBTTagCompound) nbt, "location"));
+    @SubscribeEvent(priority = EventPriority.LOWEST)
+    public void onEntityAttributeUpdate(LivingEvent.LivingUpdateEvent event) {
+        if (isClientWorld(event.getEntityLiving())) return;
+        EntityLivingBase entity = event.getEntityLiving();
+        if (entity.ticksExisted % 20 != 0) return; //Slowdown cowboy! yee-haw!
+        Capabilities.get(entity).ifPresent(capability -> {
+            if (capability.isOwned(this)) {
+                SkillHelper.getActive(entity, this, entity.getUniqueID().toString()).ifPresent(data -> {
+                    HASTEN_ATTRIBUTE.apply(entity, data.nbt.getDouble("cdr"));
                 });
-                double crd = getCDR(abilityInfo);
-                Capabilities.get(entity).map(c -> c.getAllOwned().entrySet()).ifPresent(entries -> {
-                    for (Map.Entry<Skill, SkillInfo> entry : entries) {
-                        SkillInfo info = entry.getValue();
-                        Skill skill = entry.getKey();
-                        ResourceLocation location = skill.getRegistryName();
-                        if (skill.getProperties() instanceof BaseAbility.AbilityProperties && !locations.contains(location)
-                                && info instanceof SkillInfo.IInfoCooldown && location != null && skill != this) {
-                            if (((SkillInfo.IInfoCooldown) info).hasCooldown()) {
-                                ((SkillInfo.IInfoCooldown) info).setCooldown(
-                                        Math.max(0, ((SkillInfo.IInfoCooldown) info).getCooldown() - (int) (((BaseAbility.AbilityProperties) skill.getProperties()).getCooldown((AbilityInfo) info) * crd))
-                                );
-                                if (entity instanceof EntityPlayer) {
-                                    PacketHelper.sendSkillSync((EntityPlayerMP) entity, skill);
-                                }
-                                NBTTagCompound tag = new NBTTagCompound();
-                                NBTHelper.setResourceLocation(tag, "location", location);
-                                list.appendTag(tag);
-                            }
+            } else {
+                HASTEN_ATTRIBUTE.remove(entity);
+            }
+        });
+    }
+
+    @SubscribeEvent(priority = EventPriority.LOWEST)
+    public void onEntityCDRUpdate(LivingEvent.LivingUpdateEvent event) {
+        EntityLivingBase entity = event.getEntityLiving();
+        if (entity.world.isRemote) return;
+        double amount = entity.getEntityAttribute(Hasten.HASTEN).getAttributeValue();
+        if (MathUtil.fuzzyEqual(0, amount)) return;
+        NBTTagList list = entity.getEntityData().getTagList(Hasten.HASTEN.getName(), Constants.NBT.TAG_COMPOUND);
+        List<ResourceLocation> locations = new ArrayList<>();
+        list.iterator().forEachRemaining(nbt -> {
+            locations.add(NBTHelper.getResourceLocation((NBTTagCompound) nbt, "location"));
+        });
+        double crd = amount;
+        Capabilities.get(entity).map(c -> c.getAllOwned().entrySet()).ifPresent(entries -> {
+            for (Map.Entry<Skill, SkillInfo> entry : entries) {
+                SkillInfo info = entry.getValue();
+                Skill skill = entry.getKey();
+                ResourceLocation location = skill.getRegistryName();
+                if (skill.getProperties() instanceof BaseAbility.AbilityProperties && !locations.contains(location)
+                        && info instanceof SkillInfo.IInfoCooldown && location != null) {
+                    if (((SkillInfo.IInfoCooldown) info).hasCooldown()) {
+                        ((SkillInfo.IInfoCooldown) info).setCooldown(
+                                Math.max(0, ((SkillInfo.IInfoCooldown) info).getCooldown() - (int) (((BaseAbility.AbilityProperties) skill.getProperties()).getCooldown((AbilityInfo) info) * crd))
+                        );
+                        if (entity instanceof EntityPlayer) {
+                            PacketHelper.sendSkillSync((EntityPlayerMP) entity, skill);
                         }
+                        NBTTagCompound tag = new NBTTagCompound();
+                        NBTHelper.setResourceLocation(tag, "location", location);
+                        list.appendTag(tag);
                     }
-                });
-            });
+                }
+            }
+            entity.getEntityData().setTag(Hasten.HASTEN.getName(), list);
         });
     }
 
     @SubscribeEvent
     public void onSkillUse(SkillActivateEvent event) {
         if (isClientWorld(event.getEntityLiving())) return;
-        Capabilities.get(event.getEntityLiving()).flatMap(s -> s.getActive(this)).ifPresent(holder -> {
-            NBTHelper.getNBTList(holder.data.nbt, "list").ifPresent(list -> {
-                Skill skill = event.getSkill();
-                ResourceLocation location = skill.getRegistryName();
-                int index = -1;
-                for (int i = 0; i < list.tagCount(); i++) {
-                    ResourceLocation savedLocation = NBTHelper.getResourceLocation(list.getCompoundTagAt(i), "location");
-                    if (savedLocation.equals(location)) {
-                        index = i;
-                        break;
-                    }
-                }
-                if (index != -1) {
-                    list.removeTag(index);
-                }
-            });
-        });
+        NBTTagList list = event.getEntityLiving().getEntityData().getTagList(Hasten.HASTEN.getName(), Constants.NBT.TAG_COMPOUND);
+        if (list.hasNoTags()) return; //No tags here to remove, go back!
+        Skill skill = event.getSkill();
+        ResourceLocation location = skill.getRegistryName();
+        int index = -1;
+        for (int i = 0; i < list.tagCount(); i++) {
+            ResourceLocation savedLocation = NBTHelper.getResourceLocation(list.getCompoundTagAt(i), "location");
+            if (savedLocation.equals(location)) {
+                index = i;
+                break;
+            }
+        }
+        if (index != -1) {
+            list.removeTag(index);
+            event.getEntityLiving().getEntityData().setTag(Hasten.HASTEN.getName(), list);
+        }
+    }
+
+    @SubscribeEvent
+    public void attachCapabilities(AttachCapabilitiesEvent<Entity> event) {
+        if (event.getObject() instanceof EntityLivingBase)
+            ((EntityLivingBase) event.getObject()).getAttributeMap().registerAttribute(HASTEN).setBaseValue(0F);
     }
 
     public int getLevel(IInfoUpgradeable info) {

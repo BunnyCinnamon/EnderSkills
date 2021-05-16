@@ -85,7 +85,7 @@ public class Explode extends BaseAbility implements IScanEntities, IExpand, IFin
             sync(owner);
 
             if(CommonConfig.getSyncValues().skill.destroyBlocks)
-                spawn.world.createExplosion(spawn, spawn.posX, spawn.posY, spawn.posZ, (float) range, false);
+                spawn.world.createExplosion(spawn, spawn.posX, spawn.posY, spawn.posZ, (float) range, true);
 
             if (owner.world instanceof WorldServer) {
                 ((WorldServer) owner.world).playSound(null, owner.posX, owner.posY, owner.posZ, ModSounds.EXPLODE, SoundCategory.PLAYERS, 5.0F, (1.0F + (owner.world.rand.nextFloat() - owner.world.rand.nextFloat()) * 0.2F) * 0.7F);

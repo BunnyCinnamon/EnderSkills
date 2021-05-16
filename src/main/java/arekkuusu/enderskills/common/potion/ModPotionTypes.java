@@ -32,7 +32,6 @@ public final class ModPotionTypes {
     public static final PotionType POTION_TYPE_COOLDOWN_EFFECT_LONG = empty();
     public static final PotionType POTION_TYPE_COOLDOWN_EFFECT_STRONG = empty();
     public static final PotionType POTION_TYPE_ENDURANCE_EFFECT_NORMAL = empty();
-    public static final PotionType POTION_TYPE_ENDURANCE_EFFECT_LONG = empty();
     public static final PotionType POTION_TYPE_ENDURANCE_EFFECT_STRONG = empty();
     public static final PotionType POTION_TYPE_ENDURANCE_REGEN_EFFECT_NORMAL = empty();
     public static final PotionType POTION_TYPE_ENDURANCE_REGEN_EFFECT_LONG = empty();
@@ -46,9 +45,8 @@ public final class ModPotionTypes {
         registry.register(new PotionTypeBase(LibNames.COOLDOWN_EFFECT + "_normal", new PotionEffect(ModPotions.POTION_COOLDOWN_EFFECT, 20 * (60 * 1)/* five minutes */, 0)));
         registry.register(new PotionTypeBase(LibNames.COOLDOWN_EFFECT + "_long", new PotionEffect(ModPotions.POTION_COOLDOWN_EFFECT, 20 * (60 * 10)/* ten minutes */, 0)));
         registry.register(new PotionTypeBase(LibNames.COOLDOWN_EFFECT + "_strong", new PotionEffect(ModPotions.POTION_COOLDOWN_EFFECT, 20 * (60 * 5)/* one minute */, 1)));
-        registry.register(new PotionTypeBase(LibNames.ENDURANCE_EFFECT + "_normal", new PotionEffect(ModPotions.POTION_ENDURANCE_EFFECT, 20 * (60 * 1)/* five minutes */, 0)));
-        registry.register(new PotionTypeBase(LibNames.ENDURANCE_EFFECT + "_long", new PotionEffect(ModPotions.POTION_ENDURANCE_EFFECT, 20 * (60 * 10)/* ten minutes */, 0)));
-        registry.register(new PotionTypeBase(LibNames.ENDURANCE_EFFECT + "_strong", new PotionEffect(ModPotions.POTION_ENDURANCE_EFFECT, 20 * (60 * 5)/* one minute */, 1)));
+        registry.register(new PotionTypeBase(LibNames.ENDURANCE_EFFECT + "_normal", new PotionEffect(ModPotions.POTION_ENDURANCE_EFFECT, 0, 0)));
+        registry.register(new PotionTypeBase(LibNames.ENDURANCE_EFFECT + "_strong", new PotionEffect(ModPotions.POTION_ENDURANCE_EFFECT, 0, 1)));
         registry.register(new PotionTypeBase(LibNames.ENDURANCE_REGEN_EFFECT + "_normal", new PotionEffect(ModPotions.ENDURANCE_REGEN_EFFECT, 20 * (60 * 1)/* five minutes */, 0)));
         registry.register(new PotionTypeBase(LibNames.ENDURANCE_REGEN_EFFECT + "_long", new PotionEffect(ModPotions.ENDURANCE_REGEN_EFFECT, 20 * (60 * 10)/* ten minutes */, 0)));
         registry.register(new PotionTypeBase(LibNames.ENDURANCE_REGEN_EFFECT + "_strong", new PotionEffect(ModPotions.ENDURANCE_REGEN_EFFECT, 20 * (60 * 5)/* one minute */, 1)));
@@ -63,7 +61,6 @@ public final class ModPotionTypes {
         PotionHelper.addMix(ModPotionTypes.POTION_TYPE_COOLDOWN_EFFECT_NORMAL, Item.getItemFromBlock(Blocks.REDSTONE_BLOCK), ModPotionTypes.POTION_TYPE_COOLDOWN_EFFECT_LONG);
         PotionHelper.addMix(ModPotionTypes.POTION_TYPE_COOLDOWN_EFFECT_NORMAL, ModItems.TOKEN, ModPotionTypes.POTION_TYPE_COOLDOWN_EFFECT_STRONG);
         PotionHelper.addMix(ModPotionTypes.POTION_TYPE_ENDER_EFFECT, Items.SPECKLED_MELON, ModPotionTypes.POTION_TYPE_ENDURANCE_EFFECT_NORMAL);
-        PotionHelper.addMix(ModPotionTypes.POTION_TYPE_ENDURANCE_EFFECT_NORMAL, Item.getItemFromBlock(Blocks.REDSTONE_BLOCK), ModPotionTypes.POTION_TYPE_ENDURANCE_EFFECT_LONG);
         PotionHelper.addMix(ModPotionTypes.POTION_TYPE_ENDURANCE_EFFECT_NORMAL, ModItems.TOKEN, ModPotionTypes.POTION_TYPE_ENDURANCE_EFFECT_STRONG);
         PotionHelper.addMix(ModPotionTypes.POTION_TYPE_ENDURANCE_EFFECT_NORMAL, Items.ENDER_EYE, ModPotionTypes.POTION_TYPE_ENDURANCE_REGEN_EFFECT_NORMAL);
         PotionHelper.addMix(ModPotionTypes.POTION_TYPE_ENDURANCE_REGEN_EFFECT_NORMAL, Items.GLOWSTONE_DUST, ModPotionTypes.POTION_TYPE_ENDURANCE_REGEN_EFFECT_LONG);

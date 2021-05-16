@@ -11,6 +11,7 @@ import arekkuusu.enderskills.client.util.helper.TextHelper;
 import arekkuusu.enderskills.common.CommonConfig;
 import arekkuusu.enderskills.common.lib.LibMod;
 import arekkuusu.enderskills.common.lib.LibNames;
+import arekkuusu.enderskills.common.skill.ability.BaseAbility;
 import arekkuusu.enderskills.common.skill.attribute.AttributeInfo;
 import arekkuusu.enderskills.common.skill.attribute.BaseAttribute;
 import arekkuusu.enderskills.common.skill.attribute.deffense.DamageResistance;
@@ -41,7 +42,7 @@ public class StealthDamage extends BaseAttribute implements ISkillAdvancement {
 
     @SubscribeEvent(priority = EventPriority.LOW)
     public void onEntityDamage(LivingHurtEvent event) {
-        if (isClientWorld(event.getEntityLiving()) || event.getSource().getDamageType().equals("ability")) return;
+        if (isClientWorld(event.getEntityLiving()) || event.getSource().getDamageType().equals(BaseAbility.DAMAGE_HIT_TYPE)) return;
         DamageSource source = event.getSource();
         if (!source.getDamageType().matches("player|mob")) return;
         if (!(source.getTrueSource() instanceof EntityLivingBase) || source instanceof SkillDamageSource || source.getImmediateSource() != source.getTrueSource())
@@ -63,7 +64,6 @@ public class StealthDamage extends BaseAttribute implements ISkillAdvancement {
         Vec3d positionTarget = target.getPositionEyes(1F);
         Vec3d lookTarget = target.getLookVec().normalize();
         Vec3d positionAttacker = attacker.getPositionEyes(1F);
-        //Vec3d lookAttacker = attacker.getLookVec().normalize();
 
         Vec3d origin = new Vec3d(0, 0, 0);
         Vec3d pointA = lookTarget.add(positionTarget).subtract(positionTarget);

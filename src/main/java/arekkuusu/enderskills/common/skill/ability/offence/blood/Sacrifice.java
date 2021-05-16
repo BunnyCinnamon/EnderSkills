@@ -61,10 +61,12 @@ public class Sacrifice extends BaseAbility implements ISkillAdvancement {
             if (!(owner instanceof EntityPlayer) || !((EntityPlayer) owner).capabilities.isCreativeMode) {
                 abilityInfo.setCooldown(getCooldown(abilityInfo));
             }
-            float power = getPower(abilityInfo);
+            double power = getPower(abilityInfo);
+            double heal = getHealth(abilityInfo);
             NBTTagCompound compound = new NBTTagCompound();
             NBTHelper.setEntity(compound, owner, "owner");
-            NBTHelper.setFloat(compound, "power", power);
+            NBTHelper.setDouble(compound, "power", power);
+            NBTHelper.setDouble(compound, "heal", heal);
             SkillData data = SkillData.of(this)
                     .by(owner)
                     .with(getTime(abilityInfo))
@@ -85,6 +87,8 @@ public class Sacrifice extends BaseAbility implements ISkillAdvancement {
     public void begin(EntityLivingBase owner, SkillData data) {
         if (isClientWorld(owner)) {
             makeSound(owner);
+        } else {
+            owner.setHealth((float) (owner.getHealth() *  data.nbt.getDouble("heal")));
         }
     }
 
@@ -100,8 +104,8 @@ public class Sacrifice extends BaseAbility implements ISkillAdvancement {
         if (!(source.getTrueSource() instanceof EntityLivingBase) || event.getAmount() <= 0) return;
         EntityLivingBase attacker = (EntityLivingBase) source.getTrueSource();
         SkillHelper.getActiveFrom(attacker, this).ifPresent(data -> {
-            float power = NBTHelper.getFloat(data.nbt, "power");
-            event.setAmount(event.getAmount() + (event.getAmount() * power));
+            double power = NBTHelper.getDouble(data.nbt, "power");
+            event.setAmount(event.getAmount() + (event.getAmount() * (float) power));
         });
     }
 
@@ -124,7 +128,7 @@ public class Sacrifice extends BaseAbility implements ISkillAdvancement {
         int level = getLevel(info);
         int levelMax = getMaxLevel();
         double func = ExpressionHelper.getExpression(this, Configuration.getSyncValues().extra.health, level, levelMax);
-        double result = (func * CommonConfig.getSyncValues().skill.extra.globalPositiveEffect);
+        double result = (func * CommonConfig.getSyncValues().skill.extra.globalNeutralEffect);
         return (float) (result * getEffectiveness());
     }
 
@@ -182,7 +186,7 @@ public class Sacrifice extends BaseAbility implements ISkillAdvancement {
                         }
                         description.add(TextHelper.translate("desc.stats.cooldown", TextHelper.format2FloatPoint(getCooldown(abilityInfo) / 20D), TextHelper.getTextComponent("desc.stats.suffix_time")));
                         description.add(TextHelper.translate("desc.stats.duration", TextHelper.format2FloatPoint(getTime(abilityInfo) / 20D), TextHelper.getTextComponent("desc.stats.suffix_time")));
-                        description.add(TextHelper.translate("desc.stats.health", TextHelper.format2FloatPoint(getHealth(abilityInfo) / 2D), TextHelper.getTextComponent("desc.stats.suffix_hearts")));
+                        description.add(TextHelper.translate("desc.stats.health", "-" + TextHelper.format2FloatPoint(getHealth(abilityInfo) * 100), TextHelper.getTextComponent("desc.stats.suffix_percentage")));
                         description.add(TextHelper.translate("desc.stats.boost", TextHelper.format2FloatPoint(getPower(abilityInfo) * 100), TextHelper.getTextComponent("desc.stats.suffix_percentage")));
                         if (abilityInfo.getLevel() < getMaxLevel()) { //Copy info and set a higher level...
                             AbilityInfo infoNew = new AbilityInfo(abilityInfo.serializeNBT());
@@ -191,7 +195,7 @@ public class Sacrifice extends BaseAbility implements ISkillAdvancement {
                             description.add(TextHelper.translate("desc.stats.level_next", abilityInfo.getLevel(), infoNew.getLevel()));
                             description.add(TextHelper.translate("desc.stats.cooldown", TextHelper.format2FloatPoint(getCooldown(infoNew) / 20D), TextHelper.getTextComponent("desc.stats.suffix_time")));
                             description.add(TextHelper.translate("desc.stats.duration", TextHelper.format2FloatPoint(getTime(infoNew) / 20D), TextHelper.getTextComponent("desc.stats.suffix_time")));
-                            description.add(TextHelper.translate("desc.stats.health", TextHelper.format2FloatPoint(getHealth(infoNew) / 2D), TextHelper.getTextComponent("desc.stats.suffix_hearts")));
+                            description.add(TextHelper.translate("desc.stats.health", "-" + TextHelper.format2FloatPoint(getHealth(infoNew) * 100), TextHelper.getTextComponent("desc.stats.suffix_percentage")));
                             description.add(TextHelper.translate("desc.stats.boost", TextHelper.format2FloatPoint(getPower(infoNew) * 100), TextHelper.getTextComponent("desc.stats.suffix_percentage")));
                         }
                     });
@@ -307,11 +311,11 @@ public class Sacrifice extends BaseAbility implements ISkillAdvancement {
             public static class Extra {
                 @Config.Comment("Health Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
                 public String[] health = {
-                        "(0+){0.05 + x * 0.05}"
+                        "(0+){0.8 - x / y * 0.3}"
                 };
                 @Config.Comment("Power Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
                 public String[] power = {
-                        "(0+){2 + x * 0.05}"
+                        "(0+){1.5 + x * 0.05}"
                 };
             }
 

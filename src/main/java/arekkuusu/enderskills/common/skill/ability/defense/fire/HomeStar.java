@@ -15,6 +15,7 @@ import arekkuusu.enderskills.client.sounds.HomeStarSound;
 import arekkuusu.enderskills.client.util.helper.TextHelper;
 import arekkuusu.enderskills.common.CommonConfig;
 import arekkuusu.enderskills.common.EnderSkills;
+import arekkuusu.enderskills.common.entity.placeable.EntityPlaceableData;
 import arekkuusu.enderskills.common.lib.LibMod;
 import arekkuusu.enderskills.common.lib.LibNames;
 import arekkuusu.enderskills.common.skill.ModAbilities;
@@ -31,6 +32,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.config.Config;
@@ -101,7 +103,9 @@ public class HomeStar extends BaseAbility implements ISkillAdvancement {
     @Override
     public void update(EntityLivingBase owner, SkillData data, int tick) {
         if (isClientWorld(owner)) return;
-        double distance = NBTHelper.getDouble(data.nbt, "range") * ((double) tick / (double) data.time);
+        data.nbt.setInteger("tick", tick);
+        double progress = MathHelper.clamp((double) tick / (double) Math.min(data.time, EntityPlaceableData.MIN_TIME), 0D, 1D);
+        double distance = NBTHelper.getDouble(data.nbt, "range") * progress;
         Vec3d pos = owner.getPositionVector();
         pos = new Vec3d(pos.x, pos.y + owner.height / 2, pos.z);
         Vec3d min = pos.subtract(0.5D, 0.5D, 0.5D);

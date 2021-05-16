@@ -703,7 +703,7 @@ public final class GuiHandler implements IGuiHandler {
                         fire.addAdvancement(magic_resistance, heart_boost, fire_resistance);
                     }
 
-                    if (CommonConfig.getValues().advancement.oneTreePerClass) {
+                    if (CommonConfig.getSyncValues().advancement.oneTreePerClass) {
                         charm.addCondition(new SkillAdvancementConditionNot(taunt));
                         charm.addCondition(new SkillAdvancementConditionNot(shocking_aura));
                         charm.addCondition(new SkillAdvancementConditionNot(flares));
@@ -1048,7 +1048,7 @@ public final class GuiHandler implements IGuiHandler {
                         ender.addAdvancement(endurance, stealth_damage, swim_speed);
                     }
 
-                    if (CommonConfig.getValues().advancement.oneTreePerClass) {
+                    if (CommonConfig.getSyncValues().advancement.oneTreePerClass) {
                         dash.addCondition(new SkillAdvancementConditionNot(warp));
                         warp.addCondition(new SkillAdvancementConditionNot(dash));
                     }
@@ -1712,7 +1712,7 @@ public final class GuiHandler implements IGuiHandler {
                         fire.addAdvancement(ability_power, critical_chance, armor_penetration);
                     }
 
-                    if (CommonConfig.getValues().advancement.oneTreePerClass) {
+                    if (CommonConfig.getSyncValues().advancement.oneTreePerClass) {
                         shadow.addCondition(new SkillAdvancementConditionNot(bleed));
                         shadow.addCondition(new SkillAdvancementConditionNot(slash));
                         shadow.addCondition(new SkillAdvancementConditionNot(fire_spirit));

@@ -120,7 +120,7 @@ public class Syphon extends BaseAbility implements IImpact, ISkillAdvancement {
         int level = getLevel(info);
         int levelMax = getMaxLevel();
         double func = ExpressionHelper.getExpression(this, LifeSteal.Configuration.getSyncValues().extra.heal, level, levelMax);
-        double result = (func * CommonConfig.getSyncValues().skill.extra.globalNegativeEffect);
+        double result = (func * CommonConfig.getSyncValues().skill.extra.globalNeutralEffect);
         return (float) (result * getEffectiveness());
     }
 
@@ -166,6 +166,7 @@ public class Syphon extends BaseAbility implements IImpact, ISkillAdvancement {
                         }
                         description.add(TextHelper.translate("desc.stats.cooldown", TextHelper.format2FloatPoint(getCooldown(abilityInfo) / 20D), TextHelper.getTextComponent("desc.stats.suffix_time")));
                         description.add(TextHelper.translate("desc.stats.range", TextHelper.format2FloatPoint(getRange(abilityInfo)), TextHelper.getTextComponent("desc.stats.suffix_blocks")));
+                        description.add(TextHelper.translate("desc.stats.heal", TextHelper.format2FloatPoint(getHeal(abilityInfo) * 100), TextHelper.getTextComponent("desc.stats.suffix_percentage")));
                         if (abilityInfo.getLevel() < getMaxLevel()) { //Copy info and set a higher level...
                             AbilityInfo infoNew = new AbilityInfo(abilityInfo.serializeNBT());
                             infoNew.setLevel(infoNew.getLevel() + 1);
@@ -173,6 +174,7 @@ public class Syphon extends BaseAbility implements IImpact, ISkillAdvancement {
                             description.add(TextHelper.translate("desc.stats.level_next", abilityInfo.getLevel(), infoNew.getLevel()));
                             description.add(TextHelper.translate("desc.stats.cooldown", TextHelper.format2FloatPoint(getCooldown(infoNew) / 20D), TextHelper.getTextComponent("desc.stats.suffix_time")));
                             description.add(TextHelper.translate("desc.stats.range", TextHelper.format2FloatPoint(getRange(infoNew)), TextHelper.getTextComponent("desc.stats.suffix_blocks")));
+                            description.add(TextHelper.translate("desc.stats.heal", TextHelper.format2FloatPoint(getHeal(infoNew) * 100), TextHelper.getTextComponent("desc.stats.suffix_percentage")));
                         }
                     });
                 }
@@ -283,7 +285,7 @@ public class Syphon extends BaseAbility implements IImpact, ISkillAdvancement {
             public static class Extra {
                 @Config.Comment("Heal Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
                 public String[] heal = {
-                        "(0+){0.1 + ((x / y) * (0.3 - 0.1))}"
+                        "(0+){0.2 + ((x / y) * (0.3))}"
                 };
             }
 

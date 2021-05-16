@@ -87,7 +87,7 @@ public class EntityStoneGolem extends EntityGolem {
         this.getAttributeMap().registerAttribute(SharedMonsterAttributes.ATTACK_DAMAGE);
         this.getEntityAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(0);
         this.getEntityAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).setBaseValue(0);
-        this.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(0.5D);
+        this.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(0.4D);
         this.getEntityAttribute(SharedMonsterAttributes.KNOCKBACK_RESISTANCE).setBaseValue(1.0D);
     }
 
@@ -173,12 +173,18 @@ public class EntityStoneGolem extends EntityGolem {
                     }
 
                     if (attackSwapTimer <= 0) {
-                        if (TeamHelper.SELECTOR_ENEMY.apply(owner).test(owner.getLastAttackedEntity()) && owner.getLastAttackedEntity().getDistance(owner) < 16) {
+                        if (owner.getLastAttackedEntity() != null
+                                && TeamHelper.SELECTOR_ENEMY.apply(owner).test(owner.getLastAttackedEntity())
+                                && owner.getLastAttackedEntity().getDistance(owner) < 16) {
                             setAttackTarget(owner.getLastAttackedEntity());
-                        } else if (TeamHelper.SELECTOR_ENEMY.apply(owner).test(owner.getLastAttackedEntity()) && owner.getLastAttackedEntity().getDistance(this) < 16) {
+                        } else if (owner.getLastAttackedEntity() != null
+                                && TeamHelper.SELECTOR_ENEMY.apply(owner).test(owner.getLastAttackedEntity())
+                                && owner.getLastAttackedEntity().getDistance(this) < 16) {
                             setAttackTarget(owner.getLastAttackedEntity());
-                        } else if (owner.getDistance(this) > 16 && (getAttackTarget() == null || getRevengeTarget() != null)) {
-                            world.getEntitiesInAABBexcluding(this, getEntityBoundingBox().grow(16), TeamHelper.SELECTOR_ENEMY.apply(owner))
+                        } else if (owner.getDistance(this) > 16
+                                && (getAttackTarget() == null || getRevengeTarget() != null)) {
+                            AxisAlignedBB bb = getEntityBoundingBox().grow(16);
+                            world.getEntitiesInAABBexcluding(this, bb, TeamHelper.SELECTOR_ENEMY.apply(owner))
                                     .stream().filter(e -> e instanceof EntityLivingBase)
                                     .filter(this::canEntityBeSeen)
                                     .findAny()

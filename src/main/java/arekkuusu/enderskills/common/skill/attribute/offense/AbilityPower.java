@@ -15,7 +15,6 @@ import arekkuusu.enderskills.common.skill.DynamicModifier;
 import arekkuusu.enderskills.common.skill.SkillHelper;
 import arekkuusu.enderskills.common.skill.attribute.AttributeInfo;
 import arekkuusu.enderskills.common.skill.attribute.BaseAttribute;
-import arekkuusu.enderskills.common.skill.attribute.mobility.Endurance;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.Entity;
@@ -239,7 +238,7 @@ public class AbilityPower extends BaseAttribute implements ISkillAdvancement {
 
             @Config.Comment("The Maximum level of this Skill")
             @Config.RangeInt(min = 0)
-            public int maxLevel = Integer.MAX_VALUE;
+            public int maxLevel = 100;
 
             @Config.Comment("Modifier Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
             public String[] modifier = {
@@ -258,7 +257,7 @@ public class AbilityPower extends BaseAttribute implements ISkillAdvancement {
             public static class Advancement {
                 @Config.Comment("Function f(x)=? where 'x' is [Next Level] and 'y' is [Max Level], XP Cost is in units [NOT LEVELS]")
                 public String[] upgrade = {
-                        "(0+){(150 * (1 - (0 ^ (0 ^ x)))) + 10 + 7 * x}"
+                        "(0+){(150 * (1 - (0 ^ (0 ^ x)))) + 10 + 19 * x}"
                 };
             }
         }

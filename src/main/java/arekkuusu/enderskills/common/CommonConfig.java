@@ -34,6 +34,7 @@ public final class CommonConfig {
 
     @Deprecated
     public static void initSyncConfig() {
+        CommonConfig.getSyncValues().skill.destroyBlocks = CommonConfig.getValues().skill.destroyBlocks;
         CommonConfig.getSyncValues().skill.defaultHumanTeam = CommonConfig.getValues().skill.defaultHumanTeam;
         CommonConfig.getSyncValues().skill.defaultAnimalTeam = CommonConfig.getValues().skill.defaultAnimalTeam;
         EnderSkillsAPI.defaultHumanTeam = CommonConfig.getSyncValues().skill.defaultHumanTeam;

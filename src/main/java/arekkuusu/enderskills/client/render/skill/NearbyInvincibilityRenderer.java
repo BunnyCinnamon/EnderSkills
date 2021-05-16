@@ -8,6 +8,7 @@ import arekkuusu.enderskills.client.util.ResourceLibrary;
 import arekkuusu.enderskills.client.util.ShaderLibrary;
 import arekkuusu.enderskills.client.util.helper.GLHelper;
 import arekkuusu.enderskills.common.EnderSkills;
+import arekkuusu.enderskills.common.entity.placeable.EntityPlaceableData;
 import arekkuusu.enderskills.common.lib.LibMod;
 import arekkuusu.enderskills.common.skill.ability.defense.light.NearbyInvincibility;
 import net.minecraft.client.renderer.BufferBuilder;
@@ -16,6 +17,7 @@ import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -41,7 +43,8 @@ public class NearbyInvincibilityRenderer extends SkillRenderer<NearbyInvincibili
         }
         GlStateManager.disableLighting();
         GlStateManager.enableBlend();
-        double scale = NBTHelper.getDouble(skillHolder.data.nbt, "range") * ((double) skillHolder.tick / (double) skillHolder.data.time);
+        double progress = MathHelper.clamp((double) skillHolder.tick / (double) Math.min(skillHolder.data.time, EntityPlaceableData.MIN_TIME), 0D, 1D);
+        double scale = NBTHelper.getDouble(skillHolder.data.nbt, "range") * progress;
         if (skillHolder.tick % 5 == 0) {
             if (entity.world.rand.nextDouble() < 0.2D && ClientProxy.canParticleSpawn()) {
                 Vec3d vec = entity.getPositionVector();
