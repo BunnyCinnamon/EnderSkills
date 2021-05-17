@@ -1,5 +1,6 @@
 package arekkuusu.enderskills.common.entity;
 
+import arekkuusu.enderskills.api.helper.RayTraceHelper;
 import arekkuusu.enderskills.common.entity.data.ExtendedData;
 import arekkuusu.enderskills.common.entity.data.ListBlockStateExtendedData;
 import arekkuusu.enderskills.common.entity.data.WallSegmentBehaviorExtendedData;
@@ -15,6 +16,7 @@ import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.util.EntitySelectors;
 import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants;
@@ -66,8 +68,13 @@ public class EntityWallSegment extends Entity {
             for (Entity entity : list) {
                 Vec3d pos = entity.getPositionVector();
                 if (canCollideWith(entity) && pos.y > posY) {
-                    double yOffset = posY + motionY + getSize();
-                    entity.setPositionAndUpdate(pos.x, yOffset, pos.z);
+                    double modOffset = motionY + getSize();
+                    double yOffset = posY + modOffset;
+                    Vec3d posOffset = new Vec3d(pos.x, yOffset, pos.z);
+                    RayTraceResult result = RayTraceHelper.rayTraceBlocks(entity.world, pos, posOffset);
+                    if(result == null || result.typeOfHit != RayTraceResult.Type.BLOCK) {
+                        entity.setPositionAndUpdate(posOffset.x, posOffset.y, posOffset.z);
+                    }
                     if (entity.motionY < 0) entity.motionY = 0;
                     double launch = (1D + (wall.getLaunch() / 20D)) / 5D;
                     entity.motionY += launch;
