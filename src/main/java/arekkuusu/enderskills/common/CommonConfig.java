@@ -35,6 +35,7 @@ public final class CommonConfig {
     @Deprecated
     public static void initSyncConfig() {
         CommonConfig.getSyncValues().skill.destroyBlocks = CommonConfig.getValues().skill.destroyBlocks;
+        CommonConfig.getSyncValues().skill.preventAbilityDoTKnockback = CommonConfig.getValues().skill.preventAbilityDoTKnockback;
         CommonConfig.getSyncValues().skill.defaultHumanTeam = CommonConfig.getValues().skill.defaultHumanTeam;
         CommonConfig.getSyncValues().skill.defaultAnimalTeam = CommonConfig.getValues().skill.defaultAnimalTeam;
         EnderSkillsAPI.defaultHumanTeam = CommonConfig.getSyncValues().skill.defaultHumanTeam;
@@ -81,6 +82,7 @@ public final class CommonConfig {
         NBTHelper.setArray(compound, "advancement.levels.function", CommonConfig.getValues().advancement.levels.function);
         compound.setInteger("advancement.levels.defaultLevel", CommonConfig.getValues().advancement.levels.defaultLevel);
         compound.setBoolean("destroyBlocks", CommonConfig.getValues().skill.destroyBlocks);
+        compound.setBoolean("preventAbilityDoTKnockback", CommonConfig.getValues().skill.preventAbilityDoTKnockback);
         compound.setBoolean("defaultHumanTeam", CommonConfig.getValues().skill.defaultHumanTeam);
         compound.setBoolean("defaultAnimalTeam", CommonConfig.getValues().skill.defaultAnimalTeam);
         compound.setDouble("globalCooldown", CommonConfig.getValues().skill.globalCooldown);
@@ -97,7 +99,7 @@ public final class CommonConfig {
     @Deprecated
     @SideOnly(Side.CLIENT)
     public static void readSyncConfig(NBTTagCompound compound) {
-        CommonConfig.getSyncValues().advancement.oneTreePerClass = compound.getBoolean("advancement.xp.oneTreePerClass");
+        CommonConfig.getSyncValues().advancement.oneTreePerClass = compound.getBoolean("advancement.oneTreePerClass");
         CommonConfig.getSyncValues().advancement.xp.globalCostMultiplier = compound.getDouble("advancement.xp.globalCostMultiplier");
         CommonConfig.getSyncValues().advancement.xp.costIncrement = compound.getDouble("advancement.xp.costIncrement");
         CommonConfig.getSyncValues().advancement.xp.retryXPReturn = compound.getDouble("advancement.xp.retryXPReturn");
@@ -107,6 +109,7 @@ public final class CommonConfig {
         CommonConfig.getSyncValues().advancement.levels.function = NBTHelper.getArray(compound, "advancement.levels.function");
         CommonConfig.getSyncValues().advancement.levels.defaultLevel = compound.getInteger("advancement.levels.defaultLevel");
         CommonConfig.getSyncValues().skill.destroyBlocks = compound.getBoolean("destroyBlocks");
+        CommonConfig.getSyncValues().skill.preventAbilityDoTKnockback = compound.getBoolean("preventAbilityDoTKnockback");
         CommonConfig.getSyncValues().skill.defaultHumanTeam = compound.getBoolean("defaultHumanTeam");
         CommonConfig.getSyncValues().skill.defaultAnimalTeam = compound.getBoolean("defaultAnimalTeam");
         CommonConfig.getSyncValues().skill.globalCooldown = compound.getDouble("globalCooldown");
@@ -135,8 +138,11 @@ public final class CommonConfig {
 
             public final Extra extra = new Extra();
 
-            @Config.Comment("Disallows abilities to break blocks")
+            @Config.Comment("Disallows abilities from breaking blocks")
             public boolean destroyBlocks = false;
+
+            @Config.Comment("Disallows DoT abilities from knockback")
+            public boolean preventAbilityDoTKnockback = true;
 
             @Config.Comment("Disallows abilities to target humans")
             public boolean defaultHumanTeam = true;

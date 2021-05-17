@@ -57,6 +57,7 @@ public class EnderSkills {
         EnduranceCapability.init();
         AdvancementCapability.init();
         PowerBoostCapability.init();
+        KnockbackTimerCapability.init();
         PacketHandler.init();
         if(WorldGuardHelper.isEventHelperLoaded()) {
             MinecraftForge.EVENT_BUS.register(new WorldGuardHelper());

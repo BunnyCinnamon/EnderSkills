@@ -5,16 +5,21 @@ import arekkuusu.enderskills.api.capability.data.SkillHolder;
 import arekkuusu.enderskills.api.capability.data.SkillInfo;
 import arekkuusu.enderskills.api.event.SkillActionableEvent;
 import arekkuusu.enderskills.api.registry.Skill;
+import arekkuusu.enderskills.common.CommonConfig;
 import arekkuusu.enderskills.common.lib.LibMod;
 import arekkuusu.enderskills.common.network.PacketHelper;
+import arekkuusu.enderskills.common.skill.ability.BaseAbility;
 import com.google.common.collect.Lists;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.DamageSource;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.entity.EntityTravelToDimensionEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingEvent;
+import net.minecraftforge.event.entity.living.LivingKnockBackEvent;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -174,10 +179,39 @@ public class Events {
         }
     }
 
+    @SubscribeEvent(priority = EventPriority.LOWEST)
+    public static void onKnockbackTick(LivingEvent.LivingUpdateEvent event) {
+        if (!event.getEntityLiving().getEntityWorld().isRemote) {
+            EntityLivingBase entity = event.getEntityLiving();
+            Capabilities.knockback(entity).ifPresent(c -> {
+                if(c.lastKnockback < 20) {
+                    c.lastKnockback++;
+                }
+            });
+        }
+    }
+
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public static void onSkillActionable(SkillActionableEvent event) {
         if(event.getEntityLiving() instanceof EntityPlayer && ((EntityPlayer) event.getEntityLiving()).isSpectator()) {
             event.setCanceled(true);
+        }
+    }
+
+    @SubscribeEvent(priority = EventPriority.HIGHEST)
+    public static void onKnockback(LivingKnockBackEvent event) {
+        if (!event.getEntityLiving().getEntityWorld().isRemote) {
+            Capabilities.knockback(event.getEntityLiving()).ifPresent(c -> {
+                DamageSource source = event.getEntityLiving().getLastDamageSource();
+                boolean isDamageAnDoTAbility = source != null
+                        && CommonConfig.getSyncValues().skill.preventAbilityDoTKnockback
+                        && source.damageType.equals(BaseAbility.DAMAGE_DOT_TYPE);
+                if (isDamageAnDoTAbility) {
+                    event.setCanceled(true);
+                } else {
+                    c.lastKnockback = 0;
+                }
+            });
         }
     }
 }
