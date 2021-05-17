@@ -22,7 +22,9 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.ai.attributes.AbstractAttributeMap;
 import net.minecraft.entity.ai.attributes.IAttribute;
+import net.minecraft.entity.ai.attributes.IAttributeInstance;
 import net.minecraft.entity.ai.attributes.RangedAttribute;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -32,7 +34,9 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Config;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
+import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.entity.living.LivingEvent;
+import net.minecraftforge.event.entity.living.LivingSpawnEvent;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
@@ -98,6 +102,13 @@ public class Endurance extends BaseAttribute implements ISkillAdvancement {
     public void attachCapabilities(AttachCapabilitiesEvent<Entity> event) {
         if (event.getObject() instanceof EntityLivingBase) {
             ((EntityLivingBase) event.getObject()).getAttributeMap().registerAttribute(MAX_ENDURANCE).setBaseValue(0F);
+        }
+    }
+
+    @SubscribeEvent
+    public void resetDefault(EntityJoinWorldEvent event) {
+        if(event.getEntity() instanceof EntityLivingBase) {
+            ((EntityLivingBase) event.getEntity()).getEntityAttribute(MAX_ENDURANCE).setBaseValue(0F);
         }
     }
 
