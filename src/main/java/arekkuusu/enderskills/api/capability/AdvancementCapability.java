@@ -45,7 +45,7 @@ public class AdvancementCapability implements ICapabilitySerializable<NBTTagComp
     /* Vanilla specific */
 
     public AdvancementCapability() {
-        level = CommonConfig.getSyncValues().advancement.levels.defaultLevel;
+        level = CommonConfig.getValues().advancement.levels.defaultLevel;
     }
 
     public int getExperienceTotal(EntityLivingBase entity) {

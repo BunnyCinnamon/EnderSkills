@@ -90,7 +90,6 @@ public class CommandReload extends CommandBase {
                 }
             }
         }
-        CommonConfig.initSyncConfig();
         for (EntityPlayerMP player : server.getPlayerList().getPlayers()) { //Sync EVERY player
             PacketHelper.sendConfigReload(player); //I hope you know what you're doing dude.... if this is what Y O U want then holy shit good luck brace for the lag spike and 9999999999 ping
             player.sendMessage(new TextComponentTranslation("command." + LibMod.MOD_ID + ".config.reload.success"));

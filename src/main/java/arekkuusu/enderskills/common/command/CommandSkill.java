@@ -134,7 +134,7 @@ public class CommandSkill extends CommandBase {
             switch (action) {
                 case "set":
                     if (levelToSet > properties.getMaxLevel()) {
-                        message(sender, "skill.invalid.level");
+                        message(sender, "skill.invalid.level", String.valueOf(levelToSet));
                         return;
                     }
                     skillLevel.setLevel(levelToSet);

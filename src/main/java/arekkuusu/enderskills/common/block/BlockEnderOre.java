@@ -27,8 +27,8 @@ public class BlockEnderOre extends BlockBase {
 
     @Override
     public int quantityDropped(Random random) {
-        return CommonConfig.getSyncValues().worldGen.enderOreItemDropsMin +
-                random.nextInt(CommonConfig.getSyncValues().worldGen.enderOreItemDropsMax - CommonConfig.getSyncValues().worldGen.enderOreItemDropsMin);
+        return CommonConfig.getValues().worldGen.enderOreItemDropsMin +
+                random.nextInt(CommonConfig.getValues().worldGen.enderOreItemDropsMax - CommonConfig.getValues().worldGen.enderOreItemDropsMin);
     }
 
     @Override

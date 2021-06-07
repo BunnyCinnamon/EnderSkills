@@ -6,6 +6,7 @@ import com.expression.parser.Parser;
 import com.expression.parser.util.ParserResult;
 import com.expression.parser.util.Point;
 import it.unimi.dsi.fastutil.ints.Int2DoubleArrayMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Tuple;
@@ -16,6 +17,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class ExpressionHelper {
+
+    public static final Function<Tuple<ResourceLocation, String>, Int2DoubleArrayMap> EXPRESSION_CACHE_SUPPLIER = (s) -> new Int2DoubleArrayMap();
+    public static final Function<ResourceLocation, Object2ObjectArrayMap<String, FunctionInfo>> EXPRESSION_FUNCTION_CACHE_SUPPLIER = (s) -> new Object2ObjectArrayMap<>();
 
     public static final Function<String, FunctionInfo> EXPRESSION_PARSER_SUPPLIER = ExpressionHelper::parse;
     public static final String EXPRESSION_REGEX = "^\\(([\\+\\-\\d]+)\\)\\{(.+)\\}$";
@@ -29,22 +33,24 @@ public class ExpressionHelper {
     }
 
     public static double getExpression(ResourceLocation location, String function, int min, int max) {
-        Int2DoubleArrayMap map = EnderSkillsAPI.EXPRESSION_CACHE.computeIfAbsent(new Tuple<>(location, function), EnderSkillsAPI.EXPRESSION_CACHE_SUPPLIER);
-        if (!map.containsKey(min)) {
-            final Point x = new Point("x", String.valueOf(min));
-            final Point y = new Point("y", String.valueOf(max));
+        Int2DoubleArrayMap cache = EnderSkillsAPI.EXPRESSION_CACHE.asMap().computeIfAbsent(new Tuple<>(location, function), ExpressionHelper.EXPRESSION_CACHE_SUPPLIER);
+        if(min > max) min = max;
+        if (!cache.containsKey(min)) {
+            Point x = new Point("x", String.valueOf(min));
+            Point y = new Point("y", String.valueOf(max));
             ParserResult result = Parser.eval(function, x, y);
-            map.put(min, result.getValue().doubleValue());
+            cache.put(min, result.getValue().doubleValue());
         }
-        return map.get(min);
+        return cache.get(min);
     }
 
     public static double getExpression(ResourceLocation location, String[] functionArray, int min, int max) {
-        Object2ObjectMap<String, FunctionInfo> map = EnderSkillsAPI.EXPRESSION_FUNCTION_CACHE.computeIfAbsent(location, EnderSkillsAPI.EXPRESSION_FUNCTION_CACHE_SUPPLIER);
+        Object2ObjectMap<String, FunctionInfo> cache = EnderSkillsAPI.EXPRESSION_FUNCTION_CACHE.asMap().computeIfAbsent(location, ExpressionHelper.EXPRESSION_FUNCTION_CACHE_SUPPLIER);
         FunctionInfo match = null;
         FunctionInfo temp = null;
+        if(min > max) min = max;
         for (String s : functionArray) {
-            FunctionInfo info = map.computeIfAbsent(s, ExpressionHelper.EXPRESSION_PARSER_SUPPLIER);
+            FunctionInfo info = cache.computeIfAbsent(s, ExpressionHelper.EXPRESSION_PARSER_SUPPLIER);
             if (info.matches(min) && isNotOverride(temp, info, min)) {
                 match = info;
             }

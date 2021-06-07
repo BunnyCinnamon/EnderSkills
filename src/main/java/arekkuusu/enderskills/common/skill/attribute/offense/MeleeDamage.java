@@ -1,58 +1,59 @@
-package arekkuusu.enderskills.common.skill.attribute.deffense;
+package arekkuusu.enderskills.common.skill.attribute.offense;
 
 import arekkuusu.enderskills.api.capability.Capabilities;
+import arekkuusu.enderskills.api.event.SkillDamageSource;
 import arekkuusu.enderskills.api.helper.NBTHelper;
 import arekkuusu.enderskills.api.util.ConfigDSL;
 import arekkuusu.enderskills.client.gui.data.ISkillAdvancement;
 import arekkuusu.enderskills.client.util.helper.TextHelper;
 import arekkuusu.enderskills.common.lib.LibMod;
 import arekkuusu.enderskills.common.lib.LibNames;
-import arekkuusu.enderskills.common.skill.DynamicModifier;
+import arekkuusu.enderskills.common.skill.SkillHelper;
 import arekkuusu.enderskills.common.skill.attribute.AttributeInfo;
 import arekkuusu.enderskills.common.skill.attribute.BaseAttribute;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.DamageSource;
+import net.minecraft.util.IStringSerializable;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Config;
-import net.minecraftforge.common.util.Constants;
-import net.minecraftforge.event.entity.living.LivingEvent;
+import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 import java.util.List;
+import java.util.Locale;
 
-public class HeartBoost extends BaseAttribute implements ISkillAdvancement {
+public class MeleeDamage extends BaseAttribute implements ISkillAdvancement {
 
-    public static final DynamicModifier HEALTH_ATTRIBUTE = new DynamicModifier(
-            "b49606db-d189-4e63-a577-638b00c9d782",
-            LibMod.MOD_ID + ":" + LibNames.HEART_BOOST,
-            SharedMonsterAttributes.MAX_HEALTH,
-            Constants.AttributeModifierOperation.ADD);
-
-    public HeartBoost() {
-        super(LibNames.HEART_BOOST, new BaseProperties());
+    public MeleeDamage() {
+        super(LibNames.DAMAGE, new BaseProperties());
         MinecraftForge.EVENT_BUS.register(this);
         ((BaseProperties) getProperties()).setMaxLevelGetter(this::getMaxLevel);
     }
 
-    @SubscribeEvent(priority = EventPriority.LOWEST)
-    public void onEntityUpdate(LivingEvent.LivingUpdateEvent event) {
-        if (isClientWorld(event.getEntityLiving())) return;
-        EntityLivingBase entity = event.getEntityLiving();
-        if (entity.ticksExisted % 20 != 0) return; //Slowdown cowboy! yee-haw!
-        Capabilities.get(entity).ifPresent(capability -> {
+    @SubscribeEvent(priority = EventPriority.LOW)
+    public void onEntityDamage(LivingHurtEvent event) {
+        if (isClientWorld(event.getEntityLiving()) || SkillHelper.isSkillDamage(event.getSource())) return;
+        DamageSource source = event.getSource();
+        if (!(source.getTrueSource() instanceof EntityLivingBase) || source instanceof SkillDamageSource || event.getAmount() <= 0)
+            return;
+        EntityLivingBase attacker = (EntityLivingBase) source.getTrueSource();
+        Capabilities.get(attacker).ifPresent(capability -> {
+            //Do Damage
             if (capability.isOwned(this)) {
                 capability.getOwned(this).ifPresent(skillInfo -> {
                     AttributeInfo attributeInfo = (AttributeInfo) skillInfo;
-                    HEALTH_ATTRIBUTE.apply(entity, getModifier(attributeInfo));
+                    if (Configuration.CONFIG_SYNC.applyAs == Configuration.Damage_.MULTIPLICATION) {
+                        event.setAmount(event.getAmount() + event.getAmount() * getModifier(attributeInfo));
+                    } else {
+                        event.setAmount(event.getAmount() + getModifier(attributeInfo));
+                    }
                 });
-            } else {
-                HEALTH_ATTRIBUTE.remove(entity);
             }
         });
     }
@@ -83,7 +84,11 @@ public class HeartBoost extends BaseAttribute implements ISkillAdvancement {
                         } else {
                             description.add(TextHelper.translate("desc.stats.level_current", attributeInfo.getLevel(), attributeInfo.getLevel() + 1));
                         }
-                        description.add(TextHelper.translate("desc.stats.boost", TextHelper.format2FloatPoint(getModifier(attributeInfo) / 2D), TextHelper.getTextComponent("desc.stats.suffix_hearts")));
+                        if (Configuration.CONFIG_SYNC.applyAs == Configuration.Damage_.MULTIPLICATION) {
+                            description.add(TextHelper.translate("desc.stats.dmg", TextHelper.format2FloatPoint(getModifier(attributeInfo) * 100), TextHelper.getTextComponent("desc.stats.suffix_percentage")));
+                        } else {
+                            description.add(TextHelper.translate("desc.stats.dmg", TextHelper.format2FloatPoint(getModifier(attributeInfo) / 20D), TextHelper.getTextComponent("desc.stats.suffix_hearts")));
+                        }
                         if (attributeInfo.getLevel() < getMaxLevel()) {
                             if (!GuiScreen.isCtrlKeyDown()) {
                                 description.add("");
@@ -93,7 +98,11 @@ public class HeartBoost extends BaseAttribute implements ISkillAdvancement {
                             infoNew.setLevel(infoNew.getLevel() + 1);
                             description.add("");
                             description.add(TextHelper.translate("desc.stats.level_next", attributeInfo.getLevel(), infoNew.getLevel()));
-                            description.add(TextHelper.translate("desc.stats.boost", TextHelper.format2FloatPoint(getModifier(infoNew) / 2D), TextHelper.getTextComponent("desc.stats.suffix_hearts")));
+                            if (Configuration.CONFIG_SYNC.applyAs == Configuration.Damage_.MULTIPLICATION) {
+                                description.add(TextHelper.translate("desc.stats.dmg", TextHelper.format2FloatPoint(getModifier(infoNew) * 100), TextHelper.getTextComponent("desc.stats.suffix_percentage")));
+                            } else {
+                                description.add(TextHelper.translate("desc.stats.dmg", TextHelper.format2FloatPoint(getModifier(infoNew) / 20D), TextHelper.getTextComponent("desc.stats.suffix_hearts")));
+                            }
                             }
                         }
                     });
@@ -109,22 +118,25 @@ public class HeartBoost extends BaseAttribute implements ISkillAdvancement {
     /*Advancement Section*/
 
     /*Config Section*/
-    public static final String CONFIG_FILE = LibNames.ATTRIBUTE_DEFENSE_FOLDER + LibNames.HEART_BOOST;
+    public static final String CONFIG_FILE = LibNames.ATTRIBUTE_OFFENCE_FOLDER + LibNames.DAMAGE;
     public ConfigDSL.Config config = new ConfigDSL.Config();
 
     @Override
     public void initSyncConfig() {
         this.config = ConfigDSL.parse(Configuration.CONFIG_SYNC.dsl);
+        Configuration.CONFIG_SYNC.applyAs = Configuration.CONFIG.applyAs;
     }
 
     @Override
     public void writeSyncConfig(NBTTagCompound compound) {
         NBTHelper.setArray(compound, "config", Configuration.CONFIG.dsl);
+        NBTHelper.setEnum(compound, "applyAs", Configuration.CONFIG.applyAs);
     }
 
     @Override
     public void readSyncConfig(NBTTagCompound compound) {
         Configuration.CONFIG_SYNC.dsl = NBTHelper.getArray(compound, "config");
+        Configuration.CONFIG_SYNC.applyAs = NBTHelper.getEnum(Configuration.Damage_.class, compound, "applyAs");
     }
 
     @Config(modid = LibMod.MOD_ID, name = CONFIG_FILE)
@@ -134,7 +146,19 @@ public class HeartBoost extends BaseAttribute implements ISkillAdvancement {
         public static final Configuration.Values CONFIG_SYNC = new Configuration.Values();
         public static final Configuration.Values CONFIG = new Configuration.Values();
 
+        public enum Damage_ implements IStringSerializable {
+            MULTIPLICATION,
+            ADDITION;
+
+            @Override
+            public String getName() {
+                return name().toLowerCase(Locale.ROOT);
+            }
+        }
+
         public static class Values {
+
+            public Configuration.Damage_ applyAs = Configuration.Damage_.MULTIPLICATION;
 
             public String[] dsl = {
                     "⠀#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~",
@@ -145,11 +169,11 @@ public class HeartBoost extends BaseAttribute implements ISkillAdvancement {
                     "⠀#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~",
                     "⠀MODIFIER (",
                     "⠀    curve: flat",
-                    "⠀    start: 0h",
-                    "⠀    end:   infinite",
+                    "⠀    start: 0%",
+                    "⠀    end:   99%",
                     "⠀",
                     "⠀    {0} [",
-                    "⠀        curve: multiply 1h",
+                    "⠀        curve: f(x, y) -> 1 - e^(-0.05 * x)",
                     "⠀    ]",
                     "⠀)",
                     "⠀#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~",

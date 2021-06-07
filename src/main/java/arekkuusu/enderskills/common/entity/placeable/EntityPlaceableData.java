@@ -41,6 +41,7 @@ public class EntityPlaceableData extends Entity {
         }
         setData(skillData);
         setLifeTime(lifeTime);
+        setGrowTicks(Math.min(lifeTime, MIN_TIME));
     }
 
     @Override

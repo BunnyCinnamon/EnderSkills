@@ -1,30 +1,25 @@
 package arekkuusu.enderskills.common.skill.attribute.mobility;
 
 import arekkuusu.enderskills.api.capability.Capabilities;
-import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoUpgradeable;
 import arekkuusu.enderskills.api.event.SkillActionableEvent;
 import arekkuusu.enderskills.api.event.SkillActivateEvent;
-import arekkuusu.enderskills.api.helper.ExpressionHelper;
 import arekkuusu.enderskills.api.helper.NBTHelper;
 import arekkuusu.enderskills.api.registry.Skill;
+import arekkuusu.enderskills.api.util.ConfigDSL;
 import arekkuusu.enderskills.client.gui.data.ISkillAdvancement;
 import arekkuusu.enderskills.client.util.helper.TextHelper;
-import arekkuusu.enderskills.common.CommonConfig;
 import arekkuusu.enderskills.common.lib.LibMod;
 import arekkuusu.enderskills.common.lib.LibNames;
 import arekkuusu.enderskills.common.network.PacketHelper;
 import arekkuusu.enderskills.common.skill.DynamicModifier;
 import arekkuusu.enderskills.common.skill.attribute.AttributeInfo;
 import arekkuusu.enderskills.common.skill.attribute.BaseAttribute;
-import arekkuusu.enderskills.common.skill.attribute.deffense.DamageResistance;
 import com.google.common.collect.ImmutableMap;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.ai.attributes.AbstractAttributeMap;
 import net.minecraft.entity.ai.attributes.IAttribute;
-import net.minecraft.entity.ai.attributes.IAttributeInstance;
 import net.minecraft.entity.ai.attributes.RangedAttribute;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -36,13 +31,11 @@ import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.entity.living.LivingEvent;
-import net.minecraftforge.event.entity.living.LivingSpawnEvent;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -107,7 +100,7 @@ public class Endurance extends BaseAttribute implements ISkillAdvancement {
 
     @SubscribeEvent
     public void resetDefault(EntityJoinWorldEvent event) {
-        if(event.getEntity() instanceof EntityLivingBase) {
+        if (event.getEntity() instanceof EntityLivingBase) {
             ((EntityLivingBase) event.getEntity()).getEntityAttribute(MAX_ENDURANCE).setBaseValue(0F);
         }
     }
@@ -130,7 +123,7 @@ public class Endurance extends BaseAttribute implements ISkillAdvancement {
                     PacketHelper.sendEnduranceSync((EntityPlayerMP) event.getEntityLiving());
                 }
             });
-            ENDURANCE_DEFAULT_ATTRIBUTE.apply(event.getEntityLiving(), Configuration.getSyncValues().endurance);
+            ENDURANCE_DEFAULT_ATTRIBUTE.apply(event.getEntityLiving(), Configuration.CONFIG_SYNC.endurance);
         }
     }
 
@@ -179,26 +172,15 @@ public class Endurance extends BaseAttribute implements ISkillAdvancement {
 
     public int getEnduranceDrain(Skill skill) {
         String skillRegistryName = Objects.requireNonNull(skill.getRegistryName()).toString();
-        return Configuration.getSyncValues().extra.enduranceMap.get(skillRegistryName);
-    }
-
-    public int getLevel(IInfoUpgradeable info) {
-        return info.getLevel();
+        return Configuration.CONFIG_SYNC.enduranceMap.get(skillRegistryName);
     }
 
     public int getMaxLevel() {
-        return Configuration.getSyncValues().maxLevel;
+        return this.config.max_level;
     }
 
-    public int getModifier(AttributeInfo info) {
-        int level = getLevel(info);
-        int levelMax = getMaxLevel();
-        double func = ExpressionHelper.getExpression(this, Configuration.getSyncValues().modifier, level, levelMax);
-        return (int) (func * getEffectiveness());
-    }
-
-    public double getEffectiveness() {
-        return Configuration.getSyncValues().effectiveness * CommonConfig.getSyncValues().skill.globalEffectiveness;
+    public float getModifier(AttributeInfo info) {
+        return (float) this.config.get(this, "MODIFIER", info.getLevel());
     }
 
     /*Advancement Section*/
@@ -220,12 +202,17 @@ public class Endurance extends BaseAttribute implements ISkillAdvancement {
                             description.add(TextHelper.translate("desc.stats.level_current", attributeInfo.getLevel(), attributeInfo.getLevel() + 1));
                         }
                         description.add(TextHelper.translate("desc.stats.boost", TextHelper.format2FloatPoint(getModifier(attributeInfo))));
-                        if (attributeInfo.getLevel() < getMaxLevel()) { //Copy info and set a higher level...
+                        if (attributeInfo.getLevel() < getMaxLevel()) {
+                            if (!GuiScreen.isCtrlKeyDown()) {
+                                description.add("");
+                                description.add(TextHelper.translate("desc.stats.ctrl"));
+                            } else { //Copy info and set a higher level...
                             AttributeInfo infoNew = new AttributeInfo(attributeInfo.serializeNBT());
                             infoNew.setLevel(infoNew.getLevel() + 1);
                             description.add("");
                             description.add(TextHelper.translate("desc.stats.level_next", attributeInfo.getLevel(), infoNew.getLevel()));
                             description.add(TextHelper.translate("desc.stats.boost", TextHelper.format2FloatPoint(getModifier(infoNew))));
+                            }
                         }
                     });
                 }
@@ -234,58 +221,28 @@ public class Endurance extends BaseAttribute implements ISkillAdvancement {
     }
 
     @Override
-    public boolean canUpgrade(EntityLivingBase entity) {
-        return Capabilities.advancement(entity).map(c -> {
-            Requirement requirement = getRequirement(entity);
-            int xp = requirement.getXp();
-            return c.getExperienceTotal(entity) >= xp;
-        }).orElse(false);
-    }
-
-    @Override
-    public void onUpgrade(EntityLivingBase entity) {
-        Capabilities.advancement(entity).ifPresent(c -> {
-            Requirement requirement = getRequirement(entity);
-            int xp = requirement.getXp();
-            if (c.getExperienceTotal(entity) >= xp) {
-                c.consumeExperienceFromTotal(entity, xp);
-            }
-        });
-    }
-
-    @Override
-    public Requirement getRequirement(EntityLivingBase entity) {
-        AttributeInfo info = (AttributeInfo) Capabilities.get(entity).flatMap(a -> a.getOwned(this)).orElse(null);
-        return new DefaultRequirement(0, getUpgradeCost(info));
-    }
-
-    public int getUpgradeCost(@Nullable AttributeInfo info) {
-        int level = info != null ? getLevel(info) + 1 : 0;
-        int levelMax = getMaxLevel();
-        double func = ExpressionHelper.getExpression(this, Configuration.getSyncValues().advancement.upgrade, level, levelMax);
-        return (int) (func * CommonConfig.getSyncValues().advancement.xp.globalCostMultiplier);
+    public double getExperience(int lvl) {
+        return this.config.get(this, "XP", lvl);
     }
     /*Advancement Section*/
 
+    /*Config Section*/
+    public static final String CONFIG_FILE = LibNames.ATTRIBUTE_MOBILITY_FOLDER + LibNames.ENDURANCE;
+    public ConfigDSL.Config config = new ConfigDSL.Config();
+
     @Override
     public void initSyncConfig() {
-        Configuration.getSyncValues().maxLevel = Configuration.getValues().maxLevel;
-        Configuration.getSyncValues().modifier = Configuration.getValues().modifier;
-        Configuration.getSyncValues().endurance = Configuration.getValues().endurance;
-        Configuration.getSyncValues().effectiveness = Configuration.getValues().effectiveness;
-        Configuration.getSyncValues().extra.enduranceMap = new HashMap<>(Configuration.getValues().extra.enduranceMap);
-        DamageResistance.Configuration.getSyncValues().advancement.upgrade = DamageResistance.Configuration.getValues().advancement.upgrade;
+        this.config = ConfigDSL.parse(Configuration.CONFIG_SYNC.dsl);
+        Configuration.CONFIG_SYNC.endurance = Configuration.CONFIG.endurance;
+        Configuration.CONFIG_SYNC.enduranceMap = new HashMap<>(Configuration.CONFIG.enduranceMap);
     }
 
     @Override
     public void writeSyncConfig(NBTTagCompound compound) {
-        compound.setInteger("maxLevel", Configuration.getValues().maxLevel);
-        NBTHelper.setArray(compound, "modifier", Configuration.getValues().modifier);
-        compound.setDouble("endurance", Configuration.getValues().endurance);
-        compound.setDouble("effectiveness", Configuration.getValues().effectiveness);
-        NBTHelper.setArray(compound, "advancement.upgrade", Configuration.getValues().advancement.upgrade);
+        NBTHelper.setArray(compound, "config", Configuration.CONFIG.dsl);
+        compound.setDouble("endurance", Configuration.CONFIG.endurance);
         NBTTagList list = new NBTTagList();
-        for (Map.Entry<String, Integer> entry : Configuration.getValues().extra.enduranceMap.entrySet()) {
+        for (Map.Entry<String, Integer> entry : Configuration.CONFIG.enduranceMap.entrySet()) {
             NBTTagCompound nbt = new NBTTagCompound();
             NBTHelper.setString(nbt, "skill", entry.getKey());
             NBTHelper.setInteger(nbt, "cost", entry.getValue());
@@ -295,146 +252,139 @@ public class Endurance extends BaseAttribute implements ISkillAdvancement {
     }
 
     @Override
-    @SideOnly(Side.CLIENT)
     public void readSyncConfig(NBTTagCompound compound) {
-        Configuration.getSyncValues().maxLevel = compound.getInteger("maxLevel");
-        Configuration.getSyncValues().modifier = NBTHelper.getArray(compound, "modifier");
-        Configuration.getSyncValues().endurance = compound.getDouble("endurance");
-        Configuration.getSyncValues().effectiveness = compound.getDouble("effectiveness");
-        Configuration.getSyncValues().advancement.upgrade = NBTHelper.getArray(compound, "advancement.upgrade");
+        Configuration.CONFIG_SYNC.dsl = NBTHelper.getArray(compound, "config");
+        Configuration.CONFIG_SYNC.endurance = compound.getDouble("endurance");
         NBTTagList list = compound.getTagList("extra.enduranceMap", Constants.NBT.TAG_COMPOUND);
-        Configuration.getSyncValues().extra.enduranceMap.clear();
+        Configuration.CONFIG_SYNC.enduranceMap.clear();
         for (int i = 0; i < list.tagCount(); i++) {
             NBTTagCompound nbt = list.getCompoundTagAt(i);
             String skill = nbt.getString("skill");
             Integer cost = nbt.getInteger("cost");
-            Configuration.getSyncValues().extra.enduranceMap.put(skill, cost);
+            Configuration.CONFIG_SYNC.enduranceMap.put(skill, cost);
         }
     }
 
-    @Config(modid = LibMod.MOD_ID, name = LibMod.MOD_ID + "/Attribute/" + LibNames.ENDURANCE)
+    @Config(modid = LibMod.MOD_ID, name = CONFIG_FILE)
     public static class Configuration {
 
-        @Config.Comment("Attribute Values")
-        @Config.LangKey(LibMod.MOD_ID + ".config." + LibNames.ENDURANCE)
-        public static Values CONFIG = new Values();
-
-        public static Values getValues() {
-            return CONFIG;
-        }
-
         @Config.Ignore
-        protected static Values CONFIG_SYNC = new Values();
-
-        public static Values getSyncValues() {
-            return CONFIG_SYNC;
-        }
+        public static final Configuration.Values CONFIG_SYNC = new Configuration.Values();
+        public static final Configuration.Values CONFIG = new Configuration.Values();
 
         public static class Values {
-            @Config.Comment("Skill specific extra Configuration")
-            public final Extra extra = new Extra();
-            @Config.Comment("Skill specific Advancement Configuration")
-            public final Advancement advancement = new Advancement();
-
-            @Config.Comment("The Maximum level of this Skill")
-            @Config.RangeInt(min = 0)
-            public int maxLevel = Integer.MAX_VALUE;
-
-            @Config.Comment("Modifier Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
-            public String[] modifier = {
-                    "(0+){x * 1}"
-            };
-
             @Config.Comment("Default start endurance")
-            public double endurance = 40D;
+            public double endurance = 30D;
 
-            @Config.Comment("Effectiveness Modifier")
-            @Config.RangeDouble
-            public double effectiveness = 1D;
+            @Config.Comment("Endurance drain by skill")
+            public Map<String, Integer> enduranceMap = new HashMap<>(new ImmutableMap.Builder<String, Integer>()
+                    //Defense-Light
+                    .put(LibMod.MOD_ID + ":" + LibNames.CHARM, 6)
+                    .put(LibMod.MOD_ID + ":" + LibNames.HEAL_AURA, 8)
+                    .put(LibMod.MOD_ID + ":" + LibNames.POWER_BOOST, 8)
+                    .put(LibMod.MOD_ID + ":" + LibNames.HEAL_OTHER, 12)
+                    .put(LibMod.MOD_ID + ":" + LibNames.HEAL_SELF, 12)
+                    .put(LibMod.MOD_ID + ":" + LibNames.NEARBY_INVINCIBILITY, 16)
+                    //Defense-Earth
+                    .put(LibMod.MOD_ID + ":" + LibNames.TAUNT, 8)
+                    .put(LibMod.MOD_ID + ":" + LibNames.WALL, 9)
+                    .put(LibMod.MOD_ID + ":" + LibNames.DOME, 9)
+                    .put(LibMod.MOD_ID + ":" + LibNames.THORNY, 12)
+                    .put(LibMod.MOD_ID + ":" + LibNames.SHOCKWAVE, 14)
+                    .put(LibMod.MOD_ID + ":" + LibNames.ANIMATED_STONE_GOLEM, 16)
+                    //Defense-Electric
+                    .put(LibMod.MOD_ID + ":" + LibNames.SHOCKING_AURA, 1)
+                    .put(LibMod.MOD_ID + ":" + LibNames.ELECTRIC_PULSE, 4)
+                    .put(LibMod.MOD_ID + ":" + LibNames.MAGNETIC_PULL, 4)
+                    .put(LibMod.MOD_ID + ":" + LibNames.POWER_DRAIN, 12)
+                    .put(LibMod.MOD_ID + ":" + LibNames.ENERGIZE, 12)
+                    .put(LibMod.MOD_ID + ":" + LibNames.VOLTAIC_SENTINEL, 16)
+                    //Defense-Fire
+                    .put(LibMod.MOD_ID + ":" + LibNames.FLARES, 1)
+                    .put(LibMod.MOD_ID + ":" + LibNames.RING_OF_FIRE, 4)
+                    .put(LibMod.MOD_ID + ":" + LibNames.BLAZING_AURA, 1)
+                    .put(LibMod.MOD_ID + ":" + LibNames.OVERHEAT, 12)
+                    .put(LibMod.MOD_ID + ":" + LibNames.WARM_HEART, 12)
+                    .put(LibMod.MOD_ID + ":" + LibNames.HOME_STAR, 16)
+                    //Mobility-Wind
+                    .put(LibMod.MOD_ID + ":" + LibNames.DASH, 4)
+                    .put(LibMod.MOD_ID + ":" + LibNames.EXTRA_JUMP, 2)
+                    .put(LibMod.MOD_ID + ":" + LibNames.FOG, 16)
+                    .put(LibMod.MOD_ID + ":" + LibNames.SMASH, 14)
+                    .put(LibMod.MOD_ID + ":" + LibNames.HASTEN, 16)
+                    .put(LibMod.MOD_ID + ":" + LibNames.SPEED_BOOST, 18)
+                    //Mobility-Void
+                    .put(LibMod.MOD_ID + ":" + LibNames.WARP, 6)
+                    .put(LibMod.MOD_ID + ":" + LibNames.INVISIBILITY, 18)
+                    .put(LibMod.MOD_ID + ":" + LibNames.HOVER, 2)
+                    .put(LibMod.MOD_ID + ":" + LibNames.UNSTABLE_PORTAL, 14)
+                    .put(LibMod.MOD_ID + ":" + LibNames.PORTAL, 16)
+                    .put(LibMod.MOD_ID + ":" + LibNames.TELEPORT, 20)
+                    //Offense-Void
+                    .put(LibMod.MOD_ID + ":" + LibNames.SHADOW, 1)
+                    .put(LibMod.MOD_ID + ":" + LibNames.GLOOM, 4)
+                    .put(LibMod.MOD_ID + ":" + LibNames.SHADOW_JAB, 4)
+                    .put(LibMod.MOD_ID + ":" + LibNames.GAS_CLOUD, 8)
+                    .put(LibMod.MOD_ID + ":" + LibNames.GRASP, 8)
+                    .put(LibMod.MOD_ID + ":" + LibNames.BLACK_HOLE, 18)
+                    //Offense-Blood
+                    .put(LibMod.MOD_ID + ":" + LibNames.BLEED, 1)
+                    .put(LibMod.MOD_ID + ":" + LibNames.BLOOD_POOL, 6)
+                    .put(LibMod.MOD_ID + ":" + LibNames.CONTAMINATE, 6)
+                    .put(LibMod.MOD_ID + ":" + LibNames.LIFE_STEAL, 1)
+                    .put(LibMod.MOD_ID + ":" + LibNames.SYPHON, 8)
+                    .put(LibMod.MOD_ID + ":" + LibNames.SACRIFICE, 18)
+                    //Offense-Wind
+                    .put(LibMod.MOD_ID + ":" + LibNames.SLASH, 2)
+                    .put(LibMod.MOD_ID + ":" + LibNames.PUSH, 4)
+                    .put(LibMod.MOD_ID + ":" + LibNames.PULL, 4)
+                    .put(LibMod.MOD_ID + ":" + LibNames.CRUSH, 8)
+                    .put(LibMod.MOD_ID + ":" + LibNames.UPDRAFT, 6)
+                    .put(LibMod.MOD_ID + ":" + LibNames.SUFFOCATE, 18)
+                    //Offense-Fire
+                    .put(LibMod.MOD_ID + ":" + LibNames.FIRE_SPIRIT, 1)
+                    .put(LibMod.MOD_ID + ":" + LibNames.FLAMING_BREATH, 8)
+                    .put(LibMod.MOD_ID + ":" + LibNames.FLAMING_RAIN, 10)
+                    .put(LibMod.MOD_ID + ":" + LibNames.FOCUS_FLAME, 16)
+                    .put(LibMod.MOD_ID + ":" + LibNames.FIREBALL, 16)
+                    .put(LibMod.MOD_ID + ":" + LibNames.EXPLODE, 20)
+                    .build()
+            );
 
-            public static class Extra {
-                @Config.Comment("Endurance drain by skill")
-                public Map<String, Integer> enduranceMap = new HashMap<>(new ImmutableMap.Builder<String, Integer>()
-                        //Defense-Light
-                        .put(LibMod.MOD_ID + ":" + LibNames.CHARM, 6)
-                        .put(LibMod.MOD_ID + ":" + LibNames.HEAL_AURA, 8)
-                        .put(LibMod.MOD_ID + ":" + LibNames.POWER_BOOST, 8)
-                        .put(LibMod.MOD_ID + ":" + LibNames.HEAL_OTHER, 12)
-                        .put(LibMod.MOD_ID + ":" + LibNames.HEAL_SELF, 12)
-                        .put(LibMod.MOD_ID + ":" + LibNames.NEARBY_INVINCIBILITY, 16)
-                        //Defense-Earth
-                        .put(LibMod.MOD_ID + ":" + LibNames.TAUNT, 8)
-                        .put(LibMod.MOD_ID + ":" + LibNames.WALL, 9)
-                        .put(LibMod.MOD_ID + ":" + LibNames.DOME, 9)
-                        .put(LibMod.MOD_ID + ":" + LibNames.THORNY, 12)
-                        .put(LibMod.MOD_ID + ":" + LibNames.SHOCKWAVE, 14)
-                        .put(LibMod.MOD_ID + ":" + LibNames.ANIMATED_STONE_GOLEM, 16)
-                        //Defense-Electric
-                        .put(LibMod.MOD_ID + ":" + LibNames.SHOCKING_AURA, 1)
-                        .put(LibMod.MOD_ID + ":" + LibNames.ELECTRIC_PULSE, 4)
-                        .put(LibMod.MOD_ID + ":" + LibNames.MAGNETIC_PULL, 4)
-                        .put(LibMod.MOD_ID + ":" + LibNames.POWER_DRAIN, 12)
-                        .put(LibMod.MOD_ID + ":" + LibNames.ENERGIZE, 12)
-                        .put(LibMod.MOD_ID + ":" + LibNames.VOLTAIC_SENTINEL, 16)
-                        //Defense-Fire
-                        .put(LibMod.MOD_ID + ":" + LibNames.FLARES, 1)
-                        .put(LibMod.MOD_ID + ":" + LibNames.RING_OF_FIRE, 4)
-                        .put(LibMod.MOD_ID + ":" + LibNames.BLAZING_AURA, 1)
-                        .put(LibMod.MOD_ID + ":" + LibNames.OVERHEAT, 12)
-                        .put(LibMod.MOD_ID + ":" + LibNames.WARM_HEART, 12)
-                        .put(LibMod.MOD_ID + ":" + LibNames.HOME_STAR, 16)
-                        //Mobility-Wind
-                        .put(LibMod.MOD_ID + ":" + LibNames.DASH, 4)
-                        .put(LibMod.MOD_ID + ":" + LibNames.EXTRA_JUMP, 2)
-                        .put(LibMod.MOD_ID + ":" + LibNames.FOG, 16)
-                        .put(LibMod.MOD_ID + ":" + LibNames.SMASH, 14)
-                        .put(LibMod.MOD_ID + ":" + LibNames.HASTEN, 16)
-                        .put(LibMod.MOD_ID + ":" + LibNames.SPEED_BOOST, 18)
-                        //Mobility-Void
-                        .put(LibMod.MOD_ID + ":" + LibNames.WARP, 6)
-                        .put(LibMod.MOD_ID + ":" + LibNames.INVISIBILITY, 18)
-                        .put(LibMod.MOD_ID + ":" + LibNames.HOVER, 2)
-                        .put(LibMod.MOD_ID + ":" + LibNames.UNSTABLE_PORTAL, 14)
-                        .put(LibMod.MOD_ID + ":" + LibNames.PORTAL, 16)
-                        .put(LibMod.MOD_ID + ":" + LibNames.TELEPORT, 20)
-                        //Offense-Void
-                        .put(LibMod.MOD_ID + ":" + LibNames.SHADOW, 1)
-                        .put(LibMod.MOD_ID + ":" + LibNames.GLOOM, 4)
-                        .put(LibMod.MOD_ID + ":" + LibNames.SHADOW_JAB, 4)
-                        .put(LibMod.MOD_ID + ":" + LibNames.GAS_CLOUD, 8)
-                        .put(LibMod.MOD_ID + ":" + LibNames.GRASP, 8)
-                        .put(LibMod.MOD_ID + ":" + LibNames.BLACK_HOLE, 18)
-                        //Offense-Blood
-                        .put(LibMod.MOD_ID + ":" + LibNames.BLEED, 1)
-                        .put(LibMod.MOD_ID + ":" + LibNames.BLOOD_POOL, 6)
-                        .put(LibMod.MOD_ID + ":" + LibNames.CONTAMINATE, 6)
-                        .put(LibMod.MOD_ID + ":" + LibNames.LIFE_STEAL, 1)
-                        .put(LibMod.MOD_ID + ":" + LibNames.SYPHON, 8)
-                        .put(LibMod.MOD_ID + ":" + LibNames.SACRIFICE, 18)
-                        //Offense-Wind
-                        .put(LibMod.MOD_ID + ":" + LibNames.SLASH, 2)
-                        .put(LibMod.MOD_ID + ":" + LibNames.PUSH, 4)
-                        .put(LibMod.MOD_ID + ":" + LibNames.PULL, 4)
-                        .put(LibMod.MOD_ID + ":" + LibNames.CRUSH, 8)
-                        .put(LibMod.MOD_ID + ":" + LibNames.UPDRAFT, 6)
-                        .put(LibMod.MOD_ID + ":" + LibNames.SUFFOCATE, 18)
-                        //Offense-Fire
-                        .put(LibMod.MOD_ID + ":" + LibNames.FIRE_SPIRIT, 1)
-                        .put(LibMod.MOD_ID + ":" + LibNames.FLAMING_BREATH, 8)
-                        .put(LibMod.MOD_ID + ":" + LibNames.FLAMING_RAIN, 10)
-                        .put(LibMod.MOD_ID + ":" + LibNames.FOCUS_FLAME, 16)
-                        .put(LibMod.MOD_ID + ":" + LibNames.FIREBALL, 16)
-                        .put(LibMod.MOD_ID + ":" + LibNames.EXPLODE, 20)
-                        .build()
-                );
-            }
-
-            public static class Advancement {
-                @Config.Comment("Function f(x)=? where 'x' is [Next Level] and 'y' is [Max Level], XP Cost is in units [NOT LEVELS]")
-                public String[] upgrade = {
-                        "(0+){(50 * (1 - (0 ^ (0 ^ x)))) + 20 + 15 * x}"
-                };
-            }
+            public String[] dsl = {
+                    "⠀#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~",
+                    "⠀",
+                    "⠀min_level: 0",
+                    "⠀max_level: infinite",
+                    "⠀",
+                    "⠀#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~",
+                    "⠀MODIFIER (",
+                    "⠀    curve: flat",
+                    "⠀    start: 0e",
+                    "⠀    end:   infinite",
+                    "⠀",
+                    "⠀    {0} [",
+                    "⠀        curve: multiply 1e",
+                    "⠀    ]",
+                    "⠀)",
+                    "⠀#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~",
+                    "⠀XP (",
+                    "⠀    curve: flat",
+                    "⠀    start: 69",
+                    "⠀    end:   infinite",
+                    "⠀",
+                    "⠀    {0} [",
+                    "⠀        curve: none",
+                    "⠀        value: {start}",
+                    "⠀    ]",
+                    "⠀",
+                    "⠀    {1} [",
+                    "⠀        curve: f(x, y) -> 5 + 14 * x",
+                    "⠀    ]",
+                    "⠀)",
+                    "⠀#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~",
+            };
         }
     }
+    /*Config Section*/
 }

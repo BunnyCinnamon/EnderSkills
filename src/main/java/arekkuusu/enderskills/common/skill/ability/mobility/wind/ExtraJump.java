@@ -1,17 +1,13 @@
 package arekkuusu.enderskills.common.skill.ability.mobility.wind;
 
-import arekkuusu.enderskills.api.capability.AdvancementCapability;
 import arekkuusu.enderskills.api.capability.Capabilities;
 import arekkuusu.enderskills.api.capability.data.SkillData;
 import arekkuusu.enderskills.api.capability.data.SkillInfo;
-import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoUpgradeable;
-import arekkuusu.enderskills.api.helper.ExpressionHelper;
 import arekkuusu.enderskills.api.helper.NBTHelper;
 import arekkuusu.enderskills.api.registry.Skill;
+import arekkuusu.enderskills.api.util.ConfigDSL;
 import arekkuusu.enderskills.client.gui.data.ISkillAdvancement;
 import arekkuusu.enderskills.client.util.helper.TextHelper;
-import arekkuusu.enderskills.client.util.helper.TextHelper;
-import arekkuusu.enderskills.common.CommonConfig;
 import arekkuusu.enderskills.common.lib.LibMod;
 import arekkuusu.enderskills.common.lib.LibNames;
 import arekkuusu.enderskills.common.network.PacketHelper;
@@ -37,10 +33,7 @@ import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-import javax.annotation.Nullable;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 
 public class ExtraJump extends BaseAbility implements ISkillAdvancement {
 
@@ -82,7 +75,7 @@ public class ExtraJump extends BaseAbility implements ISkillAdvancement {
                 owner.motionY += 0.3F;
             }
         }
-        if(owner.motionY > 0 || owner instanceof EntityLiving) {
+        if (owner.motionY > 0 || owner instanceof EntityLiving) {
             owner.fallDistance = 0;
         }
         if (owner.world instanceof WorldServer) {
@@ -129,28 +122,16 @@ public class ExtraJump extends BaseAbility implements ISkillAdvancement {
         if (ticksForNextTap > 0) ticksForNextTap--;
     }
 
-    public int getLevel(IInfoUpgradeable info) {
-        return info.getLevel();
-    }
-
     public int getMaxLevel() {
-        return Configuration.getSyncValues().maxLevel;
+        return this.config.max_level;
     }
 
-    public double getRange(AbilityInfo info) {
-        int level = getLevel(info);
-        int levelMax = getMaxLevel();
-        double func = ExpressionHelper.getExpression(this, Configuration.getSyncValues().range, level, levelMax);
-        double result = (func * CommonConfig.getSyncValues().skill.globalRange);
-        return (result * getEffectiveness());
+    public int getRange(AbilityInfo info) {
+        return (int) this.config.get(this, "JUMPS", info.getLevel());
     }
 
     public int getCooldown(AbilityInfo info) {
-        return 0;
-    }
-
-    public double getEffectiveness() {
-        return Configuration.getSyncValues().effectiveness * CommonConfig.getSyncValues().skill.globalEffectiveness;
+        return (int) this.config.get(this, "COOLDOWN", info.getLevel());
     }
 
     /*Advancement Section*/
@@ -174,12 +155,17 @@ public class ExtraJump extends BaseAbility implements ISkillAdvancement {
                             description.add(TextHelper.translate("desc.stats.level_current", abilityInfo.getLevel(), abilityInfo.getLevel() + 1));
                         }
                         description.add(TextHelper.translate("desc.stats.jumps", TextHelper.format2FloatPoint(getRange(abilityInfo))));
-                        if (abilityInfo.getLevel() < getMaxLevel()) { //Copy info and set a higher level...
-                            AbilityInfo infoNew = new AbilityInfo(abilityInfo.serializeNBT());
-                            infoNew.setLevel(infoNew.getLevel() + 1);
-                            description.add("");
-                            description.add(TextHelper.translate("desc.stats.level_next", abilityInfo.getLevel(), infoNew.getLevel()));
-                            description.add(TextHelper.translate("desc.stats.jumps", TextHelper.format2FloatPoint(getRange(infoNew))));
+                        if (abilityInfo.getLevel() < getMaxLevel()) {
+                            if (!GuiScreen.isCtrlKeyDown()) {
+                                description.add("");
+                                description.add(TextHelper.translate("desc.stats.ctrl"));
+                            } else { //Copy info and set a higher level...
+                                AbilityInfo infoNew = new AbilityInfo(abilityInfo.serializeNBT());
+                                infoNew.setLevel(infoNew.getLevel() + 1);
+                                description.add("");
+                                description.add(TextHelper.translate("desc.stats.level_next", abilityInfo.getLevel(), infoNew.getLevel()));
+                                description.add(TextHelper.translate("desc.stats.jumps", TextHelper.format2FloatPoint(getRange(infoNew))));
+                            }
                         }
                     });
                 }
@@ -188,96 +174,101 @@ public class ExtraJump extends BaseAbility implements ISkillAdvancement {
     }
 
     @Override
-    public int getCostIncrement(EntityLivingBase entity, int total) {
-        Optional<AdvancementCapability> optional = Capabilities.advancement(entity);
-        if (optional.isPresent()) {
-            AdvancementCapability advancement = optional.get();
-            List<Skill> skillUnlockOrder = Arrays.asList(advancement.skillUnlockOrder);
-            int index = skillUnlockOrder.indexOf(ModAbilities.DASH);
-            if (index == -1) {
-                index = advancement.skillUnlockOrder.length;
-            }
-            return (int) (total * (1D + index * CommonConfig.getSyncValues().advancement.xp.costIncrement));
-        }
-        return total;
+    public Skill getParentSkill() {
+        return ModAbilities.DASH;
     }
 
     @Override
-    public int getUpgradeCost(@Nullable AbilityInfo info) {
-        int level = info != null ? getLevel(info) + 1 : 0;
-        int levelMax = getMaxLevel();
-        double func = ExpressionHelper.getExpression(this, Configuration.getSyncValues().advancement.upgrade, level, levelMax);
-        return (int) (func * CommonConfig.getSyncValues().advancement.xp.globalCostMultiplier);
+    public double getExperience(int lvl) {
+        return this.config.get(this, "XP", lvl);
     }
     /*Advancement Section*/
 
+    /*Config Section*/
+    public static final String CONFIG_FILE = LibNames.WIND_MOBILITY_CONFIG + LibNames.EXTRA_JUMP;
+    public ConfigDSL.Config config = new ConfigDSL.Config();
+
     @Override
     public void initSyncConfig() {
-        Configuration.getSyncValues().maxLevel = Configuration.getValues().maxLevel;
-        Configuration.getSyncValues().range = Configuration.getValues().range;
-        Configuration.getSyncValues().effectiveness = Configuration.getValues().effectiveness;
-        Configuration.getSyncValues().advancement.upgrade = Configuration.getValues().advancement.upgrade;
+        this.config = ConfigDSL.parse(Configuration.CONFIG_SYNC.dsl);
     }
 
     @Override
     public void writeSyncConfig(NBTTagCompound compound) {
-        compound.setInteger("maxLevel", Configuration.getValues().maxLevel);
-        NBTHelper.setArray(compound, "range", Configuration.getValues().range);
-        compound.setDouble("effectiveness", Configuration.getValues().effectiveness);
-        NBTHelper.setArray(compound, "advancement.upgrade", Configuration.getValues().advancement.upgrade);
+        NBTHelper.setArray(compound, "config", Configuration.CONFIG.dsl);
     }
 
     @Override
-    @SideOnly(Side.CLIENT)
     public void readSyncConfig(NBTTagCompound compound) {
-        Configuration.getSyncValues().maxLevel = compound.getInteger("maxLevel");
-        Configuration.getSyncValues().range = NBTHelper.getArray(compound, "range");
-        Configuration.getSyncValues().effectiveness = compound.getDouble("effectiveness");
-        Configuration.getSyncValues().advancement.upgrade = NBTHelper.getArray(compound, "advancement.upgrade");
+        Configuration.CONFIG_SYNC.dsl = NBTHelper.getArray(compound, "config");
     }
 
-    @Config(modid = LibMod.MOD_ID, name = LibMod.MOD_ID + "/Ability/" + LibNames.EXTRA_JUMP)
+    @Config(modid = LibMod.MOD_ID, name = CONFIG_FILE)
     public static class Configuration {
 
-        @Config.Comment("Ability Values")
-        @Config.LangKey(LibMod.MOD_ID + ".config." + LibNames.EXTRA_JUMP)
-        public static Values CONFIG = new Values();
-
-        public static Values getValues() {
-            return CONFIG;
-        }
-
         @Config.Ignore
-        protected static Values CONFIG_SYNC = new Values();
-
-        public static Values getSyncValues() {
-            return CONFIG_SYNC;
-        }
+        public static final Configuration.Values CONFIG_SYNC = new Configuration.Values();
+        public static final Configuration.Values CONFIG = new Configuration.Values();
 
         public static class Values {
-            @Config.Comment("Skill specific Advancement Configuration")
-            public final Advancement advancement = new Advancement();
 
-            @Config.Comment("Max level obtainable")
-            @Config.RangeInt(min = 0)
-            public int maxLevel = 2;
-
-            @Config.Comment("Range Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
-            public String[] range = {
-                    "(0+){x + 1}"
+            public String[] dsl = {
+                    "⠀#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~",
+                    "⠀",
+                    "⠀min_level: 0",
+                    "⠀max_level: 1",
+                    "⠀",
+                    "⠀#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~",
+                    "⠀COOLDOWN (",
+                    "⠀    curve: flat",
+                    "⠀    start: PLACEHOLDER",
+                    "⠀    end:   PLACEHOLDER",
+                    "⠀",
+                    "⠀    {0 to 25} [",
+                    "⠀        curve: ramp -50% 50%",
+                    "⠀        start: {start}",
+                    "⠀        end: PLACEHOLDER",
+                    "⠀    ]",
+                    "⠀",
+                    "⠀    {25 to 49} [",
+                    "⠀        curve: ramp 50% 50%",
+                    "⠀        start: {0 to 25}",
+                    "⠀        end: PLACEHOLDER",
+                    "⠀    ]",
+                    "⠀",
+                    "⠀    {50} [",
+                    "⠀        curve: none",
+                    "⠀        value: {end}",
+                    "⠀    ]",
+                    "⠀)",
+                    "⠀#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~",
+                    "⠀JUMPS (",
+                    "⠀    curve: flat",
+                    "⠀    start: 1",
+                    "⠀    end:   2",
+                    "⠀)",
+                    "⠀#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~",
+                    "⠀XP (",
+                    "⠀    curve: flat",
+                    "⠀    start: 170",
+                    "⠀    end:   infinite",
+                    "⠀",
+                    "⠀    {0} [",
+                    "⠀        curve: none",
+                    "⠀        value: {start}",
+                    "⠀    ]",
+                    "⠀",
+                    "⠀    {1 to 49} [",
+                    "⠀        curve: multiply 4",
+                    "⠀    ]",
+                    "⠀",
+                    "⠀    {50} [",
+                    "⠀        curve: f(x, y) -> 4 * x + 4 * x * 0.1",
+                    "⠀    ]",
+                    "⠀)",
+                    "⠀#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~",
             };
-
-            @Config.Comment("Effectiveness Modifier")
-            @Config.RangeDouble
-            public double effectiveness = 1D;
-
-            public static class Advancement {
-                @Config.Comment("Function f(x)=? where 'x' is [Next Level] and 'y' is [Max Level], XP Cost is in units [NOT LEVELS]")
-                public String[] upgrade = {
-                        "(0){300}",
-                        "(1+){500 * x}"
-                };
-            }
         }
     }
+    /*Config Section*/
 }

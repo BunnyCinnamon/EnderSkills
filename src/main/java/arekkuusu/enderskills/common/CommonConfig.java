@@ -18,53 +18,19 @@ import java.util.Map;
 @Config(modid = LibMod.MOD_ID, name = LibMod.MOD_ID + "/global")
 public final class CommonConfig {
 
-    @Config.Comment("Global Values")
-    @Config.LangKey(LibMod.MOD_ID + ".config.global")
-    public static Values CONFIG = new Values();
     @Config.Ignore
-    protected static Values CONFIG_SYNC = new Values();
+    public static CommonConfig.Values CONFIG_SYNC = new CommonConfig.Values();
+    public static CommonConfig.Values CONFIG = new CommonConfig.Values();
 
     public static Values getValues() {
         return CONFIG;
     }
 
-    public static Values getSyncValues() {
-        return CONFIG_SYNC;
-    }
-
     @Deprecated
     public static void initSyncConfig() {
-        CommonConfig.getSyncValues().skill.destroyBlocks = CommonConfig.getValues().skill.destroyBlocks;
-        CommonConfig.getSyncValues().skill.preventAbilityDoTKnockback = CommonConfig.getValues().skill.preventAbilityDoTKnockback;
-        CommonConfig.getSyncValues().skill.defaultHumanTeam = CommonConfig.getValues().skill.defaultHumanTeam;
-        CommonConfig.getSyncValues().skill.defaultAnimalTeam = CommonConfig.getValues().skill.defaultAnimalTeam;
-        EnderSkillsAPI.defaultHumanTeam = CommonConfig.getSyncValues().skill.defaultHumanTeam;
-        EnderSkillsAPI.defaultAnimalTeam = CommonConfig.getSyncValues().skill.defaultAnimalTeam;
-        CommonConfig.getSyncValues().skill.globalCooldown = CommonConfig.getValues().skill.globalCooldown;
-        CommonConfig.getSyncValues().skill.globalTime = CommonConfig.getValues().skill.globalTime;
-        CommonConfig.getSyncValues().skill.globalRange = CommonConfig.getValues().skill.globalRange;
-        CommonConfig.getSyncValues().skill.globalEffectiveness = CommonConfig.getValues().skill.globalEffectiveness;
-        CommonConfig.getSyncValues().skill.extra.globalNegativeEffect = CommonConfig.getValues().skill.extra.globalNegativeEffect;
-        CommonConfig.getSyncValues().skill.extra.globalPositiveEffect = CommonConfig.getValues().skill.extra.globalPositiveEffect;
-        CommonConfig.getSyncValues().skill.extra.globalNeutralEffect = CommonConfig.getValues().skill.extra.globalNeutralEffect;
-        CommonConfig.getSyncValues().advancement.oneTreePerClass = CommonConfig.getValues().advancement.oneTreePerClass;
-        CommonConfig.getSyncValues().advancement.xp.globalCostMultiplier = CommonConfig.getValues().advancement.xp.globalCostMultiplier;
-        CommonConfig.getSyncValues().advancement.xp.retryXPReturn = CommonConfig.getValues().advancement.xp.retryXPReturn;
-        CommonConfig.getSyncValues().advancement.xp.xpStoreTariff = CommonConfig.getValues().advancement.xp.xpStoreTariff;
-        CommonConfig.getSyncValues().advancement.xp.xpTakeTariff = CommonConfig.getValues().advancement.xp.xpTakeTariff;
-        CommonConfig.getSyncValues().advancement.maxResetUnlocks = CommonConfig.getValues().advancement.maxResetUnlocks;
-        CommonConfig.getSyncValues().advancement.levels.function = CommonConfig.getValues().advancement.levels.function;
-        CommonConfig.getSyncValues().advancement.levels.defaultLevel = CommonConfig.getValues().advancement.levels.defaultLevel;
-        CommonConfig.getSyncValues().worldGen.enderOreQuantity = CommonConfig.getValues().worldGen.enderOreQuantity;
-        CommonConfig.getSyncValues().worldGen.enderOreSpawnRate = CommonConfig.getValues().worldGen.enderOreSpawnRate;
-        CommonConfig.getSyncValues().worldGen.enderOreSpawnHeightMax = CommonConfig.getValues().worldGen.enderOreSpawnHeightMax;
-        CommonConfig.getSyncValues().worldGen.enderOreSpawnHeightMin = CommonConfig.getValues().worldGen.enderOreSpawnHeightMin;
-        CommonConfig.getSyncValues().worldGen.enderOreSpawnDimensions = CommonConfig.getValues().worldGen.enderOreSpawnDimensions;
-        CommonConfig.getSyncValues().worldGen.enderOreItemDropsMin = CommonConfig.getValues().worldGen.enderOreItemDropsMin;
-        CommonConfig.getSyncValues().worldGen.enderOreItemDropsMax = CommonConfig.getValues().worldGen.enderOreItemDropsMax;
         IForgeRegistry<Skill> registry = GameRegistry.findRegistry(Skill.class);
         for (Map.Entry<ResourceLocation, Skill> entry : registry.getEntries()) {
-            if(entry.getValue() instanceof IConfigSync) {
+            if (entry.getValue() instanceof IConfigSync) {
                 ((IConfigSync) entry.getValue()).initSyncConfig();
             }
         }
@@ -85,44 +51,38 @@ public final class CommonConfig {
         compound.setBoolean("preventAbilityDoTKnockback", CommonConfig.getValues().skill.preventAbilityDoTKnockback);
         compound.setBoolean("defaultHumanTeam", CommonConfig.getValues().skill.defaultHumanTeam);
         compound.setBoolean("defaultAnimalTeam", CommonConfig.getValues().skill.defaultAnimalTeam);
-        compound.setDouble("globalCooldown", CommonConfig.getValues().skill.globalCooldown);
-        compound.setDouble("globalTime", CommonConfig.getValues().skill.globalTime);
-        compound.setDouble("globalRange", CommonConfig.getValues().skill.globalRange);
-        compound.setDouble("globalEffectiveness", CommonConfig.getValues().skill.globalEffectiveness);
-        compound.setDouble("extra.globalNegativeEffect", CommonConfig.getValues().skill.extra.globalNegativeEffect);
-        compound.setDouble("extra.globalPositiveEffect", CommonConfig.getValues().skill.extra.globalPositiveEffect);
-        compound.setDouble("extra.globalNeutralEffect", CommonConfig.getValues().skill.extra.globalNeutralEffect);
-        EnderSkillsAPI.EXPRESSION_FUNCTION_CACHE.clear();
-        EnderSkillsAPI.EXPRESSION_CACHE.clear();
+        compound.setDouble("globalPositiveEffect", CommonConfig.getValues().skill.globalPositiveEffect);
+        compound.setDouble("globalNegativeEffect", CommonConfig.getValues().skill.globalNegativeEffect);
+        EnderSkillsAPI.EXPRESSION_FUNCTION_CACHE.invalidateAll();
+        EnderSkillsAPI.EXPRESSION_FUNCTION_CACHE.cleanUp();
+        EnderSkillsAPI.EXPRESSION_CACHE.invalidateAll();
+        EnderSkillsAPI.EXPRESSION_CACHE.cleanUp();
     }
 
     @Deprecated
     @SideOnly(Side.CLIENT)
     public static void readSyncConfig(NBTTagCompound compound) {
-        CommonConfig.getSyncValues().advancement.oneTreePerClass = compound.getBoolean("advancement.oneTreePerClass");
-        CommonConfig.getSyncValues().advancement.xp.globalCostMultiplier = compound.getDouble("advancement.xp.globalCostMultiplier");
-        CommonConfig.getSyncValues().advancement.xp.costIncrement = compound.getDouble("advancement.xp.costIncrement");
-        CommonConfig.getSyncValues().advancement.xp.retryXPReturn = compound.getDouble("advancement.xp.retryXPReturn");
-        CommonConfig.getSyncValues().advancement.xp.xpStoreTariff = compound.getDouble("advancement.xp.xpStoreTariff");
-        CommonConfig.getSyncValues().advancement.xp.xpTakeTariff = compound.getDouble("advancement.xp.xpTakeTariff");
-        CommonConfig.getSyncValues().advancement.maxResetUnlocks = compound.getInteger("advancement.maxResetUnlocks");
-        CommonConfig.getSyncValues().advancement.levels.function = NBTHelper.getArray(compound, "advancement.levels.function");
-        CommonConfig.getSyncValues().advancement.levels.defaultLevel = compound.getInteger("advancement.levels.defaultLevel");
-        CommonConfig.getSyncValues().skill.destroyBlocks = compound.getBoolean("destroyBlocks");
-        CommonConfig.getSyncValues().skill.preventAbilityDoTKnockback = compound.getBoolean("preventAbilityDoTKnockback");
-        CommonConfig.getSyncValues().skill.defaultHumanTeam = compound.getBoolean("defaultHumanTeam");
-        CommonConfig.getSyncValues().skill.defaultAnimalTeam = compound.getBoolean("defaultAnimalTeam");
-        CommonConfig.getSyncValues().skill.globalCooldown = compound.getDouble("globalCooldown");
-        CommonConfig.getSyncValues().skill.globalTime = compound.getDouble("globalTime");
-        CommonConfig.getSyncValues().skill.globalRange = compound.getDouble("globalRange");
-        CommonConfig.getSyncValues().skill.globalEffectiveness = compound.getDouble("globalEffectiveness");
-        CommonConfig.getSyncValues().skill.extra.globalNegativeEffect = compound.getDouble("extra.globalNegativeEffect");
-        CommonConfig.getSyncValues().skill.extra.globalPositiveEffect = compound.getDouble("extra.globalPositiveEffect");
-        CommonConfig.getSyncValues().skill.extra.globalNeutralEffect = compound.getDouble("extra.globalNeutralEffect");
-        EnderSkillsAPI.defaultHumanTeam = CommonConfig.getSyncValues().skill.defaultHumanTeam;
-        EnderSkillsAPI.defaultAnimalTeam = CommonConfig.getSyncValues().skill.defaultAnimalTeam;
-        EnderSkillsAPI.EXPRESSION_FUNCTION_CACHE.clear();
-        EnderSkillsAPI.EXPRESSION_CACHE.clear();
+        CommonConfig.getValues().advancement.oneTreePerClass = compound.getBoolean("advancement.oneTreePerClass");
+        CommonConfig.getValues().advancement.xp.globalCostMultiplier = compound.getDouble("advancement.xp.globalCostMultiplier");
+        CommonConfig.getValues().advancement.xp.costIncrement = compound.getDouble("advancement.xp.costIncrement");
+        CommonConfig.getValues().advancement.xp.retryXPReturn = compound.getDouble("advancement.xp.retryXPReturn");
+        CommonConfig.getValues().advancement.xp.xpStoreTariff = compound.getDouble("advancement.xp.xpStoreTariff");
+        CommonConfig.getValues().advancement.xp.xpTakeTariff = compound.getDouble("advancement.xp.xpTakeTariff");
+        CommonConfig.getValues().advancement.maxResetUnlocks = compound.getInteger("advancement.maxResetUnlocks");
+        CommonConfig.getValues().advancement.levels.function = NBTHelper.getArray(compound, "advancement.levels.function");
+        CommonConfig.getValues().advancement.levels.defaultLevel = compound.getInteger("advancement.levels.defaultLevel");
+        CommonConfig.getValues().skill.destroyBlocks = compound.getBoolean("destroyBlocks");
+        CommonConfig.getValues().skill.preventAbilityDoTKnockback = compound.getBoolean("preventAbilityDoTKnockback");
+        CommonConfig.getValues().skill.defaultHumanTeam = compound.getBoolean("defaultHumanTeam");
+        CommonConfig.getValues().skill.defaultAnimalTeam = compound.getBoolean("defaultAnimalTeam");
+        CommonConfig.getValues().skill.globalPositiveEffect = compound.getDouble("globalPositiveEffect");
+        CommonConfig.getValues().skill.globalNegativeEffect = compound.getDouble("globalNegativeEffect");
+        EnderSkillsAPI.defaultHumanTeam = CommonConfig.getValues().skill.defaultHumanTeam;
+        EnderSkillsAPI.defaultAnimalTeam = CommonConfig.getValues().skill.defaultAnimalTeam;
+        EnderSkillsAPI.EXPRESSION_FUNCTION_CACHE.invalidateAll();
+        EnderSkillsAPI.EXPRESSION_FUNCTION_CACHE.cleanUp();
+        EnderSkillsAPI.EXPRESSION_CACHE.invalidateAll();
+        EnderSkillsAPI.EXPRESSION_CACHE.cleanUp();
     }
 
     public static class Values {
@@ -136,8 +96,6 @@ public final class CommonConfig {
 
         public static class SkillGlobalConfig {
 
-            public final Extra extra = new Extra();
-
             @Config.Comment("Disallows abilities from breaking blocks")
             public boolean destroyBlocks = false;
 
@@ -150,21 +108,11 @@ public final class CommonConfig {
             @Config.Comment("Disallows abilities to target passive mobs")
             public boolean defaultAnimalTeam = false;
 
-            public double globalCooldown = 1D;
+            @Config.Comment("Modifies negative effects of all abilities (used for balancing damage)")
+            public double globalPositiveEffect = 1D;
 
-            public double globalTime = 1D;
-
-            public double globalRange = 1D;
-
-            public double globalEffectiveness = 1D;
-
-            public static class Extra {
-                public double globalPositiveEffect = 0.5D;
-
-                public double globalNegativeEffect = 0.4D;
-
-                public double globalNeutralEffect = 1D;
-            }
+            @Config.Comment("Modifies positive effects of all abilities (used for balancing heals)")
+            public double globalNegativeEffect = 1D;
         }
 
         public static class SkillAdvancementConfig {

@@ -4,33 +4,31 @@ import arekkuusu.enderskills.api.capability.data.SkillData;
 import arekkuusu.enderskills.api.event.SkillDamageEvent;
 import arekkuusu.enderskills.api.event.SkillDamageSource;
 import arekkuusu.enderskills.api.helper.NBTHelper;
+import arekkuusu.enderskills.api.registry.Skill;
 import arekkuusu.enderskills.api.util.Vector;
 import arekkuusu.enderskills.common.EnderSkills;
 import arekkuusu.enderskills.common.lib.LibNames;
+import arekkuusu.enderskills.common.skill.ModAbilities;
 import arekkuusu.enderskills.common.skill.ModEffects;
 import arekkuusu.enderskills.common.skill.SkillHelper;
-import arekkuusu.enderskills.common.skill.ability.AbilityInfo;
 import arekkuusu.enderskills.common.skill.ability.BaseAbility;
 import arekkuusu.enderskills.common.sound.ModSounds;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.MinecraftForge;
 
-import javax.annotation.Nullable;
-import java.util.List;
-
-public class Zap extends BaseAbility {
+public class Zap extends Skill {
 
     public Zap() {
-        super(LibNames.ZAP, new BaseProperties());
+        super(new Properties());
+        ModAbilities.setRegistry(this, LibNames.ZAP);
     }
 
     @Override
     public void begin(EntityLivingBase entity, SkillData data) {
-        if (isClientWorld(entity)) {
+        if (entity.world.isRemote) {
             EntityLivingBase owner = SkillHelper.getOwner(data);
             if (owner != null) {
                 Vector posFrom = new Vector(owner.getPositionVector()).addVector(owner.world.rand.nextDouble() * 0.05D, owner.height / 2D + owner.world.rand.nextDouble() * 0.05D, owner.world.rand.nextDouble() * 0.05D);
@@ -61,35 +59,5 @@ public class Zap extends BaseAbility {
                 ((WorldServer) entity.world).playSound(null, entity.posX, entity.posY, entity.posZ, ModSounds.ELECTRIC_HIT, SoundCategory.BLOCKS, 0.5F, (1.0F + (entity.world.rand.nextFloat() - entity.world.rand.nextFloat()) * 0.2F) * 0.7F);
             }
         }
-    }
-
-    @Override
-    public int getCostIncrement(EntityLivingBase entity, int total) {
-        return 0;
-    }
-
-    @Override
-    public int getUpgradeCost(@Nullable AbilityInfo info) {
-        return 0;
-    }
-
-    @Override
-    public void addDescription(List<String> description) {
-        //Vewwy powwerfull uwu
-    }
-
-    @Override
-    public void initSyncConfig() {
-        //Trapito de confianza
-    }
-
-    @Override
-    public void writeSyncConfig(NBTTagCompound compound) {
-        //For rent
-    }
-
-    @Override
-    public void readSyncConfig(NBTTagCompound compound) {
-        //Nothing here yet
     }
 }

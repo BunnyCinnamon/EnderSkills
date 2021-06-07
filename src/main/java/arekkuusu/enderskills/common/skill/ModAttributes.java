@@ -31,7 +31,7 @@ public final class ModAttributes {
     public static final Endurance ENDURANCE = empty();
     public static final StealthDamage STEALTH_DAMAGE = empty();
     public static final Skill SWIM_SPEED = empty();
-    public static final Damage DAMAGE = empty();
+    public static final MeleeDamage DAMAGE = empty();
     public static final Skill ATTACK_SPEED = empty();
     public static final Skill KNOCKBACK = empty();
     public static final AbilityPower ABILITY_POWER = empty();
@@ -51,7 +51,7 @@ public final class ModAttributes {
         registry.register(new Endurance());
         registry.register(new StealthDamage());
         registry.register(new SwimSpeed());
-        registry.register(new Damage());
+        registry.register(new MeleeDamage());
         registry.register(new AttackSpeed());
         registry.register(new Knockback());
         registry.register(new AbilityPower());

@@ -3,7 +3,7 @@ package arekkuusu.enderskills.common.skill.attribute;
 import arekkuusu.enderskills.api.capability.Capabilities;
 import arekkuusu.enderskills.api.capability.data.SkillInfo;
 import arekkuusu.enderskills.client.gui.data.ISkillAdvancement;
-import arekkuusu.enderskills.client.util.helper.TextHelper;
+import arekkuusu.enderskills.common.CommonConfig;
 import arekkuusu.enderskills.common.skill.BaseSkill;
 import arekkuusu.enderskills.common.skill.ModAttributes;
 import net.minecraft.entity.EntityLivingBase;
@@ -49,7 +49,12 @@ public abstract class BaseAttribute extends BaseSkill {
         return new ISkillAdvancement.DefaultRequirement(0, getUpgradeCost(info));
     }
 
-    public abstract int getUpgradeCost(@Nullable AttributeInfo info);
+    public int getUpgradeCost(@Nullable AttributeInfo info) {
+        int lvl = info != null ? info.getLevel() + 1 : 0;
+        return (int) (getExperience(lvl) * CommonConfig.getValues().advancement.xp.globalCostMultiplier);
+    }
+
+    public abstract double getExperience(int lvl);
 
     @Nonnull
     @Override

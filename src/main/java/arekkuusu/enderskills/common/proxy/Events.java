@@ -13,7 +13,6 @@ import com.google.common.collect.Lists;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.DamageSource;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.entity.EntityTravelToDimensionEvent;
@@ -102,6 +101,11 @@ public class Events {
             if (event.isWasDeath()) {
                 Capabilities.get(oldPlayer).ifPresent(original -> {
                     Capabilities.get(newPlayer).ifPresent(replacement -> {
+                        replacement.deserializeNBT(original.serializeNBT());
+                    });
+                });
+                Capabilities.endurance(oldPlayer).ifPresent(original -> {
+                    Capabilities.endurance(newPlayer).ifPresent(replacement -> {
                         replacement.deserializeNBT(original.serializeNBT());
                     });
                 });
@@ -204,7 +208,7 @@ public class Events {
             Capabilities.knockback(event.getEntityLiving()).ifPresent(c -> {
                 DamageSource source = event.getEntityLiving().getLastDamageSource();
                 boolean isDamageAnDoTAbility = source != null
-                        && CommonConfig.getSyncValues().skill.preventAbilityDoTKnockback
+                        && CommonConfig.getValues().skill.preventAbilityDoTKnockback
                         && source.damageType.equals(BaseAbility.DAMAGE_DOT_TYPE);
                 if (isDamageAnDoTAbility) {
                     event.setCanceled(true);

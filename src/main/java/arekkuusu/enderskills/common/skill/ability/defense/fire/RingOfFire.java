@@ -1,14 +1,13 @@
 package arekkuusu.enderskills.common.skill.ability.defense.fire;
 
-import arekkuusu.enderskills.api.capability.AdvancementCapability;
 import arekkuusu.enderskills.api.capability.Capabilities;
 import arekkuusu.enderskills.api.capability.data.SkillData;
 import arekkuusu.enderskills.api.capability.data.SkillInfo;
-import arekkuusu.enderskills.api.helper.ExpressionHelper;
 import arekkuusu.enderskills.api.helper.MathUtil;
 import arekkuusu.enderskills.api.helper.NBTHelper;
 import arekkuusu.enderskills.api.helper.TeamHelper;
 import arekkuusu.enderskills.api.registry.Skill;
+import arekkuusu.enderskills.api.util.ConfigDSL;
 import arekkuusu.enderskills.client.sounds.RingOfFireSound;
 import arekkuusu.enderskills.client.util.helper.TextHelper;
 import arekkuusu.enderskills.common.CommonConfig;
@@ -42,9 +41,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 import javax.annotation.Nullable;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 
 public class RingOfFire extends BaseAbility implements IScanEntities, IFindEntity, IExpand, IImpact, ILoopSound {
 
@@ -173,67 +170,34 @@ public class RingOfFire extends BaseAbility implements IScanEntities, IFindEntit
         }
         ModEffects.BURNING.set(target, skillData);
     }
-
     //* Entity *//
 
-    public int getLevel(SkillInfo.IInfoUpgradeable info) {
-        return info.getLevel();
-    }
-
     public int getMaxLevel() {
-        return Configuration.getSyncValues().maxLevel;
+        return this.config.max_level;
     }
 
     public double getDoT(AbilityInfo info) {
-        int level = getLevel(info);
-        int levelMax = getMaxLevel();
-        double func = ExpressionHelper.getExpression(this, Configuration.getSyncValues().extra.dot, level, levelMax);
-        double result = (func * CommonConfig.getSyncValues().skill.extra.globalNegativeEffect);
-        return (result * getEffectiveness());
+        return this.config.get(this, "DOT", info.getLevel(), CommonConfig.CONFIG_SYNC.skill.globalNegativeEffect);
     }
 
     public int getDoTTime(AbilityInfo info) {
-        int level = getLevel(info);
-        int levelMax = getMaxLevel();
-        double func = ExpressionHelper.getExpression(this, Configuration.getSyncValues().extra.dotTime, level, levelMax);
-        double result = (func * CommonConfig.getSyncValues().skill.extra.globalNeutralEffect);
-        return (int) (result * getEffectiveness());
+        return (int) this.config.get(this, "DOT_DURATION", info.getLevel());
     }
 
     public double getRange(AbilityInfo info) {
-        int level = getLevel(info);
-        int levelMax = getMaxLevel();
-        double func = ExpressionHelper.getExpression(this, Configuration.getSyncValues().range, level, levelMax);
-        double result = (func * CommonConfig.getSyncValues().skill.globalRange);
-        return (result * getEffectiveness());
+        return this.config.get(this, "RANGE", info.getLevel());
     }
 
     public double getRingRange(AbilityInfo info) {
-        int level = getLevel(info);
-        int levelMax = getMaxLevel();
-        double func = ExpressionHelper.getExpression(this, Configuration.getSyncValues().extra.range, level, levelMax);
-        double result = (func * CommonConfig.getSyncValues().skill.globalRange);
-        return (result * getEffectiveness());
+        return this.config.get(this, "RING_RANGE", info.getLevel());
     }
 
     public int getCooldown(AbilityInfo info) {
-        int level = getLevel(info);
-        int levelMax = getMaxLevel();
-        double func = ExpressionHelper.getExpression(this, Configuration.getSyncValues().cooldown, level, levelMax);
-        double result = (func * CommonConfig.getSyncValues().skill.globalCooldown);
-        return (int) (result * getEffectiveness());
+        return (int) this.config.get(this, "COOLDOWN", info.getLevel());
     }
 
     public int getTime(AbilityInfo info) {
-        int level = getLevel(info);
-        int levelMax = getMaxLevel();
-        double func = ExpressionHelper.getExpression(this, Configuration.getSyncValues().time, level, levelMax);
-        double result = (func * CommonConfig.getSyncValues().skill.globalTime);
-        return (int) (result * getEffectiveness());
-    }
-
-    public double getEffectiveness() {
-        return Configuration.getSyncValues().effectiveness * CommonConfig.getSyncValues().skill.globalEffectiveness;
+        return (int) this.config.get(this, "RING_DURATION", info.getLevel());
     }
 
     /*Advancement Section*/
@@ -262,17 +226,22 @@ public class RingOfFire extends BaseAbility implements IScanEntities, IFindEntit
                         description.add(TextHelper.translate("desc.stats.range", TextHelper.format2FloatPoint(getRange(abilityInfo)), TextHelper.getTextComponent("desc.stats.suffix_blocks")));
                         description.add(TextHelper.translate("desc.stats.dot", TextHelper.format2FloatPoint(getDoT(abilityInfo) / 2D), TextHelper.getTextComponent("desc.stats.suffix_hearts")));
                         description.add(TextHelper.translate("desc.stats.duration", TextHelper.format2FloatPoint(getDoTTime(abilityInfo) / 20D), TextHelper.getTextComponent("desc.stats.suffix_time")));
-                        if (abilityInfo.getLevel() < getMaxLevel()) { //Copy info and set a higher level...
-                            AbilityInfo infoNew = new AbilityInfo(abilityInfo.serializeNBT());
-                            infoNew.setLevel(infoNew.getLevel() + 1);
-                            description.add("");
-                            description.add(TextHelper.translate("desc.stats.level_next", abilityInfo.getLevel(), infoNew.getLevel()));
-                            description.add(TextHelper.translate("desc.stats.cooldown", TextHelper.format2FloatPoint(getCooldown(infoNew) / 20D), TextHelper.getTextComponent("desc.stats.suffix_time")));
-                            description.add(TextHelper.translate("desc.stats.duration", TextHelper.format2FloatPoint(getTime(infoNew) / 20D), TextHelper.getTextComponent("desc.stats.suffix_time")));
-                            description.add(TextHelper.translate("desc.stats.ring_range", TextHelper.format2FloatPoint(getRingRange(infoNew)), TextHelper.getTextComponent("desc.stats.suffix_blocks")));
-                            description.add(TextHelper.translate("desc.stats.range", TextHelper.format2FloatPoint(getRange(infoNew)), TextHelper.getTextComponent("desc.stats.suffix_blocks")));
-                            description.add(TextHelper.translate("desc.stats.dot", TextHelper.format2FloatPoint(getDoT(infoNew) / 2D), TextHelper.getTextComponent("desc.stats.suffix_hearts")));
-                            description.add(TextHelper.translate("desc.stats.duration", TextHelper.format2FloatPoint(getDoTTime(infoNew) / 20D), TextHelper.getTextComponent("desc.stats.suffix_time")));
+                        if (abilityInfo.getLevel() < getMaxLevel()) {
+                            if (!GuiScreen.isCtrlKeyDown()) {
+                                description.add("");
+                                description.add(TextHelper.translate("desc.stats.ctrl"));
+                            } else { //Copy info and set a higher level...
+                                AbilityInfo infoNew = new AbilityInfo(abilityInfo.serializeNBT());
+                                infoNew.setLevel(infoNew.getLevel() + 1);
+                                description.add("");
+                                description.add(TextHelper.translate("desc.stats.level_next", abilityInfo.getLevel(), infoNew.getLevel()));
+                                description.add(TextHelper.translate("desc.stats.cooldown", TextHelper.format2FloatPoint(getCooldown(infoNew) / 20D), TextHelper.getTextComponent("desc.stats.suffix_time")));
+                                description.add(TextHelper.translate("desc.stats.duration", TextHelper.format2FloatPoint(getTime(infoNew) / 20D), TextHelper.getTextComponent("desc.stats.suffix_time")));
+                                description.add(TextHelper.translate("desc.stats.ring_range", TextHelper.format2FloatPoint(getRingRange(infoNew)), TextHelper.getTextComponent("desc.stats.suffix_blocks")));
+                                description.add(TextHelper.translate("desc.stats.range", TextHelper.format2FloatPoint(getRange(infoNew)), TextHelper.getTextComponent("desc.stats.suffix_blocks")));
+                                description.add(TextHelper.translate("desc.stats.dot", TextHelper.format2FloatPoint(getDoT(infoNew) / 2D), TextHelper.getTextComponent("desc.stats.suffix_hearts")));
+                                description.add(TextHelper.translate("desc.stats.duration", TextHelper.format2FloatPoint(getDoTTime(infoNew) / 20D), TextHelper.getTextComponent("desc.stats.suffix_time")));
+                            }
                         }
                     });
                 }
@@ -281,157 +250,174 @@ public class RingOfFire extends BaseAbility implements IScanEntities, IFindEntit
     }
 
     @Override
-    public void onUpgrade(EntityLivingBase entity) {
-        Capabilities.advancement(entity).ifPresent(c -> {
-            Requirement requirement = getRequirement(entity);
-            int tokens = requirement.getLevels();
-            int xp = requirement.getXp();
-            if (c.level >= tokens && c.getExperienceTotal(entity) >= xp) {
-                Capabilities.get(entity).filter(a -> !a.isOwned(this)).ifPresent(a -> {
-                    Skill[] skillUnlockOrder = Arrays.copyOf(c.skillUnlockOrder, c.skillUnlockOrder.length + 1);
-                    skillUnlockOrder[skillUnlockOrder.length - 1] = this;
-                    c.skillUnlockOrder = skillUnlockOrder;
-                });
-                c.consumeExperienceFromTotal(entity, xp);
-            }
-        });
+    public Skill getParentSkill() {
+        return ModAbilities.FLARES;
     }
 
     @Override
-    public int getCostIncrement(EntityLivingBase entity, int total) {
-        Optional<AdvancementCapability> optional = Capabilities.advancement(entity);
-        if (optional.isPresent()) {
-            AdvancementCapability advancement = optional.get();
-            List<Skill> skillUnlockOrder = Arrays.asList(advancement.skillUnlockOrder);
-            int index = skillUnlockOrder.indexOf(ModAbilities.FLARES);
-            if (index == -1) {
-                index = advancement.skillUnlockOrder.length;
-            }
-            return (int) (total * (1D + index * CommonConfig.getSyncValues().advancement.xp.costIncrement));
-        }
-        return total;
-    }
-
-    @Override
-    public int getUpgradeCost(@Nullable AbilityInfo info) {
-        int level = info != null ? getLevel(info) + 1 : 0;
-        int levelMax = getMaxLevel();
-        double func = ExpressionHelper.getExpression(this, Configuration.getSyncValues().advancement.upgrade, level, levelMax);
-        return (int) (func * CommonConfig.getSyncValues().advancement.xp.globalCostMultiplier);
+    public double getExperience(int lvl) {
+        return this.config.get(this, "XP", lvl);
     }
     /*Advancement Section*/
 
+    /*Config Section*/
+    public static final String CONFIG_FILE = LibNames.FIRE_DEFENSE_CONFIG + LibNames.RING_OF_FIRE;
+    public ConfigDSL.Config config = new ConfigDSL.Config();
+
     @Override
     public void initSyncConfig() {
-        Configuration.getSyncValues().maxLevel = Configuration.getValues().maxLevel;
-        Configuration.getSyncValues().cooldown = Configuration.getValues().cooldown;
-        Configuration.getSyncValues().time = Configuration.getValues().time;
-        Configuration.getSyncValues().range = Configuration.getValues().range;
-        Configuration.getSyncValues().effectiveness = Configuration.getValues().effectiveness;
-        Configuration.getSyncValues().extra.range = Configuration.getValues().extra.range;
-        Configuration.getSyncValues().extra.dotTime = Configuration.getValues().extra.dotTime;
-        Configuration.getSyncValues().extra.dot = Configuration.getValues().extra.dot;
-        Configuration.getSyncValues().advancement.upgrade = Configuration.getValues().advancement.upgrade;
+        this.config = ConfigDSL.parse(Configuration.CONFIG_SYNC.dsl);
     }
 
     @Override
     public void writeSyncConfig(NBTTagCompound compound) {
-        compound.setInteger("maxLevel", Configuration.getValues().maxLevel);
-        NBTHelper.setArray(compound, "cooldown", Configuration.getValues().cooldown);
-        NBTHelper.setArray(compound, "time", Configuration.getValues().time);
-        NBTHelper.setArray(compound, "range", Configuration.getValues().range);
-        compound.setDouble("effectiveness", Configuration.getValues().effectiveness);
-        NBTHelper.setArray(compound, "extra.range", Configuration.getValues().extra.range);
-        NBTHelper.setArray(compound, "extra.dotTime", Configuration.getValues().extra.dotTime);
-        NBTHelper.setArray(compound, "extra.dot", Configuration.getValues().extra.dot);
-        NBTHelper.setArray(compound, "advancement.upgrade", Configuration.getValues().advancement.upgrade);
+        NBTHelper.setArray(compound, "config", Configuration.CONFIG.dsl);
     }
 
     @Override
     public void readSyncConfig(NBTTagCompound compound) {
-        Configuration.getSyncValues().maxLevel = compound.getInteger("maxLevel");
-        Configuration.getSyncValues().cooldown = NBTHelper.getArray(compound, "cooldown");
-        Configuration.getSyncValues().time = NBTHelper.getArray(compound, "time");
-        Configuration.getSyncValues().range = NBTHelper.getArray(compound, "range");
-        Configuration.getSyncValues().effectiveness = compound.getDouble("effectiveness");
-        Configuration.getSyncValues().extra.range = NBTHelper.getArray(compound, "extra.range");
-        Configuration.getSyncValues().extra.dotTime = NBTHelper.getArray(compound, "extra.dotTime");
-        Configuration.getSyncValues().extra.dot = NBTHelper.getArray(compound, "extra.dot");
-        Configuration.getSyncValues().advancement.upgrade = NBTHelper.getArray(compound, "advancement.upgrade");
+        Configuration.CONFIG_SYNC.dsl = NBTHelper.getArray(compound, "config");
     }
 
-    @Config(modid = LibMod.MOD_ID, name = LibMod.MOD_ID + "/Ability/" + LibNames.RING_OF_FIRE)
+    @Config(modid = LibMod.MOD_ID, name = CONFIG_FILE)
     public static class Configuration {
 
-        @Config.Comment("Ability Values")
-        @Config.LangKey(LibMod.MOD_ID + ".config." + LibNames.RING_OF_FIRE)
-        public static Values CONFIG = new Values();
-
-        public static Values getValues() {
-            return CONFIG;
-        }
-
         @Config.Ignore
-        protected static Values CONFIG_SYNC = new Values();
-
-        public static Values getSyncValues() {
-            return CONFIG_SYNC;
-        }
+        public static final Configuration.Values CONFIG_SYNC = new Configuration.Values();
+        public static final Configuration.Values CONFIG = new Configuration.Values();
 
         public static class Values {
-            @Config.Comment("Skill specific extra Configuration")
-            public final Extra extra = new Extra();
-            @Config.Comment("Skill specific Advancement Configuration")
-            public final Advancement advancement = new Advancement();
 
-            @Config.Comment("Max level obtainable")
-            @Config.RangeInt(min = 0)
-            public int maxLevel = 50;
-
-            @Config.Comment("Cooldown Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
-            public String[] cooldown = {
-                    "(0+){32 * 20 + 28 * 20 * (1 - ((1 - (e^(-2.1 * (x/24)))) / (1 - e^(-2.1))))}",
-                    "(25+){22 * 20 + 10 * 20 * (1- (((e^(0.1 * ((x-24) / (y-24))) - 1)/((e^0.1) - 1))))}",
-                    "(50){(18 * 20)}"
+            public String[] dsl = {
+                    "⠀#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~",
+                    "⠀",
+                    "⠀min_level: 0",
+                    "⠀max_level: 50",
+                    "⠀",
+                    "⠀#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~",
+                    "⠀COOLDOWN (",
+                    "⠀    curve: flat",
+                    "⠀    start: 42s",
+                    "⠀    end:   22s",
+                    "⠀",
+                    "⠀    {0 to 25} [",
+                    "⠀        curve: ramp -50% 50%",
+                    "⠀        start: {start}",
+                    "⠀        end: 28s",
+                    "⠀    ]",
+                    "⠀",
+                    "⠀    {25 to 49} [",
+                    "⠀        curve: ramp 50% 50%",
+                    "⠀        start: {0 to 25}",
+                    "⠀        end: 26s",
+                    "⠀    ]",
+                    "⠀",
+                    "⠀    {50} [",
+                    "⠀        curve: none",
+                    "⠀        value: {end}",
+                    "⠀    ]",
+                    "⠀)",
+                    "⠀#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~",
+                    "⠀RANGE (",
+                    "⠀    curve: flat",
+                    "⠀    start: 8b",
+                    "⠀    end:   24b",
+                    "⠀",
+                    "⠀    {0 to 25} [",
+                    "⠀        curve: ramp -50% 50%",
+                    "⠀        start: {start}",
+                    "⠀        end: 18b",
+                    "⠀    ]",
+                    "⠀",
+                    "⠀    {25 to 49} [",
+                    "⠀        curve: ramp 50% 50%",
+                    "⠀        start: {0 to 25}",
+                    "⠀        end: 20b",
+                    "⠀    ]",
+                    "⠀",
+                    "⠀    {50} [",
+                    "⠀        curve: none",
+                    "⠀        value: {end}",
+                    "⠀    ]",
+                    "⠀)",
+                    "⠀#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~",
+                    "⠀RING_DURATION (",
+                    "⠀    curve: flat",
+                    "⠀    start: 8s",
+                    "⠀    end:   16s",
+                    "⠀",
+                    "⠀    {0 to 25} [",
+                    "⠀        curve: ramp -50% 50%",
+                    "⠀        start: {start}",
+                    "⠀        end: 12s",
+                    "⠀    ]",
+                    "⠀",
+                    "⠀    {25 to 49} [",
+                    "⠀        curve: ramp 50% 50%",
+                    "⠀        start: {0 to 25}",
+                    "⠀        end: 14s",
+                    "⠀    ]",
+                    "⠀",
+                    "⠀    {50} [",
+                    "⠀        curve: none",
+                    "⠀        value: {end}",
+                    "⠀    ]",
+                    "⠀)",
+                    "⠀#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~",
+                    "⠀RING_RANGE (",
+                    "⠀    curve: none",
+                    "⠀    value: 3.5b",
+                    "⠀)",
+                    "⠀#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~",
+                    "⠀DOT (",
+                    "⠀    curve: flat",
+                    "⠀    start: 2h",
+                    "⠀    end:   8h",
+                    "⠀",
+                    "⠀    {0 to 25} [",
+                    "⠀        curve: ramp -50% 50%",
+                    "⠀        start: {start}",
+                    "⠀        end: 4h",
+                    "⠀    ]",
+                    "⠀",
+                    "⠀    {25 to 49} [",
+                    "⠀        curve: ramp 50% 50%",
+                    "⠀        start: {0 to 25}",
+                    "⠀        end: 6h",
+                    "⠀    ]",
+                    "⠀",
+                    "⠀    {50} [",
+                    "⠀        curve: none",
+                    "⠀        value: {end}",
+                    "⠀    ]",
+                    "⠀)",
+                    "⠀#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~",
+                    "⠀DOT_DURATION (",
+                    "⠀    curve: none",
+                    "⠀    value: 4s",
+                    "⠀)",
+                    "⠀#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~",
+                    "⠀XP (",
+                    "⠀    curve: flat",
+                    "⠀    start: 300",
+                    "⠀    end:   infinite",
+                    "⠀",
+                    "⠀    {0} [",
+                    "⠀        curve: none",
+                    "⠀        value: {start}",
+                    "⠀    ]",
+                    "⠀",
+                    "⠀    {1 to 49} [",
+                    "⠀        curve: multiply 4",
+                    "⠀    ]",
+                    "⠀",
+                    "⠀    {50} [",
+                    "⠀        curve: f(x, y) -> 4 * x + 4 * x * 0.1",
+                    "⠀    ]",
+                    "⠀)",
+                    "⠀#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~",
             };
-
-            @Config.Comment("Duration Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
-            public String[] time = {
-                    "(0+){6 * 20}"
-            };
-
-            @Config.Comment("Range Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
-            public String[] range = {
-                    "(0+){15}",
-            };
-
-            @Config.Comment("Effectiveness Modifier")
-            @Config.RangeDouble
-            public double effectiveness = 1D;
-
-            public static class Extra {
-                @Config.Comment("Range Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
-                public String[] range = {
-                        "(0+){4}",
-                };
-                @Config.Comment("Damage Over Time specific duration Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
-                public String[] dotTime = {
-                        "(0+){6 * 20}"
-                };
-                @Config.Comment("Damage Over Time Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
-                public String[] dot = {
-                        "(0+){4}"
-                };
-            }
-
-            public static class Advancement {
-                @Config.Comment("Function f(x)=? where 'x' is [Next Level] and 'y' is [Max Level], XP Cost is in units [NOT LEVELS]")
-                public String[] upgrade = {
-                        "(0){300}",
-                        "(1+){4 * x}",
-                        "(50){4 * x + 4 * x * 0.1}"
-                };
-            }
         }
     }
+    /*Config Section*/
 }

@@ -703,7 +703,7 @@ public final class GuiHandler implements IGuiHandler {
                         fire.addAdvancement(magic_resistance, heart_boost, fire_resistance);
                     }
 
-                    if (CommonConfig.getSyncValues().advancement.oneTreePerClass) {
+                    if (CommonConfig.getValues().advancement.oneTreePerClass) {
                         charm.addCondition(new SkillAdvancementConditionNot(taunt));
                         charm.addCondition(new SkillAdvancementConditionNot(shocking_aura));
                         charm.addCondition(new SkillAdvancementConditionNot(flares));
@@ -712,7 +712,7 @@ public final class GuiHandler implements IGuiHandler {
                         taunt.addCondition(new SkillAdvancementConditionNot(flares));
                         shocking_aura.addCondition(new SkillAdvancementConditionNot(taunt));
                         shocking_aura.addCondition(new SkillAdvancementConditionNot(charm));
-                        flares.addCondition(new SkillAdvancementConditionNot(flares));
+                        shocking_aura.addCondition(new SkillAdvancementConditionNot(flares));
                         flares.addCondition(new SkillAdvancementConditionNot(taunt));
                         flares.addCondition(new SkillAdvancementConditionNot(shocking_aura));
                         flares.addCondition(new SkillAdvancementConditionNot(charm));
@@ -1048,7 +1048,7 @@ public final class GuiHandler implements IGuiHandler {
                         ender.addAdvancement(endurance, stealth_damage, swim_speed);
                     }
 
-                    if (CommonConfig.getSyncValues().advancement.oneTreePerClass) {
+                    if (CommonConfig.getValues().advancement.oneTreePerClass) {
                         dash.addCondition(new SkillAdvancementConditionNot(warp));
                         warp.addCondition(new SkillAdvancementConditionNot(dash));
                     }
@@ -1712,7 +1712,7 @@ public final class GuiHandler implements IGuiHandler {
                         fire.addAdvancement(ability_power, critical_chance, armor_penetration);
                     }
 
-                    if (CommonConfig.getSyncValues().advancement.oneTreePerClass) {
+                    if (CommonConfig.getValues().advancement.oneTreePerClass) {
                         shadow.addCondition(new SkillAdvancementConditionNot(bleed));
                         shadow.addCondition(new SkillAdvancementConditionNot(slash));
                         shadow.addCondition(new SkillAdvancementConditionNot(fire_spirit));

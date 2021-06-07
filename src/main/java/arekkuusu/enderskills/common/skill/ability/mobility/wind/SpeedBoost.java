@@ -1,18 +1,14 @@
 package arekkuusu.enderskills.common.skill.ability.mobility.wind;
 
-import arekkuusu.enderskills.api.capability.AdvancementCapability;
 import arekkuusu.enderskills.api.capability.Capabilities;
 import arekkuusu.enderskills.api.capability.data.SkillData;
 import arekkuusu.enderskills.api.capability.data.SkillInfo;
 import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoCooldown;
-import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoUpgradeable;
-import arekkuusu.enderskills.api.helper.ExpressionHelper;
 import arekkuusu.enderskills.api.helper.NBTHelper;
 import arekkuusu.enderskills.api.registry.Skill;
+import arekkuusu.enderskills.api.util.ConfigDSL;
 import arekkuusu.enderskills.client.gui.data.ISkillAdvancement;
 import arekkuusu.enderskills.client.util.helper.TextHelper;
-import arekkuusu.enderskills.client.util.helper.TextHelper;
-import arekkuusu.enderskills.common.CommonConfig;
 import arekkuusu.enderskills.common.lib.LibMod;
 import arekkuusu.enderskills.common.lib.LibNames;
 import arekkuusu.enderskills.common.skill.DynamicModifier;
@@ -40,11 +36,8 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-import javax.annotation.Nullable;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 
 public class SpeedBoost extends BaseAbility implements ISkillAdvancement {
 
@@ -127,7 +120,7 @@ public class SpeedBoost extends BaseAbility implements ISkillAdvancement {
                     SPEED_ATTRIBUTE.remove(entity);
                 }
 
-                if(entity.stepHeight == STEP_HEIGHT || entity.stepHeight == STEP_HEIGHT_SNEAK) {
+                if (entity.stepHeight == STEP_HEIGHT || entity.stepHeight == STEP_HEIGHT_SNEAK) {
                     entity.stepHeight = STEP_HEIGHT_DEFAULT;
                 }
                 STEP_LIST.remove(key);
@@ -142,40 +135,20 @@ public class SpeedBoost extends BaseAbility implements ISkillAdvancement {
         return entity.getUniqueID().toString() + ":" + entity.world.isRemote;
     }
 
-    public int getLevel(IInfoUpgradeable info) {
-        return info.getLevel();
-    }
-
     public int getMaxLevel() {
-        return Configuration.getSyncValues().maxLevel;
+        return this.config.max_level;
     }
 
     public float getSpeed(AbilityInfo info) {
-        int level = getLevel(info);
-        int levelMax = getMaxLevel();
-        double func = ExpressionHelper.getExpression(this, Configuration.getSyncValues().extra.speed, level, levelMax);
-        double result = (func * CommonConfig.getSyncValues().skill.extra.globalNeutralEffect);
-        return (float) (result * getEffectiveness());
+        return (float) this.config.get(this, "RANGE", info.getLevel());
     }
 
     public int getCooldown(AbilityInfo info) {
-        int level = getLevel(info);
-        int levelMax = getMaxLevel();
-        double func = ExpressionHelper.getExpression(this, Configuration.getSyncValues().cooldown, level, levelMax);
-        double result = (func * CommonConfig.getSyncValues().skill.globalCooldown);
-        return (int) (result * getEffectiveness());
+        return (int) this.config.get(this, "COOLDOWN", info.getLevel());
     }
 
     public int getTime(AbilityInfo info) {
-        int level = getLevel(info);
-        int levelMax = getMaxLevel();
-        double func = ExpressionHelper.getExpression(this, Configuration.getSyncValues().time, level, levelMax);
-        double result = (func * CommonConfig.getSyncValues().skill.globalTime);
-        return (int) (result * getEffectiveness());
-    }
-
-    public double getEffectiveness() {
-        return Configuration.getSyncValues().effectiveness * CommonConfig.getSyncValues().skill.globalEffectiveness;
+        return (int) this.config.get(this, "STUN", info.getLevel());
     }
 
     /*Advancement Section*/
@@ -201,14 +174,19 @@ public class SpeedBoost extends BaseAbility implements ISkillAdvancement {
                         description.add(TextHelper.translate("desc.stats.cooldown", TextHelper.format2FloatPoint(getCooldown(abilityInfo) / 20D), TextHelper.getTextComponent("desc.stats.suffix_time")));
                         description.add(TextHelper.translate("desc.stats.duration", TextHelper.format2FloatPoint(getTime(abilityInfo) / 20D), TextHelper.getTextComponent("desc.stats.suffix_time")));
                         description.add(TextHelper.translate("desc.stats.boost", TextHelper.format2FloatPoint(getSpeed(abilityInfo) * 100), TextHelper.getTextComponent("desc.stats.suffix_percentage")));
-                        if (abilityInfo.getLevel() < getMaxLevel()) { //Copy info and set a higher level...
-                            AbilityInfo infoNew = new AbilityInfo(abilityInfo.serializeNBT());
-                            infoNew.setLevel(infoNew.getLevel() + 1);
-                            description.add("");
-                            description.add(TextHelper.translate("desc.stats.level_next", abilityInfo.getLevel(), infoNew.getLevel()));
-                            description.add(TextHelper.translate("desc.stats.cooldown", TextHelper.format2FloatPoint(getCooldown(infoNew) / 20D), TextHelper.getTextComponent("desc.stats.suffix_time")));
-                            description.add(TextHelper.translate("desc.stats.duration", TextHelper.format2FloatPoint(getTime(infoNew) / 20D), TextHelper.getTextComponent("desc.stats.suffix_time")));
-                            description.add(TextHelper.translate("desc.stats.boost", TextHelper.format2FloatPoint(getSpeed(infoNew) * 100), TextHelper.getTextComponent("desc.stats.suffix_percentage")));
+                        if (abilityInfo.getLevel() < getMaxLevel()) {
+                            if (!GuiScreen.isCtrlKeyDown()) {
+                                description.add("");
+                                description.add(TextHelper.translate("desc.stats.ctrl"));
+                            } else { //Copy info and set a higher level...
+                                AbilityInfo infoNew = new AbilityInfo(abilityInfo.serializeNBT());
+                                infoNew.setLevel(infoNew.getLevel() + 1);
+                                description.add("");
+                                description.add(TextHelper.translate("desc.stats.level_next", abilityInfo.getLevel(), infoNew.getLevel()));
+                                description.add(TextHelper.translate("desc.stats.cooldown", TextHelper.format2FloatPoint(getCooldown(infoNew) / 20D), TextHelper.getTextComponent("desc.stats.suffix_time")));
+                                description.add(TextHelper.translate("desc.stats.duration", TextHelper.format2FloatPoint(getTime(infoNew) / 20D), TextHelper.getTextComponent("desc.stats.suffix_time")));
+                                description.add(TextHelper.translate("desc.stats.boost", TextHelper.format2FloatPoint(getSpeed(infoNew) * 100), TextHelper.getTextComponent("desc.stats.suffix_percentage")));
+                            }
                         }
                     });
                 }
@@ -217,121 +195,118 @@ public class SpeedBoost extends BaseAbility implements ISkillAdvancement {
     }
 
     @Override
-    public int getCostIncrement(EntityLivingBase entity, int total) {
-        Optional<AdvancementCapability> optional = Capabilities.advancement(entity);
-        if (optional.isPresent()) {
-            AdvancementCapability advancement = optional.get();
-            List<Skill> skillUnlockOrder = Arrays.asList(advancement.skillUnlockOrder);
-            int index = skillUnlockOrder.indexOf(ModAbilities.DASH);
-            if (index == -1) {
-                index = advancement.skillUnlockOrder.length;
-            }
-            return (int) (total * (1D + index * CommonConfig.getSyncValues().advancement.xp.costIncrement));
-        }
-        return total;
+    public Skill getParentSkill() {
+        return ModAbilities.DASH;
     }
 
     @Override
-    public int getUpgradeCost(@Nullable AbilityInfo info) {
-        int level = info != null ? getLevel(info) + 1 : 0;
-        int levelMax = getMaxLevel();
-        double func = ExpressionHelper.getExpression(this, Configuration.getSyncValues().advancement.upgrade, level, levelMax);
-        return (int) (func * CommonConfig.getSyncValues().advancement.xp.globalCostMultiplier);
+    public double getExperience(int lvl) {
+        return this.config.get(this, "XP", lvl);
     }
     /*Advancement Section*/
 
+    /*Config Section*/
+    public static final String CONFIG_FILE = LibNames.WIND_MOBILITY_CONFIG + LibNames.SPEED_BOOST;
+    public ConfigDSL.Config config = new ConfigDSL.Config();
+
     @Override
     public void initSyncConfig() {
-        Configuration.getSyncValues().maxLevel = Configuration.getValues().maxLevel;
-        Configuration.getSyncValues().cooldown = Configuration.getValues().cooldown;
-        Configuration.getSyncValues().time = Configuration.getValues().time;
-        Configuration.getSyncValues().effectiveness = Configuration.getValues().effectiveness;
-        Configuration.getSyncValues().extra.speed = Configuration.getValues().extra.speed;
-        Configuration.getSyncValues().advancement.upgrade = Configuration.getValues().advancement.upgrade;
+        this.config = ConfigDSL.parse(Configuration.CONFIG_SYNC.dsl);
     }
 
     @Override
     public void writeSyncConfig(NBTTagCompound compound) {
-        compound.setInteger("maxLevel", Configuration.getValues().maxLevel);
-        NBTHelper.setArray(compound, "cooldown", Configuration.getValues().cooldown);
-        NBTHelper.setArray(compound, "time", Configuration.getValues().time);
-        compound.setDouble("effectiveness", Configuration.getValues().effectiveness);
-        NBTHelper.setArray(compound, "extra.speed", Configuration.getValues().extra.speed);
-        NBTHelper.setArray(compound, "advancement.upgrade", Configuration.getValues().advancement.upgrade);
+        NBTHelper.setArray(compound, "config", Configuration.CONFIG.dsl);
     }
 
     @Override
-    @SideOnly(Side.CLIENT)
     public void readSyncConfig(NBTTagCompound compound) {
-        Configuration.getSyncValues().maxLevel = compound.getInteger("maxLevel");
-        Configuration.getSyncValues().cooldown = NBTHelper.getArray(compound, "cooldown");
-        Configuration.getSyncValues().time = NBTHelper.getArray(compound, "time");
-        Configuration.getSyncValues().effectiveness = compound.getDouble("effectiveness");
-        Configuration.getSyncValues().extra.speed = NBTHelper.getArray(compound, "extra.speed");
-        Configuration.getSyncValues().advancement.upgrade = NBTHelper.getArray(compound, "advancement.upgrade");
+        Configuration.CONFIG_SYNC.dsl = NBTHelper.getArray(compound, "config");
     }
 
-    @Config(modid = LibMod.MOD_ID, name = LibMod.MOD_ID + "/Ability/" + LibNames.SPEED_BOOST)
+    @Config(modid = LibMod.MOD_ID, name = CONFIG_FILE)
     public static class Configuration {
 
-        @Config.Comment("Ability Values")
-        @Config.LangKey(LibMod.MOD_ID + ".config." + LibNames.SPEED_BOOST)
-        public static Values CONFIG = new Values();
-
-        public static Values getValues() {
-            return CONFIG;
-        }
-
         @Config.Ignore
-        protected static Values CONFIG_SYNC = new Values();
-
-        public static Values getSyncValues() {
-            return CONFIG_SYNC;
-        }
+        public static final Configuration.Values CONFIG_SYNC = new Configuration.Values();
+        public static final Configuration.Values CONFIG = new Configuration.Values();
 
         public static class Values {
-            @Config.Comment("Skill specific extra Configuration")
-            public final Extra extra = new Extra();
-            @Config.Comment("Skill specific Advancement Configuration")
-            public final Advancement advancement = new Advancement();
 
-            @Config.Comment("Max level obtainable")
-            @Config.RangeInt(min = 0)
-            public int maxLevel = 50;
-
-            @Config.Comment("Cooldown Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
-            public String[] cooldown = {
-                    "(0+){105 * 20 + 15 * 20 * (1 - ((1 - (e^(-2.1 * (x/24)))) / (1 - e^(-2.1))))}",
-                    "(25+){100 * 20 + 5 * 20 * (1- (((e^(0.1 * ((x-24) / (y-24))) - 1)/((e^0.1) - 1))))}",
-                    "(50){90 * 20}"
+            public String[] dsl = {
+                    "⠀#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~",
+                    "⠀",
+                    "⠀min_level: 0",
+                    "⠀max_level: 50",
+                    "⠀",
+                    "⠀#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~",
+                    "⠀COOLDOWN (",
+                    "⠀    curve: flat",
+                    "⠀    start: 120s",
+                    "⠀    end:   80s",
+                    "⠀",
+                    "⠀    {0 to 25} [",
+                    "⠀        curve: ramp -50% 50%",
+                    "⠀        start: {start}",
+                    "⠀        end: 90s",
+                    "⠀    ]",
+                    "⠀",
+                    "⠀    {25 to 49} [",
+                    "⠀        curve: ramp 50% 50%",
+                    "⠀        start: {0 to 25}",
+                    "⠀        end: 85s",
+                    "⠀    ]",
+                    "⠀",
+                    "⠀    {50} [",
+                    "⠀        curve: none",
+                    "⠀        value: {end}",
+                    "⠀    ]",
+                    "⠀)",
+                    "⠀#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~",
+                    "⠀SPEED (",
+                    "⠀    curve: flat",
+                    "⠀    start: 30%",
+                    "⠀    end:   100%",
+                    "⠀",
+                    "⠀    {0 to 25} [",
+                    "⠀        curve: ramp -50% 50%",
+                    "⠀        start: {start}",
+                    "⠀        end: 40%",
+                    "⠀    ]",
+                    "⠀",
+                    "⠀    {25 to 49} [",
+                    "⠀        curve: ramp 50% 50%",
+                    "⠀        start: {0 to 25}",
+                    "⠀        end: 50%",
+                    "⠀    ]",
+                    "⠀",
+                    "⠀    {50} [",
+                    "⠀        curve: none",
+                    "⠀        value: {end}",
+                    "⠀    ]",
+                    "⠀)",
+                    "⠀#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~",
+                    "⠀XP (",
+                    "⠀    curve: flat",
+                    "⠀    start: 900",
+                    "⠀    end:   infinite",
+                    "⠀",
+                    "⠀    {0} [",
+                    "⠀        curve: none",
+                    "⠀        value: {start}",
+                    "⠀    ]",
+                    "⠀",
+                    "⠀    {1 to 49} [",
+                    "⠀        curve: multiply 4",
+                    "⠀    ]",
+                    "⠀",
+                    "⠀    {50} [",
+                    "⠀        curve: f(x, y) -> 4 * x + 4 * x * 0.1",
+                    "⠀    ]",
+                    "⠀)",
+                    "⠀#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~",
             };
-
-            @Config.Comment("Duration Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
-            public String[] time = {
-                    "(0+){10 * 20 + 13 * 20 * (1 - (e^(-2.1 * (x/24)))) / (1 - e^(-2.1))}",
-                    "(25+){28 * 20 + 5 * 20 * ((e^(0.1 * ((x - 24) / (y - 24))) - 1)/((e^0.1) - 1))}",
-                    "(50){30 * 20}"
-            };
-
-            @Config.Comment("Effectiveness Modifier")
-            @Config.RangeDouble
-            public double effectiveness = 1D;
-
-            public static class Extra {
-                @Config.Comment("Speed Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
-                public String[] speed = {
-                        "(0+){1 + ((e^(2.1 * (x / y)) - 1)/((e^2.1) - 1)) * (4 - 1)}"
-                };
-            }
-
-            public static class Advancement {
-                @Config.Comment("Function f(x)=? where 'x' is [Next Level] and 'y' is [Max Level], XP Cost is in units [NOT LEVELS]")
-                public String[] upgrade = {
-                        "(0){900}",
-                        "(1+){4 * x}",
-                        "(50){4 * x + 4 * x * 0.1}"
-                };
-            }
         }
     }
+    /*Config Section*/
 }

@@ -1,10 +1,13 @@
 package arekkuusu.enderskills.common.skill.ability;
 
+import arekkuusu.enderskills.api.capability.AdvancementCapability;
 import arekkuusu.enderskills.api.capability.Capabilities;
 import arekkuusu.enderskills.api.capability.data.SkillData;
 import arekkuusu.enderskills.api.capability.data.SkillInfo;
 import arekkuusu.enderskills.api.event.SkillActionableEvent;
 import arekkuusu.enderskills.api.event.SkillActivateEvent;
+import arekkuusu.enderskills.api.registry.Skill;
+import arekkuusu.enderskills.common.CommonConfig;
 import arekkuusu.enderskills.common.skill.BaseSkill;
 import arekkuusu.enderskills.common.skill.ModAbilities;
 import net.minecraft.entity.EntityLivingBase;
@@ -13,6 +16,9 @@ import net.minecraftforge.common.MinecraftForge;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
 
 public abstract class BaseAbility extends BaseSkill {
@@ -47,6 +53,11 @@ public abstract class BaseAbility extends BaseSkill {
             int tokens = requirement.getLevels();
             int xp = requirement.getXp();
             if (c.level >= tokens && c.getExperienceTotal(entity) >= xp) {
+                Capabilities.get(entity).filter(a -> !a.isOwned(this)).ifPresent(a -> {
+                    Skill[] skillUnlockOrder = Arrays.copyOf(c.skillUnlockOrder, c.skillUnlockOrder.length + 1);
+                    skillUnlockOrder[skillUnlockOrder.length - 1] = this;
+                    c.skillUnlockOrder = skillUnlockOrder;
+                });
                 c.consumeExperienceFromTotal(entity, xp);
             }
         });
@@ -69,9 +80,28 @@ public abstract class BaseAbility extends BaseSkill {
         return new DefaultRequirement(tokensNeeded, getCostIncrement(entity, xpNeeded));
     }
 
-    public abstract int getCostIncrement(EntityLivingBase entity, int total);
+    public int getCostIncrement(EntityLivingBase entity, int total) {
+        Optional<AdvancementCapability> optional = Capabilities.advancement(entity);
+        if (optional.isPresent()) {
+            AdvancementCapability advancement = optional.get();
+            List<Skill> skillUnlockOrder = Arrays.asList(advancement.skillUnlockOrder);
+            int index = skillUnlockOrder.indexOf(getParentSkill());
+            if (index == -1) {
+                index = advancement.skillUnlockOrder.length;
+            }
+            return (int) (total * (1D + index * CommonConfig.getValues().advancement.xp.costIncrement));
+        }
+        return total;
+    }
 
-    public abstract int getUpgradeCost(@Nullable AbilityInfo info);
+    public int getUpgradeCost(@Nullable AbilityInfo info) {
+        int lvl = info != null ? info.getLevel() + 1 : 0;
+        return (int) (getExperience(lvl) * CommonConfig.getValues().advancement.xp.globalCostMultiplier);
+    }
+
+    public abstract Skill getParentSkill();
+
+    public abstract double getExperience(int lvl);
 
     public boolean isActionable(EntityLivingBase entity) {
         SkillActionableEvent event = new SkillActionableEvent(entity, this);

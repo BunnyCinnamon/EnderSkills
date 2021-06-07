@@ -194,13 +194,13 @@ public final class NBTHelper {
                 : Minecraft.getMinecraft().player.world;
     }
 
-    public static <T extends Enum<T> & IStringSerializable> void setEnum(NBTTagCompound compound, T t, String tag) {
+    public static <T extends Enum<T> & IStringSerializable> void setEnum(NBTTagCompound compound, String tag, T t) {
         compound.setString(tag, t.getName());
     }
 
-    public static <T extends Enum<T> & IStringSerializable> Optional<T> getEnum(Class<T> clazz, NBTTagCompound compound, String tag) {
+    public static <T extends Enum<T> & IStringSerializable> T getEnum(Class<T> clazz, NBTTagCompound compound, String tag) {
         String value = compound.getString(tag);
-        return Stream.of(clazz.getEnumConstants()).filter(e -> e.getName().equals(value)).findAny();
+        return Stream.of(clazz.getEnumConstants()).filter(e -> e.getName().equals(value)).findAny().orElse(clazz.getEnumConstants()[0]);
     }
 
     public static NBTTagCompound getNBTTag(NBTTagCompound compound, String tag) {

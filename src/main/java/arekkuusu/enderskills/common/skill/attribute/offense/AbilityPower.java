@@ -1,14 +1,12 @@
 package arekkuusu.enderskills.common.skill.attribute.offense;
 
 import arekkuusu.enderskills.api.capability.Capabilities;
-import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoUpgradeable;
 import arekkuusu.enderskills.api.event.SkillDamageEvent;
-import arekkuusu.enderskills.api.helper.ExpressionHelper;
 import arekkuusu.enderskills.api.helper.MathUtil;
 import arekkuusu.enderskills.api.helper.NBTHelper;
+import arekkuusu.enderskills.api.util.ConfigDSL;
 import arekkuusu.enderskills.client.gui.data.ISkillAdvancement;
 import arekkuusu.enderskills.client.util.helper.TextHelper;
-import arekkuusu.enderskills.common.CommonConfig;
 import arekkuusu.enderskills.common.lib.LibMod;
 import arekkuusu.enderskills.common.lib.LibNames;
 import arekkuusu.enderskills.common.skill.DynamicModifier;
@@ -22,6 +20,7 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.ai.attributes.IAttribute;
 import net.minecraft.entity.ai.attributes.RangedAttribute;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.IStringSerializable;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Config;
 import net.minecraftforge.common.util.Constants;
@@ -32,8 +31,8 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-import javax.annotation.Nullable;
 import java.util.List;
+import java.util.Locale;
 
 public class AbilityPower extends BaseAttribute implements ISkillAdvancement {
 
@@ -77,7 +76,7 @@ public class AbilityPower extends BaseAttribute implements ISkillAdvancement {
         EntityLivingBase entity = event.getEntityLiving();
         double amount = entity.getEntityAttribute(AbilityPower.ABILITY_POWER).getAttributeValue();
         if (!MathUtil.fuzzyEqual(0, amount)) {
-            if (Configuration.getSyncValues().extra.multiplyDamage) {
+            if (Configuration.CONFIG_SYNC.applyAs == Configuration.Damage.MULTIPLICATION) {
                 event.setAmount(event.getAmount() + event.getAmount() * amount);
             } else {
                 event.setAmount(event.getAmount() + amount);
@@ -91,23 +90,12 @@ public class AbilityPower extends BaseAttribute implements ISkillAdvancement {
             ((EntityLivingBase) event.getObject()).getAttributeMap().registerAttribute(ABILITY_POWER).setBaseValue(0F);
     }
 
-    public int getLevel(IInfoUpgradeable info) {
-        return info.getLevel();
-    }
-
     public int getMaxLevel() {
-        return Configuration.getSyncValues().maxLevel;
+        return this.config.max_level;
     }
 
-    public double getModifier(AttributeInfo info) {
-        int level = getLevel(info);
-        int levelMax = getMaxLevel();
-        double func = ExpressionHelper.getExpression(this, Configuration.getSyncValues().modifier, level, levelMax);
-        return (func * getEffectiveness());
-    }
-
-    public double getEffectiveness() {
-        return Configuration.getSyncValues().effectiveness * CommonConfig.getSyncValues().skill.globalEffectiveness;
+    public float getModifier(AttributeInfo info) {
+        return (float) this.config.get(this, "MODIFIER", info.getLevel());
     }
 
     /*Advancement Section*/
@@ -128,20 +116,25 @@ public class AbilityPower extends BaseAttribute implements ISkillAdvancement {
                         } else {
                             description.add(TextHelper.translate("desc.stats.level_current", attributeInfo.getLevel(), attributeInfo.getLevel() + 1));
                         }
-                        if (Configuration.getSyncValues().extra.multiplyDamage) {
+                        if (Configuration.CONFIG_SYNC.applyAs == Configuration.Damage.MULTIPLICATION) {
                             description.add(TextHelper.translate("desc.stats.ap", TextHelper.format2FloatPoint(getModifier(attributeInfo) * 100), TextHelper.getTextComponent("desc.stats.suffix_percentage")));
                         } else {
                             description.add(TextHelper.translate("desc.stats.ap", TextHelper.format2FloatPoint(getModifier(attributeInfo))));
                         }
-                        if (attributeInfo.getLevel() < getMaxLevel()) { //Copy info and set a higher level...
+                        if (attributeInfo.getLevel() < getMaxLevel()) {
+                            if (!GuiScreen.isCtrlKeyDown()) {
+                                description.add("");
+                                description.add(TextHelper.translate("desc.stats.ctrl"));
+                            } else { //Copy info and set a higher level...
                             AttributeInfo infoNew = new AttributeInfo(attributeInfo.serializeNBT());
                             infoNew.setLevel(infoNew.getLevel() + 1);
                             description.add("");
                             description.add(TextHelper.translate("desc.stats.level_next", attributeInfo.getLevel(), infoNew.getLevel()));
-                            if (Configuration.getSyncValues().extra.multiplyDamage) {
+                            if (Configuration.CONFIG_SYNC.applyAs == Configuration.Damage.MULTIPLICATION) {
                                 description.add(TextHelper.translate("desc.stats.ap", TextHelper.format2FloatPoint(getModifier(infoNew) * 100), TextHelper.getTextComponent("desc.stats.suffix_percentage")));
                             } else {
                                 description.add(TextHelper.translate("desc.stats.ap", TextHelper.format2FloatPoint(getModifier(infoNew))));
+                            }
                             }
                         }
                     });
@@ -151,115 +144,88 @@ public class AbilityPower extends BaseAttribute implements ISkillAdvancement {
     }
 
     @Override
-    public boolean canUpgrade(EntityLivingBase entity) {
-        return Capabilities.advancement(entity).map(c -> {
-            Requirement requirement = getRequirement(entity);
-            int xp = requirement.getXp();
-            return c.getExperienceTotal(entity) >= xp;
-        }).orElse(false);
-    }
-
-    @Override
-    public void onUpgrade(EntityLivingBase entity) {
-        Capabilities.advancement(entity).ifPresent(c -> {
-            Requirement requirement = getRequirement(entity);
-            int xp = requirement.getXp();
-            if (c.getExperienceTotal(entity) >= xp) {
-                c.consumeExperienceFromTotal(entity, xp);
-            }
-        });
-    }
-
-    @Override
-    public Requirement getRequirement(EntityLivingBase entity) {
-        AttributeInfo info = (AttributeInfo) Capabilities.get(entity).flatMap(a -> a.getOwned(this)).orElse(null);
-        return new DefaultRequirement(0, getUpgradeCost(info));
-    }
-
-    public int getUpgradeCost(@Nullable AttributeInfo info) {
-        int level = info != null ? getLevel(info) + 1 : 0;
-        int levelMax = getMaxLevel();
-        double func = ExpressionHelper.getExpression(this, Configuration.getSyncValues().advancement.upgrade, level, levelMax);
-        return (int) (func * CommonConfig.getSyncValues().advancement.xp.globalCostMultiplier);
+    public double getExperience(int lvl) {
+        return this.config.get(this, "XP", lvl);
     }
     /*Advancement Section*/
 
+    /*Config Section*/
+    public static final String CONFIG_FILE = LibNames.ATTRIBUTE_OFFENCE_FOLDER + LibNames.ABILITY_POWER;
+    public ConfigDSL.Config config = new ConfigDSL.Config();
+
     @Override
     public void initSyncConfig() {
-        Configuration.getSyncValues().maxLevel = Configuration.getValues().maxLevel;
-        Configuration.getSyncValues().modifier = Configuration.getValues().modifier;
-        Configuration.getSyncValues().effectiveness = Configuration.getValues().effectiveness;
-        Configuration.getSyncValues().advancement.upgrade = Configuration.getValues().advancement.upgrade;
-        Configuration.getSyncValues().extra.multiplyDamage = Configuration.getValues().extra.multiplyDamage;
+        this.config = ConfigDSL.parse(Configuration.CONFIG_SYNC.dsl);
+        Configuration.CONFIG_SYNC.applyAs = Configuration.CONFIG.applyAs;
     }
 
     @Override
     public void writeSyncConfig(NBTTagCompound compound) {
-        compound.setInteger("maxLevel", Configuration.getValues().maxLevel);
-        NBTHelper.setArray(compound, "modifier", Configuration.getValues().modifier);
-        compound.setDouble("effectiveness", Configuration.getValues().effectiveness);
-        NBTHelper.setArray(compound, "advancement.upgrade", Configuration.getValues().advancement.upgrade);
-        compound.setBoolean("extra.multiplyDamage", Configuration.getValues().extra.multiplyDamage);
+        NBTHelper.setArray(compound, "config", Configuration.CONFIG.dsl);
+        NBTHelper.setEnum(compound, "applyAs", Configuration.CONFIG.applyAs);
     }
 
     @Override
-    @SideOnly(Side.CLIENT)
     public void readSyncConfig(NBTTagCompound compound) {
-        Configuration.getSyncValues().maxLevel = compound.getInteger("maxLevel");
-        Configuration.getSyncValues().modifier = NBTHelper.getArray(compound, "modifier");
-        Configuration.getSyncValues().effectiveness = compound.getDouble("effectiveness");
-        Configuration.getSyncValues().advancement.upgrade = NBTHelper.getArray(compound, "advancement.upgrade");
-        Configuration.getSyncValues().extra.multiplyDamage = compound.getBoolean("extra.multiplyDamage");
+        Configuration.CONFIG_SYNC.dsl = NBTHelper.getArray(compound, "config");
+        Configuration.CONFIG_SYNC.applyAs = NBTHelper.getEnum(Configuration.Damage.class, compound, "applyAs");
     }
 
-    @Config(modid = LibMod.MOD_ID, name = LibMod.MOD_ID + "/Attribute/" + LibNames.ABILITY_POWER)
+    @Config(modid = LibMod.MOD_ID, name = CONFIG_FILE)
     public static class Configuration {
 
-        @Config.Comment("Attribute Values")
-        @Config.LangKey(LibMod.MOD_ID + ".config." + LibNames.ABILITY_POWER)
-        public static Values CONFIG = new Values();
-
-        public static Values getValues() {
-            return CONFIG;
-        }
-
         @Config.Ignore
-        protected static Values CONFIG_SYNC = new Values();
+        public static final Configuration.Values CONFIG_SYNC = new Configuration.Values();
+        public static final Configuration.Values CONFIG = new Configuration.Values();
 
-        public static Values getSyncValues() {
-            return CONFIG_SYNC;
+        public enum Damage implements IStringSerializable {
+            MULTIPLICATION,
+            ADDITION;
+
+            @Override
+            public String getName() {
+                return name().toLowerCase(Locale.ROOT);
+            }
         }
 
         public static class Values {
-            @Config.Comment("Skill specific extra Configuration")
-            public final Extra extra = new Extra();
-            @Config.Comment("Skill specific Advancement Configuration")
-            public final Advancement advancement = new Advancement();
 
-            @Config.Comment("The Maximum level of this Skill")
-            @Config.RangeInt(min = 0)
-            public int maxLevel = 100;
+            public Configuration.Damage applyAs = Configuration.Damage.MULTIPLICATION;
 
-            @Config.Comment("Modifier Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
-            public String[] modifier = {
-                    "(0+){(0.1 * x) * ((0.4 * x) * 0.03)}"
+            public String[] dsl = {
+                    "⠀#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~",
+                    "⠀",
+                    "⠀min_level: 0",
+                    "⠀max_level: infinite",
+                    "⠀",
+                    "⠀#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~",
+                    "⠀MODIFIER (",
+                    "⠀    curve: flat",
+                    "⠀    start: 0%",
+                    "⠀    end:   99%",
+                    "⠀",
+                    "⠀    {0} [",
+                    "⠀        curve: f(x, y) -> 1 - e^(-0.05 * x)",
+                    "⠀    ]",
+                    "⠀)",
+                    "⠀#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~",
+                    "⠀XP (",
+                    "⠀    curve: flat",
+                    "⠀    start: 69",
+                    "⠀    end:   infinite",
+                    "⠀",
+                    "⠀    {0} [",
+                    "⠀        curve: none",
+                    "⠀        value: {start}",
+                    "⠀    ]",
+                    "⠀",
+                    "⠀    {1} [",
+                    "⠀        curve: f(x, y) -> 5 + 14 * x",
+                    "⠀    ]",
+                    "⠀)",
+                    "⠀#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~",
             };
-
-            @Config.Comment("Effectiveness Modifier")
-            @Config.RangeDouble
-            public double effectiveness = 1D;
-
-            public static class Extra {
-                @Config.Comment("This config option when active will make Damage multiply the total damage instead of adding a flat amount")
-                public boolean multiplyDamage = true;
-            }
-
-            public static class Advancement {
-                @Config.Comment("Function f(x)=? where 'x' is [Next Level] and 'y' is [Max Level], XP Cost is in units [NOT LEVELS]")
-                public String[] upgrade = {
-                        "(0+){(150 * (1 - (0 ^ (0 ^ x)))) + 10 + 19 * x}"
-                };
-            }
         }
     }
+    /*Config Section*/
 }

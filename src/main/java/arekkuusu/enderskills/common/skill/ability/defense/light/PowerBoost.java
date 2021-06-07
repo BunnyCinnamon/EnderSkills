@@ -1,16 +1,18 @@
 package arekkuusu.enderskills.common.skill.ability.defense.light;
 
-import arekkuusu.enderskills.api.capability.AdvancementCapability;
 import arekkuusu.enderskills.api.capability.Capabilities;
 import arekkuusu.enderskills.api.capability.SkilledEntityCapability;
 import arekkuusu.enderskills.api.capability.data.SkillData;
 import arekkuusu.enderskills.api.capability.data.SkillHolder;
 import arekkuusu.enderskills.api.capability.data.SkillInfo;
 import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoCooldown;
-import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoUpgradeable;
 import arekkuusu.enderskills.api.event.SkillDamageEvent;
-import arekkuusu.enderskills.api.helper.*;
+import arekkuusu.enderskills.api.helper.MathUtil;
+import arekkuusu.enderskills.api.helper.NBTHelper;
+import arekkuusu.enderskills.api.helper.RayTraceHelper;
+import arekkuusu.enderskills.api.helper.TeamHelper;
 import arekkuusu.enderskills.api.registry.Skill;
+import arekkuusu.enderskills.api.util.ConfigDSL;
 import arekkuusu.enderskills.client.util.helper.TextHelper;
 import arekkuusu.enderskills.common.CommonConfig;
 import arekkuusu.enderskills.common.entity.data.IImpact;
@@ -44,7 +46,9 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 import javax.annotation.Nullable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 public class PowerBoost extends BaseAbility implements IImpact {
 
@@ -216,48 +220,24 @@ public class PowerBoost extends BaseAbility implements IImpact {
         entity.resetPositionToBB();
     }
 
-    public int getLevel(IInfoUpgradeable info) {
-        return info.getLevel();
-    }
-
     public int getMaxLevel() {
-        return Configuration.getSyncValues().maxLevel;
+        return this.config.max_level;
     }
 
     public float getPower(AbilityInfo info) {
-        int level = getLevel(info);
-        int levelMax = getMaxLevel();
-        double func = ExpressionHelper.getExpression(this, Configuration.getSyncValues().extra.power, level, levelMax);
-        double result = (func * CommonConfig.getSyncValues().skill.extra.globalPositiveEffect);
-        return (float) (result * getEffectiveness());
+        return (float) this.config.get(this, "BOOST", info.getLevel(), CommonConfig.CONFIG_SYNC.skill.globalPositiveEffect);
     }
 
     public double getRange(AbilityInfo info) {
-        int level = getLevel(info);
-        int levelMax = getMaxLevel();
-        double func = ExpressionHelper.getExpression(this, Configuration.getSyncValues().range, level, levelMax);
-        double result = (func * CommonConfig.getSyncValues().skill.globalRange);
-        return (result * getEffectiveness());
+        return this.config.get(this, "RANGE", info.getLevel());
     }
 
     public int getCooldown(AbilityInfo info) {
-        int level = getLevel(info);
-        int levelMax = getMaxLevel();
-        double func = ExpressionHelper.getExpression(this, Configuration.getSyncValues().cooldown, level, levelMax);
-        double result = (func * CommonConfig.getSyncValues().skill.globalCooldown);
-        return (int) (result * getEffectiveness());
+        return (int) this.config.get(this, "COOLDOWN", info.getLevel());
     }
 
     public int getTime(AbilityInfo info) {
-        int level = getLevel(info);
-        int levelMax = getMaxLevel();
-        double func = ExpressionHelper.getExpression(this, Configuration.getSyncValues().time, level, levelMax);
-        double result = (func * CommonConfig.getSyncValues().skill.globalTime);
-        return (int) (result * getEffectiveness());
-    }
-
-    public double getEffectiveness() {
-        return Configuration.getSyncValues().effectiveness * CommonConfig.getSyncValues().skill.globalEffectiveness;
+        return (int) this.config.get(this, "DURATION", info.getLevel());
     }
 
     /*Advancement Section*/
@@ -283,14 +263,19 @@ public class PowerBoost extends BaseAbility implements IImpact {
                         description.add(TextHelper.translate("desc.stats.cooldown", TextHelper.format2FloatPoint(getCooldown(abilityInfo) / 20D), TextHelper.getTextComponent("desc.stats.suffix_time")));
                         description.add(TextHelper.translate("desc.stats.duration", TextHelper.format2FloatPoint(getTime(abilityInfo) / 20D), TextHelper.getTextComponent("desc.stats.suffix_time")));
                         description.add(TextHelper.translate("desc.stats.boost", TextHelper.format2FloatPoint(getPower(abilityInfo) * 100), TextHelper.getTextComponent("desc.stats.suffix_percentage")));
-                        if (abilityInfo.getLevel() < getMaxLevel()) { //Copy info and set a higher level...
-                            AbilityInfo infoNew = new AbilityInfo(abilityInfo.serializeNBT());
-                            infoNew.setLevel(infoNew.getLevel() + 1);
-                            description.add("");
-                            description.add(TextHelper.translate("desc.stats.level_next", abilityInfo.getLevel(), infoNew.getLevel()));
-                            description.add(TextHelper.translate("desc.stats.cooldown", TextHelper.format2FloatPoint(getCooldown(infoNew) / 20D), TextHelper.getTextComponent("desc.stats.suffix_time")));
-                            description.add(TextHelper.translate("desc.stats.duration", TextHelper.format2FloatPoint(getTime(infoNew) / 20D), TextHelper.getTextComponent("desc.stats.suffix_time")));
-                            description.add(TextHelper.translate("desc.stats.boost", TextHelper.format2FloatPoint(getPower(infoNew) * 100), TextHelper.getTextComponent("desc.stats.suffix_percentage")));
+                        if (abilityInfo.getLevel() < getMaxLevel()) {
+                            if (!GuiScreen.isCtrlKeyDown()) {
+                                description.add("");
+                                description.add(TextHelper.translate("desc.stats.ctrl"));
+                            } else { //Copy info and set a higher level...
+                                AbilityInfo infoNew = new AbilityInfo(abilityInfo.serializeNBT());
+                                infoNew.setLevel(infoNew.getLevel() + 1);
+                                description.add("");
+                                description.add(TextHelper.translate("desc.stats.level_next", abilityInfo.getLevel(), infoNew.getLevel()));
+                                description.add(TextHelper.translate("desc.stats.cooldown", TextHelper.format2FloatPoint(getCooldown(infoNew) / 20D), TextHelper.getTextComponent("desc.stats.suffix_time")));
+                                description.add(TextHelper.translate("desc.stats.duration", TextHelper.format2FloatPoint(getTime(infoNew) / 20D), TextHelper.getTextComponent("desc.stats.suffix_time")));
+                                description.add(TextHelper.translate("desc.stats.boost", TextHelper.format2FloatPoint(getPower(infoNew) * 100), TextHelper.getTextComponent("desc.stats.suffix_percentage")));
+                            }
                         }
                     });
                 }
@@ -299,129 +284,164 @@ public class PowerBoost extends BaseAbility implements IImpact {
     }
 
     @Override
-    public int getCostIncrement(EntityLivingBase entity, int total) {
-        Optional<AdvancementCapability> optional = Capabilities.advancement(entity);
-        if (optional.isPresent()) {
-            AdvancementCapability advancement = optional.get();
-            List<Skill> skillUnlockOrder = Arrays.asList(advancement.skillUnlockOrder);
-            int index = skillUnlockOrder.indexOf(ModAbilities.CHARM);
-            if (index == -1) {
-                index = advancement.skillUnlockOrder.length;
-            }
-            return (int) (total * (1D + index * CommonConfig.getSyncValues().advancement.xp.costIncrement));
-        }
-        return total;
+    public Skill getParentSkill() {
+        return ModAbilities.CHARM;
     }
 
     @Override
-    public int getUpgradeCost(@Nullable AbilityInfo info) {
-        int level = info != null ? getLevel(info) + 1 : 0;
-        int levelMax = getMaxLevel();
-        double func = ExpressionHelper.getExpression(this, Configuration.getSyncValues().advancement.upgrade, level, levelMax);
-        return (int) (func * CommonConfig.getSyncValues().advancement.xp.globalCostMultiplier);
+    public double getExperience(int lvl) {
+        return this.config.get(this, "XP", lvl);
     }
     /*Advancement Section*/
 
+    /*Config Section*/
+    public static final String CONFIG_FILE = LibNames.LIGHT_DEFENSE_CONFIG + LibNames.POWER_BOOST;
+    public ConfigDSL.Config config = new ConfigDSL.Config();
+
     @Override
     public void initSyncConfig() {
-        Configuration.getSyncValues().maxLevel = Configuration.getValues().maxLevel;
-        Configuration.getSyncValues().cooldown = Configuration.getValues().cooldown;
-        Configuration.getSyncValues().time = Configuration.getValues().time;
-        Configuration.getSyncValues().range = Configuration.getValues().range;
-        Configuration.getSyncValues().effectiveness = Configuration.getValues().effectiveness;
-        Configuration.getSyncValues().extra.power = Configuration.getValues().extra.power;
-        Configuration.getSyncValues().advancement.upgrade = Configuration.getValues().advancement.upgrade;
+        this.config = ConfigDSL.parse(Configuration.CONFIG_SYNC.dsl);
     }
 
     @Override
     public void writeSyncConfig(NBTTagCompound compound) {
-        compound.setInteger("maxLevel", Configuration.getValues().maxLevel);
-        NBTHelper.setArray(compound, "cooldown", Configuration.getValues().cooldown);
-        NBTHelper.setArray(compound, "time", Configuration.getValues().time);
-        NBTHelper.setArray(compound, "range", Configuration.getValues().range);
-        compound.setDouble("effectiveness", Configuration.getValues().effectiveness);
-        NBTHelper.setArray(compound, "extra.power", Configuration.getValues().extra.power);
-        NBTHelper.setArray(compound, "advancement.upgrade", Configuration.getValues().advancement.upgrade);
+        NBTHelper.setArray(compound, "config", Configuration.CONFIG.dsl);
     }
 
     @Override
-    @SideOnly(Side.CLIENT)
     public void readSyncConfig(NBTTagCompound compound) {
-        Configuration.getSyncValues().maxLevel = compound.getInteger("maxLevel");
-        Configuration.getSyncValues().cooldown = NBTHelper.getArray(compound, "cooldown");
-        Configuration.getSyncValues().time = NBTHelper.getArray(compound, "time");
-        Configuration.getSyncValues().range = NBTHelper.getArray(compound, "range");
-        Configuration.getSyncValues().effectiveness = compound.getDouble("effectiveness");
-        Configuration.getSyncValues().extra.power = NBTHelper.getArray(compound, "extra.power");
-        Configuration.getSyncValues().advancement.upgrade = NBTHelper.getArray(compound, "advancement.upgrade");
+        Configuration.CONFIG_SYNC.dsl = NBTHelper.getArray(compound, "config");
     }
 
-    @Config(modid = LibMod.MOD_ID, name = LibMod.MOD_ID + "/Ability/" + LibNames.POWER_BOOST)
+    @Config(modid = LibMod.MOD_ID, name = CONFIG_FILE)
     public static class Configuration {
 
-        @Config.Comment("Ability Values")
-        @Config.LangKey(LibMod.MOD_ID + ".config." + LibNames.POWER_BOOST)
-        public static Values CONFIG = new Values();
-
-        public static Values getValues() {
-            return CONFIG;
-        }
-
         @Config.Ignore
-        protected static Values CONFIG_SYNC = new Values();
-
-        public static Values getSyncValues() {
-            return CONFIG_SYNC;
-        }
+        public static final Configuration.Values CONFIG_SYNC = new Configuration.Values();
+        public static final Configuration.Values CONFIG = new Configuration.Values();
 
         public static class Values {
-            @Config.Comment("Skill specific extra Configuration")
-            public final Extra extra = new Extra();
-            @Config.Comment("Skill specific Advancement Configuration")
-            public final Advancement advancement = new Advancement();
 
-            @Config.Comment("Max level obtainable")
-            @Config.RangeInt(min = 0)
-            public int maxLevel = 50;
-
-            @Config.Comment("Cooldown Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
-            public String[] cooldown = {
-                    "(0+){23 * 20 + 12 * 20 * (1 - ((1 - (e^(-2.1 * (x/24)))) / (1 - e^(-2.1))))}",
-                    "(25+){18 * 20 + 5 * 20 * (1- (((e^(0.1 * ((x-24) / (y-24))) - 1)/((e^0.1) - 1))))}",
-                    "(50){(16 * 20)}"
+            public String[] dsl = {
+                    "⠀#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~",
+                    "⠀",
+                    "⠀min_level: 0",
+                    "⠀max_level: 50",
+                    "⠀",
+                    "⠀#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~",
+                    "⠀COOLDOWN (",
+                    "⠀    curve: flat",
+                    "⠀    start: 35s",
+                    "⠀    end:   16s",
+                    "⠀",
+                    "⠀    {0 to 25} [",
+                    "⠀        curve: ramp -50% 50%",
+                    "⠀        start: {start}",
+                    "⠀        end: 23s",
+                    "⠀    ]",
+                    "⠀",
+                    "⠀    {25 to 49} [",
+                    "⠀        curve: ramp 50% 50%",
+                    "⠀        start: {0 to 25}",
+                    "⠀        end: 18s",
+                    "⠀    ]",
+                    "⠀",
+                    "⠀    {50} [",
+                    "⠀        curve: none",
+                    "⠀        value: {end}",
+                    "⠀    ]",
+                    "⠀)",
+                    "⠀#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~",
+                    "⠀RANGE (",
+                    "⠀    curve: flat",
+                    "⠀    start: 8b",
+                    "⠀    end:   24b",
+                    "⠀",
+                    "⠀    {0 to 25} [",
+                    "⠀        curve: ramp -50% 50%",
+                    "⠀        start: {start}",
+                    "⠀        end: 18b",
+                    "⠀    ]",
+                    "⠀",
+                    "⠀    {25 to 49} [",
+                    "⠀        curve: ramp 50% 50%",
+                    "⠀        start: {0 to 25}",
+                    "⠀        end: 20b",
+                    "⠀    ]",
+                    "⠀",
+                    "⠀    {50} [",
+                    "⠀        curve: none",
+                    "⠀        value: {end}",
+                    "⠀    ]",
+                    "⠀)",
+                    "⠀#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~",
+                    "⠀DURATION (",
+                    "⠀    curve: flat",
+                    "⠀    start: 6s",
+                    "⠀    end:   14s",
+                    "⠀",
+                    "⠀    {0 to 25} [",
+                    "⠀        curve: ramp -50% 50%",
+                    "⠀        start: {start}",
+                    "⠀        end: 10s",
+                    "⠀    ]",
+                    "⠀",
+                    "⠀    {25 to 49} [",
+                    "⠀        curve: ramp 50% 50%",
+                    "⠀        start: {0 to 25}",
+                    "⠀        end: 12s",
+                    "⠀    ]",
+                    "⠀",
+                    "⠀    {50} [",
+                    "⠀        curve: none",
+                    "⠀        value: {end}",
+                    "⠀    ]",
+                    "⠀)",
+                    "⠀#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~",
+                    "⠀BOOST (",
+                    "⠀    curve: flat",
+                    "⠀    start: 10%",
+                    "⠀    end:   100%",
+                    "⠀",
+                    "⠀    {0 to 25} [",
+                    "⠀        curve: ramp -50% 50%",
+                    "⠀        start: {start}",
+                    "⠀        end: 25%",
+                    "⠀    ]",
+                    "⠀",
+                    "⠀    {25 to 49} [",
+                    "⠀        curve: ramp 50% 50%",
+                    "⠀        start: {0 to 25}",
+                    "⠀        end: 50%",
+                    "⠀    ]",
+                    "⠀",
+                    "⠀    {50} [",
+                    "⠀        curve: none",
+                    "⠀        value: {end}",
+                    "⠀    ]",
+                    "⠀)",
+                    "⠀#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~",
+                    "⠀XP (",
+                    "⠀    curve: flat",
+                    "⠀    start: 300",
+                    "⠀    end:   infinite",
+                    "⠀",
+                    "⠀    {0} [",
+                    "⠀        curve: none",
+                    "⠀        value: {start}",
+                    "⠀    ]",
+                    "⠀",
+                    "⠀    {1 to 49} [",
+                    "⠀        curve: multiply 4",
+                    "⠀    ]",
+                    "⠀",
+                    "⠀    {50} [",
+                    "⠀        curve: f(x, y) -> 4 * x + 4 * x * 0.1",
+                    "⠀    ]",
+                    "⠀)",
+                    "⠀#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~",
             };
-
-            @Config.Comment("Duration Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
-            public String[] time = {
-                    "(0+){10 * 20 + 14 * 20 * (1 - (e^(-2.1 * (x/24)))) / (1 - e^(-2.1))}",
-                    "(25+){24 * 20 + 5 * 20 * ((e^(0.1 * ((x - 24) / (y - 24))) - 1)/((e^0.1) - 1))}",
-                    "(50){30 * 20}"
-            };
-
-            @Config.Comment("Range Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
-            public String[] range = {
-                    "(0+){5}"
-            };
-
-            @Config.Comment("Effectiveness Modifier")
-            @Config.RangeDouble
-            public double effectiveness = 1D;
-
-            public static class Extra {
-                @Config.Comment("Power Function f(x,y)=? where 'x' is [Current Level] and 'y' is [Max Level]")
-                public String[] power = {
-                        "(0+){0.25 + ((e^(2.1 * (x / y)) - 1)/((e^2.1) - 1)) * (2 - 0.25)}"
-                };
-            }
-
-            public static class Advancement {
-                @Config.Comment("Function f(x)=? where 'x' is [Next Level] and 'y' is [Max Level], XP Cost is in units [NOT LEVELS]")
-                public String[] upgrade = {
-                        "(0){300}",
-                        "(1+){4 * x}",
-                        "(50){4 * x + 4 * x * 0.1}"
-                };
-            }
         }
     }
+    /*Config Section*/
 }
