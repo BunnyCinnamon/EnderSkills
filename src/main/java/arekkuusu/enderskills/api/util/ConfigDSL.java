@@ -97,6 +97,8 @@ public final class ConfigDSL {
                 block.curve = property.curve;
                 block.min = Integer.parseInt(clampValueStrings[0].trim());
                 block.max = config.max_level;
+                block.start = property.start;
+                block.end = property.end;
                 if (clampValueStrings.length > 1) {
                     block.max = Integer.parseInt(clampValueStrings[1].trim());
                 }
@@ -203,9 +205,11 @@ public final class ConfigDSL {
                         break;
                     }
                 }
-
+                double clampLeft = Math.min(start, end);
+                double clampRight = Math.max(end, start);
                 result = curve.get(min, max, start, end, lvl);
                 result *= effective;
+                result = MathHelper.clamp(result, clampLeft, clampRight);
             } catch (Exception e) {
                 LOGGER.error("Malformed `{}` config for property: {} with level: {}", skill.getRegistryName(), name, lvl);
                 e.printStackTrace();
@@ -280,9 +284,7 @@ public final class ConfigDSL {
                 double mod = 1D + finalStrength * diff;
                 progress *= mod;
             }
-            double clampLeft = Math.min(start, end);
-            double clampRight = Math.max(end, start);
-            return MathHelper.clamp(start + difference * progress, clampLeft, clampRight);
+            return start + difference * progress;
         };
     };
     public static final BiFunction<Property, String[], Curve> CURVE_MULTIPLY = (property, strings) -> {
