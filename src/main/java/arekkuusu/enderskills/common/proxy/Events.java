@@ -208,7 +208,7 @@ public class Events {
             Capabilities.knockback(event.getEntityLiving()).ifPresent(c -> {
                 DamageSource source = event.getEntityLiving().getLastDamageSource();
                 boolean isDamageAnDoTAbility = source != null
-                        && CommonConfig.getValues().skill.preventAbilityDoTKnockback
+                        && CommonConfig.getSyncValues().skill.preventAbilityDoTKnockback
                         && source.damageType.equals(BaseAbility.DAMAGE_DOT_TYPE);
                 if (isDamageAnDoTAbility) {
                     event.setCanceled(true);

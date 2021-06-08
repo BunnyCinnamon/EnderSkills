@@ -82,7 +82,7 @@ public class CommandAdvancement extends CommandBase {
                     }
                     switch (args[2]) {
                         case "set":
-                            if (valueToSet > CommonConfig.getValues().advancement.maxResetUnlocks) {
+                            if (valueToSet > CommonConfig.getSyncValues().advancement.maxResetUnlocks) {
                                 message(sender, "advancement.invalid.retries");
                                 return;
                             }
@@ -90,7 +90,7 @@ public class CommandAdvancement extends CommandBase {
                             break;
                         case "add":
                             int sum = Math.min(capability.resetCount + valueToSet, Integer.MAX_VALUE);
-                            if (sum > CommonConfig.getValues().advancement.maxResetUnlocks) {
+                            if (sum > CommonConfig.getSyncValues().advancement.maxResetUnlocks) {
                                 message(sender, "advancement.invalid.retries", valueToSet);
                                 return;
                             }
@@ -98,7 +98,7 @@ public class CommandAdvancement extends CommandBase {
                             break;
                         case "sub":
                             int sub = Math.max(capability.resetCount - valueToSet, 0);
-                            if (sub > CommonConfig.getValues().advancement.maxResetUnlocks) {
+                            if (sub > CommonConfig.getSyncValues().advancement.maxResetUnlocks) {
                                 message(sender, "advancement.invalid.retries", valueToSet);
                                 return;
                             }

@@ -104,7 +104,7 @@ public class Fireball extends BaseAbility implements IImpact, IScanEntities, IEx
         spawn.growTicks = 5;
         source.world.spawnEntity(spawn); //MANIFEST B L O O D!!
 
-        if (CommonConfig.getValues().skill.destroyBlocks)
+        if (CommonConfig.getSyncValues().skill.destroyBlocks)
             spawn.world.createExplosion(spawn, spawn.posX, spawn.posY, spawn.posZ, (float) radius, true);
 
         if (source.world instanceof WorldServer) {

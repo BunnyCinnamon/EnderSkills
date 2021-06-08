@@ -140,7 +140,7 @@ public class GuiScreenSkillAdvancements extends GuiScreen {
         }
         for (GuiButton guiButton : alternateButtonList) {
             if (guiButton.id == 105) {
-                guiButton.enabled = Capabilities.advancement(this.mc.player).map(c -> c.resetCount < CommonConfig.getValues().advancement.maxResetUnlocks).orElse(false);
+                guiButton.enabled = Capabilities.advancement(this.mc.player).map(c -> c.resetCount < CommonConfig.getSyncValues().advancement.maxResetUnlocks).orElse(false);
             }
         }
         for (GuiButton guiButton : buttonList) {
@@ -356,7 +356,7 @@ public class GuiScreenSkillAdvancements extends GuiScreen {
     public void drawXpInfo() {
         this.mc.getTextureManager().bindTexture(WIDGETS);
         int resets = Capabilities.advancement(this.mc.player).map(c -> c.resetCount).orElse(0);
-        int maxResets = CommonConfig.getValues().advancement.maxResetUnlocks;
+        int maxResets = CommonConfig.getSyncValues().advancement.maxResetUnlocks;
         this.drawTexturedModalRect(this.x + this.guiWidth / 2 + this.guiWidth / 4 - 34, this.y + 15, 192, 61, 64, 64);
         int xp = Capabilities.advancement(this.mc.player).map(c -> XPHelper.getXPTotal(c.experienceLevel, c.experienceProgress)).orElse(0);
         if (xp > 0) {

@@ -51,7 +51,7 @@ public abstract class BaseAttribute extends BaseSkill {
 
     public int getUpgradeCost(@Nullable AttributeInfo info) {
         int lvl = info != null ? info.getLevel() + 1 : 0;
-        return (int) (getExperience(lvl) * CommonConfig.getValues().advancement.xp.globalCostMultiplier);
+        return (int) (getExperience(lvl) * CommonConfig.getSyncValues().advancement.xp.globalCostMultiplier);
     }
 
     public abstract double getExperience(int lvl);

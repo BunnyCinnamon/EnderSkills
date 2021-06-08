@@ -78,7 +78,7 @@ public class Explode extends BaseAbility implements IScanEntities, IExpand, IFin
             owner.world.spawnEntity(spawn); //MANIFEST B L O O D!!
             sync(owner);
 
-            if (CommonConfig.getValues().skill.destroyBlocks)
+            if (CommonConfig.getSyncValues().skill.destroyBlocks)
                 spawn.world.createExplosion(spawn, spawn.posX, spawn.posY, spawn.posZ, (float) range, true);
 
             if (owner.world instanceof WorldServer) {

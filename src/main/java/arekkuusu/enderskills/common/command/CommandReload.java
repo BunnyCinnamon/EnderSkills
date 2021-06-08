@@ -50,7 +50,7 @@ public class CommandReload extends CommandBase {
     @Override
     public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
         { // Reload configs from disk
-            if (!CommonConfig.getValues().syncValuesToClient) {
+            if (!CommonConfig.getSyncValues().syncValuesToClient) {
                 message(sender, "not_allowed.es_reload");
                 return;
             }

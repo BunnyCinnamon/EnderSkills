@@ -22,12 +22,39 @@ public final class CommonConfig {
     public static CommonConfig.Values CONFIG_SYNC = new CommonConfig.Values();
     public static CommonConfig.Values CONFIG = new CommonConfig.Values();
 
-    public static Values getValues() {
+    public static Values getSyncValues() {
+        return CONFIG_SYNC;
+    }
+
+    public static Values getConfig() {
         return CONFIG;
     }
 
     @Deprecated
     public static void initSyncConfig() {
+        CommonConfig.getSyncValues().skill.destroyBlocks = CommonConfig.getConfig().skill.destroyBlocks;
+        CommonConfig.getSyncValues().skill.preventAbilityDoTKnockback = CommonConfig.getConfig().skill.preventAbilityDoTKnockback;
+        CommonConfig.getSyncValues().skill.defaultHumanTeam = CommonConfig.getConfig().skill.defaultHumanTeam;
+        CommonConfig.getSyncValues().skill.defaultAnimalTeam = CommonConfig.getConfig().skill.defaultAnimalTeam;
+        CommonConfig.getSyncValues().skill.globalNegativeEffect = CommonConfig.getConfig().skill.globalNegativeEffect;
+        CommonConfig.getSyncValues().skill.globalPositiveEffect = CommonConfig.getConfig().skill.globalPositiveEffect;
+        CommonConfig.getSyncValues().advancement.oneTreePerClass = CommonConfig.getConfig().advancement.oneTreePerClass;
+        CommonConfig.getSyncValues().advancement.xp.globalCostMultiplier = CommonConfig.getConfig().advancement.xp.globalCostMultiplier;
+        CommonConfig.getSyncValues().advancement.xp.retryXPReturn = CommonConfig.getConfig().advancement.xp.retryXPReturn;
+        CommonConfig.getSyncValues().advancement.xp.xpStoreTariff = CommonConfig.getConfig().advancement.xp.xpStoreTariff;
+        CommonConfig.getSyncValues().advancement.xp.xpTakeTariff = CommonConfig.getConfig().advancement.xp.xpTakeTariff;
+        CommonConfig.getSyncValues().advancement.maxResetUnlocks = CommonConfig.getConfig().advancement.maxResetUnlocks;
+        CommonConfig.getSyncValues().advancement.levels.function = CommonConfig.getConfig().advancement.levels.function;
+        CommonConfig.getSyncValues().advancement.levels.defaultLevel = CommonConfig.getConfig().advancement.levels.defaultLevel;
+        CommonConfig.getSyncValues().worldGen.enderOreQuantity = CommonConfig.getConfig().worldGen.enderOreQuantity;
+        CommonConfig.getSyncValues().worldGen.enderOreSpawnRate = CommonConfig.getConfig().worldGen.enderOreSpawnRate;
+        CommonConfig.getSyncValues().worldGen.enderOreSpawnHeightMax = CommonConfig.getConfig().worldGen.enderOreSpawnHeightMax;
+        CommonConfig.getSyncValues().worldGen.enderOreSpawnHeightMin = CommonConfig.getConfig().worldGen.enderOreSpawnHeightMin;
+        CommonConfig.getSyncValues().worldGen.enderOreSpawnDimensions = CommonConfig.getConfig().worldGen.enderOreSpawnDimensions;
+        CommonConfig.getSyncValues().worldGen.enderOreItemDropsMin = CommonConfig.getConfig().worldGen.enderOreItemDropsMin;
+        CommonConfig.getSyncValues().worldGen.enderOreItemDropsMax = CommonConfig.getConfig().worldGen.enderOreItemDropsMax;
+        EnderSkillsAPI.defaultHumanTeam = CommonConfig.getConfig().skill.defaultHumanTeam;
+        EnderSkillsAPI.defaultAnimalTeam = CommonConfig.getConfig().skill.defaultAnimalTeam;
         IForgeRegistry<Skill> registry = GameRegistry.findRegistry(Skill.class);
         for (Map.Entry<ResourceLocation, Skill> entry : registry.getEntries()) {
             if (entry.getValue() instanceof IConfigSync) {
@@ -38,21 +65,23 @@ public final class CommonConfig {
 
     @Deprecated
     public static void writeSyncConfig(NBTTagCompound compound) {
-        compound.setBoolean("advancement.oneTreePerClass", CommonConfig.getValues().advancement.oneTreePerClass);
-        compound.setDouble("advancement.xp.globalCostMultiplier", CommonConfig.getValues().advancement.xp.globalCostMultiplier);
-        compound.setDouble("advancement.xp.costIncrement", CommonConfig.getValues().advancement.xp.costIncrement);
-        compound.setDouble("advancement.xp.retryXPReturn", CommonConfig.getValues().advancement.xp.retryXPReturn);
-        compound.setDouble("advancement.xp.xpStoreTariff", CommonConfig.getValues().advancement.xp.xpStoreTariff);
-        compound.setDouble("advancement.xp.xpTakeTariff", CommonConfig.getValues().advancement.xp.xpTakeTariff);
-        compound.setInteger("advancement.maxResetUnlocks", CommonConfig.getValues().advancement.maxResetUnlocks);
-        NBTHelper.setArray(compound, "advancement.levels.function", CommonConfig.getValues().advancement.levels.function);
-        compound.setInteger("advancement.levels.defaultLevel", CommonConfig.getValues().advancement.levels.defaultLevel);
-        compound.setBoolean("destroyBlocks", CommonConfig.getValues().skill.destroyBlocks);
-        compound.setBoolean("preventAbilityDoTKnockback", CommonConfig.getValues().skill.preventAbilityDoTKnockback);
-        compound.setBoolean("defaultHumanTeam", CommonConfig.getValues().skill.defaultHumanTeam);
-        compound.setBoolean("defaultAnimalTeam", CommonConfig.getValues().skill.defaultAnimalTeam);
-        compound.setDouble("globalPositiveEffect", CommonConfig.getValues().skill.globalPositiveEffect);
-        compound.setDouble("globalNegativeEffect", CommonConfig.getValues().skill.globalNegativeEffect);
+        compound.setBoolean("advancement.oneTreePerClass", CommonConfig.getConfig().advancement.oneTreePerClass);
+        compound.setDouble("advancement.xp.globalCostMultiplier", CommonConfig.getConfig().advancement.xp.globalCostMultiplier);
+        compound.setDouble("advancement.xp.costIncrement", CommonConfig.getConfig().advancement.xp.costIncrement);
+        compound.setDouble("advancement.xp.retryXPReturn", CommonConfig.getConfig().advancement.xp.retryXPReturn);
+        compound.setDouble("advancement.xp.xpStoreTariff", CommonConfig.getConfig().advancement.xp.xpStoreTariff);
+        compound.setDouble("advancement.xp.xpTakeTariff", CommonConfig.getConfig().advancement.xp.xpTakeTariff);
+        compound.setInteger("advancement.maxResetUnlocks", CommonConfig.getConfig().advancement.maxResetUnlocks);
+        NBTHelper.setArray(compound, "advancement.levels.function", CommonConfig.getConfig().advancement.levels.function);
+        compound.setInteger("advancement.levels.defaultLevel", CommonConfig.getConfig().advancement.levels.defaultLevel);
+        compound.setBoolean("destroyBlocks", CommonConfig.getConfig().skill.destroyBlocks);
+        compound.setBoolean("preventAbilityDoTKnockback", CommonConfig.getConfig().skill.preventAbilityDoTKnockback);
+        compound.setBoolean("defaultHumanTeam", CommonConfig.getConfig().skill.defaultHumanTeam);
+        compound.setBoolean("defaultAnimalTeam", CommonConfig.getConfig().skill.defaultAnimalTeam);
+        compound.setDouble("globalPositiveEffect", CommonConfig.getConfig().skill.globalPositiveEffect);
+        compound.setDouble("globalNegativeEffect", CommonConfig.getConfig().skill.globalNegativeEffect);
+        EnderSkillsAPI.defaultHumanTeam = CommonConfig.getConfig().skill.defaultHumanTeam;
+        EnderSkillsAPI.defaultAnimalTeam = CommonConfig.getConfig().skill.defaultAnimalTeam;
         EnderSkillsAPI.EXPRESSION_FUNCTION_CACHE.invalidateAll();
         EnderSkillsAPI.EXPRESSION_FUNCTION_CACHE.cleanUp();
         EnderSkillsAPI.EXPRESSION_CACHE.invalidateAll();
@@ -62,23 +91,23 @@ public final class CommonConfig {
     @Deprecated
     @SideOnly(Side.CLIENT)
     public static void readSyncConfig(NBTTagCompound compound) {
-        CommonConfig.getValues().advancement.oneTreePerClass = compound.getBoolean("advancement.oneTreePerClass");
-        CommonConfig.getValues().advancement.xp.globalCostMultiplier = compound.getDouble("advancement.xp.globalCostMultiplier");
-        CommonConfig.getValues().advancement.xp.costIncrement = compound.getDouble("advancement.xp.costIncrement");
-        CommonConfig.getValues().advancement.xp.retryXPReturn = compound.getDouble("advancement.xp.retryXPReturn");
-        CommonConfig.getValues().advancement.xp.xpStoreTariff = compound.getDouble("advancement.xp.xpStoreTariff");
-        CommonConfig.getValues().advancement.xp.xpTakeTariff = compound.getDouble("advancement.xp.xpTakeTariff");
-        CommonConfig.getValues().advancement.maxResetUnlocks = compound.getInteger("advancement.maxResetUnlocks");
-        CommonConfig.getValues().advancement.levels.function = NBTHelper.getArray(compound, "advancement.levels.function");
-        CommonConfig.getValues().advancement.levels.defaultLevel = compound.getInteger("advancement.levels.defaultLevel");
-        CommonConfig.getValues().skill.destroyBlocks = compound.getBoolean("destroyBlocks");
-        CommonConfig.getValues().skill.preventAbilityDoTKnockback = compound.getBoolean("preventAbilityDoTKnockback");
-        CommonConfig.getValues().skill.defaultHumanTeam = compound.getBoolean("defaultHumanTeam");
-        CommonConfig.getValues().skill.defaultAnimalTeam = compound.getBoolean("defaultAnimalTeam");
-        CommonConfig.getValues().skill.globalPositiveEffect = compound.getDouble("globalPositiveEffect");
-        CommonConfig.getValues().skill.globalNegativeEffect = compound.getDouble("globalNegativeEffect");
-        EnderSkillsAPI.defaultHumanTeam = CommonConfig.getValues().skill.defaultHumanTeam;
-        EnderSkillsAPI.defaultAnimalTeam = CommonConfig.getValues().skill.defaultAnimalTeam;
+        CommonConfig.getSyncValues().advancement.oneTreePerClass = compound.getBoolean("advancement.oneTreePerClass");
+        CommonConfig.getSyncValues().advancement.xp.globalCostMultiplier = compound.getDouble("advancement.xp.globalCostMultiplier");
+        CommonConfig.getSyncValues().advancement.xp.costIncrement = compound.getDouble("advancement.xp.costIncrement");
+        CommonConfig.getSyncValues().advancement.xp.retryXPReturn = compound.getDouble("advancement.xp.retryXPReturn");
+        CommonConfig.getSyncValues().advancement.xp.xpStoreTariff = compound.getDouble("advancement.xp.xpStoreTariff");
+        CommonConfig.getSyncValues().advancement.xp.xpTakeTariff = compound.getDouble("advancement.xp.xpTakeTariff");
+        CommonConfig.getSyncValues().advancement.maxResetUnlocks = compound.getInteger("advancement.maxResetUnlocks");
+        CommonConfig.getSyncValues().advancement.levels.function = NBTHelper.getArray(compound, "advancement.levels.function");
+        CommonConfig.getSyncValues().advancement.levels.defaultLevel = compound.getInteger("advancement.levels.defaultLevel");
+        CommonConfig.getSyncValues().skill.destroyBlocks = compound.getBoolean("destroyBlocks");
+        CommonConfig.getSyncValues().skill.preventAbilityDoTKnockback = compound.getBoolean("preventAbilityDoTKnockback");
+        CommonConfig.getSyncValues().skill.defaultHumanTeam = compound.getBoolean("defaultHumanTeam");
+        CommonConfig.getSyncValues().skill.defaultAnimalTeam = compound.getBoolean("defaultAnimalTeam");
+        CommonConfig.getSyncValues().skill.globalPositiveEffect = compound.getDouble("globalPositiveEffect");
+        CommonConfig.getSyncValues().skill.globalNegativeEffect = compound.getDouble("globalNegativeEffect");
+        EnderSkillsAPI.defaultHumanTeam = CommonConfig.getSyncValues().skill.defaultHumanTeam;
+        EnderSkillsAPI.defaultAnimalTeam = CommonConfig.getSyncValues().skill.defaultAnimalTeam;
         EnderSkillsAPI.EXPRESSION_FUNCTION_CACHE.invalidateAll();
         EnderSkillsAPI.EXPRESSION_FUNCTION_CACHE.cleanUp();
         EnderSkillsAPI.EXPRESSION_CACHE.invalidateAll();

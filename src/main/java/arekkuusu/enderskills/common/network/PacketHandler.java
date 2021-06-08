@@ -283,7 +283,7 @@ public final class PacketHandler {
             Capabilities.advancement(e).ifPresent(c -> {
                 c.skillUnlockOrder = new Skill[0];
                 c.resetCount++;
-                c.addExperienceToTotal((int) (c.experienceSpent * CommonConfig.getValues().advancement.xp.retryXPReturn));
+                c.addExperienceToTotal((int) (c.experienceSpent * CommonConfig.getSyncValues().advancement.xp.retryXPReturn));
                 c.experienceSpent = 0;
             });
             if (e instanceof EntityPlayer) {
@@ -297,7 +297,7 @@ public final class PacketHandler {
         Optional.ofNullable(NBTHelper.getEntity(EntityLivingBase.class, compound, "owner")).ifPresent(e -> {
             Capabilities.advancement(e).ifPresent(c -> {
                 if (e instanceof EntityPlayer) {
-                    int xp = (int) (XPHelper.getXPTotal((EntityPlayer) e) * CommonConfig.getValues().advancement.xp.xpStoreTariff);
+                    int xp = (int) (XPHelper.getXPTotal((EntityPlayer) e) * CommonConfig.getSyncValues().advancement.xp.xpStoreTariff);
                     c.addExperienceToTotal(xp);
                     ((EntityPlayer) e).experienceTotal = 0;
                     ((EntityPlayer) e).experienceLevel = 0;
@@ -312,7 +312,7 @@ public final class PacketHandler {
         Optional.ofNullable(NBTHelper.getEntity(EntityLivingBase.class, compound, "owner")).ifPresent(e -> {
             Capabilities.advancement(e).ifPresent(c -> {
                 if (e instanceof EntityPlayer) {
-                    int xpStored = (int) (XPHelper.getXPTotal(c.experienceLevel, c.experienceProgress) * CommonConfig.getValues().advancement.xp.xpTakeTariff);
+                    int xpStored = (int) (XPHelper.getXPTotal(c.experienceLevel, c.experienceProgress) * CommonConfig.getSyncValues().advancement.xp.xpTakeTariff);
                     int xpTotal = xpStored + XPHelper.getXPTotal((EntityPlayer) e);
                     ((EntityPlayer) e).experienceTotal = xpTotal;
                     ((EntityPlayer) e).experienceLevel = XPHelper.getLevelFromXPValue(xpTotal);

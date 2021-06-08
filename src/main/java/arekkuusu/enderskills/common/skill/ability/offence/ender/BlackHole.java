@@ -91,7 +91,7 @@ public class BlackHole extends BaseAbility implements IImpact, ISkillAdvancement
         spawn.setRadius(radius);
         source.world.spawnEntity(spawn);
 
-        if (CommonConfig.getValues().skill.destroyBlocks)
+        if (CommonConfig.getSyncValues().skill.destroyBlocks)
             spawn.world.createExplosion(spawn, spawn.posX, spawn.posY, spawn.posZ, (float) radius, true);
 
         if (spawn.world instanceof WorldServer) {

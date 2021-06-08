@@ -137,7 +137,7 @@ public class EntityTokenOrb extends Entity {
                 if (this.tokenValue > 0) {
                     Capabilities.advancement(entityIn).ifPresent(c -> {
                         for (int i = 0; i < this.tokenValue; i++) {
-                            c.levelProgress += ExpressionHelper.getExpression(new ResourceLocation(LibMod.MOD_ID, LibNames.TOKEN), CommonConfig.getValues().advancement.levels.function, c.level, Integer.MAX_VALUE);
+                            c.levelProgress += ExpressionHelper.getExpression(new ResourceLocation(LibMod.MOD_ID, LibNames.TOKEN), CommonConfig.getSyncValues().advancement.levels.function, c.level, Integer.MAX_VALUE);
                             if (c.levelProgress >= 1D) {
                                 c.levelProgress = c.levelProgress - 1D;
                                 c.level++;

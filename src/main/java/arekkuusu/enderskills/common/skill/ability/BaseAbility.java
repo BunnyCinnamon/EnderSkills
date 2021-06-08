@@ -89,14 +89,14 @@ public abstract class BaseAbility extends BaseSkill {
             if (index == -1) {
                 index = advancement.skillUnlockOrder.length;
             }
-            return (int) (total * (1D + index * CommonConfig.getValues().advancement.xp.costIncrement));
+            return (int) (total * (1D + index * CommonConfig.getSyncValues().advancement.xp.costIncrement));
         }
         return total;
     }
 
     public int getUpgradeCost(@Nullable AbilityInfo info) {
         int lvl = info != null ? info.getLevel() + 1 : 0;
-        return (int) (getExperience(lvl) * CommonConfig.getValues().advancement.xp.globalCostMultiplier);
+        return (int) (getExperience(lvl) * CommonConfig.getSyncValues().advancement.xp.globalCostMultiplier);
     }
 
     public abstract Skill getParentSkill();
