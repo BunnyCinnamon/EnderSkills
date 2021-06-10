@@ -131,6 +131,7 @@ ui.enderskills.gui.advancement.and===
 ui.enderskills.gui.advancement.confirm_upgrade=Confirm Upgrade?
 ui.enderskills.gui.advancement.confirm_unlock=Confirm Unlock?
 ui.enderskills.gui.advancement.locked=Dialog locked
+ui.enderskills.gui.advancement.unlocked=%1$s to lock
 ui.enderskills.gui.advancement.description=§lAdvancement:§r
 ui.enderskills.gui.advancement.description_levels=\n§llvl §l%1$s §l-> §llvl §l%2$s§r\n
 ui.enderskills.gui.advancement.requires=§lRequirements:§r

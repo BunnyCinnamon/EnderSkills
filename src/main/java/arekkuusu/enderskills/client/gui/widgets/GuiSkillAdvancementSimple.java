@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class GuiSkillAdvancementSimple extends GuiSkillAdvancement {
+public final class GuiSkillAdvancementSimple extends GuiSkillAdvancement {
 
     public final SkillAdvancementConditionSimple advancement;
     public final int textureX = 0;
@@ -267,6 +267,8 @@ public class GuiSkillAdvancementSimple extends GuiSkillAdvancement {
         return visible;
     }
 
+
+
     @Override
     public void actionPerformed(GuiButton button) {
         if (button.id == 0 && this.isUnlockable()) {
@@ -298,18 +300,17 @@ public class GuiSkillAdvancementSimple extends GuiSkillAdvancement {
                         }
                     }
                     description += TextHelper.translate("gui.advancement.undone_warning");
-                    GuiScreenSkillAdvancements.confirmation = new GuiConfirmation(this.mc, title, description, (g) -> {
+                    GuiScreenSkillAdvancements.confirmation = new GuiConfirmation(this.mc, this.gui.gui, title, description, (g) -> {
                         boolean success = this.advancement.upgrade();
                         if (g.isShifting && success) {
                             this.gui.gui.allowUserInput = false;
                             GuiScreenSkillAdvancements.onSkillUpgradeRunnable = () -> {
-                                this.gui.gui.isShifting = true;
+                                this.gui.gui.isShifting = g.isShifting;
                                 this.gui.gui.allowUserInput = true;
                                 this.actionPerformed(button);
                             };
                         }
                     }, true, true, this.gui.gui.isShifting);
-                    this.gui.gui.isShifting = false;
                     GuiScreenSkillAdvancements.confirmation.initGui();
                     button.playPressSound(this.mc.getSoundHandler());
                 }

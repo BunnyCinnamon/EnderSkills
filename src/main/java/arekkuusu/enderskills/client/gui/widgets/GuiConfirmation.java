@@ -1,6 +1,7 @@
 package arekkuusu.enderskills.client.gui.widgets;
 
 import arekkuusu.enderskills.client.gui.GuiScreenSkillAdvancements;
+import arekkuusu.enderskills.client.keybind.KeyBounds;
 import arekkuusu.enderskills.client.util.helper.RenderMisc;
 import arekkuusu.enderskills.client.util.helper.TextHelper;
 import com.google.common.collect.Lists;
@@ -9,6 +10,7 @@ import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.settings.KeyBinding;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,20 +22,22 @@ public class GuiConfirmation extends Gui {
     public GuiButton buttonNo;
     public final Consumer<GuiConfirmation> function;
     public final Minecraft mc;
+    public final GuiScreenSkillAdvancements gui;
     public final String title;
     public final boolean canConfirm;
     public final boolean canNegate;
-    public final boolean isShifting;
     public final String description;
     public boolean allowUserInput;
+    public boolean isShifting;
     public int timer;
     public int width;
     public int height;
     public int x;
     public int y;
 
-    public GuiConfirmation(Minecraft mc, String title, String description, Consumer<GuiConfirmation> function, boolean canConfirm, boolean canNegate, boolean isShifting) {
+    public GuiConfirmation(Minecraft mc, GuiScreenSkillAdvancements gui, String title, String description, Consumer<GuiConfirmation> function, boolean canConfirm, boolean canNegate, boolean isShifting) {
         this.mc = mc;
+        this.gui = gui;
         this.function = function;
         this.description = description;
         this.title = title;
@@ -137,6 +141,18 @@ public class GuiConfirmation extends Gui {
             GlStateManager.scale(mSize, mSize, mSize);
             GlStateManager.popMatrix();
             GlStateManager.color(1F, 1F, 1F, 1F);
+        } else {
+            drawScaledCustomSizeModalRect(xOffset - 7, yOffset - 5, 108, 4, 18, 18, 14, 14, 256, 256);
+            GlStateManager.color(1F, 1F, 1F, 1F);
+            GlStateManager.pushMatrix();
+            GlStateManager.scale(0.6D, 0.6D, 0.6D);
+            KeyBinding binding = KeyBounds.upgrade;
+            String control = binding.getKeyModifier().getLocalizedComboName(binding.getKeyCode());
+            this.mc.fontRenderer.drawString(TextHelper.translate("gui.advancement.unlocked", control), (float) (xOffset + 9) / 0.6F, (float) (yOffset - 1) / 0.6F, -1, true);
+            double mSize = Math.pow(0.6D, -1D);
+            GlStateManager.scale(mSize, mSize, mSize);
+            GlStateManager.popMatrix();
+            GlStateManager.color(1F, 1F, 1F, 1F);
         }
         GlStateManager.color(1F, 1F, 1F, 1F);
         this.mc.fontRenderer.drawString(title, (float) (xOffset + 4), (float) (yOffset + 9), -1, true);
@@ -185,6 +201,13 @@ public class GuiConfirmation extends Gui {
                 buttonNo.playPressSound(this.mc.getSoundHandler());
                 this.actionPerformed(buttonNo);
             }
+        }
+    }
+
+    public void keyTyped(char typedChar, int keyCode) {
+        this.isShifting = !this.isShifting && KeyBounds.upgrade.getKeyCode() == keyCode;
+        if(gui != null) {
+            gui.isShifting = this.isShifting;
         }
     }
 

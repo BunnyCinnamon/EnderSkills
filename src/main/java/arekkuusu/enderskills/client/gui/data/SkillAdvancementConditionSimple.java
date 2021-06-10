@@ -48,7 +48,7 @@ public class SkillAdvancementConditionSimple extends SkillAdvancementCondition {
                 } else {
                     String title = this.isUpgraded() ? "Can't upgrade" : "Can't Unlock";
                     String description = "\u00A74Not enough funds.\u00A7r";
-                    GuiScreenSkillAdvancements.confirmation = new GuiConfirmation(Minecraft.getMinecraft(), title, description, (g) -> {
+                    GuiScreenSkillAdvancements.confirmation = new GuiConfirmation(Minecraft.getMinecraft(), null, title, description, (g) -> {
                     }, false, true, false);
                     GuiScreenSkillAdvancements.confirmation.initGui();
                     return false;

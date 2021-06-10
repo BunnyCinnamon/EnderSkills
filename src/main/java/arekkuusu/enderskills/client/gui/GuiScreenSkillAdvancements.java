@@ -6,7 +6,6 @@ import arekkuusu.enderskills.client.gui.widgets.GuiBaseButton;
 import arekkuusu.enderskills.client.gui.widgets.GuiConfirmation;
 import arekkuusu.enderskills.client.gui.widgets.GuiCustomButton;
 import arekkuusu.enderskills.client.gui.widgets.SkillAdvancementTabType;
-import arekkuusu.enderskills.client.keybind.KeyBounds;
 import arekkuusu.enderskills.client.util.helper.RenderMisc;
 import arekkuusu.enderskills.client.util.helper.TextHelper;
 import arekkuusu.enderskills.common.CommonConfig;
@@ -40,7 +39,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class GuiScreenSkillAdvancements extends GuiScreen {
+public final class GuiScreenSkillAdvancements extends GuiScreen {
 
     public static final ResourceLocation WINDOW_0 = new ResourceLocation(LibMod.MOD_ID, "textures/gui/advancement/window_0.png");
     public static final ResourceLocation WINDOW_1 = new ResourceLocation(LibMod.MOD_ID, "textures/gui/advancement/window_1.png");
@@ -70,7 +69,6 @@ public class GuiScreenSkillAdvancements extends GuiScreen {
     public int scrollMouseY;
     public boolean isScrolling;
     public boolean isShifting;
-    public int shiftingCountdown;
 
     public GuiScreenSkillAdvancements() {
         this.allowUserInput = true;
@@ -158,11 +156,6 @@ public class GuiScreenSkillAdvancements extends GuiScreen {
         }
         if (GuiScreenSkillAdvancements.confirmation != null) {
             GuiScreenSkillAdvancements.confirmation.update();
-        }
-        if(this.shiftingCountdown > 0) {
-            if(--this.shiftingCountdown <= 0) {
-                this.isShifting = false;
-            }
         }
     }
 
@@ -517,8 +510,6 @@ public class GuiScreenSkillAdvancements extends GuiScreen {
         } else {
             GuiScreenSkillAdvancements.confirmation.mouseClicked(mouseX, mouseY, mouseButton);
         }
-        this.isShifting = false;
-        this.shiftingCountdown = 5;
     }
 
     @Override
@@ -542,11 +533,14 @@ public class GuiScreenSkillAdvancements extends GuiScreen {
             this.selectedTab.tabPage = Math.min(this.selectedTab.tabPage + 1, this.selectedTab.maxPages - 1);
             Minecraft.getMinecraft().getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.UI_BUTTON_CLICK, 1.0F));
         }
-        isShifting = KeyBounds.upgrade.getKeyCode() == keyCode;
+        if (GuiScreenSkillAdvancements.confirmation != null) {
+            GuiScreenSkillAdvancements.confirmation.keyTyped(typedChar, keyCode);
+        }
     }
 
     @Override
     protected void actionPerformed(GuiButton button) {
+        this.isShifting = false;
         if (button.id == 101) {
             tabPage = -1;
         }
@@ -569,12 +563,12 @@ public class GuiScreenSkillAdvancements extends GuiScreen {
             if (button.id == 105) {
                 Capabilities.get(this.mc.player).ifPresent(c -> {
                     if (!c.getAllOwned().isEmpty()) {
-                        GuiScreenSkillAdvancements.confirmation = new GuiConfirmation(this.mc, TextHelper.translate("gui.reset_unlocks_title"), TextHelper.translate("gui.reset_unlocks_description"), (g) -> {
+                        GuiScreenSkillAdvancements.confirmation = new GuiConfirmation(this.mc, null, TextHelper.translate("gui.reset_unlocks_title"), TextHelper.translate("gui.reset_unlocks_description"), (g) -> {
                             PacketHelper.sendResetSkillsRequestPacket(this.mc.player);
                         }, true, true, false);
                         GuiScreenSkillAdvancements.confirmation.initGui();
                     } else {
-                        GuiScreenSkillAdvancements.confirmation = new GuiConfirmation(this.mc, TextHelper.translate("gui.reset_no_unlocks_title"), TextHelper.translate("gui.reset_no_unlocks_description"), (g) -> {
+                        GuiScreenSkillAdvancements.confirmation = new GuiConfirmation(this.mc, null, TextHelper.translate("gui.reset_no_unlocks_title"), TextHelper.translate("gui.reset_no_unlocks_description"), (g) -> {
                             PacketHelper.sendResetSkillsRequestPacket(this.mc.player);
                         }, false, true, false);
                         GuiScreenSkillAdvancements.confirmation.initGui();
@@ -586,7 +580,6 @@ public class GuiScreenSkillAdvancements extends GuiScreen {
                 PacketHelper.sendTakeXPRequestPacket(this.mc.player);
             }
         }
-        isShifting = false;
     }
 
     @Nullable
