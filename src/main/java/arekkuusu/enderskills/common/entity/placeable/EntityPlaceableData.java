@@ -6,6 +6,7 @@ import arekkuusu.enderskills.common.skill.SkillHelper;
 import com.google.common.collect.Sets;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
@@ -61,28 +62,26 @@ public class EntityPlaceableData extends Entity {
         super.onUpdate();
         SkillData data = getData();
         EntityLivingBase owner = SkillHelper.getOwner(data);
-        if (!world.isRemote) {
-            if (this.getLifeTime() > this.tick) {
-                if (data.skill instanceof IScanEntities) {
-                    List<Entity> entities = ((IScanEntities) data.skill).getScan(this, owner, data.copy(), getRadius() * ((float) tick / (float) getLifeTime()));
-                    if (!entities.isEmpty()) {
-                        for (Entity entity : entities) {
-                            if (entity instanceof EntityLivingBase) {
-                                if (affectedEntities.add(entity)) {
-                                    if (data.skill instanceof IFindEntity) {
-                                        ((IFindEntity) data.skill).onFound(this, owner, (EntityLivingBase) entity, data.copy());
-                                    }
+        if (this.getLifeTime() > this.tick) {
+            if (data.skill instanceof IScanEntities) {
+                List<Entity> entities = ((IScanEntities) data.skill).getScan(this, owner, data.copy(), getRadius() * ((float) tick / (float) getLifeTime()));
+                if (!entities.isEmpty()) {
+                    for (Entity entity : entities) {
+                        if ((entity instanceof EntityLivingBase && !world.isRemote) || entity instanceof EntityPlayer) {
+                            if (affectedEntities.add(entity)) {
+                                if (data.skill instanceof IFindEntity) {
+                                    ((IFindEntity) data.skill).onFound(this, owner, (EntityLivingBase) entity, data.copy());
                                 }
-                                if (data.skill instanceof IScanEntities) {
-                                    ((IScanEntities) data.skill).onScan(this, owner, (EntityLivingBase) entity, data.copy());
-                                }
+                            }
+                            if (data.skill instanceof IScanEntities) {
+                                ((IScanEntities) data.skill).onScan(this, owner, (EntityLivingBase) entity, data.copy());
                             }
                         }
                     }
                 }
-            } else {
-                setDead();
             }
+        } else if (!world.isRemote) {
+            setDead();
         }
         if (growTicks > this.tick && data.skill instanceof IExpand) {
             setEntityBoundingBox(((IExpand) data.skill).expand(this, getEntityBoundingBox(), getRadius() / (float) growTicks));

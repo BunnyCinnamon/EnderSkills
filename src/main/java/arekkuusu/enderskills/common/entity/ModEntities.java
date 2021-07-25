@@ -31,6 +31,7 @@ public final class ModEntities {
         register(registry, EntityPlaceableGrasp.class, LibNames.GRASP, false);
         register(registry, EntityShadow.class, LibNames.SHADOW, false);
         //Wind
+        register(registry, EntityPlaceableSlash.class, LibNames.SLASH, true);
         register(registry, EntityPlaceableSmash.class, LibNames.SMASH, false);
         register(registry, EntityCrush.class, LibNames.CRUSH, false);
         register(registry, EntityPlaceableUpdraft.class, LibNames.UPDRAFT, true);

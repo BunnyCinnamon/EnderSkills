@@ -8,9 +8,6 @@ import arekkuusu.enderskills.common.network.PacketHelper;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.registries.IForgeRegistryEntry;
 
 import javax.annotation.Nonnull;
@@ -40,31 +37,38 @@ public class Skill extends IForgeRegistryEntry.Impl<Skill> {
     }
 
     public void apply(EntityLivingBase entity, SkillData data) {
-        Capabilities.get(entity).ifPresent(skills -> skills.activate(new SkillHolder(data))); //Add to entity Server Side
+        if (!entity.world.isRemote)
+            Capabilities.get(entity).ifPresent(skills -> skills.activate(new SkillHolder(data))); //Add to entity Server Side
     }
 
     public void unapply(EntityLivingBase entity) {
-        Capabilities.get(entity).ifPresent(skills -> skills.deactivate(this)); //Remove all from entity Server Side
+        if (!entity.world.isRemote)
+            Capabilities.get(entity).ifPresent(skills -> skills.deactivate(this)); //Remove all from entity Server Side
     }
 
     public void unapply(EntityLivingBase entity, SkillData data) {
-        Capabilities.get(entity).ifPresent(skills -> skills.deactivate(this, data)); //Remove from entity Server Side
+        if (!entity.world.isRemote)
+            Capabilities.get(entity).ifPresent(skills -> skills.deactivate(this, data)); //Remove from entity Server Side
     }
 
     public void sync(EntityLivingBase entity, SkillData data) {
-        PacketHelper.sendSkillUseResponsePacket(entity, data); //Add to entity Client Side
+        if (!entity.world.isRemote)
+            PacketHelper.sendSkillUseResponsePacket(entity, data); //Add to entity Client Side
     }
 
     public void async(EntityLivingBase entity) {
-        PacketHelper.sendSkillRemoveResponsePacket(entity, this); //Remove from all entity Client Side
+        if (!entity.world.isRemote)
+            PacketHelper.sendSkillRemoveResponsePacket(entity, this); //Remove from all entity Client Side
     }
 
     public void async(EntityLivingBase entity, SkillData data) {
-        PacketHelper.sendSkillDataRemoveResponsePacket(entity, data); //Remove from entity Client Side
+        if (!entity.world.isRemote)
+            PacketHelper.sendSkillDataRemoveResponsePacket(entity, data); //Remove from entity Client Side
     }
 
     public void sync(EntityLivingBase entity) {
-        PacketHelper.sendSkillSync((EntityPlayerMP) entity, this);
+        if (!entity.world.isRemote)
+            PacketHelper.sendSkillSync((EntityPlayerMP) entity, this);
     }
 
     public Properties getProperties() {

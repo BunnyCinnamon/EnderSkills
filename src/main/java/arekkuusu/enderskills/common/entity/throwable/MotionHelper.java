@@ -14,7 +14,7 @@ public final class MotionHelper {
                 lookVec.z * distance
         );
         Vec3d motion = position.subtract(userVec);
-        motion = new Vec3d(motion.x / time, motion.y / time, motion.z / time);
+        motion = new Vec3d(motion.x / (double) time, motion.y / (double) time, motion.z / (double) time);
         throwable.motionX = motion.x;
         throwable.motionY = motion.y;
         throwable.motionZ = motion.z;

@@ -1,14 +1,11 @@
 package arekkuusu.enderskills.common.skill.ability.offence.wind;
 
-import arekkuusu.enderskills.api.capability.AdvancementCapability;
 import arekkuusu.enderskills.api.capability.Capabilities;
 import arekkuusu.enderskills.api.capability.data.SkillData;
 import arekkuusu.enderskills.api.capability.data.SkillInfo;
 import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoCooldown;
-import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoUpgradeable;
 import arekkuusu.enderskills.api.event.SkillDamageEvent;
 import arekkuusu.enderskills.api.event.SkillDamageSource;
-import arekkuusu.enderskills.api.helper.ExpressionHelper;
 import arekkuusu.enderskills.api.helper.NBTHelper;
 import arekkuusu.enderskills.api.helper.RayTraceHelper;
 import arekkuusu.enderskills.api.helper.TeamHelper;
@@ -16,11 +13,11 @@ import arekkuusu.enderskills.api.registry.Skill;
 import arekkuusu.enderskills.api.util.ConfigDSL;
 import arekkuusu.enderskills.client.gui.data.ISkillAdvancement;
 import arekkuusu.enderskills.client.util.helper.TextHelper;
-import arekkuusu.enderskills.common.CommonConfig;
 import arekkuusu.enderskills.common.entity.data.IExpand;
 import arekkuusu.enderskills.common.entity.data.IFindEntity;
 import arekkuusu.enderskills.common.entity.data.IScanEntities;
 import arekkuusu.enderskills.common.entity.placeable.EntityPlaceableData;
+import arekkuusu.enderskills.common.entity.placeable.EntityPlaceableSlash;
 import arekkuusu.enderskills.common.entity.throwable.MotionHelper;
 import arekkuusu.enderskills.common.lib.LibMod;
 import arekkuusu.enderskills.common.lib.LibNames;
@@ -36,6 +33,7 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.SoundCategory;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Config;
@@ -43,9 +41,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 import javax.annotation.Nullable;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 
 public class Slash extends BaseAbility implements IScanEntities, IExpand, IFindEntity, ISkillAdvancement {
 
@@ -75,8 +71,8 @@ public class Slash extends BaseAbility implements IScanEntities, IExpand, IFindE
                     .by(owner)
                     .put(compound)
                     .create();
-            EntityPlaceableData spawn = new EntityPlaceableData(owner.world, owner, data, (int) (3 * distance));
-            MotionHelper.forwardMotion(owner, spawn, distance, (int) (3 * distance));
+            EntityPlaceableSlash spawn = new EntityPlaceableSlash(owner.world, owner, data, (int) (distance));
+            MotionHelper.forwardMotion(owner, spawn, distance, (int) (distance));
             spawn.setPosition(owner.posX, owner.posY + owner.getEyeHeight(), owner.posZ);
             spawn.setGrowTicks(5);
             spawn.setRadius(range);
@@ -91,8 +87,8 @@ public class Slash extends BaseAbility implements IScanEntities, IExpand, IFindE
 
     //* Entity *//
     @Override
-    public List<Entity> getScan(Entity source, @Nullable EntityLivingBase owner, SkillData skillData, double size) {
-        return RayTraceHelper.getEntitiesInCone(source, size, 60, TeamHelper.SELECTOR_ENEMY.apply(owner));
+    public AxisAlignedBB expand(Entity source, AxisAlignedBB bb, float amount) {
+        return bb.grow(amount, amount / 3, amount).expand(0, 0, 0);
     }
 
     @Override

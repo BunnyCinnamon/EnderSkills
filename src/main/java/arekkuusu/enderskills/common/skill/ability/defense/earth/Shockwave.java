@@ -65,20 +65,22 @@ public class Shockwave extends BaseAbility implements IScanEntities, IExpand, IF
             }
             int time = getStunTime(abilityInfo);
             double range = getRange(abilityInfo);
+            double rangeExtra = getRangeExtra(abilityInfo);
             double push = getPush(abilityInfo);
             NBTTagCompound compound = new NBTTagCompound();
             NBTHelper.setEntity(compound, owner, "owner");
             NBTHelper.setInteger(compound, "time", time);
             NBTHelper.setDouble(compound, "range", range);
+            NBTHelper.setDouble(compound, "range_extra", rangeExtra);
             NBTHelper.setDouble(compound, "push", push);
             NBTHelper.setVector(compound, "pusherVector", owner.getPositionVector());
             SkillData data = SkillData.of(this)
                     .with(10)
                     .put(compound)
                     .create();
-            EntityPlaceableShockwave spawn = new EntityPlaceableShockwave(owner.world, owner, data, Math.max((int) range * 5, EntityPlaceableData.MIN_TIME));
+            EntityPlaceableShockwave spawn = new EntityPlaceableShockwave(owner.world, owner, data, Math.max((int) (range + rangeExtra) * 5, EntityPlaceableData.MIN_TIME));
             spawn.setPosition(owner.posX, owner.posY, owner.posZ);
-            spawn.setRadius(range);
+            spawn.setRadius(range + rangeExtra);
             spawn.spreadOnTerrain();
             owner.world.spawnEntity(spawn);
             sync(owner);
@@ -130,6 +132,14 @@ public class Shockwave extends BaseAbility implements IScanEntities, IExpand, IF
 
     @Override
     public void onFound(Entity source, @Nullable EntityLivingBase owner, EntityLivingBase target, SkillData skillData) {
+        double distance = source.getDistanceSq(target);
+        double applyDistance = skillData.nbt.getDouble("range");
+        double diminishingDistance = skillData.nbt.getDouble("range_extra");
+        if(distance > applyDistance) {
+            SkillData skillDataFinal = skillData.copy();
+            skillDataFinal.time = Math.max((int) (skillDataFinal.time * (diminishingDistance / (diminishingDistance - (distance - applyDistance)))), 1);
+            skillData = skillDataFinal;
+        }
         apply(target, skillData);
         sync(target, skillData);
 
@@ -149,6 +159,10 @@ public class Shockwave extends BaseAbility implements IScanEntities, IExpand, IF
 
     public double getRange(AbilityInfo info) {
         return this.config.get(this, "RANGE", info.getLevel());
+    }
+
+    public double getRangeExtra(AbilityInfo info) {
+        return this.config.get(this, "RANGE_EXTRA", info.getLevel());
     }
 
     public int getCooldown(AbilityInfo info) {
@@ -181,6 +195,7 @@ public class Shockwave extends BaseAbility implements IScanEntities, IExpand, IF
                         }
                         description.add(TextHelper.translate("desc.stats.cooldown", TextHelper.format2FloatPoint(getCooldown(abilityInfo) / 20D), TextHelper.getTextComponent("desc.stats.suffix_time")));
                         description.add(TextHelper.translate("desc.stats.range", TextHelper.format2FloatPoint(getRange(abilityInfo)), TextHelper.getTextComponent("desc.stats.suffix_blocks")));
+                        description.add(TextHelper.translate("desc.stats.range_extra", TextHelper.format2FloatPoint(getRange(abilityInfo)), TextHelper.getTextComponent("desc.stats.suffix_blocks")));
                         description.add(TextHelper.translate("desc.stats.stun", TextHelper.format2FloatPoint(getStunTime(abilityInfo) / 20D), TextHelper.getTextComponent("desc.stats.suffix_time")));
                         description.add(TextHelper.translate("desc.stats.push_distance", TextHelper.format2FloatPoint(getPush(abilityInfo)), TextHelper.getTextComponent("desc.stats.suffix_blocks")));
                         if (abilityInfo.getLevel() < getMaxLevel()) {
@@ -194,6 +209,7 @@ public class Shockwave extends BaseAbility implements IScanEntities, IExpand, IF
                                 description.add(TextHelper.translate("desc.stats.level_next", abilityInfo.getLevel(), infoNew.getLevel()));
                                 description.add(TextHelper.translate("desc.stats.cooldown", TextHelper.format2FloatPoint(getCooldown(infoNew) / 20D), TextHelper.getTextComponent("desc.stats.suffix_time")));
                                 description.add(TextHelper.translate("desc.stats.range", TextHelper.format2FloatPoint(getRange(infoNew)), TextHelper.getTextComponent("desc.stats.suffix_blocks")));
+                                description.add(TextHelper.translate("desc.stats.range_extra", TextHelper.format2FloatPoint(getRange(infoNew)), TextHelper.getTextComponent("desc.stats.suffix_blocks")));
                                 description.add(TextHelper.translate("desc.stats.stun", TextHelper.format2FloatPoint(getStunTime(infoNew) / 20D), TextHelper.getTextComponent("desc.stats.suffix_time")));
                                 description.add(TextHelper.translate("desc.stats.push_distance", TextHelper.format2FloatPoint(getPush(infoNew)), TextHelper.getTextComponent("desc.stats.suffix_blocks")));
                             }
@@ -294,6 +310,12 @@ public class Shockwave extends BaseAbility implements IScanEntities, IExpand, IF
                     "⠀        curve: none",
                     "⠀        value: {end}",
                     "⠀    ]",
+                    "⠀)",
+                    "⠀#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~",
+                    "⠀RANGE_EXTRA (",
+                    "⠀    curve: flat",
+                    "⠀    start: 6b",
+                    "⠀    end:   12b",
                     "⠀)",
                     "⠀#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~",
                     "⠀FORCE (",

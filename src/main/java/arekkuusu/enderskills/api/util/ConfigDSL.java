@@ -212,6 +212,8 @@ public final class ConfigDSL {
                 result = MathHelper.clamp(result, clampLeft, clampRight);
             } catch (Exception e) {
                 LOGGER.error("Malformed `{}` config for property: {} with level: {}", skill.getRegistryName(), name, lvl);
+                LOGGER.error("It is possible it is missing the property with name {}", name);
+                LOGGER.error("Please add this on the enderkills/.../{}.cfg file", skill.getRegistryName());
                 e.printStackTrace();
                 result = 0D;
             } finally {

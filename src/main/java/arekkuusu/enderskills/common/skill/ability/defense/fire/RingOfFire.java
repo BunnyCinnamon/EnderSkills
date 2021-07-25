@@ -156,8 +156,9 @@ public class RingOfFire extends BaseAbility implements IScanEntities, IFindEntit
                 Vec3d posDiff = posTarget.subtract(posSource);
                 Vec3d vecMotion = new Vec3d(target.motionX, target.motionY, target.motionZ);
                 if (posDiff.add(vecMotion).lengthVector() > posDiff.lengthVector()) {
-                    target.motionX = -target.motionX;
-                    target.motionZ = -target.motionZ;
+                    double speed = 0.05;
+                    target.motionZ = -target.motionZ > 0 ? speed : -speed;
+                    target.motionX = -target.motionX > 0 ? speed : -speed;
                 }
             }
         }

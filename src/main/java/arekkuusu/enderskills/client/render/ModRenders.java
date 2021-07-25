@@ -55,6 +55,7 @@ public final class ModRenders {
         registerEntity(EntityTokenOrb.class, RenderTokenOrb::new);
         registerEntity(EntityVoltaicSentinel.class, VoltaicSentinelRender::new);
         registerEntity(EntityPlaceableRingOfFire.class, RingOfFireRenderer.Placeable::new);
+        registerEntity(EntityPlaceableSlash.class, SlashRenderer.Placeable::new);
     }
 
     public static void init() {

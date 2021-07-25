@@ -5,6 +5,7 @@ import arekkuusu.enderskills.client.render.entity.EntityPlaceableDataRenderer;
 import arekkuusu.enderskills.client.util.ShaderLibrary;
 import arekkuusu.enderskills.client.util.helper.GLHelper;
 import arekkuusu.enderskills.common.entity.placeable.EntityPlaceableData;
+import arekkuusu.enderskills.common.entity.placeable.EntityPlaceableSlash;
 import arekkuusu.enderskills.common.lib.LibMod;
 import arekkuusu.enderskills.common.skill.ModAbilities;
 import arekkuusu.enderskills.common.skill.ability.offence.wind.Slash;
@@ -26,32 +27,28 @@ public class SlashRenderer extends SkillRenderer<Slash> {
 
     public static final ResourceLocation PLACEABLE = new ResourceLocation(LibMod.MOD_ID, "textures/entity/slash.png");
 
-    public SlashRenderer() {
-        EntityPlaceableDataRenderer.add(ModAbilities.SLASH, Placeable::new);
-    }
-
     @SideOnly(Side.CLIENT)
-    public static class Placeable extends Render<EntityPlaceableData> {
+    public static class Placeable extends Render<EntityPlaceableSlash> {
 
         public Placeable(RenderManager renderManager) {
             super(renderManager);
         }
 
         @Override
-        public void doRender(EntityPlaceableData entity, double x, double y, double z, float entityYaw, float partialTicks) {
+        public void doRender(EntityPlaceableSlash entity, double x, double y, double z, float entityYaw, float partialTicks) {
             if (entity.tick > entity.getLifeTime()) return;
             double progress = ((double) entity.tick + partialTicks) / (double) entity.getLifeTime();
             double scale = (entity.getRadius() + 3) * 2 * progress;
             GLHelper.BLEND_SRC_ALPHA$ONE.blend();
             if (!ClientConfig.RENDER_CONFIG.rendering.helpMyShadersAreDying) {
                 ShaderLibrary.ALPHA.begin();
-                ShaderLibrary.ALPHA.set("alpha", 0.6F * (1F - (float) progress));
+                ShaderLibrary.ALPHA.set("alpha", 0.3F * (1F - (float) progress));
             }
             for (int i = -1; i <= 1; i++) {
                 GlStateManager.pushMatrix();
                 GlStateManager.disableLighting();
                 GlStateManager.enableBlend();
-                GlStateManager.translate(x, y, z);
+                GlStateManager.translate(x, y + entity.getEyeHeight() / 2, z);
                 GlStateManager.scale(scale, scale, scale);
                 {
                     GlStateManager.pushMatrix();
@@ -85,7 +82,7 @@ public class SlashRenderer extends SkillRenderer<Slash> {
 
         @Override
         @Nonnull
-        protected ResourceLocation getEntityTexture(EntityPlaceableData entity) {
+        protected ResourceLocation getEntityTexture(EntityPlaceableSlash entity) {
             return PLACEABLE;
         }
     }
