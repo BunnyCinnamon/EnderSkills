@@ -154,6 +154,9 @@ public class Events {
     public static void onEntityTickActive(LivingEvent.LivingUpdateEvent event) {
         if (!event.getEntityLiving().getEntityWorld().isRemote) {
             EntityLivingBase entity = event.getEntityLiving();
+            if(Math.floor(entity.getHealth()) < 0F) {
+                entity.setDead();
+            }
             Capabilities.get(entity).ifPresent(skills -> {
                 if(skills.getActives().isEmpty()) return;
                 //Iterate Entity-level SkillHolders

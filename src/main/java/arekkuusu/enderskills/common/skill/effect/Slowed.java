@@ -17,6 +17,8 @@ import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
+import java.util.ConcurrentModificationException;
+
 public class Slowed extends BaseEffect {
 
     public static final DynamicModifier SLOW_ATTRIBUTE = new DynamicModifier(
@@ -38,11 +40,14 @@ public class Slowed extends BaseEffect {
             if (SkillHelper.isActive(entity, this)) {
                 Capabilities.get(entity).ifPresent(c -> {
                     double maxSlow = 1D;
-                    for (SkillHolder h : c.getActives()) {
-                        if (h.data.skill == this) {
-                            double slow = h.data.nbt.getDouble("slow");
-                            if (slow < maxSlow) maxSlow = slow;
+                    try {
+                        for (SkillHolder h : c.getActives()) {
+                            if (h.data.skill == this) {
+                                double slow = h.data.nbt.getDouble("slow");
+                                if (slow < maxSlow) maxSlow = slow;
+                            }
                         }
+                    } catch (ConcurrentModificationException ignored) {
                     }
                     SLOW_ATTRIBUTE.apply(entity, -maxSlow);
                 });
