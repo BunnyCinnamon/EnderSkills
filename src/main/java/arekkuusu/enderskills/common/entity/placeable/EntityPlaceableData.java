@@ -69,7 +69,7 @@ public class EntityPlaceableData extends Entity {
                     for (Entity entity : entities) {
                         if ((entity instanceof EntityLivingBase && !world.isRemote) || entity instanceof EntityPlayer) {
                             if (affectedEntities.add(entity)) {
-                                if (data.skill instanceof IFindEntity) {
+                                if (data.skill instanceof IFindEntity && !entity.world.isRemote) {
                                     ((IFindEntity) data.skill).onFound(this, owner, (EntityLivingBase) entity, data.copy());
                                 }
                             }
