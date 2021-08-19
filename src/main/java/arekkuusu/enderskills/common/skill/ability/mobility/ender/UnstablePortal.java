@@ -104,8 +104,10 @@ public class UnstablePortal extends BaseAbility implements IImpact, IExpand, ISc
 
     @Override
     public void onScan(Entity source, @Nullable EntityLivingBase owner, EntityLivingBase target, SkillData skillData) {
-        apply(target, skillData);
-        sync(target, skillData);
+        if(!target.world.isRemote) {
+            apply(target, skillData);
+            sync(target, skillData);
+        }
     }
     //* Entity *//
 

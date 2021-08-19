@@ -111,7 +111,9 @@ public class FlamingRain extends BaseAbility implements IImpact, ILoopSound, IEx
 
     @Override
     public void onScan(Entity source, @Nullable EntityLivingBase owner, EntityLivingBase target, SkillData skillData) {
-        ModEffects.BURNING.set(target, skillData);
+        if(!target.world.isRemote) {
+            ModEffects.BURNING.set(target, skillData);
+        }
     }
     //* Entity *//
 

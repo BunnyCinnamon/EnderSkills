@@ -122,8 +122,10 @@ public class GasCloud extends BaseAbility implements IImpact, IExpand, IFindEnti
 
     @Override
     public void onScan(Entity source, @Nullable EntityLivingBase owner, EntityLivingBase target, SkillData skillData) {
-        ModEffects.VOIDED.set(target, skillData);
-        ModEffects.SLOWED.set(target, skillData, 0.6D);
+        if(!target.world.isRemote) {
+            ModEffects.VOIDED.set(target, skillData);
+            ModEffects.SLOWED.set(target, skillData, 0.6D);
+        }
     }
 
     public void pushEntity(Entity pusher, Entity pushed, double radius) {

@@ -24,7 +24,7 @@ public class Burning extends BaseEffect {
             EntityLivingBase owner = SkillHelper.getOwner(data);
             double damage = data.nbt.getDouble("dot");
             SkillDamageSource source = new SkillDamageSource(BaseAbility.DAMAGE_DOT_TYPE, owner);
-            source.setMagicDamage();
+            source.setFireDamage();
             SkillDamageEvent event = new SkillDamageEvent(owner, this, source, damage);
             MinecraftForge.EVENT_BUS.post(event);
             entity.attackEntityFrom(event.getSource(), (float) (event.getAmount() / data.time));

@@ -94,12 +94,14 @@ public class PowerDrain extends BaseAbility implements IFindEntity, IExpand {
 
     @Override
     public void onScan(Entity source, @Nullable EntityLivingBase owner, EntityLivingBase target, SkillData skillData) {
-        if (SkillHelper.isActive(target, ModEffects.ELECTRIFIED)) {
-            int stun = NBTHelper.getInteger(skillData.nbt, "stun");
-            ModEffects.ELECTRIFIED.propagate(target, skillData, stun);
-        }
-        if (source.isWet() && source.ticksExisted % 20 == 0) {
-            source.attackEntityFrom(DamageSource.LIGHTNING_BOLT, 2);
+        if(!target.world.isRemote) {
+            if (SkillHelper.isActive(target, ModEffects.ELECTRIFIED)) {
+                int stun = NBTHelper.getInteger(skillData.nbt, "stun");
+                ModEffects.ELECTRIFIED.propagate(target, skillData, stun);
+            }
+            if (source.isWet() && source.ticksExisted % 20 == 0) {
+                source.attackEntityFrom(DamageSource.LIGHTNING_BOLT, 2);
+            }
         }
     }
     //* Entity *//

@@ -140,14 +140,16 @@ public class Grasp extends BaseAbility implements IImpact, IExpand, ILoopSound, 
 
     @Override
     public void onScan(Entity source, @Nullable EntityLivingBase owner, EntityLivingBase target, SkillData skillData) {
-        if (!SkillHelper.isActive(target, this)) {
-            apply(target, skillData);
-            sync(target, skillData);
+        if(!target.world.isRemote) {
+            if (!SkillHelper.isActive(target, this)) {
+                apply(target, skillData);
+                sync(target, skillData);
+            }
+            if (!SkillHelper.isActive(target, ModEffects.ROOTED)) {
+                ModEffects.ROOTED.set(target, skillData);
+            }
+            ModEffects.VOIDED.set(target, skillData);
         }
-        if (!SkillHelper.isActive(target, ModEffects.ROOTED)) {
-            ModEffects.ROOTED.set(target, skillData);
-        }
-        ModEffects.VOIDED.set(target, skillData);
     }
     //* Entity *//
 

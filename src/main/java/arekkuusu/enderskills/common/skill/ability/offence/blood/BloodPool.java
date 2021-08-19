@@ -133,7 +133,9 @@ public class BloodPool extends BaseAbility implements IImpact, ILoopSound, IExpa
 
     @Override
     public void onScan(Entity source, @Nullable EntityLivingBase owner, EntityLivingBase target, SkillData skillData) {
-        ModEffects.BLEEDING.set(target, skillData);
+        if(!target.world.isRemote) {
+            ModEffects.BLEEDING.set(target, skillData);
+        }
     }
     //* Entity *//
 
