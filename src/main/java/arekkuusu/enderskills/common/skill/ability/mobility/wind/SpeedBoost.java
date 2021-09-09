@@ -140,7 +140,7 @@ public class SpeedBoost extends BaseAbility implements ISkillAdvancement {
     }
 
     public float getSpeed(AbilityInfo info) {
-        return (float) this.config.get(this, "RANGE", info.getLevel());
+        return (float) this.config.get(this, "SPEED", info.getLevel());
     }
 
     public int getCooldown(AbilityInfo info) {
@@ -148,7 +148,7 @@ public class SpeedBoost extends BaseAbility implements ISkillAdvancement {
     }
 
     public int getTime(AbilityInfo info) {
-        return (int) this.config.get(this, "STUN", info.getLevel());
+        return (int) this.config.get(this, "DURATION", info.getLevel());
     }
 
     /*Advancement Section*/
@@ -255,6 +255,29 @@ public class SpeedBoost extends BaseAbility implements ISkillAdvancement {
                     "⠀        curve: ramp 50% 50%",
                     "⠀        start: {0 to 25}",
                     "⠀        end: 85s",
+                    "⠀    ]",
+                    "⠀",
+                    "⠀    {50} [",
+                    "⠀        curve: none",
+                    "⠀        value: {end}",
+                    "⠀    ]",
+                    "⠀)",
+                    "⠀#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~",
+                    "⠀DURATION (",
+                    "⠀    curve: flat",
+                    "⠀    start: 12s",
+                    "⠀    end:   30s",
+                    "⠀",
+                    "⠀    {0 to 25} [",
+                    "⠀        curve: ramp -50% 50%",
+                    "⠀        start: {start}",
+                    "⠀        end: 16s",
+                    "⠀    ]",
+                    "⠀",
+                    "⠀    {25 to 49} [",
+                    "⠀        curve: ramp 50% 50%",
+                    "⠀        start: {0 to 25}",
+                    "⠀        end: 20s",
                     "⠀    ]",
                     "⠀",
                     "⠀    {50} [",

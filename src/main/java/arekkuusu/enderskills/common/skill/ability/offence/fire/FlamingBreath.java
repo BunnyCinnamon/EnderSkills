@@ -90,7 +90,9 @@ public class FlamingBreath extends BaseAbility implements IScanEntities, IExpand
 
     @Override
     public void onFound(Entity source, @Nullable EntityLivingBase owner, EntityLivingBase target, SkillData skillData) {
-        ModEffects.BURNING.set(target, skillData);
+        if(!target.world.isRemote) {
+            ModEffects.BURNING.set(target, skillData);
+        }
     }
     //* Entity *//
 
