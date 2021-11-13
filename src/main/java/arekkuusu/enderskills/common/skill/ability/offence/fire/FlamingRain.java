@@ -330,7 +330,6 @@ public class FlamingRain extends BaseAbility implements IImpact, ILoopSound, IEx
                     "⠀        curve: none",
                     "⠀        value: {end}",
                     "⠀    ]",
-                    "⠀    ]",
                     "⠀)",
                     "⠀#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~",
                     "⠀DOT (",

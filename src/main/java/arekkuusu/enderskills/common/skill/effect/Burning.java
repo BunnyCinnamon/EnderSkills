@@ -27,7 +27,9 @@ public class Burning extends BaseEffect {
             source.setFireDamage();
             SkillDamageEvent event = new SkillDamageEvent(owner, this, source, damage);
             MinecraftForge.EVENT_BUS.post(event);
-            entity.attackEntityFrom(event.getSource(), (float) (event.getAmount() / data.time));
+            if(event.getAmount() > 0 && event.getAmount() < Double.MAX_VALUE) {
+                entity.attackEntityFrom(event.getSource(), (float) (event.getAmount() / data.time));
+            }
         } else if (entity.world.rand.nextDouble() < 0.5D && ClientProxy.canParticleSpawn()) {
             Vec3d vec = entity.getPositionVector();
             double posX = vec.x + entity.world.rand.nextDouble() - 0.5D;

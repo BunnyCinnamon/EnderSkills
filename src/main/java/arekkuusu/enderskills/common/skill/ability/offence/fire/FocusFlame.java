@@ -128,7 +128,9 @@ public class FocusFlame extends BaseAbility implements IImpact, ILoopSound, ISca
         source.setExplosion();
         SkillDamageEvent event = new SkillDamageEvent(owner, this, source, damage);
         MinecraftForge.EVENT_BUS.post(event);
-        entity.attackEntityFrom(event.getSource(), event.toFloat());
+        if(event.getAmount() > 0 && event.getAmount() < Double.MAX_VALUE) {
+            entity.attackEntityFrom(event.getSource(), event.toFloat());
+        }
     }
 
     public int getMaxLevel() {

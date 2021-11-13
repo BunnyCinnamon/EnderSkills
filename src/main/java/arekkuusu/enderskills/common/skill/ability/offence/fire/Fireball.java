@@ -119,11 +119,13 @@ public class Fireball extends BaseAbility implements IImpact, IScanEntities, IEx
 
     @Override
     public void onFound(Entity source, @Nullable EntityLivingBase owner, EntityLivingBase target, SkillData skillData) {
-        ModEffects.BURNING.set(target, skillData);
-        apply(target, skillData);
+        if(!target.world.isRemote) {
+            ModEffects.BURNING.set(target, skillData);
+            apply(target, skillData);
 
-        if (source.world instanceof WorldServer) {
-            ((WorldServer) source.world).playSound(null, source.posX, source.posY, source.posZ, ModSounds.FIRE_HIT, SoundCategory.PLAYERS, 1.0F, (1.0F + (source.world.rand.nextFloat() - source.world.rand.nextFloat()) * 0.2F) * 0.7F);
+            if (source.world instanceof WorldServer) {
+                ((WorldServer) source.world).playSound(null, source.posX, source.posY, source.posZ, ModSounds.FIRE_HIT, SoundCategory.PLAYERS, 1.0F, (1.0F + (source.world.rand.nextFloat() - source.world.rand.nextFloat()) * 0.2F) * 0.7F);
+            }
         }
     }
     //* Entity *//
@@ -137,7 +139,9 @@ public class Fireball extends BaseAbility implements IImpact, IScanEntities, IEx
         source.setExplosion();
         SkillDamageEvent event = new SkillDamageEvent(owner, this, source, damage);
         MinecraftForge.EVENT_BUS.post(event);
-        entity.attackEntityFrom(event.getSource(), event.toFloat());
+        if(event.getAmount() > 0 && event.getAmount() < Double.MAX_VALUE) {
+            entity.attackEntityFrom(event.getSource(), event.toFloat());
+        }
     }
 
     public int getMaxLevel() {

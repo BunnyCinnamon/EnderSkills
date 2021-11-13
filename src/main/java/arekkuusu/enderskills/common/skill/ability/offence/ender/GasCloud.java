@@ -149,7 +149,9 @@ public class GasCloud extends BaseAbility implements IImpact, IExpand, IFindEnti
         double damage = data.nbt.getDouble("damage");
         SkillDamageEvent event = new SkillDamageEvent(owner, this, damageSource, damage);
         MinecraftForge.EVENT_BUS.post(event);
-        entity.attackEntityFrom(event.getSource(), event.toFloat());
+        if(event.getAmount() > 0 && event.getAmount() < Double.MAX_VALUE) {
+            entity.attackEntityFrom(event.getSource(), event.toFloat());
+        }
     }
 
     public int getMaxLevel() {

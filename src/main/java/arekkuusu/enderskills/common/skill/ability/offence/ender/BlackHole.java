@@ -109,7 +109,9 @@ public class BlackHole extends BaseAbility implements IImpact, ISkillAdvancement
         source.setExplosion();
         SkillDamageEvent event = new SkillDamageEvent(owner, ModAbilities.BLACK_HOLE, source, damage);
         MinecraftForge.EVENT_BUS.post(event);
-        entity.attackEntityFrom(event.getSource(), event.toFloat());
+        if(event.toFloat() > 0 && event.toFloat() < Double.MAX_VALUE) {
+            entity.attackEntityFrom(event.getSource(), event.toFloat());
+        }
     }
 
     public int getMaxLevel() {

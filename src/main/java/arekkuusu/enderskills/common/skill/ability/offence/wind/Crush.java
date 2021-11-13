@@ -100,7 +100,9 @@ public class Crush extends BaseAbility implements IImpact, ISkillAdvancement {
         SkillDamageSource damageSource = new SkillDamageSource(DAMAGE_HIT_TYPE, owner);
         SkillDamageEvent event = new SkillDamageEvent(owner, ModAbilities.CRUSH, damageSource, damage);
         MinecraftForge.EVENT_BUS.post(event);
-        entity.attackEntityFrom(event.getSource(), event.toFloat());
+        if(event.getAmount() > 0 && event.getAmount() < Double.MAX_VALUE) {
+            entity.attackEntityFrom(event.getSource(), event.toFloat());
+        }
     }
 
     public int getMaxLevel() {
