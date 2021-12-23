@@ -19,6 +19,8 @@ public final class ClientConfig {
             public boolean renderUnowned = false;
             public boolean renderOverlay = true;
             public boolean renderControls = true;
+            public boolean renderTitle = true;
+            public boolean renderDenominator = true;
             public double scale = 1D;
             public int posX = 5;
             public int posY = 50;
@@ -29,6 +31,7 @@ public final class ClientConfig {
 
         public static class Endurance {
             public boolean renderOverlay = true;
+            public boolean renderTitle = true;
             public double scale = 1D;
             public int size = 182;
             public int posX = 5;
