@@ -162,7 +162,8 @@ public class Events {
                     drawTexturedRectangle(x, (display.size() * step) + y + 2, 0, 27, size * 2, 5, 32, 5, 64);
                 }
                 //Skill group title
-                renderText(TextHelper.translate("skill_group.title"), x, y - 2, 0.5D, 0xFFFFFF);
+                if (ClientConfig.RENDER_CONFIG.endurance.renderTitle) //Config toggle for skill_group.title
+                { renderText(TextHelper.translate("skill_group.title"), x, y - 2, 0.5D, 0xFFFFFF); }
                 GlStateManager.scale(mSize, mSize, mSize);
                 GlStateManager.popMatrix();
                 x = posX + 4;
@@ -206,7 +207,10 @@ public class Events {
                         renderText(control, x, y + 14, 0.3D, hasCool ? 0x8C605D : 8453920);
                     }
                     if (hasCool && info != null) {
-                        renderText(TextHelper.translate("cooldown.timer", cool), x + 1, y + 1, 0.5D, 0xFFFFFF);
+                        if (ClientConfig.RENDER_CONFIG.skillGroup.renderDenominator)
+                        { renderText(TextHelper.translate("cooldown.timer", cool), x + 1, y + 1, 0.5D, 0xFFFFFF); }
+                        else
+                        { renderText(TextHelper.translate("cooldown.timer.noDenominator", cool), x + 1, y + 1, 0.5D, 0xFFFFFF); }
                     }
                     GlStateManager.scale(mSize, mSize, mSize);
                     GlStateManager.popMatrix();
@@ -331,11 +335,13 @@ public class Events {
             }
             //Endurance title
             if (horizontal) {
-                renderText(TextHelper.translate("endurance.title", (int) endurance, (int) enduranceMax), x - 4, y - 5, 0.5D, 0xFFFFFF);
+                if (ClientConfig.RENDER_CONFIG.endurance.renderTitle) //config toggle for endurance.title
+                { renderText(TextHelper.translate("endurance.title", (int) endurance, (int) enduranceMax), x - 4, y - 5, 0.5D, 0xFFFFFF); }
                 String text = TextHelper.translate("endurance.amount", (int) endurance, (int) enduranceMax);
                 renderText(text, x - mc.fontRenderer.getStringWidth(text) / 2 + width / 2, y, 0.8D, 0xFFFFFF);
             } else {
-                renderText(TextHelper.translate("endurance.title", (int) endurance, (int) enduranceMax), x - 4, y - 5, 0.5D, 0xFFFFFF);
+                if (ClientConfig.RENDER_CONFIG.endurance.renderTitle) //config toggle for endurance.title
+                { renderText(TextHelper.translate("endurance.title", (int) endurance, (int) enduranceMax), x - 4, y - 5, 0.5D, 0xFFFFFF); }
                 String text = TextHelper.translate("endurance.amount", (int) endurance, (int) enduranceMax);
                 renderText(text, x, y - mc.fontRenderer.FONT_HEIGHT / 2 + width / 2, 0.8D, 0xFFFFFF);
             }

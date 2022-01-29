@@ -140,6 +140,7 @@ ui.enderskills.gui.advancement.requires_xp=\n- %s XP.
 ui.enderskills.gui.advancement.undone_warning=\n\n§4This action cannot be undone.§r
 
 ui.enderskills.cooldown.timer=%1$ss
+ui.enderskills.cooldown.timer.noDenominator=%1$s
 ui.enderskills.endurance.title=Endurance
 ui.enderskills.endurance.amount=%s
 ui.enderskills.skill_group.title=Abilities

@@ -132,6 +132,7 @@ ui.enderskills.gui.advancement.requires_xp=\n- %s XP.
 ui.enderskills.gui.advancement.undone_warning=\n\n§4Это действие нельзя отменить.§r
 
 ui.enderskills.cooldown.timer=%1$ss
+ui.enderskills.cooldown.timer.noDenominator=%1$s
 ui.enderskills.endurance.title=Выносливость
 ui.enderskills.endurance.amount=%s
 ui.enderskills.skill_group.title=Навыки
