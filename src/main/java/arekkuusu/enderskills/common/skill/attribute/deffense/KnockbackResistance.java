@@ -83,7 +83,7 @@ public class KnockbackResistance extends BaseAttribute implements ISkillAdvancem
                         } else {
                             description.add(TextHelper.translate("desc.stats.level_current", attributeInfo.getLevel(), attributeInfo.getLevel() + 1));
                         }
-                        description.add(TextHelper.translate("desc.stats.reduction", TextHelper.format2FloatPoint(getModifier(attributeInfo) / 100), TextHelper.getTextComponent("desc.stats.suffix_percentage")));
+                        description.add(TextHelper.translate("desc.stats.reduction", TextHelper.format2FloatPoint(getModifier(attributeInfo) * 100), TextHelper.getTextComponent("desc.stats.suffix_percentage")));
                         if (attributeInfo.getLevel() < getMaxLevel()) {
                             if (!GuiScreen.isCtrlKeyDown()) {
                                 description.add("");
@@ -93,7 +93,7 @@ public class KnockbackResistance extends BaseAttribute implements ISkillAdvancem
                             infoNew.setLevel(infoNew.getLevel() + 1);
                             description.add("");
                             description.add(TextHelper.translate("desc.stats.level_next", attributeInfo.getLevel(), infoNew.getLevel()));
-                            description.add(TextHelper.translate("desc.stats.reduction", TextHelper.format2FloatPoint(getModifier(infoNew) / 100), TextHelper.getTextComponent("desc.stats.suffix_percentage")));
+                            description.add(TextHelper.translate("desc.stats.reduction", TextHelper.format2FloatPoint(getModifier(infoNew) * 100), TextHelper.getTextComponent("desc.stats.suffix_percentage")));
                             }
                         }
                     });
