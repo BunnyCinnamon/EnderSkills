@@ -42,6 +42,9 @@ public final class ModEntities {
         register(registry, EntityPlaceableRingOfFire.class, LibNames.RING_OF_FIRE, false);
         //Electric
         register(registry, EntityVoltaicSentinel.class, LibNames.VOLTAIC_SENTINEL, true);
+        //Light
+        register(registry, EntityPlaceableLumenWave.class, LibNames.LUMEN_WAVE, true);
+        register(registry, EntityPlaceableGleamFlash.class, LibNames.GLEAM_FLASH, false);
     }
 
     private static void register(IForgeRegistry<EntityEntry> registry, Class<? extends Entity> clazz, String name, boolean update) {

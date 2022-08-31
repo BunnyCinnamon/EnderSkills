@@ -1711,6 +1711,171 @@ public final class GuiHandler implements IGuiHandler {
                         fire.addAdvancement(damage, attack_speed, knockback);
                         fire.addAdvancement(ability_power, critical_chance, armor_penetration);
                     }
+                    GuiSkillAdvancementPage light = offense.addPage(new TextComponentTranslation(get("page.light.title")));
+                    SkillAdvancementConditionSimple radiant_ray = new SkillAdvancementConditionSimple(
+                            new SkillAdvancementInfo(
+                                    new TextComponentTranslation(get("skill.radiant_ray.title")),
+                                    new TextComponentTranslation(get("skill.radiant_ray.description")),
+                                    SkillAdvancementInfo.Frame.NORMAL,
+                                    ModAbilities.RADIANT_RAY,
+                                    false
+                            ),
+                            0, 1
+                    );
+                    {
+                        //Attribute
+                        SkillAdvancementConditionAttribute damage = new SkillAdvancementConditionAttribute(
+                                new SkillAdvancementInfo(
+                                        new TextComponentTranslation(get("skill.damage.title")),
+                                        new TextComponentTranslation(get("skill.damage.description")),
+                                        SkillAdvancementInfo.Frame.NORMAL,
+                                        ModAttributes.DAMAGE,
+                                        false
+                                ),
+                                0, 5
+                        );
+                        SkillAdvancementConditionAttribute attack_speed = new SkillAdvancementConditionAttribute(
+                                new SkillAdvancementInfo(
+                                        new TextComponentTranslation(get("skill.attack_speed.title")),
+                                        new TextComponentTranslation(get("skill.attack_speed.description")),
+                                        SkillAdvancementInfo.Frame.NORMAL,
+                                        ModAttributes.ATTACK_SPEED,
+                                        false
+                                ),
+                                0, 6
+                        );
+                        SkillAdvancementConditionAttribute knockback = new SkillAdvancementConditionAttribute(
+                                new SkillAdvancementInfo(
+                                        new TextComponentTranslation(get("skill.knockback.title")),
+                                        new TextComponentTranslation(get("skill.knockback.description")),
+                                        SkillAdvancementInfo.Frame.NORMAL,
+                                        ModAttributes.KNOCKBACK,
+                                        false
+                                ),
+                                0, 7
+                        );
+                        SkillAdvancementConditionAttribute ability_power = new SkillAdvancementConditionAttribute(
+                                new SkillAdvancementInfo(
+                                        new TextComponentTranslation(get("skill.ability_power.title")),
+                                        new TextComponentTranslation(get("skill.ability_power.description")),
+                                        SkillAdvancementInfo.Frame.NORMAL,
+                                        ModAttributes.ABILITY_POWER,
+                                        false
+                                ),
+                                2, 5
+                        );
+                        SkillAdvancementConditionAttribute critical_chance = new SkillAdvancementConditionAttribute(
+                                new SkillAdvancementInfo(
+                                        new TextComponentTranslation(get("skill.critical_chance.title")),
+                                        new TextComponentTranslation(get("skill.critical_chance.description")),
+                                        SkillAdvancementInfo.Frame.NORMAL,
+                                        ModAttributes.CRITICAL_CHANCE,
+                                        false
+                                ),
+                                2, 6
+                        );
+                        SkillAdvancementConditionAttribute armor_penetration = new SkillAdvancementConditionAttribute(
+                                new SkillAdvancementInfo(
+                                        new TextComponentTranslation(get("skill.armor_penetration.title")),
+                                        new TextComponentTranslation(get("skill.armor_penetration.description")),
+                                        SkillAdvancementInfo.Frame.NORMAL,
+                                        ModAttributes.ARMOR_PENETRATION,
+                                        false
+                                ),
+                                2, 7
+                        );
+                        //Ability
+                        SkillAdvancementConditionSimple lumen_wave = new SkillAdvancementConditionSimple(
+                                new SkillAdvancementInfo(
+                                        new TextComponentTranslation(get("skill.lumen_wave.title")),
+                                        new TextComponentTranslation(get("skill.lumen_wave.description")),
+                                        SkillAdvancementInfo.Frame.ROUNDED,
+                                        ModAbilities.LUMEN_WAVE,
+                                        false
+                                ),
+                                2, 0
+                        );
+                        SkillAdvancementConditionSimple gleam_flash = new SkillAdvancementConditionSimple(
+                                new SkillAdvancementInfo(
+                                        new TextComponentTranslation(get("skill.gleam_flash.title")),
+                                        new TextComponentTranslation(get("skill.gleam_flash.description")),
+                                        SkillAdvancementInfo.Frame.ROUNDED,
+                                        ModAbilities.GLEAM_FLASH,
+                                        false
+                                ),
+                                2, 2
+                        );
+                        SkillAdvancementConditionSimple solar_lance = new SkillAdvancementConditionSimple(
+                                new SkillAdvancementInfo(
+                                        new TextComponentTranslation(get("skill.solar_lance.title")),
+                                        new TextComponentTranslation(get("skill.solar_lance.description")),
+                                        SkillAdvancementInfo.Frame.ROUNDED,
+                                        ModAbilities.SOLAR_LANCE,
+                                        false
+                                ),
+                                4, 0
+                        );
+                        SkillAdvancementConditionSimple brown_out = new SkillAdvancementConditionSimple(
+                                new SkillAdvancementInfo(
+                                        new TextComponentTranslation(get("skill.brown_out.title")),
+                                        new TextComponentTranslation(get("skill.brown_out.description")),
+                                        SkillAdvancementInfo.Frame.ROUNDED,
+                                        ModAbilities.BARRAGE_WISP,
+                                        false
+                                ),
+                                4, 2
+                        );
+                        SkillAdvancementConditionSimple superstar = new SkillAdvancementConditionSimple(
+                                new SkillAdvancementInfo(
+                                        new TextComponentTranslation(get("skill.superstar.title")),
+                                        new TextComponentTranslation(get("skill.superstar.description")),
+                                        SkillAdvancementInfo.Frame.SPECIAL,
+                                        ModAbilities.FINAL_FLASH,
+                                        false
+                                ),
+                                6, 1
+                        );
+
+                        //Requirements
+                        lumen_wave.addCondition(radiant_ray);
+                        lumen_wave.addCondition(new SkillAdvancementConditionNotOrOverride(gleam_flash, superstar));
+                        gleam_flash.addCondition(fire_spirit);
+                        gleam_flash.addCondition(new SkillAdvancementConditionNotOrOverride(lumen_wave, superstar));
+                        solar_lance.addCondition(new SkillAdvancementConditionOr(lumen_wave, gleam_flash));
+                        solar_lance.addCondition(new SkillAdvancementConditionNotOrOverride(brown_out, superstar));
+                        solar_lance.addCondition(new SkillAdvancementConditionWhenOverrideOrUpgraded(solar_lance, superstar, lumen_wave, gleam_flash));
+                        brown_out.addCondition(new SkillAdvancementConditionOr(lumen_wave, gleam_flash));
+                        brown_out.addCondition(new SkillAdvancementConditionNotOrOverride(solar_lance, superstar));
+                        brown_out.addCondition(new SkillAdvancementConditionWhenOverrideOrUpgraded(brown_out, superstar, lumen_wave, gleam_flash));
+                        superstar.addCondition(new SkillAdvancementConditionOr(brown_out, solar_lance));
+
+                        damage.addCondition(radiant_ray);
+                        attack_speed.addCondition(radiant_ray);
+                        knockback.addCondition(radiant_ray);
+                        ability_power.addCondition(new SkillAdvancementConditionOr(lumen_wave, gleam_flash));
+                        critical_chance.addCondition(new SkillAdvancementConditionOr(lumen_wave, gleam_flash));
+                        armor_penetration.addCondition(new SkillAdvancementConditionOr(lumen_wave, gleam_flash));
+                        //Altar Requirements
+                        ability_power.addCondition(new SkillAdvancementConditionAltar(SkillAdvancementConditionAltar.LEVEL_1));
+                        critical_chance.addCondition(new SkillAdvancementConditionAltar(SkillAdvancementConditionAltar.LEVEL_1));
+                        armor_penetration.addCondition(new SkillAdvancementConditionAltar(SkillAdvancementConditionAltar.LEVEL_1));
+                        radiant_ray.addCondition(new SkillAdvancementConditionAltar(SkillAdvancementConditionAltar.LEVEL_0));
+                        lumen_wave.addCondition(new SkillAdvancementConditionAltar(SkillAdvancementConditionAltar.LEVEL_1));
+                        gleam_flash.addCondition(new SkillAdvancementConditionAltar(SkillAdvancementConditionAltar.LEVEL_1));
+                        solar_lance.addCondition(new SkillAdvancementConditionAltar(SkillAdvancementConditionAltar.LEVEL_2));
+                        brown_out.addCondition(new SkillAdvancementConditionAltar(SkillAdvancementConditionAltar.LEVEL_2));
+                        superstar.addCondition(new SkillAdvancementConditionAltarUltimate());
+                        //GUI
+                        GuiSkillAdvancement gui0 = light.addAdvancement(radiant_ray);
+                        GuiSkillAdvancement gui1 = light.addAdvancement(lumen_wave, gleam_flash);
+                        GuiSkillAdvancement gui2 = light.addAdvancement(solar_lance, brown_out);
+                        GuiSkillAdvancement gui3 = light.addAdvancement(superstar);
+                        gui0.addChildren(gui1);
+                        gui1.addChildren(gui2);
+                        gui2.addChildren(gui3);
+                        light.addAdvancement(damage, attack_speed, knockback);
+                        light.addAdvancement(ability_power, critical_chance, armor_penetration);
+                    }
 
                     if (CommonConfig.getSyncValues().advancement.oneTreePerClass) {
                         shadow.addCondition(new SkillAdvancementConditionNot(bleed));

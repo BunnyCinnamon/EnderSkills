@@ -29,6 +29,12 @@ public class LibNames {
     public static final String HEAL_OTHER = "heal_other";
     public static final String HEAL_SELF = "heal_self";
     public static final String NEARBY_INVINCIBILITY = "nearby_invincibility";
+    public static final String RADIANT_RAY = "radiant_ray";
+    public static final String LUMEN_WAVE = "lumen_wave";
+    public static final String GLEAM_FLASH = "gleam_flash";
+    public static final String SOLAR_LANCE = "solar_lance";
+    public static final String BARRAGE_WISP = "barrage_wisp";
+    public static final String FINAL_FLASH = "final_flash";
     //Earth
     public static final String TAUNT = "taunt";
     public static final String WALL = "wall";
@@ -104,6 +110,7 @@ public class LibNames {
     public static final String BLINDED = "blinded";
     public static final String PULSAR = "pulsar";
     public static final String DROWNED = "drowned";
+    public static final String GLOWING = "glowing";
     //Misc
     public static final String BOOK = "book";
     public static final String ALTAR = "altar";
@@ -148,6 +155,7 @@ public class LibNames {
     public static final String VOID_MOBILITY_CONFIG = LibNames.ABILITY_MOBILITY_FOLDER + LibNames.VOID;
     public static final String WIND_MOBILITY_CONFIG = LibNames.ABILITY_MOBILITY_FOLDER + LibNames.WIND;
     public static final String FIRE_OFFENCE_CONFIG = LibNames.ABILITY_OFFENCE_FOLDER + LibNames.FIRE;
+    public static final String LIGHT_OFFENCE_CONFIG = LibNames.ABILITY_OFFENCE_FOLDER + LibNames.LIGHT;
     public static final String VOID_OFFENCE_CONFIG = LibNames.ABILITY_OFFENCE_FOLDER + LibNames.VOID;
     public static final String WIND_OFFENCE_CONFIG = LibNames.ABILITY_OFFENCE_FOLDER + LibNames.WIND;
     public static final String BLOOD_OFFENCE_CONFIG = LibNames.ABILITY_OFFENCE_FOLDER + LibNames.BLOOD;

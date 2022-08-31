@@ -172,7 +172,7 @@ public class Endurance extends BaseAttribute implements ISkillAdvancement {
 
     public int getEnduranceDrain(Skill skill) {
         String skillRegistryName = Objects.requireNonNull(skill.getRegistryName()).toString();
-        return Configuration.CONFIG_SYNC.enduranceMap.get(skillRegistryName);
+        return Configuration.CONFIG_SYNC.enduranceMap.getOrDefault(skillRegistryName, 0);
     }
 
     public int getMaxLevel() {
@@ -348,6 +348,13 @@ public class Endurance extends BaseAttribute implements ISkillAdvancement {
                     .put(LibMod.MOD_ID + ":" + LibNames.FOCUS_FLAME, 16)
                     .put(LibMod.MOD_ID + ":" + LibNames.FIREBALL, 16)
                     .put(LibMod.MOD_ID + ":" + LibNames.EXPLODE, 20)
+                    //Offense-Light
+                    .put(LibMod.MOD_ID + ":" + LibNames.RADIANT_RAY, 1)
+                    .put(LibMod.MOD_ID + ":" + LibNames.LUMEN_WAVE, 8)
+                    .put(LibMod.MOD_ID + ":" + LibNames.GLEAM_FLASH, 10)
+                    .put(LibMod.MOD_ID + ":" + LibNames.SOLAR_LANCE, 16)
+                    .put(LibMod.MOD_ID + ":" + LibNames.BARRAGE_WISP, 16)
+                    .put(LibMod.MOD_ID + ":" + LibNames.FINAL_FLASH, 20)
                     .build()
             );
 

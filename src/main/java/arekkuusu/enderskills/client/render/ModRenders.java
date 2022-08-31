@@ -20,6 +20,9 @@ import arekkuusu.enderskills.common.skill.ability.mobility.wind.*;
 import arekkuusu.enderskills.common.skill.ability.offence.blood.*;
 import arekkuusu.enderskills.common.skill.ability.offence.ender.*;
 import arekkuusu.enderskills.common.skill.ability.offence.fire.*;
+import arekkuusu.enderskills.common.skill.ability.offence.light.GleamFlash;
+import arekkuusu.enderskills.common.skill.ability.offence.light.LumenWave;
+import arekkuusu.enderskills.common.skill.ability.offence.light.RadiantRay;
 import arekkuusu.enderskills.common.skill.ability.offence.wind.*;
 import arekkuusu.enderskills.common.skill.effect.*;
 import net.minecraft.client.Minecraft;
@@ -56,6 +59,8 @@ public final class ModRenders {
         registerEntity(EntityVoltaicSentinel.class, VoltaicSentinelRender::new);
         registerEntity(EntityPlaceableRingOfFire.class, RingOfFireRenderer.Placeable::new);
         registerEntity(EntityPlaceableSlash.class, SlashRenderer.Placeable::new);
+        registerEntity(EntityPlaceableLumenWave.class, LumenWaveRenderer.Placeable::new);
+        registerEntity(EntityPlaceableGleamFlash.class, GleamFlashRenderer.Placeable::new);
     }
 
     public static void init() {
@@ -115,7 +120,11 @@ public final class ModRenders {
         registerSkill(BlazingAura.class, new BlazingAuraRenderer());
         registerSkill(Overheat.class, new OverheatRenderer());
         registerSkill(HomeStar.class, new HomeStarRenderer());
+        registerSkill(RadiantRay.class, new RadiantRayRenderer());
+        registerSkill(LumenWave.class, new LumenWaveRenderer());
+        registerSkill(GleamFlash.class, new GleamFlashRenderer());
         //Effects
+        registerSkill(Glowing.class, new GlowingRenderer());
         registerSkill(Bleeding.class, new BleedingRenderer());
         registerSkill(Blinded.class, new BlindedRenderer());
         registerSkill(Burning.class, new BurningRenderer());

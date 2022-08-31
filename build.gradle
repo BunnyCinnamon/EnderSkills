@@ -77,9 +77,3 @@ reobf {
 artifacts {
     archives shadowJar
 }
-
-sourceSets {
-    main {
-        output.resourcesDir = output.classesDir
-    }
-}
