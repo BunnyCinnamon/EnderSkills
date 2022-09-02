@@ -61,6 +61,7 @@ public final class ModRenders {
         registerEntity(EntityPlaceableSlash.class, SlashRenderer.Placeable::new);
         registerEntity(EntityPlaceableLumenWave.class, LumenWaveRenderer.Placeable::new);
         registerEntity(EntityPlaceableGleamFlash.class, GleamFlashRenderer.Placeable::new);
+        registerEntity(EntitySolarLance.class, SolarLanceRenderer.Placeable::new);
     }
 
     public static void init() {

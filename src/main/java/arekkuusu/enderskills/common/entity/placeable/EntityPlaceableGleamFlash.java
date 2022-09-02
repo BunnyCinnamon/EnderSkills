@@ -6,8 +6,10 @@ import arekkuusu.enderskills.common.skill.SkillHelper;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.MoverType;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
 import javax.annotation.Nullable;
@@ -29,6 +31,23 @@ public class EntityPlaceableGleamFlash extends EntityPlaceableData {
         if (tickDelay > getData().nbt.getInteger("delay")) {
             super.onUpdate();
         } else {
+            if (world.isRemote) {
+                Vec3d pos = getPositionVector();
+                double particlespeed = 0.15;
+                Vec3d particlePos = new Vec3d(0, 0, 0.1);
+                particlePos = particlePos.rotateYaw(rand.nextFloat() * 180f);
+                particlePos = particlePos.rotatePitch(rand.nextFloat() * 360f);
+
+                Vec3d velocity = particlePos.normalize();
+                velocity = new Vec3d(
+                        velocity.x * particlespeed,
+                        velocity.y * particlespeed,
+                        velocity.z * particlespeed
+                );
+                particlePos = particlePos.add(pos);
+
+                world.spawnParticle(EnumParticleTypes.END_ROD, particlePos.x, particlePos.y, particlePos.z, velocity.x, velocity.y, velocity.z);
+            }
             this.tickDelay++;
         }
     }

@@ -45,6 +45,7 @@ public final class ModEntities {
         //Light
         register(registry, EntityPlaceableLumenWave.class, LibNames.LUMEN_WAVE, true);
         register(registry, EntityPlaceableGleamFlash.class, LibNames.GLEAM_FLASH, false);
+        register(registry, EntitySolarLance.class, LibNames.SOLAR_LANCE, true);
     }
 
     private static void register(IForgeRegistry<EntityEntry> registry, Class<? extends Entity> clazz, String name, boolean update) {

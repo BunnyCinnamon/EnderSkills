@@ -10,6 +10,7 @@ public class ShaderLibrary {
     public static final ShaderResource BLEED = ShaderManager.load("bleed", "bleed");
     public static final ShaderResource UNIVERSE = ShaderManager.load("universe", "universe");
     public static final ShaderResource UNIVERSE_DEFAULT = ShaderManager.load("universe_default", "universe_default");
+    public static final ShaderResource UNIVERSE_DEFAULT_WHITE = ShaderManager.load("universe_default", "universe_default_white");
 
     public static void init() {
     }

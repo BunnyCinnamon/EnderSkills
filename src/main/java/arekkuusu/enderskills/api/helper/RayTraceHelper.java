@@ -1,5 +1,6 @@
 package arekkuusu.enderskills.api.helper;
 
+import arekkuusu.enderskills.api.util.Vector;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import com.google.common.collect.Lists;
@@ -196,6 +197,51 @@ public final class RayTraceHelper {
             if (entity != null) {
                 raytraceresult = new RayTraceResult(entity);
             }
+        }
+
+        return raytraceresult;
+    }
+
+    public static RayTraceResult forwardsRaycastWeirdPogchamp(Entity projectile, double distance, boolean ignoreExcludedEntity, Entity excludedEntity) {
+        double d0 = projectile.posX;
+        double d1 = projectile.posY;
+        double d2 = projectile.posZ;
+        Vector vector = new Vector(projectile.motionX, projectile.motionY, projectile.motionZ);
+        Vector aaaa = vector.normalize().multiply(distance).add(vector);
+        double d3 = aaaa.x;
+        double d4 = aaaa.y;
+        double d5 = aaaa.z;
+        World world = projectile.world;
+        Vec3d vec3d = new Vec3d(d0, d1, d2);
+        Vec3d vec3d1 = new Vec3d(d0 + d3, d1 + d4, d2 + d5);
+        RayTraceResult raytraceresult = world.rayTraceBlocks(vec3d, vec3d1, false, true, false);
+
+        if (raytraceresult != null) {
+            vec3d1 = new Vec3d(raytraceresult.hitVec.x, raytraceresult.hitVec.y, raytraceresult.hitVec.z);
+        }
+
+        Entity entity = null;
+        List<Entity> list = world.getEntitiesInAABBexcluding(projectile, projectile.getEntityBoundingBox().expand(d3, d4, d5).grow(1.0D), Predicates.and(TeamHelper.NOT_CREATIVE, e -> e != excludedEntity));
+        double d6 = 0.0D;
+
+        for (Entity entity1 : list) {
+            if (entity1.canBeCollidedWith() && (ignoreExcludedEntity || !entity1.isEntityEqual(excludedEntity)) && !entity1.noClip) {
+                AxisAlignedBB axisalignedbb = entity1.getEntityBoundingBox().grow(0.30000001192092896D);
+                RayTraceResult raytraceresult1 = axisalignedbb.calculateIntercept(vec3d, vec3d1);
+
+                if (raytraceresult1 != null) {
+                    double d7 = vec3d.squareDistanceTo(raytraceresult1.hitVec);
+
+                    if (d7 < d6 || d6 == 0.0D) {
+                        entity = entity1;
+                        d6 = d7;
+                    }
+                }
+            }
+        }
+
+        if (entity != null) {
+            raytraceresult = new RayTraceResult(entity);
         }
 
         return raytraceresult;

@@ -1,7 +1,6 @@
 package arekkuusu.enderskills.client.render.skill;
 
 import arekkuusu.enderskills.client.ClientConfig;
-import arekkuusu.enderskills.client.render.entity.EntityPlaceableDataRenderer;
 import arekkuusu.enderskills.client.render.entity.EntityThrowableDataRenderer;
 import arekkuusu.enderskills.client.util.ShaderLibrary;
 import arekkuusu.enderskills.client.util.helper.GLHelper;
@@ -9,6 +8,8 @@ import arekkuusu.enderskills.common.entity.placeable.EntityPlaceableData;
 import arekkuusu.enderskills.common.entity.placeable.EntityPlaceableGleamFlash;
 import arekkuusu.enderskills.common.lib.LibMod;
 import arekkuusu.enderskills.common.skill.ModAbilities;
+import arekkuusu.enderskills.common.skill.ModEffects;
+import arekkuusu.enderskills.common.skill.SkillHelper;
 import arekkuusu.enderskills.common.skill.ability.offence.light.GleamFlash;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
@@ -18,6 +19,9 @@ import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.MinecraftForgeClient;
+import net.minecraftforge.client.event.EntityViewRenderEvent;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.opengl.GL11;
@@ -31,6 +35,20 @@ public class GleamFlashRenderer extends SkillRenderer<GleamFlash> {
 
     public GleamFlashRenderer() {
         EntityThrowableDataRenderer.add(ModAbilities.GLEAM_FLASH, ProjectileLightRenderer::new);
+        MinecraftForge.EVENT_BUS.register(new FogRenderer.Events());
+    }
+
+    @SideOnly(Side.CLIENT)
+    public static class Events {
+
+        @SubscribeEvent
+        public void onFogDensityRender(EntityViewRenderEvent.FogDensity event) {
+            if (!SkillHelper.isActive(event.getEntity(), ModEffects.BLINDED) && SkillHelper.isActive(event.getEntity(), ModAbilities.GLEAM_FLASH)) {
+                GlStateManager.setFog(GlStateManager.FogMode.EXP);
+                event.setDensity(1F);
+                event.setCanceled(true);
+            }
+        }
     }
 
     @SideOnly(Side.CLIENT)

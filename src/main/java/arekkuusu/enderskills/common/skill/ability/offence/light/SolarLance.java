@@ -4,14 +4,16 @@ import arekkuusu.enderskills.api.capability.Capabilities;
 import arekkuusu.enderskills.api.capability.data.SkillData;
 import arekkuusu.enderskills.api.capability.data.SkillInfo;
 import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoCooldown;
+import arekkuusu.enderskills.api.event.SkillDamageEvent;
+import arekkuusu.enderskills.api.event.SkillDamageSource;
 import arekkuusu.enderskills.api.helper.NBTHelper;
 import arekkuusu.enderskills.api.helper.TeamHelper;
 import arekkuusu.enderskills.api.registry.Skill;
 import arekkuusu.enderskills.api.util.ConfigDSL;
 import arekkuusu.enderskills.client.gui.data.ISkillAdvancement;
-import arekkuusu.enderskills.client.sounds.FireSpiritSound;
-import arekkuusu.enderskills.client.sounds.FireSpiritSound2;
 import arekkuusu.enderskills.client.util.helper.TextHelper;
+import arekkuusu.enderskills.common.entity.EntitySolarLance;
+import arekkuusu.enderskills.common.entity.throwable.MotionHelper;
 import arekkuusu.enderskills.common.lib.LibMod;
 import arekkuusu.enderskills.common.lib.LibNames;
 import arekkuusu.enderskills.common.network.PacketHelper;
@@ -30,6 +32,7 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.SoundCategory;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Config;
@@ -62,22 +65,25 @@ public class SolarLance extends BaseAbility implements ISkillAdvancement {
                     }
                     double distance = getRange(abilityInfo);
                     double range = getLanceRange(abilityInfo);
-                    double time = getPenis(abilityInfo);
+                    int piercing = getPenis(abilityInfo);
                     double damage = getDamage(abilityInfo);
                     NBTTagCompound compound = new NBTTagCompound();
                     NBTHelper.setEntity(compound, owner, "owner");
                     NBTHelper.setDouble(compound, "damage", damage);
                     NBTHelper.setDouble(compound, "distance", distance);
                     NBTHelper.setDouble(compound, "range", range);
-                    NBTHelper.setDouble(compound, "time", time);
+                    NBTHelper.setDouble(compound, "piercing", piercing);
                     SkillData data = SkillData.of(this)
                             .by(owner)
-                            .with(INDEFINITE)
                             .put(compound)
                             .overrides(SkillData.Overrides.EQUAL)
                             .create();
-                    apply(owner, data);
-                    sync(owner, data);
+                    EntitySolarLance spawn = new EntitySolarLance(owner.world, owner, data, (float) distance);
+                    MotionHelper.forwardMotion(owner, spawn, distance, MathHelper.clamp((int) distance, 10, 40));
+                    spawn.setPosition(owner.posX, owner.posY + owner.getEyeHeight(), owner.posZ);
+                    spawn.setRadius(range);
+                    spawn.penesMaximus = piercing;
+                    owner.world.spawnEntity(spawn);
                     sync(owner);
                 }
             } else {
@@ -90,35 +96,17 @@ public class SolarLance extends BaseAbility implements ISkillAdvancement {
     }
 
     @Override
-    public void begin(EntityLivingBase entity, SkillData data) {
-        if (isClientWorld(entity)) {
-            makeSound(entity);
-        }
-    }
+    public void begin(EntityLivingBase target, SkillData data) {
+        EntityLivingBase owner = SkillHelper.getOwner(data);
+        double damage = NBTHelper.getDouble(data.nbt, "damage");
+        SkillDamageSource damageSource = new SkillDamageSource(BaseAbility.DAMAGE_HIT_TYPE, owner);
+        damageSource.setMagicDamage();
+        SkillDamageEvent event = new SkillDamageEvent(owner, this, damageSource, damage);
+        MinecraftForge.EVENT_BUS.post(event);
+        target.attackEntityFrom(event.getSource(), event.toFloat());
 
-    @SideOnly(Side.CLIENT)
-    public void makeSound(EntityLivingBase entity) {
-        Minecraft.getMinecraft().getSoundHandler().playSound(new FireSpiritSound(entity));
-        Minecraft.getMinecraft().getSoundHandler().playSound(new FireSpiritSound2(entity));
-    }
-
-    @Override
-    public void update(EntityLivingBase owner, SkillData data, int tick) {
-        if (isClientWorld(owner)) return;
-        if (tick % 20 == 0 && (!(owner instanceof EntityPlayer) || !((EntityPlayer) owner).capabilities.isCreativeMode)) {
-            Capabilities.endurance(owner).ifPresent(capability -> {
-                int drain = ModAttributes.ENDURANCE.getEnduranceDrain(this);
-                if (capability.getEndurance() - drain >= 0) {
-                    capability.setEndurance(capability.getEndurance() - drain);
-                    capability.setEnduranceDelay(30);
-                    if (owner instanceof EntityPlayerMP) {
-                        PacketHelper.sendEnduranceSync((EntityPlayerMP) owner);
-                    }
-                } else {
-                    unapply(owner, data);
-                    async(owner, data);
-                }
-            });
+        if (target.world instanceof WorldServer) {
+            ((WorldServer) target.world).playSound(null, target.posX, target.posY, target.posZ, ModSounds.WIND_ON_HIT, SoundCategory.PLAYERS, 1.0F, (1.0F + (target.world.rand.nextFloat() - target.world.rand.nextFloat()) * 0.2F) * 0.7F);
         }
     }
 
@@ -186,8 +174,9 @@ public class SolarLance extends BaseAbility implements ISkillAdvancement {
                             description.add(TextHelper.translate("desc.stats.level_current", abilityInfo.getLevel(), abilityInfo.getLevel() + 1));
                         }
                         description.add(TextHelper.translate("desc.stats.cooldown", TextHelper.format2FloatPoint(getCooldown(abilityInfo) / 20D), TextHelper.getTextComponent("desc.stats.suffix_time")));
-                        description.add(TextHelper.translate("desc.stats.lance_range", TextHelper.format2FloatPoint(getRange(abilityInfo)), TextHelper.getTextComponent("desc.stats.suffix_blocks")));
-                        description.add(TextHelper.translate("desc.stats.range", TextHelper.format2FloatPoint(getLanceRange(abilityInfo)), TextHelper.getTextComponent("desc.stats.suffix_blocks")));
+                        description.add(TextHelper.translate("desc.stats.lance_range", TextHelper.format2FloatPoint(getLanceRange(abilityInfo)), TextHelper.getTextComponent("desc.stats.suffix_blocks")));
+                        description.add(TextHelper.translate("desc.stats.range", TextHelper.format2FloatPoint(getRange(abilityInfo)), TextHelper.getTextComponent("desc.stats.suffix_blocks")));
+                        description.add(TextHelper.translate("desc.stats.piercing", TextHelper.format2FloatPoint(getPenis(abilityInfo)), TextHelper.getTextComponent("desc.stats.suffix_hearts")));
                         description.add(TextHelper.translate("desc.stats.damage", TextHelper.format2FloatPoint(getDamage(abilityInfo) / 2D), TextHelper.getTextComponent("desc.stats.suffix_hearts")));
                         if (abilityInfo.getLevel() < getMaxLevel()) {
                             if (!GuiScreen.isCtrlKeyDown()) {
@@ -199,8 +188,9 @@ public class SolarLance extends BaseAbility implements ISkillAdvancement {
                                 description.add("");
                                 description.add(TextHelper.translate("desc.stats.level_next", abilityInfo.getLevel(), infoNew.getLevel()));
                                 description.add(TextHelper.translate("desc.stats.cooldown", TextHelper.format2FloatPoint(getCooldown(infoNew) / 20D), TextHelper.getTextComponent("desc.stats.suffix_time")));
-                                description.add(TextHelper.translate("desc.stats.lance_range", TextHelper.format2FloatPoint(getRange(infoNew)), TextHelper.getTextComponent("desc.stats.suffix_blocks")));
-                                description.add(TextHelper.translate("desc.stats.range", TextHelper.format2FloatPoint(getLanceRange(infoNew)), TextHelper.getTextComponent("desc.stats.suffix_blocks")));
+                                description.add(TextHelper.translate("desc.stats.lance_range", TextHelper.format2FloatPoint(getLanceRange(infoNew)), TextHelper.getTextComponent("desc.stats.suffix_blocks")));
+                                description.add(TextHelper.translate("desc.stats.range", TextHelper.format2FloatPoint(getRange(infoNew)), TextHelper.getTextComponent("desc.stats.suffix_blocks")));
+                                description.add(TextHelper.translate("desc.stats.piercing", TextHelper.format2FloatPoint(getPenis(infoNew)), TextHelper.getTextComponent("desc.stats.suffix_hearts")));
                                 description.add(TextHelper.translate("desc.stats.damage", TextHelper.format2FloatPoint(getDamage(infoNew) / 2D), TextHelper.getTextComponent("desc.stats.suffix_hearts")));
                             }
                         }
@@ -281,19 +271,19 @@ public class SolarLance extends BaseAbility implements ISkillAdvancement {
                     "⠀#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~",
                     "⠀RANGE (",
                     "⠀    curve: flat",
-                    "⠀    start: 10b",
-                    "⠀    end:   30b",
+                    "⠀    start: 160b",
+                    "⠀    end:   190b",
                     "⠀",
                     "⠀    {0 to 25} [",
                     "⠀        curve: ramp -50% 50%",
                     "⠀        start: {start}",
-                    "⠀        end: 15b",
+                    "⠀        end: 175b",
                     "⠀    ]",
                     "⠀",
                     "⠀    {25 to 49} [",
                     "⠀        curve: ramp 50% 50%",
                     "⠀        start: {0 to 25}",
-                    "⠀        end: 25b",
+                    "⠀        end: 185b",
                     "⠀    ]",
                     "⠀",
                     "⠀    {50} [",
@@ -327,19 +317,19 @@ public class SolarLance extends BaseAbility implements ISkillAdvancement {
                     "⠀#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~",
                     "⠀PIERCING (",
                     "⠀    curve: flat",
-                    "⠀    start: 1",
-                    "⠀    end:   6",
+                    "⠀    start: 6",
+                    "⠀    end:   16",
                     "⠀",
                     "⠀    {0 to 25} [",
                     "⠀        curve: ramp -50% 50%",
                     "⠀        start: {start}",
-                    "⠀        end: 3",
+                    "⠀        end: 13",
                     "⠀    ]",
                     "⠀",
                     "⠀    {25 to 49} [",
                     "⠀        curve: ramp 50% 50%",
                     "⠀        start: {0 to 25}",
-                    "⠀        end: 5",
+                    "⠀        end: 15",
                     "⠀    ]",
                     "⠀",
                     "⠀    {50} [",

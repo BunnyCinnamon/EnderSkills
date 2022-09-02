@@ -76,6 +76,7 @@ public class GleamFlash extends BaseAbility implements IImpact, ILoopSound, IExp
             NBTHelper.setDouble(compound, "delay", delay);
             NBTHelper.setDouble(compound, "time", time);
             SkillData data = SkillData.of(this)
+                    .with(20)
                     .put(compound)
                     .create();
             EntityThrowableData.throwFor(owner, distance, data, false);
@@ -116,6 +117,7 @@ public class GleamFlash extends BaseAbility implements IImpact, ILoopSound, IExp
         damageSource.setMagicDamage();
         SkillDamageEvent event = new SkillDamageEvent(owner, this, damageSource, damage);
         MinecraftForge.EVENT_BUS.post(event);
+        apply(target, skillData);
 
         if(event.getAmount() > 0 && event.getAmount() < Double.MAX_VALUE) {
             target.attackEntityFrom(event.getSource(), event.toFloat());

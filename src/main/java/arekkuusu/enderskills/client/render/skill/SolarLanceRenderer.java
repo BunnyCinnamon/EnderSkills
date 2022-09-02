@@ -1,12 +1,10 @@
 package arekkuusu.enderskills.client.render.skill;
 
 import arekkuusu.enderskills.client.ClientConfig;
-import arekkuusu.enderskills.client.render.entity.EntityThrowableDataRenderer;
 import arekkuusu.enderskills.client.util.ResourceLibrary;
 import arekkuusu.enderskills.client.util.ShaderLibrary;
 import arekkuusu.enderskills.client.util.helper.RenderMisc;
-import arekkuusu.enderskills.common.entity.EntityBlackHole;
-import arekkuusu.enderskills.common.skill.ModAbilities;
+import arekkuusu.enderskills.common.entity.EntitySolarLance;
 import arekkuusu.enderskills.common.skill.ability.offence.ender.BlackHole;
 import com.sasmaster.glelwjgl.java.CoreGLE;
 import net.minecraft.client.Minecraft;
@@ -23,11 +21,7 @@ import javax.annotation.Nonnull;
 @SideOnly(Side.CLIENT)
 public class SolarLanceRenderer extends SkillRenderer<BlackHole> {
 
-    public SolarLanceRenderer() {
-        EntityThrowableDataRenderer.add(ModAbilities.BLACK_HOLE, ProjectileVoidRenderer::new);
-    }
-
-    public static class Placeable extends Render<EntityBlackHole> {
+    public static class Placeable extends Render<EntitySolarLance> {
 
         public final CoreGLE gle;
 
@@ -37,11 +31,13 @@ public class SolarLanceRenderer extends SkillRenderer<BlackHole> {
         }
 
         @Override
-        public void doRender(EntityBlackHole entity, double x, double y, double z, float entityYaw, float partialTicks) {
+        public void doRender(EntitySolarLance entity, double x, double y, double z, float entityYaw, float partialTicks) {
             float scale = (float) entity.getScale(entity.tick);
 
             GlStateManager.pushMatrix();
             GlStateManager.translate(x, y, z);
+            GlStateManager.rotate(-entity.rotationYaw - 90, 0F, 1F, 0F);
+            GlStateManager.rotate(entity.rotationPitch, 0F, 0F, 1F);
             this.bindTexture(getEntityTexture(entity));
             if (!ClientConfig.RENDER_CONFIG.rendering.helpMyFramesAreDying && !ClientConfig.RENDER_CONFIG.rendering.helpMyShadersAreDying) {
                 if (!ClientConfig.RENDER_CONFIG.rendering.vanilla) {
@@ -49,15 +45,15 @@ public class SolarLanceRenderer extends SkillRenderer<BlackHole> {
                     ShaderLibrary.UNIVERSE.set("dimensions", Minecraft.getMinecraft().displayWidth, Minecraft.getMinecraft().displayHeight);
                     ShaderLibrary.UNIVERSE.set("yaw", (Minecraft.getMinecraft().player.rotationYaw * 2F * 3.141592653589793F / 360F));
                     ShaderLibrary.UNIVERSE.set("pitch", -(Minecraft.getMinecraft().player.rotationPitch * 2F * 3.141592653589793F / 360.0F));
-                    ShaderLibrary.UNIVERSE.set("color", 0.36F, 0.12F, 0.4F);
+                    ShaderLibrary.UNIVERSE.set("color", 1F, 1, 1);
                     ShaderLibrary.UNIVERSE.set("ticks", RenderMisc.getRenderPlayerTime());
                     ShaderLibrary.UNIVERSE.set("alpha", 1F);
                 } else {
-                    ShaderLibrary.UNIVERSE_DEFAULT.begin();
-                    ShaderLibrary.UNIVERSE_DEFAULT.set("yaw", (Minecraft.getMinecraft().player.rotationYaw * 2F * 3.141592653589793F / 360F));
-                    ShaderLibrary.UNIVERSE_DEFAULT.set("pitch", -(Minecraft.getMinecraft().player.rotationPitch * 2F * 3.141592653589793F / 360.0F));
-                    ShaderLibrary.UNIVERSE_DEFAULT.set("time", RenderMisc.getRenderPlayerTime());
-                    ShaderLibrary.UNIVERSE_DEFAULT.set("alpha", 1F);
+                    ShaderLibrary.UNIVERSE_DEFAULT_WHITE.begin();
+                    ShaderLibrary.UNIVERSE_DEFAULT_WHITE.set("yaw", (Minecraft.getMinecraft().player.rotationYaw * 2F * 3.141592653589793F / 360F));
+                    ShaderLibrary.UNIVERSE_DEFAULT_WHITE.set("pitch", -(Minecraft.getMinecraft().player.rotationPitch * 2F * 3.141592653589793F / 360.0F));
+                    ShaderLibrary.UNIVERSE_DEFAULT_WHITE.set("time", RenderMisc.getRenderPlayerTime());
+                    ShaderLibrary.UNIVERSE_DEFAULT_WHITE.set("alpha", 1F);
                 }
             }
             GL11.glEnable(3042);
@@ -93,19 +89,15 @@ public class SolarLanceRenderer extends SkillRenderer<BlackHole> {
                 if (!ClientConfig.RENDER_CONFIG.rendering.vanilla) {
                     ShaderLibrary.UNIVERSE.end();
                 } else {
-                    ShaderLibrary.UNIVERSE_DEFAULT.end();
+                    ShaderLibrary.UNIVERSE_DEFAULT_WHITE.end();
                 }
             }
-            scale *= entity.getRadius() * 1.5F;
-            GlStateManager.scale(scale, scale, scale);
-            GlStateManager.scale(0.6F, 0.6F, 0.6F);
-            RenderMisc.drawObj(0xFFFFFF, 1F, RenderMisc::drawSphereRaw);
             GlStateManager.popMatrix();
         }
 
         @Override
         @Nonnull
-        protected ResourceLocation getEntityTexture(EntityBlackHole EntityPortal) {
+        protected ResourceLocation getEntityTexture(EntitySolarLance EntityPortal) {
             if (!ClientConfig.RENDER_CONFIG.rendering.vanilla || ClientConfig.RENDER_CONFIG.rendering.helpMyFramesAreDying) {
                 return ResourceLibrary.DARK_BACKGROUND;
             } else {
