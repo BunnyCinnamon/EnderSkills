@@ -13,6 +13,7 @@ public class ResourceLibrary {
     //* Atlas stitching textures *//
     public static final Set<ResourceLocation> ATLAS_SET = Sets.newHashSet();
     public static final ResourceLocation DARK_BACKGROUND = new ResourceLocation(LibMod.MOD_ID, "textures/entity/dark_background.png");
+    public static final ResourceLocation WHITE_BACKGROUND = new ResourceLocation(LibMod.MOD_ID, "textures/entity/white_background.png");
     public static final ResourceLocation PORTAL_BACKGROUND = new ResourceLocation("textures/entity/end_portal.png");
     //* Atlas textures *//
     public static final ResourceLocation PLUS = createAtlasTexture(LibMod.MOD_ID, "effect", "plus");

@@ -11,6 +11,7 @@ import arekkuusu.enderskills.api.registry.Skill;
 import arekkuusu.enderskills.api.util.ConfigDSL;
 import arekkuusu.enderskills.client.gui.data.ISkillAdvancement;
 import arekkuusu.enderskills.client.util.helper.TextHelper;
+import arekkuusu.enderskills.common.EnderSkills;
 import arekkuusu.enderskills.common.entity.data.IExpand;
 import arekkuusu.enderskills.common.entity.data.IFindEntity;
 import arekkuusu.enderskills.common.entity.data.IScanEntities;
@@ -64,12 +65,14 @@ public class LumenWave extends BaseAbility implements IScanEntities, IExpand, IF
             double range = getRange(abilityInfo);
             double force = getLaunch(abilityInfo);
             double damage = getDamage(abilityInfo);
+            int time = getTime(abilityInfo);
             NBTTagCompound compound = new NBTTagCompound();
             NBTHelper.setEntity(compound, owner, "owner");
             NBTHelper.setDouble(compound, "damage", damage);
             NBTHelper.setDouble(compound, "range", range);
             NBTHelper.setDouble(compound, "force", force);
             NBTHelper.setDouble(compound, "distance", distance);
+            NBTHelper.setInteger(compound, "time", time);
             SkillData data = SkillData.of(this)
                     .by(owner)
                     .with(10)
@@ -96,6 +99,12 @@ public class LumenWave extends BaseAbility implements IScanEntities, IExpand, IF
         double force = NBTHelper.getDouble(data.nbt, "force") / 10D;
         Vec3d pos = target.getPositionVector();
         target.setPositionAndUpdate(pos.x, pos.y + force, pos.z);
+    }
+
+    @Override
+    public void end(EntityLivingBase entity, SkillData data) {
+        if (isClientWorld(entity)) return;
+        EnderSkills.getProxy().addToQueue(() -> ModEffects.STUNNED.set(entity, data, data.nbt.getInteger("time")));
     }
 
     //* Entity *//
@@ -151,7 +160,7 @@ public class LumenWave extends BaseAbility implements IScanEntities, IExpand, IF
     }
 
     public int getTime(AbilityInfo info) {
-        return (int) this.config.get(this, "DOT_DURATION", info.getLevel());
+        return (int) this.config.get(this, "STUN", info.getLevel());
     }
 
     /*Advancement Section*/
@@ -294,6 +303,11 @@ public class LumenWave extends BaseAbility implements IScanEntities, IExpand, IF
                     "⠀SIZE (",
                     "⠀    curve: none",
                     "⠀    value: 1.5b",
+                    "⠀)",
+                    "⠀#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~",
+                    "⠀STUN (",
+                    "⠀    curve: none",
+                    "⠀    value: 2s",
                     "⠀)",
                     "⠀#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~",
                     "⠀DAMAGE (",

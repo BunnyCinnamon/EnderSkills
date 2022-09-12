@@ -7,19 +7,18 @@ import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoCooldown;
 import arekkuusu.enderskills.api.event.SkillDamageEvent;
 import arekkuusu.enderskills.api.event.SkillDamageSource;
 import arekkuusu.enderskills.api.helper.NBTHelper;
-import arekkuusu.enderskills.api.helper.TeamHelper;
 import arekkuusu.enderskills.api.registry.Skill;
 import arekkuusu.enderskills.api.util.ConfigDSL;
+import arekkuusu.enderskills.api.util.Quat;
+import arekkuusu.enderskills.api.util.Vector;
 import arekkuusu.enderskills.client.gui.data.ISkillAdvancement;
 import arekkuusu.enderskills.client.util.helper.TextHelper;
 import arekkuusu.enderskills.common.entity.EntitySolarLance;
 import arekkuusu.enderskills.common.entity.throwable.MotionHelper;
 import arekkuusu.enderskills.common.lib.LibMod;
 import arekkuusu.enderskills.common.lib.LibNames;
-import arekkuusu.enderskills.common.network.PacketHelper;
 import arekkuusu.enderskills.common.skill.ModAbilities;
 import arekkuusu.enderskills.common.skill.ModAttributes;
-import arekkuusu.enderskills.common.skill.ModEffects;
 import arekkuusu.enderskills.common.skill.SkillHelper;
 import arekkuusu.enderskills.common.skill.ability.AbilityInfo;
 import arekkuusu.enderskills.common.skill.ability.BaseAbility;
@@ -28,17 +27,12 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.DamageSource;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Config;
-import net.minecraftforge.event.entity.living.LivingHurtEvent;
-import net.minecraftforge.fml.common.eventhandler.EventPriority;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -49,7 +43,6 @@ public class SolarLance extends BaseAbility implements ISkillAdvancement {
     public SolarLance() {
         super(LibNames.SOLAR_LANCE, new AbilityProperties());
         ((AbilityProperties) getProperties()).setCooldownGetter(this::getCooldown).setMaxLevelGetter(this::getMaxLevel);
-        MinecraftForge.EVENT_BUS.register(this);
     }
 
     @Override
@@ -79,8 +72,14 @@ public class SolarLance extends BaseAbility implements ISkillAdvancement {
                             .overrides(SkillData.Overrides.EQUAL)
                             .create();
                     EntitySolarLance spawn = new EntitySolarLance(owner.world, owner, data, (float) distance);
+
+                    Vector direction = new Vector(owner.getLookVec()).normalize();
+                    Vector perpendicular = direction.perpendicular().normalize();
+                    Quat quat = Quat.fromAxisAngleRad(direction, (float) Math.toRadians(360D * owner.world.rand.nextDouble()));
+                    Vector rotatedPerp = perpendicular.rotate(quat).normalize().multiply(0.45);
+
                     MotionHelper.forwardMotion(owner, spawn, distance, MathHelper.clamp((int) distance, 10, 40));
-                    spawn.setPosition(owner.posX, owner.posY + owner.getEyeHeight(), owner.posZ);
+                    spawn.setPosition(owner.posX + rotatedPerp.x, owner.posY + owner.getEyeHeight() + rotatedPerp.y, owner.posZ + rotatedPerp.z);
                     spawn.setRadius(range);
                     spawn.penesMaximus = piercing;
                     owner.world.spawnEntity(spawn);
@@ -107,25 +106,6 @@ public class SolarLance extends BaseAbility implements ISkillAdvancement {
 
         if (target.world instanceof WorldServer) {
             ((WorldServer) target.world).playSound(null, target.posX, target.posY, target.posZ, ModSounds.WIND_ON_HIT, SoundCategory.PLAYERS, 1.0F, (1.0F + (target.world.rand.nextFloat() - target.world.rand.nextFloat()) * 0.2F) * 0.7F);
-        }
-    }
-
-    @SubscribeEvent(priority = EventPriority.LOWEST)
-    public void onEntityDamage(LivingHurtEvent event) {
-        if (isClientWorld(event.getEntityLiving()) || SkillHelper.isSkillDamage(event.getSource())) return;
-        DamageSource source = event.getSource();
-        if (!(source.getTrueSource() instanceof EntityLivingBase) || event.getAmount() <= 0) return;
-        EntityLivingBase attacker = (EntityLivingBase) source.getTrueSource();
-        EntityLivingBase target = event.getEntityLiving();
-        if (TeamHelper.SELECTOR_ENEMY.apply(attacker).test(target)) {
-            SkillHelper.getActiveFrom(attacker, this).ifPresent(data -> {
-                if (!SkillHelper.isActive(target, ModEffects.BURNING)) {
-                    if (target.world instanceof WorldServer) {
-                        ((WorldServer) target.world).playSound(null, target.posX, target.posY, target.posZ, ModSounds.FIRE_HIT, SoundCategory.PLAYERS, 1.0F, (1.0F + (target.world.rand.nextFloat() - target.world.rand.nextFloat()) * 0.2F) * 0.7F);
-                    }
-                }
-                ModEffects.BURNING.set(target, data);
-            });
         }
     }
 

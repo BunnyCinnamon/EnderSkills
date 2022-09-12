@@ -5,6 +5,7 @@ import arekkuusu.enderskills.client.render.entity.EntityPlaceableDataRenderer;
 import arekkuusu.enderskills.client.util.ShaderLibrary;
 import arekkuusu.enderskills.client.util.helper.GLHelper;
 import arekkuusu.enderskills.common.entity.placeable.EntityPlaceableData;
+import arekkuusu.enderskills.common.entity.placeable.EntityPlaceableGlowing;
 import arekkuusu.enderskills.common.lib.LibMod;
 import arekkuusu.enderskills.common.skill.ModAbilities;
 import arekkuusu.enderskills.common.skill.ModEffects;
@@ -29,19 +30,15 @@ public class GlowingRenderer extends SkillRenderer<Glowing> {
 
     private static final ResourceLocation PLACEABLE = new ResourceLocation(LibMod.MOD_ID, "textures/entity/glowing.png");
 
-    public GlowingRenderer() {
-        EntityPlaceableDataRenderer.add(ModEffects.GLOWING, Placeable::new);
-    }
-
     @SideOnly(Side.CLIENT)
-    public static class Placeable extends Render<EntityPlaceableData> {
+    public static class Placeable extends Render<EntityPlaceableGlowing> {
 
-        protected Placeable(RenderManager renderManager) {
+        public Placeable(RenderManager renderManager) {
             super(renderManager);
         }
 
         @Override
-        public void doRender(EntityPlaceableData entity, double x, double y, double z, float entityYaw, float partialTicks) {
+        public void doRender(EntityPlaceableGlowing entity, double x, double y, double z, float entityYaw, float partialTicks) {
             if (MinecraftForgeClient.getRenderPass() != 1) return;
             int tick = Math.min(entity.tick, EntityPlaceableData.MIN_TIME);
             double scale = entity.getRadius() * ((double) tick / (double) EntityPlaceableData.MIN_TIME);
@@ -124,7 +121,7 @@ public class GlowingRenderer extends SkillRenderer<Glowing> {
 
         @Nullable
         @Override
-        protected ResourceLocation getEntityTexture(EntityPlaceableData entity) {
+        protected ResourceLocation getEntityTexture(EntityPlaceableGlowing entity) {
             return PLACEABLE;
         }
     }

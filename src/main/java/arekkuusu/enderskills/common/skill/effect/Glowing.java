@@ -4,8 +4,10 @@ import arekkuusu.enderskills.api.capability.data.SkillData;
 import arekkuusu.enderskills.api.event.SkillDamageEvent;
 import arekkuusu.enderskills.api.event.SkillDamageSource;
 import arekkuusu.enderskills.client.proxy.ClientProxy;
+import arekkuusu.enderskills.common.entity.data.IExpand;
 import arekkuusu.enderskills.common.entity.data.IFindEntity;
 import arekkuusu.enderskills.common.entity.placeable.EntityPlaceableData;
+import arekkuusu.enderskills.common.entity.placeable.EntityPlaceableGlowing;
 import arekkuusu.enderskills.common.lib.LibNames;
 import arekkuusu.enderskills.common.skill.ModAbilities;
 import arekkuusu.enderskills.common.skill.ModEffects;
@@ -23,7 +25,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import javax.annotation.Nullable;
 
-public class Glowing extends BaseEffect implements IFindEntity {
+public class Glowing extends BaseEffect implements IFindEntity, IExpand {
 
     public Glowing() {
         super(LibNames.GLOWING, new Properties());
@@ -32,6 +34,11 @@ public class Glowing extends BaseEffect implements IFindEntity {
     @Override
     public void begin(EntityLivingBase entity, SkillData data) {
         entity.addPotionEffect(new PotionEffect(MobEffects.GLOWING, 20 * 4, 0));
+    }
+
+    @Override
+    public void end(EntityLivingBase entity, SkillData data) {
+        entity.removeActivePotionEffect(MobEffects.GLOWING);
     }
 
     @Override
@@ -59,15 +66,15 @@ public class Glowing extends BaseEffect implements IFindEntity {
     }
 
     public void activate(EntityLivingBase entity, SkillData data) {
-        SkillData status = SkillData.of(ModEffects.GLOWING)
+        SkillData status = SkillData.of(this)
                 .by(data.id + ":" + data.skill.getRegistryName())
-                .with(1)
+                .with(4 * 20)
                 .put(data.nbt.copy(), data.watcher.copy())
-                .overrides(SkillData.Overrides.EQUAL)
+                .overrides(SkillData.Overrides.SAME)
                 .create();
-        EntityPlaceableData spawn = new EntityPlaceableData(entity.world, SkillHelper.getOwner(data), status, EntityPlaceableData.MIN_TIME);
+        EntityPlaceableGlowing spawn = new EntityPlaceableGlowing(entity.world, SkillHelper.getOwner(status), status, EntityPlaceableData.MIN_TIME);
         spawn.setPosition(entity.posX, entity.posY + entity.height / 2, entity.posZ);
-        spawn.setRadius(4);
+        spawn.setRadius(2);
         spawn.growTicks = 5;
         entity.world.spawnEntity(spawn);
         unapply(entity);
@@ -80,7 +87,7 @@ public class Glowing extends BaseEffect implements IFindEntity {
                 .by(data.id + ":" + data.skill.getRegistryName())
                 .with(4 * 20)
                 .put(data.nbt.copy(), data.watcher.copy())
-                .overrides(SkillData.Overrides.EQUAL)
+                .overrides(SkillData.Overrides.SAME)
                 .create();
         apply(entity, status);
         sync(entity, status);

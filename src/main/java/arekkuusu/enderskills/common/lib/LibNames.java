@@ -31,7 +31,7 @@ public class LibNames {
     public static final String NEARBY_INVINCIBILITY = "nearby_invincibility";
     public static final String RADIANT_RAY = "radiant_ray";
     public static final String LUMEN_WAVE = "lumen_wave";
-    public static final String GLEAM_FLASH = "gleam_flash";
+    public static final String GLEAM_BANG = "gleam_bang";
     public static final String SOLAR_LANCE = "solar_lance";
     public static final String BARRAGE_WISP = "barrage_wisp";
     public static final String FINAL_FLASH = "final_flash";

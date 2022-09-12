@@ -104,7 +104,7 @@ public final class ModAbilities {
     //Offense-Light
     public static final Skill RADIANT_RAY = empty();
     public static final Skill LUMEN_WAVE = empty();
-    public static final Skill GLEAM_FLASH = empty();
+    public static final Skill GLEAM_BANG = empty();
     public static final Skill SOLAR_LANCE = empty();
     public static final Skill BARRAGE_WISP = empty();
     public static final Skill FINAL_FLASH = empty();
@@ -185,7 +185,7 @@ public final class ModAbilities {
         //Offense-Light
         registry.register(new RadiantRay());
         registry.register(new LumenWave());
-        registry.register(new GleamFlash());
+        registry.register(new GleamBang());
         registry.register(new SolarLance());
         registry.register(new BarrageWisp());
         registry.register(new FinalFlash());

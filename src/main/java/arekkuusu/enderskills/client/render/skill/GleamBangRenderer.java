@@ -10,7 +10,7 @@ import arekkuusu.enderskills.common.lib.LibMod;
 import arekkuusu.enderskills.common.skill.ModAbilities;
 import arekkuusu.enderskills.common.skill.ModEffects;
 import arekkuusu.enderskills.common.skill.SkillHelper;
-import arekkuusu.enderskills.common.skill.ability.offence.light.GleamFlash;
+import arekkuusu.enderskills.common.skill.ability.offence.light.GleamBang;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
@@ -29,12 +29,12 @@ import org.lwjgl.opengl.GL11;
 import javax.annotation.Nonnull;
 
 @SideOnly(Side.CLIENT)
-public class GleamFlashRenderer extends SkillRenderer<GleamFlash> {
+public class GleamBangRenderer extends SkillRenderer<GleamBang> {
 
     private static final ResourceLocation PLACEABLE = new ResourceLocation(LibMod.MOD_ID, "textures/entity/glowing.png");
 
-    public GleamFlashRenderer() {
-        EntityThrowableDataRenderer.add(ModAbilities.GLEAM_FLASH, ProjectileLightRenderer::new);
+    public GleamBangRenderer() {
+        EntityThrowableDataRenderer.add(ModAbilities.GLEAM_BANG, ProjectileLightRenderer::new);
         MinecraftForge.EVENT_BUS.register(new FogRenderer.Events());
     }
 
@@ -43,7 +43,7 @@ public class GleamFlashRenderer extends SkillRenderer<GleamFlash> {
 
         @SubscribeEvent
         public void onFogDensityRender(EntityViewRenderEvent.FogDensity event) {
-            if (!SkillHelper.isActive(event.getEntity(), ModEffects.BLINDED) && SkillHelper.isActive(event.getEntity(), ModAbilities.GLEAM_FLASH)) {
+            if (!SkillHelper.isActive(event.getEntity(), ModEffects.BLINDED) && SkillHelper.isActive(event.getEntity(), ModAbilities.GLEAM_BANG)) {
                 GlStateManager.setFog(GlStateManager.FogMode.EXP);
                 event.setDensity(1F);
                 event.setCanceled(true);
@@ -69,7 +69,7 @@ public class GleamFlashRenderer extends SkillRenderer<GleamFlash> {
             GLHelper.BLEND_SRC_ALPHA$ONE.blend();
             if (!ClientConfig.RENDER_CONFIG.rendering.helpMyShadersAreDying) {
                 ShaderLibrary.ALPHA.begin();
-                ShaderLibrary.ALPHA.set("alpha", 0.4F * (1F - (float) tick / (float) entity.getLifeTime()));
+                ShaderLibrary.ALPHA.set("alpha", (1F - (float) tick / (float) entity.getLifeTime()));
             }
             GlStateManager.disableLighting();
             GlStateManager.enableBlend();

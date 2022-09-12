@@ -1,12 +1,14 @@
 package arekkuusu.enderskills.client.render.skill;
 
+import arekkuusu.enderskills.api.util.Vector;
 import arekkuusu.enderskills.client.ClientConfig;
 import arekkuusu.enderskills.client.util.ResourceLibrary;
 import arekkuusu.enderskills.client.util.ShaderLibrary;
 import arekkuusu.enderskills.client.util.helper.RenderMisc;
 import arekkuusu.enderskills.common.entity.EntitySolarLance;
+import arekkuusu.enderskills.common.entity.placeable.EntityFinalFlash;
 import arekkuusu.enderskills.common.skill.ability.offence.ender.BlackHole;
-import arekkuusu.enderskills.common.skill.ability.offence.light.SolarLance;
+import arekkuusu.enderskills.common.skill.ability.offence.light.FinalFlash;
 import com.sasmaster.glelwjgl.java.CoreGLE;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
@@ -20,9 +22,9 @@ import org.lwjgl.opengl.GL11;
 import javax.annotation.Nonnull;
 
 @SideOnly(Side.CLIENT)
-public class SolarLanceRenderer extends SkillRenderer<SolarLance> {
+public class FinalFlashRenderer extends SkillRenderer<FinalFlash> {
 
-    public static class Placeable extends Render<EntitySolarLance> {
+    public static class Placeable extends Render<EntityFinalFlash> {
 
         public final CoreGLE gle;
 
@@ -32,13 +34,15 @@ public class SolarLanceRenderer extends SkillRenderer<SolarLance> {
         }
 
         @Override
-        public void doRender(EntitySolarLance entity, double x, double y, double z, float entityYaw, float partialTicks) {
-            float scale = (float) entity.getScale(partialTicks);
-
+        public void doRender(EntityFinalFlash entity, double x, double y, double z, float entityYaw, float partialTicks) {
+            float scale = entity.tickDelay > entity.getData().nbt.getInteger("delay")
+                    ? (float) entity.getScale(entity.tick + partialTicks)
+                    : 0.1F;
+            entity.points.replaceAll(p -> entity.world.rand.nextDouble() < 0.4D ? (p.add(Vector.ONE.rotateRandom(entity.world.rand, 360).multiply(0.0001).toVec3d())) : p);
             GlStateManager.pushMatrix();
             GlStateManager.translate(x, y, z);
             GlStateManager.rotate(-entity.rotationYaw - 90, 0F, 1F, 0F);
-            GlStateManager.rotate(entity.rotationPitch, 0F, 0F, 1F);
+            GlStateManager.rotate(-entity.rotationPitch, 0F, 0F, 1F);
             this.bindTexture(getEntityTexture(entity));
             if (!ClientConfig.RENDER_CONFIG.rendering.helpMyFramesAreDying && !ClientConfig.RENDER_CONFIG.rendering.helpMyShadersAreDying) {
                 if (!ClientConfig.RENDER_CONFIG.rendering.vanilla) {
@@ -98,7 +102,7 @@ public class SolarLanceRenderer extends SkillRenderer<SolarLance> {
 
         @Override
         @Nonnull
-        protected ResourceLocation getEntityTexture(EntitySolarLance EntityPortal) {
+        protected ResourceLocation getEntityTexture(EntityFinalFlash EntityPortal) {
             if (!ClientConfig.RENDER_CONFIG.rendering.vanilla || ClientConfig.RENDER_CONFIG.rendering.helpMyFramesAreDying) {
                 return ResourceLibrary.WHITE_BACKGROUND;
             } else {

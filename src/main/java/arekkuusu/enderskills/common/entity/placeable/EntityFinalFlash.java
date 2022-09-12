@@ -1,10 +1,9 @@
-package arekkuusu.enderskills.common.entity;
+package arekkuusu.enderskills.common.entity.placeable;
 
 import arekkuusu.enderskills.api.capability.data.SkillData;
 import arekkuusu.enderskills.api.helper.NBTHelper;
 import arekkuusu.enderskills.api.helper.RayTraceHelper;
-import arekkuusu.enderskills.api.util.Vector;
-import arekkuusu.enderskills.client.sounds.SolarLanceSound;
+import arekkuusu.enderskills.client.sounds.FinalFlashSound;
 import arekkuusu.enderskills.common.entity.data.SkillExtendedData;
 import arekkuusu.enderskills.common.skill.ModAbilities;
 import arekkuusu.enderskills.common.skill.ModEffects;
@@ -13,7 +12,6 @@ import com.google.common.collect.Lists;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.MoverType;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.datasync.DataParameter;
@@ -21,34 +19,37 @@ import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.SoundCategory;
-import net.minecraft.util.math.*;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 
-@SuppressWarnings("Guava")
-public class EntitySolarLance extends Entity {
+public class EntityFinalFlash extends Entity {
 
-    public static final DataParameter<SkillExtendedData> DATA = EntityDataManager.createKey(EntitySolarLance.class, SkillExtendedData.SERIALIZER);
-    public static final DataParameter<Float> LIFE_TIME = EntityDataManager.createKey(EntitySolarLance.class, DataSerializers.FLOAT);
-    public static final DataParameter<BlockPos> SUCK_DICK = EntityDataManager.createKey(EntitySolarLance.class, DataSerializers.BLOCK_POS);
-    public static final DataParameter<Float> SIZE = EntityDataManager.createKey(EntitySolarLance.class, DataSerializers.FLOAT);
-    public static final DataParameter<Integer> SEED = EntityDataManager.createKey(EntitySolarLance.class, DataSerializers.VARINT);
+    public static final DataParameter<SkillExtendedData> DATA = EntityDataManager.createKey(EntityFinalFlash.class, SkillExtendedData.SERIALIZER);
+    public static final DataParameter<Float> LIFE_TIME = EntityDataManager.createKey(EntityFinalFlash.class, DataSerializers.FLOAT);
+    public static final DataParameter<BlockPos> SUCK_DICK = EntityDataManager.createKey(EntityFinalFlash.class, DataSerializers.BLOCK_POS);
+    public static final DataParameter<Float> RADIUS = EntityDataManager.createKey(EntityFinalFlash.class, DataSerializers.FLOAT);
+    public static final DataParameter<Float> RANGE = EntityDataManager.createKey(EntityFinalFlash.class, DataSerializers.FLOAT);
+    public static final DataParameter<Integer> SEED = EntityDataManager.createKey(EntityFinalFlash.class, DataSerializers.VARINT);
     public static final int MIN_TIME = 10;
     public static double collapse = 0.95D;
     public ArrayList<UUID> entities = Lists.newArrayList();
     public ArrayList<Float> pointsWidth = Lists.newArrayList();
     public ArrayList<Vec3d> points = Lists.newArrayList();
-    public int penesMaximus;
-    public int penes;
     public int tick;
+    public int tickDelay;
 
-    public EntitySolarLance(World worldIn) {
+    public EntityFinalFlash(World worldIn) {
         super(worldIn);
         this.noClip = true;
         isImmuneToFire = true;
@@ -56,7 +57,7 @@ public class EntitySolarLance extends Entity {
         setSize(0F, 0F);
     }
 
-    public EntitySolarLance(World worldIn, @Nullable EntityLivingBase owner, SkillData skillData, float lifeTime) {
+    public EntityFinalFlash(World worldIn, @Nullable EntityLivingBase owner, SkillData skillData, float lifeTime) {
         this(worldIn);
         if (owner != null) {
             this.rotationPitch = owner.rotationPitch;
@@ -74,7 +75,8 @@ public class EntitySolarLance extends Entity {
     protected void entityInit() {
         this.dataManager.register(DATA, new SkillExtendedData(null));
         this.dataManager.register(LIFE_TIME, 0F);
-        this.dataManager.register(SIZE, 0F);
+        this.dataManager.register(RANGE, 0F);
+        this.dataManager.register(RADIUS, 0F);
         this.dataManager.register(SUCK_DICK, new BlockPos(0, 0, 0));
         this.dataManager.register(SEED, this.world.rand.nextInt());
     }
@@ -82,10 +84,10 @@ public class EntitySolarLance extends Entity {
     private void setupShape(Random rr) {
         points.clear();
         pointsWidth.clear();
-        int steps = 8;
-        float girth = 1.5F;
-        Vec3d right = new Vec3d(15D / (steps + 1), 0, 0);
-        Vec3d left = right.scale(-1);
+        int steps = 12;
+        float girth = getRadius();
+        Vec3d left = new Vec3d(getRange() / (steps + 1), 0, 0);
+        Vec3d right = left.scale(-0.3);
         Vec3d lr = new Vec3d(0, 0, 0);
         Vec3d ll = new Vec3d(0, 0, 0);
         float dec = girth / steps;
@@ -93,10 +95,10 @@ public class EntitySolarLance extends Entity {
             girth -= dec;
             lr = lr.add(right);
             points.add(new Vec3d(lr.x, lr.y, lr.z));
-            pointsWidth.add((float) (girth * Math.pow((1F - (float) a / (float) steps), 3)));
+            pointsWidth.add((float) (girth * ((1F - (float) a / (float) steps))));
             ll = ll.add(left);
             points.add(0, new Vec3d(ll.x, ll.y, ll.z));
-            pointsWidth.add(0, (float) (girth * Math.pow((1F - (float) a / (float) steps), 3)));
+            pointsWidth.add(0, (float) (getRadius() * (a + 1 == steps ? 0 : 1)));
         }
         lr = lr.add(right);
         points.add(new Vec3d(lr.x, lr.y, lr.z));
@@ -108,13 +110,12 @@ public class EntitySolarLance extends Entity {
 
     @Override
     public void onUpdate() {
+        super.onUpdate();
         ignoreFrustumCheck = true;
         noClip = true;
         if (world.isRemote && !isDead) {
             makeSound();
         }
-        super.onUpdate();
-        rotateTowardsMovement(this, 1F);
         if (world.isRemote && getRadius() != 0 && points.isEmpty()) {
             this.setupShape(new Random(this.getSeed()));
         }
@@ -126,30 +127,31 @@ public class EntitySolarLance extends Entity {
                 SkillData data = getData();
                 EntityLivingBase owner = SkillHelper.getOwner(data);
                 double radius = getRadius();
-                float scale = (float) getScale(1F);
-                BlockPos blockPos = this.dataManager.get(SUCK_DICK);
-                if (!(getPosition().getDistance(blockPos.getX(), blockPos.getY(), blockPos.getZ()) < this.getLifeTime())) {
+                float scale = (float) getScale(tick);
+                float size = (float) (scale * radius);
+                if (tick > this.getLifeTime()) {
                     setDead();
                 }
-                RayTraceResult raytraceresult = RayTraceHelper.forwardsRaycastWeirdPogchamp(this, radius, this.tick >= 25, owner);
-                if (raytraceresult != null && raytraceresult.typeOfHit == RayTraceResult.Type.ENTITY
-                        && raytraceresult.entityHit instanceof EntityLivingBase
-                        && !entities.contains(raytraceresult.entityHit.getPersistentID())) {
-                    entities.add(raytraceresult.entityHit.getPersistentID());
-                    ModAbilities.SOLAR_LANCE.apply((EntityLivingBase) raytraceresult.entityHit, getData());
-                    if (SkillHelper.isActive(raytraceresult.entityHit, ModEffects.GLOWING)) {
-                        ModEffects.GLOWING.activate((EntityLivingBase) raytraceresult.entityHit, data);
-                    } else {
-                        ModEffects.GLOWING.set((EntityLivingBase) raytraceresult.entityHit, data);
+                if (tickDelay > getData().nbt.getInteger("delay")) {
+                    List<EntityLivingBase> found = RayTraceHelper.findInRangeSize(this, getRange(), size, owner);
+                    for (EntityLivingBase entity : found) {
+                        ModAbilities.FINAL_FLASH.apply(entity, getData());
+                        ModEffects.SLOWED.set(entity, getData(), 0.01D);
+                        if (!entities.contains(entity.getPersistentID()) && entities.add(entity.getPersistentID())) {
+                            if (SkillHelper.isActive(entity, ModEffects.GLOWING)) {
+                                ModEffects.GLOWING.activate(entity, data);
+                            } else {
+                                ModEffects.GLOWING.set(entity, data);
+                            }
+                        }
                     }
-                    penes++;
-                    if (penes >= penesMaximus) {
-                        setDead();
-                    }
+                    AxisAlignedBB bb = new AxisAlignedBB(posX - size, posY - size, posZ - size, posX + size, posY + size, posZ + size);
+                    setEntityBoundingBox(bb);
+                } else {
+                    float v = 1F;
+                    AxisAlignedBB bb = new AxisAlignedBB(posX - v, posY - v, posZ - v, posX + v, posY + v, posZ + v);
+                    setEntityBoundingBox(bb);
                 }
-                float size = scale * 1F;
-                AxisAlignedBB bb = new AxisAlignedBB(posX - size, posY - size, posZ - size, posX + size, posY + size, posZ + size);
-                setEntityBoundingBox(bb);
             }
         }
         if (world.isRemote) {
@@ -169,44 +171,17 @@ public class EntitySolarLance extends Entity {
 
             world.spawnParticle(EnumParticleTypes.END_ROD, particlePos.x, particlePos.y, particlePos.z, velocity.x, velocity.y, velocity.z);
         }
-        tick++;
-        if (!world.isRemote) {
-            move(MoverType.SELF, motionX, motionY, motionZ);
-            markVelocityChanged();
+        if (tickDelay > getData().nbt.getInteger("delay")) {
+            tick++;
+        } else {
+            tickDelay++;
         }
-    }
-
-    public void rotateTowardsMovement(Entity projectile, float rotationSpeed) {
-        double d0 = -projectile.motionX;
-        double d1 = -projectile.motionY;
-        double d2 = -projectile.motionZ;
-        float f = MathHelper.sqrt(d0 * d0 + d2 * d2);
-        projectile.rotationYaw = (float) (MathHelper.atan2(d2, d0) * (180D / Math.PI)) + 90.0F;
-        projectile.rotationPitch = (float) (MathHelper.atan2((double) f, d1) * (180D / Math.PI)) - 90.0F;
-        while (projectile.rotationPitch - projectile.prevRotationPitch < -180.0F) {
-            projectile.prevRotationPitch -= 360.0F;
-        }
-
-        while (projectile.rotationPitch - projectile.prevRotationPitch >= 180.0F) {
-            projectile.prevRotationPitch += 360.0F;
-        }
-
-        while (projectile.rotationYaw - projectile.prevRotationYaw < -180.0F) {
-            projectile.prevRotationYaw -= 360.0F;
-        }
-
-        while (projectile.rotationYaw - projectile.prevRotationYaw >= 180.0F) {
-            projectile.prevRotationYaw += 360.0F;
-        }
-
-        projectile.rotationPitch = projectile.prevRotationPitch + (projectile.rotationPitch - projectile.prevRotationPitch) * rotationSpeed;
-        projectile.rotationYaw = projectile.prevRotationYaw + (projectile.rotationYaw - projectile.prevRotationYaw) * rotationSpeed;
     }
 
     @SideOnly(Side.CLIENT)
     public void makeSound() {
         if (firstUpdate) {
-            Minecraft.getMinecraft().getSoundHandler().playSound(new SolarLanceSound(this));
+            Minecraft.getMinecraft().getSoundHandler().playSound(new FinalFlashSound(this));
         }
     }
 
@@ -218,6 +193,11 @@ public class EntitySolarLance extends Entity {
         this.width = width;
         this.height = height;
         setEntityBoundingBox(new AxisAlignedBB(axisalignedbb.minX - w, axisalignedbb.minY - h, axisalignedbb.minZ - w, axisalignedbb.minX + w, axisalignedbb.minY + h, axisalignedbb.minZ + w));
+    }
+
+    @Override
+    public AxisAlignedBB getRenderBoundingBox() {
+        return new AxisAlignedBB(getPosition()).grow(getRange());
     }
 
     @Override
@@ -247,11 +227,19 @@ public class EntitySolarLance extends Entity {
     }
 
     public void setRadius(double size) {
-        this.dataManager.set(SIZE, (float) size);
+        this.dataManager.set(RADIUS, (float) size);
+    }
+
+    public void setRange(double size) {
+        this.dataManager.set(RANGE, (float) size);
+    }
+
+    public float getRange() {
+        return this.dataManager.get(RANGE);
     }
 
     public float getRadius() {
-        return this.dataManager.get(SIZE);
+        return this.dataManager.get(RADIUS);
     }
 
     public void setData(SkillData data) {
@@ -267,8 +255,7 @@ public class EntitySolarLance extends Entity {
         setData(new SkillData(compound.getCompoundTag("data")));
         setLifeTime(compound.getFloat("lifeTime"));
         setRadius(compound.getFloat("radius"));
-        penes = compound.getInteger("penes");
-        penesMaximus = compound.getInteger("penesMaximus");
+        setRadius(compound.getFloat("size"));
         this.dataManager.set(SUCK_DICK, NBTHelper.getBlockPos(compound, "aaa"));
     }
 
@@ -277,14 +264,12 @@ public class EntitySolarLance extends Entity {
         compound.setTag("data", getData().serializeNBT());
         compound.setFloat("lifeTime", getLifeTime());
         compound.setFloat("radius", getRadius());
+        compound.setFloat("size", getRange());
         NBTHelper.setBlockPos(compound, "aaa", this.dataManager.get(SUCK_DICK));
-        compound.setInteger("penesMaximus", penesMaximus);
-        compound.setInteger("penes", penes);
     }
 
     public double getScale(float age) {
-        BlockPos blockPoosu = this.dataManager.get(SUCK_DICK);
-        double life = getPosition().getDistance(blockPoosu.getX(), blockPoosu.getY(), blockPoosu.getZ()) / this.getLifeTime();
+        double life = age / this.getLifeTime();
 
         double curve;
         if (life < collapse) {

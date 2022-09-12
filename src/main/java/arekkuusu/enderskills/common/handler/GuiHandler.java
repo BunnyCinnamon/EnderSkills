@@ -1800,7 +1800,7 @@ public final class GuiHandler implements IGuiHandler {
                                         new TextComponentTranslation(get("skill.gleam_flash.title")),
                                         new TextComponentTranslation(get("skill.gleam_flash.description")),
                                         SkillAdvancementInfo.Frame.ROUNDED,
-                                        ModAbilities.GLEAM_FLASH,
+                                        ModAbilities.GLEAM_BANG,
                                         false
                                 ),
                                 2, 2

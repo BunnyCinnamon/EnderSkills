@@ -430,7 +430,8 @@ public class Events {
                 List<SkillHolder> iterated = Lists.newLinkedList(skills.getActives());
                 for (SkillHolder holder : iterated) {
                     holder.tick(entity);
-                    if (holder.isDead()) skills.getActives().remove(holder);
+                    if (holder.isDead())
+                        skills.getActives().remove(holder);
                 }
             });
         }

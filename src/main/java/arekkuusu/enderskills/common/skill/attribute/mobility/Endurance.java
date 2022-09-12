@@ -351,7 +351,7 @@ public class Endurance extends BaseAttribute implements ISkillAdvancement {
                     //Offense-Light
                     .put(LibMod.MOD_ID + ":" + LibNames.RADIANT_RAY, 1)
                     .put(LibMod.MOD_ID + ":" + LibNames.LUMEN_WAVE, 8)
-                    .put(LibMod.MOD_ID + ":" + LibNames.GLEAM_FLASH, 10)
+                    .put(LibMod.MOD_ID + ":" + LibNames.GLEAM_BANG, 10)
                     .put(LibMod.MOD_ID + ":" + LibNames.SOLAR_LANCE, 16)
                     .put(LibMod.MOD_ID + ":" + LibNames.BARRAGE_WISP, 16)
                     .put(LibMod.MOD_ID + ":" + LibNames.FINAL_FLASH, 20)

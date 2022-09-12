@@ -176,6 +176,7 @@ ui.enderskills.desc.stats.stun=§fStun: §r%1$s%2$s
 ui.enderskills.desc.stats.heal=§fHeal: §r%1$s%2$s
 ui.enderskills.desc.stats.health=§fHealth: §r%1$s%2$s
 ui.enderskills.desc.stats.damage=§fDamage: §r%1$s%2$s
+ui.enderskills.desc.stats.amount=§fAmount: §r%1$s%2$s
 ui.enderskills.desc.stats.push_distance=§fPush Distance: §r%1$s%2$s
 ui.enderskills.desc.stats.launch_force=§fLaunch Force: §r%1$s%2$s
 ui.enderskills.desc.stats.portal_range=§fPortal Range: §r%1$s%2$s

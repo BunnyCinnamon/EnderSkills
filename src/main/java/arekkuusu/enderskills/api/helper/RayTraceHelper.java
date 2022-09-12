@@ -48,6 +48,26 @@ public final class RayTraceHelper {
         return entities;
     }
 
+    public static List<Entity> getEntitiesInCone2(Entity source, Vec3d eyesVector, double distance, double degrees, Predicate<Entity> predicate) {
+        Vec3d lookVector = source.getLook(1F);
+        Vec3d targetVector = eyesVector.addVector(
+                lookVector.x * distance,
+                lookVector.y * distance,
+                lookVector.z * distance
+        );
+        AxisAlignedBB bb = new AxisAlignedBB(
+                targetVector.x - distance, targetVector.y - distance, targetVector.z - distance,
+                targetVector.x + distance, targetVector.y + distance, targetVector.z + distance
+        );
+        List<Entity> entities = Lists.newArrayList();
+        for (Entity entity : source.world.getEntitiesInAABBexcluding(source, bb, predicate)) {
+            if (isTargetCone(entity, source, degrees)) {
+                entities.add(entity);
+            }
+        }
+        return entities;
+    }
+
     public static boolean isTargetCone(Entity source, Entity target, double fov) {
         Vec3d positionTarget = target.getPositionEyes(1F);
         Vec3d lookTarget = target.getLookVec().normalize();
@@ -420,5 +440,33 @@ public final class RayTraceHelper {
         } else {
             return null;
         }
+    }
+
+    public static List<EntityLivingBase> findInRangeSize(Entity source, float range, double size, EntityLivingBase owner) {
+        List<EntityLivingBase> entities = Lists.newArrayList();
+        Vec3d lookVector = source.getLook(1F);
+
+        double step = size / range;
+        double count = step;
+        boolean first = true;
+        while (count < range || first) {
+            first = false;
+            Vec3d targetVector = source.getPositionEyes(1F).addVector(
+                    lookVector.x * count,
+                    lookVector.y * count,
+                    lookVector.z * count
+            );
+            AxisAlignedBB bb = new AxisAlignedBB(
+                    targetVector.x - size, targetVector.y - size, targetVector.z - size,
+                    targetVector.x + size, targetVector.y + size, targetVector.z + size
+            );
+            for (Entity entity : source.world.getEntitiesInAABBexcluding(source, bb, TeamHelper.SELECTOR_ENEMY.apply(owner))) {
+                if (entity instanceof EntityLivingBase) {
+                    entities.add((EntityLivingBase) entity);
+                }
+            }
+            count += step;
+        }
+        return entities;
     }
 }

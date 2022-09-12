@@ -4,43 +4,41 @@ import arekkuusu.enderskills.api.capability.Capabilities;
 import arekkuusu.enderskills.api.capability.data.SkillData;
 import arekkuusu.enderskills.api.capability.data.SkillInfo;
 import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoCooldown;
+import arekkuusu.enderskills.api.event.SkillDamageEvent;
+import arekkuusu.enderskills.api.event.SkillDamageSource;
 import arekkuusu.enderskills.api.helper.NBTHelper;
-import arekkuusu.enderskills.api.helper.RayTraceHelper;
-import arekkuusu.enderskills.api.helper.TeamHelper;
 import arekkuusu.enderskills.api.registry.Skill;
 import arekkuusu.enderskills.api.util.ConfigDSL;
+import arekkuusu.enderskills.api.util.Quat;
+import arekkuusu.enderskills.api.util.Vector;
 import arekkuusu.enderskills.client.gui.data.ISkillAdvancement;
 import arekkuusu.enderskills.client.util.helper.TextHelper;
 import arekkuusu.enderskills.common.entity.data.IExpand;
-import arekkuusu.enderskills.common.entity.data.IFindEntity;
 import arekkuusu.enderskills.common.entity.data.IScanEntities;
-import arekkuusu.enderskills.common.entity.placeable.EntityPlaceableData;
+import arekkuusu.enderskills.common.entity.placeable.EntityFinalFlash;
 import arekkuusu.enderskills.common.lib.LibMod;
 import arekkuusu.enderskills.common.lib.LibNames;
 import arekkuusu.enderskills.common.skill.ModAbilities;
 import arekkuusu.enderskills.common.skill.ModAttributes;
-import arekkuusu.enderskills.common.skill.ModEffects;
+import arekkuusu.enderskills.common.skill.SkillHelper;
 import arekkuusu.enderskills.common.skill.ability.AbilityInfo;
 import arekkuusu.enderskills.common.skill.ability.BaseAbility;
 import arekkuusu.enderskills.common.sound.ModSounds;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.SoundCategory;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Config;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-import javax.annotation.Nullable;
 import java.util.List;
 
-public class FinalFlash extends BaseAbility implements IScanEntities, IExpand, IFindEntity, ISkillAdvancement {
+public class FinalFlash extends BaseAbility implements IScanEntities, IExpand, ISkillAdvancement {
 
     public FinalFlash() {
         super(LibNames.FINAL_FLASH, new AbilityProperties());
@@ -60,19 +58,29 @@ public class FinalFlash extends BaseAbility implements IScanEntities, IExpand, I
             int duration = getDuration(abilityInfo);
             double range = getRange(abilityInfo);
             double dot = getDoT(abilityInfo);
-            int dotDuration = getTime(abilityInfo);
+            double delay = getDelay(abilityInfo);
+            double size = getSize(abilityInfo);
             NBTTagCompound compound = new NBTTagCompound();
             NBTHelper.setEntity(compound, owner, "owner");
             NBTHelper.setDouble(compound, "dot", dot);
-            NBTHelper.setInteger(compound, "dotDuration", dotDuration);
+            NBTHelper.setDouble(compound, "delay", delay);
+            NBTHelper.setDouble(compound, "range", range);
+            NBTHelper.setDouble(compound, "duration", duration);
+            NBTHelper.setDouble(compound, "size", size);
             SkillData data = SkillData.of(this)
                     .by(owner)
                     .put(compound)
                     .create();
-            Vec3d pos = RayTraceHelper.getVecLookedAt(owner, 1).orElse(Vec3d.ZERO);
-            EntityPlaceableData spawn = new EntityPlaceableData(owner.world, owner, data, duration);
-            spawn.setPosition(pos.x, pos.y, pos.z);
-            spawn.setRadius(range);
+            EntityFinalFlash spawn = new EntityFinalFlash(owner.world, owner, data, duration);
+
+            Vector direction = new Vector(owner.getLookVec()).normalize();
+            Vector perpendicular = direction.perpendicular().normalize();
+            Quat quat = Quat.fromAxisAngleRad(direction, (float) Math.toRadians(360D * owner.world.rand.nextDouble()));
+            Vector rotatedPerp = perpendicular.rotate(quat).normalize().multiply(0.45);
+
+            spawn.setPosition(owner.posX + rotatedPerp.x, owner.posY + owner.getEyeHeight() + rotatedPerp.y, owner.posZ + rotatedPerp.z);
+            spawn.setRange(range);
+            spawn.setRadius(size);
             owner.world.spawnEntity(spawn);
             sync(owner);
 
@@ -82,19 +90,20 @@ public class FinalFlash extends BaseAbility implements IScanEntities, IExpand, I
         }
     }
 
-    //* Entity *//
     @Override
-    public List<Entity> getScan(Entity source, @Nullable EntityLivingBase owner, SkillData skillData, double size) {
-        return RayTraceHelper.getEntitiesInCone(source, size, 80, TeamHelper.SELECTOR_ENEMY.apply(owner));
-    }
+    public void begin(EntityLivingBase target, SkillData data) {
+        EntityLivingBase owner = SkillHelper.getOwner(data);
+        double damage = NBTHelper.getDouble(data.nbt, "dot") / NBTHelper.getDouble(data.nbt, "duration");
+        SkillDamageSource damageSource = new SkillDamageSource(BaseAbility.DAMAGE_HIT_TYPE, owner);
+        damageSource.setMagicDamage();
+        SkillDamageEvent event = new SkillDamageEvent(owner, this, damageSource, damage);
+        MinecraftForge.EVENT_BUS.post(event);
+        target.attackEntityFrom(event.getSource(), event.toFloat());
 
-    @Override
-    public void onFound(Entity source, @Nullable EntityLivingBase owner, EntityLivingBase target, SkillData skillData) {
-        if(!target.world.isRemote) {
-            ModEffects.BURNING.set(target, skillData);
+        if (target.world instanceof WorldServer) {
+            ((WorldServer) target.world).playSound(null, target.posX, target.posY, target.posZ, ModSounds.WIND_ON_HIT, SoundCategory.PLAYERS, 1.0F, (1.0F + (target.world.rand.nextFloat() - target.world.rand.nextFloat()) * 0.2F) * 0.7F);
         }
     }
-    //* Entity *//
 
     public int getMaxLevel() {
         return this.config.max_level;
@@ -104,8 +113,16 @@ public class FinalFlash extends BaseAbility implements IScanEntities, IExpand, I
         return this.config.get(this, "DOT", info.getLevel());
     }
 
+    public double getDelay(AbilityInfo info) {
+        return this.config.get(this, "DELAY", info.getLevel());
+    }
+
     public double getRange(AbilityInfo info) {
         return this.config.get(this, "RANGE", info.getLevel());
+    }
+
+    public double getSize(AbilityInfo info) {
+        return this.config.get(this, "SIZE", info.getLevel());
     }
 
     public int getDuration(AbilityInfo info) {
@@ -114,10 +131,6 @@ public class FinalFlash extends BaseAbility implements IScanEntities, IExpand, I
 
     public int getCooldown(AbilityInfo info) {
         return (int) this.config.get(this, "COOLDOWN", info.getLevel());
-    }
-
-    public int getTime(AbilityInfo info) {
-        return (int) this.config.get(this, "DOT_DURATION", info.getLevel());
     }
 
     /*Advancement Section*/
@@ -142,8 +155,10 @@ public class FinalFlash extends BaseAbility implements IScanEntities, IExpand, I
                         }
                         description.add(TextHelper.translate("desc.stats.cooldown", TextHelper.format2FloatPoint(getCooldown(abilityInfo) / 20D), TextHelper.getTextComponent("desc.stats.suffix_time")));
                         description.add(TextHelper.translate("desc.stats.range", TextHelper.format2FloatPoint(getRange(abilityInfo)), TextHelper.getTextComponent("desc.stats.suffix_blocks")));
-                        description.add(TextHelper.translate("desc.stats.duration", TextHelper.format2FloatPoint(getTime(abilityInfo) / 20D), TextHelper.getTextComponent("desc.stats.suffix_time")));
+                        description.add(TextHelper.translate("desc.stats.size", TextHelper.format2FloatPoint(getSize(abilityInfo)), TextHelper.getTextComponent("desc.stats.suffix_blocks")));
+                        description.add(TextHelper.translate("desc.stats.duration", TextHelper.format2FloatPoint(getDuration(abilityInfo) / 20D), TextHelper.getTextComponent("desc.stats.suffix_time")));
                         description.add(TextHelper.translate("desc.stats.dot", TextHelper.format2FloatPoint(getDoT(abilityInfo) / 2D), TextHelper.getTextComponent("desc.stats.suffix_hearts")));
+                        description.add(TextHelper.translate("desc.stats.delay", TextHelper.format2FloatPoint(getDelay(abilityInfo) / 20D), TextHelper.getTextComponent("desc.stats.suffix_time")));
                         if (abilityInfo.getLevel() < getMaxLevel()) {
                             if (!GuiScreen.isCtrlKeyDown()) {
                                 description.add("");
@@ -155,8 +170,10 @@ public class FinalFlash extends BaseAbility implements IScanEntities, IExpand, I
                                 description.add(TextHelper.translate("desc.stats.level_next", abilityInfo.getLevel(), infoNew.getLevel()));
                                 description.add(TextHelper.translate("desc.stats.cooldown", TextHelper.format2FloatPoint(getCooldown(infoNew) / 20D), TextHelper.getTextComponent("desc.stats.suffix_time")));
                                 description.add(TextHelper.translate("desc.stats.range", TextHelper.format2FloatPoint(getRange(infoNew)), TextHelper.getTextComponent("desc.stats.suffix_blocks")));
-                                description.add(TextHelper.translate("desc.stats.duration", TextHelper.format2FloatPoint(getTime(infoNew) / 20D), TextHelper.getTextComponent("desc.stats.suffix_time")));
+                                description.add(TextHelper.translate("desc.stats.size", TextHelper.format2FloatPoint(getSize(infoNew)), TextHelper.getTextComponent("desc.stats.suffix_blocks")));
+                                description.add(TextHelper.translate("desc.stats.duration", TextHelper.format2FloatPoint(getDuration(infoNew) / 20D), TextHelper.getTextComponent("desc.stats.suffix_time")));
                                 description.add(TextHelper.translate("desc.stats.dot", TextHelper.format2FloatPoint(getDoT(infoNew) / 2D), TextHelper.getTextComponent("desc.stats.suffix_hearts")));
+                                description.add(TextHelper.translate("desc.stats.delay", TextHelper.format2FloatPoint(getDelay(infoNew) / 20D), TextHelper.getTextComponent("desc.stats.suffix_time")));
                             }
                         }
                     });
@@ -205,6 +222,151 @@ public class FinalFlash extends BaseAbility implements IScanEntities, IExpand, I
         public static class Values {
 
             public String[] dsl = {
+                    "⠀#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~",
+                    "⠀",
+                    "⠀min_level: 0",
+                    "⠀max_level: 50",
+                    "⠀",
+                    "⠀#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~",
+                    "⠀COOLDOWN (",
+                    "⠀    curve: flat",
+                    "⠀    start: 100s",
+                    "⠀    end:   42s",
+                    "⠀",
+                    "⠀    {0 to 25} [",
+                    "⠀        curve: ramp -50% 50%",
+                    "⠀        start: {start}",
+                    "⠀        end: 58s",
+                    "⠀    ]",
+                    "⠀",
+                    "⠀    {25 to 49} [",
+                    "⠀        curve: ramp 50% 50%",
+                    "⠀        start: {0 to 25}",
+                    "⠀        end: 46s",
+                    "⠀    ]",
+                    "⠀",
+                    "⠀    {50} [",
+                    "⠀        curve: none",
+                    "⠀        value: {end}",
+                    "⠀    ]",
+                    "⠀)",
+                    "⠀#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~",
+                    "⠀RANGE (",
+                    "⠀    curve: flat",
+                    "⠀    start: 18b",
+                    "⠀    end:   32b",
+                    "⠀",
+                    "⠀    {0 to 25} [",
+                    "⠀        curve: ramp -50% 50%",
+                    "⠀        start: {start}",
+                    "⠀        end: 24b",
+                    "⠀    ]",
+                    "⠀",
+                    "⠀    {25 to 49} [",
+                    "⠀        curve: ramp 50% 50%",
+                    "⠀        start: {0 to 25}",
+                    "⠀        end: 28b",
+                    "⠀    ]",
+                    "⠀",
+                    "⠀    {50} [",
+                    "⠀        curve: none",
+                    "⠀        value: {end}",
+                    "⠀    ]",
+                    "⠀)",
+                    "⠀#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~",
+                    "⠀DELAY (",
+                    "⠀    curve: none",
+                    "⠀    value: 3s",
+                    "⠀)",
+                    "⠀#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~",
+                    "⠀SIZE (",
+                    "⠀    curve: flat",
+                    "⠀    start: 4b",
+                    "⠀    end:   8b",
+                    "⠀",
+                    "⠀    {0 to 25} [",
+                    "⠀        curve: ramp -50% 50%",
+                    "⠀        start: {start}",
+                    "⠀        end: 6b",
+                    "⠀    ]",
+                    "⠀",
+                    "⠀    {25 to 49} [",
+                    "⠀        curve: ramp 50% 50%",
+                    "⠀        start: {0 to 25}",
+                    "⠀        end: 7b",
+                    "⠀    ]",
+                    "⠀",
+                    "⠀    {50} [",
+                    "⠀        curve: none",
+                    "⠀        value: {end}",
+                    "⠀    ]",
+                    "⠀)",
+                    "⠀#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~",
+                    "⠀DURATION (",
+                    "⠀    curve: flat",
+                    "⠀    start: 8s",
+                    "⠀    end:   18s",
+                    "⠀",
+                    "⠀    {0 to 25} [",
+                    "⠀        curve: ramp -50% 50%",
+                    "⠀        start: {start}",
+                    "⠀        end: 14s",
+                    "⠀    ]",
+                    "⠀",
+                    "⠀    {25 to 49} [",
+                    "⠀        curve: ramp 50% 50%",
+                    "⠀        start: {0 to 25}",
+                    "⠀        end: 16s",
+                    "⠀    ]",
+                    "⠀",
+                    "⠀    {50} [",
+                    "⠀        curve: none",
+                    "⠀        value: {end}",
+                    "⠀    ]",
+                    "⠀)",
+                    "⠀#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~",
+                    "⠀DOT (",
+                    "⠀    curve: flat",
+                    "⠀    start: 4h",
+                    "⠀    end:   9h",
+                    "⠀",
+                    "⠀    {0 to 25} [",
+                    "⠀        curve: ramp -50% 50%",
+                    "⠀        start: {start}",
+                    "⠀        end: 4h",
+                    "⠀    ]",
+                    "⠀",
+                    "⠀    {25 to 49} [",
+                    "⠀        curve: ramp 50% 50%",
+                    "⠀        start: {0 to 25}",
+                    "⠀        end: 5h",
+                    "⠀    ]",
+                    "⠀",
+                    "⠀    {50} [",
+                    "⠀        curve: none",
+                    "⠀        value: {end}",
+                    "⠀    ]",
+                    "⠀)",
+                    "⠀#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~",
+                    "⠀XP (",
+                    "⠀    curve: flat",
+                    "⠀    start: 900",
+                    "⠀    end:   infinite",
+                    "⠀",
+                    "⠀    {0} [",
+                    "⠀        curve: none",
+                    "⠀        value: {start}",
+                    "⠀    ]",
+                    "⠀",
+                    "⠀    {1 to 49} [",
+                    "⠀        curve: multiply 4",
+                    "⠀    ]",
+                    "⠀",
+                    "⠀    {50} [",
+                    "⠀        curve: f(x, y) -> 4 * x + 4 * x * 0.1",
+                    "⠀    ]",
+                    "⠀)",
+                    "⠀#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~",
             };
         }
     }

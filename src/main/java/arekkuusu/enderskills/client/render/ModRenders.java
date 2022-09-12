@@ -20,7 +20,8 @@ import arekkuusu.enderskills.common.skill.ability.mobility.wind.*;
 import arekkuusu.enderskills.common.skill.ability.offence.blood.*;
 import arekkuusu.enderskills.common.skill.ability.offence.ender.*;
 import arekkuusu.enderskills.common.skill.ability.offence.fire.*;
-import arekkuusu.enderskills.common.skill.ability.offence.light.GleamFlash;
+import arekkuusu.enderskills.common.skill.ability.offence.light.BarrageWisp;
+import arekkuusu.enderskills.common.skill.ability.offence.light.GleamBang;
 import arekkuusu.enderskills.common.skill.ability.offence.light.LumenWave;
 import arekkuusu.enderskills.common.skill.ability.offence.light.RadiantRay;
 import arekkuusu.enderskills.common.skill.ability.offence.wind.*;
@@ -42,6 +43,7 @@ public final class ModRenders {
         registerTESR(TileAltar.class, new TileAltarRenderer());
         registerEntity(EntityPlaceableData.class, EntityPlaceableDataRenderer::new);
         registerEntity(EntityThrowableData.class, EntityThrowableDataRenderer::new);
+        registerEntity(EntityWisp.class, EntityThrowableDataRenderer::new);
         registerEntity(EntityWall.class, EntityWallRender::new);
         registerEntity(EntityWallSegment.class, EntityWallSegmentRender::new);
         registerEntity(EntityPlaceableShockwave.class, ShockwaveRenderer.Placeable::new);
@@ -60,8 +62,10 @@ public final class ModRenders {
         registerEntity(EntityPlaceableRingOfFire.class, RingOfFireRenderer.Placeable::new);
         registerEntity(EntityPlaceableSlash.class, SlashRenderer.Placeable::new);
         registerEntity(EntityPlaceableLumenWave.class, LumenWaveRenderer.Placeable::new);
-        registerEntity(EntityPlaceableGleamFlash.class, GleamFlashRenderer.Placeable::new);
+        registerEntity(EntityPlaceableGleamFlash.class, GleamBangRenderer.Placeable::new);
         registerEntity(EntitySolarLance.class, SolarLanceRenderer.Placeable::new);
+        registerEntity(EntityPlaceableGlowing.class, GlowingRenderer.Placeable::new);
+        registerEntity(EntityFinalFlash.class, FinalFlashRenderer.Placeable::new);
     }
 
     public static void init() {
@@ -123,9 +127,8 @@ public final class ModRenders {
         registerSkill(HomeStar.class, new HomeStarRenderer());
         registerSkill(RadiantRay.class, new RadiantRayRenderer());
         registerSkill(LumenWave.class, new LumenWaveRenderer());
-        registerSkill(GleamFlash.class, new GleamFlashRenderer());
+        registerSkill(GleamBang.class, new GleamBangRenderer());
         //Effects
-        registerSkill(Glowing.class, new GlowingRenderer());
         registerSkill(Bleeding.class, new BleedingRenderer());
         registerSkill(Blinded.class, new BlindedRenderer());
         registerSkill(Burning.class, new BurningRenderer());
@@ -135,6 +138,7 @@ public final class ModRenders {
         registerSkill(Overcharge.class, new OverchargeRenderer());
         registerSkill(Electrified.class, new ElectrifiedRenderer());
         registerSkill(Pulsar.class, new PulsarRenderer());
+        registerSkill(BarrageWisp.class, new WispRenderer());
     }
 
     public static void postInit() {
