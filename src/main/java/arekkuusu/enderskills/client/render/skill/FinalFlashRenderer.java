@@ -4,16 +4,21 @@ import arekkuusu.enderskills.api.util.Vector;
 import arekkuusu.enderskills.client.ClientConfig;
 import arekkuusu.enderskills.client.util.ResourceLibrary;
 import arekkuusu.enderskills.client.util.ShaderLibrary;
+import arekkuusu.enderskills.client.util.helper.GLHelper;
 import arekkuusu.enderskills.client.util.helper.RenderMisc;
 import arekkuusu.enderskills.common.entity.EntitySolarLance;
 import arekkuusu.enderskills.common.entity.placeable.EntityFinalFlash;
+import arekkuusu.enderskills.common.lib.LibMod;
 import arekkuusu.enderskills.common.skill.ability.offence.ender.BlackHole;
 import arekkuusu.enderskills.common.skill.ability.offence.light.FinalFlash;
 import com.sasmaster.glelwjgl.java.CoreGLE;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.entity.RenderManager;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -23,6 +28,8 @@ import javax.annotation.Nonnull;
 
 @SideOnly(Side.CLIENT)
 public class FinalFlashRenderer extends SkillRenderer<FinalFlash> {
+
+    private static final ResourceLocation FOLLOWING = new ResourceLocation(LibMod.MOD_ID, "textures/entity/fire_spirit_.png");
 
     public static class Placeable extends Render<EntityFinalFlash> {
 
@@ -35,10 +42,40 @@ public class FinalFlashRenderer extends SkillRenderer<FinalFlash> {
 
         @Override
         public void doRender(EntityFinalFlash entity, double x, double y, double z, float entityYaw, float partialTicks) {
-            float scale = entity.tickDelay > entity.getData().nbt.getInteger("delay")
-                    ? (float) entity.getScale(entity.tick + partialTicks)
-                    : 0.1F;
-            entity.points.replaceAll(p -> entity.world.rand.nextDouble() < 0.4D ? (p.add(Vector.ONE.rotateRandom(entity.world.rand, 360).multiply(0.0001).toVec3d())) : p);
+            //
+            GlStateManager.pushMatrix();
+            GLHelper.BLEND_SRC_ALPHA$ONE.blend();
+            if (!ClientConfig.RENDER_CONFIG.rendering.helpMyShadersAreDying) {
+                ShaderLibrary.ALPHA.begin();
+                ShaderLibrary.ALPHA.set("alpha", 0.8F);
+            }
+            GlStateManager.disableLighting();
+            GlStateManager.enableBlend();
+            GlStateManager.translate(x, y, z);
+            GlStateManager.rotate(-entity.rotationYaw, 0.0F, 1.0F, 0.0F);
+            GlStateManager.rotate(entity.rotationPitch, 1.0F, 0.0F, 0.0F);
+            GlStateManager.rotate((entity.ticksExisted * 5) % 360F, 0F, 0F, 1F);
+            this.bindTexture(FOLLOWING);
+            float size = entity.getRadius() + 1;
+            Tessellator tessellator = Tessellator.getInstance();
+            BufferBuilder buffer = tessellator.getBuffer();
+            buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
+            buffer.pos(-size, -size, 0).tex(0, 0).endVertex();
+            buffer.pos(size, -size, 0).tex(1, 0).endVertex();
+            buffer.pos(size, size, 0).tex(1, 1).endVertex();
+            buffer.pos(-size, size, 0).tex(0, 1).endVertex();
+            buffer.pos(-size, size, 0).tex(0, 1).endVertex();
+            buffer.pos(size, size, 0).tex(1, 1).endVertex();
+            buffer.pos(size, -size, 0).tex(1, 0).endVertex();
+            buffer.pos(-size, -size, 0).tex(0, 0).endVertex();
+            tessellator.draw();
+            GlStateManager.disableBlend();
+            GlStateManager.enableLighting();
+            if (!ClientConfig.RENDER_CONFIG.rendering.helpMyShadersAreDying) {
+                ShaderLibrary.ALPHA.end();
+            }
+            GlStateManager.popMatrix();
+            //
             GlStateManager.pushMatrix();
             GlStateManager.translate(x, y, z);
             GlStateManager.rotate(-entity.rotationYaw - 90, 0F, 1F, 0F);
@@ -51,13 +88,13 @@ public class FinalFlashRenderer extends SkillRenderer<FinalFlash> {
                     ShaderLibrary.UNIVERSE.set("yaw", (Minecraft.getMinecraft().player.rotationYaw * 2F * 3.141592653589793F / 360F));
                     ShaderLibrary.UNIVERSE.set("pitch", -(Minecraft.getMinecraft().player.rotationPitch * 2F * 3.141592653589793F / 360.0F));
                     ShaderLibrary.UNIVERSE.set("color", 0F, 0, 0);
-                    ShaderLibrary.UNIVERSE.set("ticks", RenderMisc.getRenderPlayerTime() * 5);
+                    ShaderLibrary.UNIVERSE.set("ticks", RenderMisc.getRenderPlayerTime() * 15);
                     ShaderLibrary.UNIVERSE.set("alpha", 1F);
                 } else {
                     ShaderLibrary.UNIVERSE_DEFAULT_WHITE.begin();
                     ShaderLibrary.UNIVERSE_DEFAULT_WHITE.set("yaw", (Minecraft.getMinecraft().player.rotationYaw * 2F * 3.141592653589793F / 360F));
                     ShaderLibrary.UNIVERSE_DEFAULT_WHITE.set("pitch", -(Minecraft.getMinecraft().player.rotationPitch * 2F * 3.141592653589793F / 360.0F));
-                    ShaderLibrary.UNIVERSE_DEFAULT_WHITE.set("time", RenderMisc.getRenderPlayerTime());
+                    ShaderLibrary.UNIVERSE_DEFAULT_WHITE.set("time", RenderMisc.getRenderPlayerTime() * 15);
                     ShaderLibrary.UNIVERSE_DEFAULT_WHITE.set("alpha", 1F);
                 }
             }
@@ -78,7 +115,9 @@ public class FinalFlashRenderer extends SkillRenderer<FinalFlash> {
                         colours[a][1] = 1F;
                         colours[a][2] = 1F;
                         colours[a][3] = 1F;
-                        radii[a] = entity.pointsWidth.get(a) * ((q < 3) ? (1.05F + 0.025F * q) : 1F) * scale;
+                        radii[a] = entity.tickDelay > entity.getData().nbt.getInteger("delay")
+                                ? (float) entity.getScale(entity.tick + partialTicks) * entity.pointsWidth.get(a) * ((q < 3) ? (1.05F + 0.025F * q) : 1F)
+                                : 0.05F;
                     }
                     this.gle.set_POLYCYL_TESS(12);
                     this.gle.gleSetJoinStyle(1026);

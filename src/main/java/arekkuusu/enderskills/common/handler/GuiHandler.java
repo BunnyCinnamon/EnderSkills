@@ -1817,8 +1817,8 @@ public final class GuiHandler implements IGuiHandler {
                         );
                         SkillAdvancementConditionSimple brown_out = new SkillAdvancementConditionSimple(
                                 new SkillAdvancementInfo(
-                                        new TextComponentTranslation(get("skill.brown_out.title")),
-                                        new TextComponentTranslation(get("skill.brown_out.description")),
+                                        new TextComponentTranslation(get("skill.barrage_wisp.title")),
+                                        new TextComponentTranslation(get("skill.barrage_wisp.description")),
                                         SkillAdvancementInfo.Frame.ROUNDED,
                                         ModAbilities.BARRAGE_WISP,
                                         false
@@ -1827,8 +1827,8 @@ public final class GuiHandler implements IGuiHandler {
                         );
                         SkillAdvancementConditionSimple superstar = new SkillAdvancementConditionSimple(
                                 new SkillAdvancementInfo(
-                                        new TextComponentTranslation(get("skill.superstar.title")),
-                                        new TextComponentTranslation(get("skill.superstar.description")),
+                                        new TextComponentTranslation(get("skill.final_flash.title")),
+                                        new TextComponentTranslation(get("skill.final_flash.description")),
                                         SkillAdvancementInfo.Frame.SPECIAL,
                                         ModAbilities.FINAL_FLASH,
                                         false
@@ -1839,7 +1839,7 @@ public final class GuiHandler implements IGuiHandler {
                         //Requirements
                         lumen_wave.addCondition(radiant_ray);
                         lumen_wave.addCondition(new SkillAdvancementConditionNotOrOverride(gleam_flash, superstar));
-                        gleam_flash.addCondition(fire_spirit);
+                        gleam_flash.addCondition(radiant_ray);
                         gleam_flash.addCondition(new SkillAdvancementConditionNotOrOverride(lumen_wave, superstar));
                         solar_lance.addCondition(new SkillAdvancementConditionOr(lumen_wave, gleam_flash));
                         solar_lance.addCondition(new SkillAdvancementConditionNotOrOverride(brown_out, superstar));

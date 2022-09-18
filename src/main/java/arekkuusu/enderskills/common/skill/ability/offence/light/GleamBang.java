@@ -183,7 +183,7 @@ public class GleamBang extends BaseAbility implements IImpact, ILoopSound, IExpa
                         description.add(TextHelper.translate("desc.stats.range", TextHelper.format2FloatPoint(getRange(abilityInfo)), TextHelper.getTextComponent("desc.stats.suffix_blocks")));
                         description.add(TextHelper.translate("desc.stats.damage", TextHelper.format2FloatPoint(getDamage(abilityInfo) / 2D), TextHelper.getTextComponent("desc.stats.suffix_hearts")));
                         description.add(TextHelper.translate("desc.stats.distance", TextHelper.format2FloatPoint(getTravel(abilityInfo)), TextHelper.getTextComponent("desc.stats.suffix_blocks")));
-                        description.add(TextHelper.translate("desc.stats.time", TextHelper.format2FloatPoint(getTime(abilityInfo)), TextHelper.getTextComponent("desc.stats.suffix_blocks")));
+                        description.add(TextHelper.translate("desc.stats.duration", TextHelper.format2FloatPoint(getTime(abilityInfo)), TextHelper.getTextComponent("desc.stats.suffix_blocks")));
                         description.add(TextHelper.translate("desc.stats.delay", TextHelper.format2FloatPoint(getDelay(abilityInfo)), TextHelper.getTextComponent("desc.stats.suffix_blocks")));
                         if (abilityInfo.getLevel() < getMaxLevel()) {
                             if (!GuiScreen.isCtrlKeyDown()) {
@@ -198,7 +198,7 @@ public class GleamBang extends BaseAbility implements IImpact, ILoopSound, IExpa
                                 description.add(TextHelper.translate("desc.stats.range", TextHelper.format2FloatPoint(getRange(infoNew)), TextHelper.getTextComponent("desc.stats.suffix_blocks")));
                                 description.add(TextHelper.translate("desc.stats.damage", TextHelper.format2FloatPoint(getDamage(infoNew) / 2D), TextHelper.getTextComponent("desc.stats.suffix_hearts")));
                                 description.add(TextHelper.translate("desc.stats.distance", TextHelper.format2FloatPoint(getTravel(infoNew)), TextHelper.getTextComponent("desc.stats.suffix_blocks")));
-                                description.add(TextHelper.translate("desc.stats.time", TextHelper.format2FloatPoint(getTime(infoNew)), TextHelper.getTextComponent("desc.stats.suffix_blocks")));
+                                description.add(TextHelper.translate("desc.stats.duration", TextHelper.format2FloatPoint(getTime(infoNew)), TextHelper.getTextComponent("desc.stats.suffix_blocks")));
                                 description.add(TextHelper.translate("desc.stats.delay", TextHelper.format2FloatPoint(getDelay(infoNew)), TextHelper.getTextComponent("desc.stats.suffix_blocks")));
                             }
                         }

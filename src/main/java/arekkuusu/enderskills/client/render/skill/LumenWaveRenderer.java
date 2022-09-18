@@ -20,6 +20,7 @@ import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.client.MinecraftForgeClient;
@@ -59,7 +60,7 @@ public class LumenWaveRenderer extends SkillRenderer<LumenWave> {
                         double posX = vec.x + entity.width * (entity.world.rand.nextDouble() - 0.5);
                         double posY = vec.y + entity.height * (entity.world.rand.nextDouble() - 0.5);
                         double posZ = vec.z + entity.width * (entity.world.rand.nextDouble() - 0.5);
-                        EnderSkills.getProxy().spawnParticle(entity.world, new Vec3d(posX, posY, posZ), new Vec3d(0, 0, 0), 1, 50, 0xFFFFFF, ResourceLibrary.MINUS);
+                        entity.world.spawnParticle(EnumParticleTypes.END_ROD, posX, posY, posZ, 0, 0, 0);
                     }
                 }
             }

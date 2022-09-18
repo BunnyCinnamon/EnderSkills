@@ -445,13 +445,14 @@ public final class RayTraceHelper {
     public static List<EntityLivingBase> findInRangeSize(Entity source, float range, double size, EntityLivingBase owner) {
         List<EntityLivingBase> entities = Lists.newArrayList();
         Vec3d lookVector = source.getLook(1F);
+        Vec3d positionEyes = source.getPositionEyes(1F);
 
-        double step = size / range;
+        double step = 1;
         double count = step;
         boolean first = true;
         while (count < range || first) {
             first = false;
-            Vec3d targetVector = source.getPositionEyes(1F).addVector(
+            Vec3d targetVector = positionEyes.addVector(
                     lookVector.x * count,
                     lookVector.y * count,
                     lookVector.z * count
@@ -461,7 +462,7 @@ public final class RayTraceHelper {
                     targetVector.x + size, targetVector.y + size, targetVector.z + size
             );
             for (Entity entity : source.world.getEntitiesInAABBexcluding(source, bb, TeamHelper.SELECTOR_ENEMY.apply(owner))) {
-                if (entity instanceof EntityLivingBase) {
+                if (entity instanceof EntityLivingBase && entity.getDistance(positionEyes.x, positionEyes.y, positionEyes.z) < range) {
                     entities.add((EntityLivingBase) entity);
                 }
             }

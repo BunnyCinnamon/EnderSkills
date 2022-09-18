@@ -3,6 +3,7 @@ package arekkuusu.enderskills.common.entity.placeable;
 import arekkuusu.enderskills.api.capability.data.SkillData;
 import arekkuusu.enderskills.api.helper.NBTHelper;
 import arekkuusu.enderskills.api.helper.RayTraceHelper;
+import arekkuusu.enderskills.api.helper.TeamHelper;
 import arekkuusu.enderskills.client.sounds.FinalFlashSound;
 import arekkuusu.enderskills.common.entity.data.SkillExtendedData;
 import arekkuusu.enderskills.common.skill.ModAbilities;
@@ -153,23 +154,6 @@ public class EntityFinalFlash extends Entity {
                     setEntityBoundingBox(bb);
                 }
             }
-        }
-        if (world.isRemote) {
-            Vec3d pos = getPositionVector();
-            double particlespeed = 0.05;
-            Vec3d particlePos = new Vec3d(0, 0, getRadius());
-            particlePos = particlePos.rotateYaw(rand.nextFloat() * 180f);
-            particlePos = particlePos.rotatePitch(rand.nextFloat() * 360f);
-
-            Vec3d velocity = particlePos.normalize();
-            velocity = new Vec3d(
-                    velocity.x * particlespeed,
-                    velocity.y * particlespeed,
-                    velocity.z * particlespeed
-            );
-            particlePos = particlePos.add(pos);
-
-            world.spawnParticle(EnumParticleTypes.END_ROD, particlePos.x, particlePos.y, particlePos.z, velocity.x, velocity.y, velocity.z);
         }
         if (tickDelay > getData().nbt.getInteger("delay")) {
             tick++;
