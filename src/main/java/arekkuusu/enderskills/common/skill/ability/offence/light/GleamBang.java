@@ -11,6 +11,7 @@ import arekkuusu.enderskills.api.registry.Skill;
 import arekkuusu.enderskills.api.util.ConfigDSL;
 import arekkuusu.enderskills.client.gui.data.ISkillAdvancement;
 import arekkuusu.enderskills.client.sounds.FlamingRainSound;
+import arekkuusu.enderskills.client.sounds.GleamBangSound;
 import arekkuusu.enderskills.client.util.helper.TextHelper;
 import arekkuusu.enderskills.common.entity.data.IExpand;
 import arekkuusu.enderskills.common.entity.data.IFindEntity;
@@ -83,7 +84,7 @@ public class GleamBang extends BaseAbility implements IImpact, ILoopSound, IExpa
             sync(owner);
 
             if (owner.world instanceof WorldServer) {
-                ((WorldServer) owner.world).playSound(null, owner.posX, owner.posY, owner.posZ, ModSounds.FLAMING_RAIN, SoundCategory.PLAYERS, 1.0F, (1.0F + (owner.world.rand.nextFloat() - owner.world.rand.nextFloat()) * 0.2F) * 0.7F);
+                ((WorldServer) owner.world).playSound(null, owner.posX, owner.posY, owner.posZ, ModSounds.GLEAM_BANG_CAST, SoundCategory.PLAYERS, 1.0F, (1.0F + (owner.world.rand.nextFloat() - owner.world.rand.nextFloat()) * 0.2F) * 0.7F);
             }
         }
     }
@@ -122,12 +123,16 @@ public class GleamBang extends BaseAbility implements IImpact, ILoopSound, IExpa
         if(event.getAmount() > 0 && event.getAmount() < Double.MAX_VALUE) {
             target.attackEntityFrom(event.getSource(), event.toFloat());
         }
+
+        if (target.world instanceof WorldServer) {
+            ((WorldServer) target.world).playSound(null, target.posX, target.posY, target.posZ, ModSounds.OFFLIGHT_ONHIT, SoundCategory.PLAYERS, 1.0F, (1.0F + (target.world.rand.nextFloat() - target.world.rand.nextFloat()) * 0.2F) * 0.7F);
+        }
     }
 
     @Override
     @SideOnly(Side.CLIENT)
     public void makeSound(Entity source) {
-        Minecraft.getMinecraft().getSoundHandler().playSound(new FlamingRainSound((EntityPlaceableData) source));
+        Minecraft.getMinecraft().getSoundHandler().playSound(new GleamBangSound((EntityPlaceableData) source));
     }
     //* Entity *//
 

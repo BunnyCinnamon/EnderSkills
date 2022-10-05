@@ -83,10 +83,6 @@ public class FinalFlash extends BaseAbility implements IScanEntities, IExpand, I
             spawn.setRadius(size);
             owner.world.spawnEntity(spawn);
             sync(owner);
-
-            if (owner.world instanceof WorldServer) {
-                ((WorldServer) owner.world).playSound(null, owner.posX, owner.posY, owner.posZ, ModSounds.FLAMING_BREATH, SoundCategory.PLAYERS, 1.0F, (1.0F + (owner.world.rand.nextFloat() - owner.world.rand.nextFloat()) * 0.2F) * 0.7F);
-            }
         }
     }
 
@@ -100,8 +96,8 @@ public class FinalFlash extends BaseAbility implements IScanEntities, IExpand, I
         MinecraftForge.EVENT_BUS.post(event);
         target.attackEntityFrom(event.getSource(), event.toFloat());
 
-        if (target.world instanceof WorldServer) {
-            ((WorldServer) target.world).playSound(null, target.posX, target.posY, target.posZ, ModSounds.WIND_ON_HIT, SoundCategory.PLAYERS, 1.0F, (1.0F + (target.world.rand.nextFloat() - target.world.rand.nextFloat()) * 0.2F) * 0.7F);
+        if (target.ticksExisted % 10 == 0 && target.world instanceof WorldServer) {
+            ((WorldServer) target.world).playSound(null, target.posX, target.posY, target.posZ, ModSounds.OFFLIGHT_ONHIT, SoundCategory.PLAYERS, 1.0F, (1.0F + (target.world.rand.nextFloat() - target.world.rand.nextFloat()) * 0.2F) * 0.7F);
         }
     }
 
@@ -304,19 +300,19 @@ public class FinalFlash extends BaseAbility implements IScanEntities, IExpand, I
                     "⠀#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~",
                     "⠀DURATION (",
                     "⠀    curve: flat",
-                    "⠀    start: 8s",
-                    "⠀    end:   18s",
+                    "⠀    start: 4s",
+                    "⠀    end:   6s",
                     "⠀",
                     "⠀    {0 to 25} [",
                     "⠀        curve: ramp -50% 50%",
                     "⠀        start: {start}",
-                    "⠀        end: 14s",
+                    "⠀        end: 5s",
                     "⠀    ]",
                     "⠀",
                     "⠀    {25 to 49} [",
                     "⠀        curve: ramp 50% 50%",
                     "⠀        start: {0 to 25}",
-                    "⠀        end: 16s",
+                    "⠀        end: 5.4s",
                     "⠀    ]",
                     "⠀",
                     "⠀    {50} [",

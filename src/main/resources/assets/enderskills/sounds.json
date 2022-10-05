@@ -550,5 +550,83 @@
       "enderskills:home_star_boom"
     ],
     "subtitle": "enderskills.subtitle.home_star_boom"
+  },
+  "barrage_whisps_cast": {
+    "sounds": [
+      "enderskills:barrage_whisps_cast"
+    ],
+    "subtitle": "enderskills.subtitle.barrage_whisps_cast"
+  },
+  "barrage_whisps_release": {
+    "sounds": [
+      "enderskills:barrage_whisps_release"
+    ],
+    "subtitle": "enderskills.subtitle.barrage_whisps_release"
+  },
+  "final_flash_cast": {
+    "sounds": [
+      "enderskills:final_flash_cast"
+    ],
+    "subtitle": "enderskills.subtitle.final_flash_cast"
+  },
+  "final_flash_release": {
+    "sounds": [
+      "enderskills:final_flash_release"
+    ],
+    "subtitle": "enderskills.subtitle.final_flash_release"
+  },
+  "gleam_bang_cast": {
+    "sounds": [
+      "enderskills:gleam_bang_cast"
+    ],
+    "subtitle": "enderskills.subtitle.gleam_bang_cast"
+  },
+  "gleam_bang_release": {
+    "sounds": [
+      "enderskills:gleam_bang_release"
+    ],
+    "subtitle": "enderskills.subtitle.gleam_bang_release"
+  },
+  "lumin_wave_cast": {
+    "sounds": [
+      "enderskills:lumin_wave_cast"
+    ],
+    "subtitle": "enderskills.subtitle.lumin_wave_cast"
+  },
+  "lumin_wave_release": {
+    "sounds": [
+      "enderskills:lumin_wave_release"
+    ],
+    "subtitle": "enderskills.subtitle.lumin_wave_release"
+  },
+  "offlight_onhit": {
+    "sounds": [
+      "enderskills:offlight_onhit"
+    ],
+    "subtitle": "enderskills.subtitle.offlight_onhit"
+  },
+  "passive_pop": {
+    "sounds": [
+      "enderskills:passive_pop"
+    ],
+    "subtitle": "enderskills.subtitle.passive_pop"
+  },
+  "radiant_ray_cast": {
+    "sounds": [
+      "enderskills:radiant_ray_cast"
+    ],
+    "subtitle": "enderskills.subtitle.radiant_ray_cast"
+  },
+  "radiant_ray_release": {
+    "sounds": [
+      "enderskills:radiant_ray_release"
+    ],
+    "subtitle": "enderskills.subtitle.radiant_ray_release"
+  },
+  "solar_lance_cast": {
+    "sounds": [
+      "enderskills:solar_lance_cast"
+    ],
+    "subtitle": "enderskills.subtitle.solar_lance_cast"
   }
 }

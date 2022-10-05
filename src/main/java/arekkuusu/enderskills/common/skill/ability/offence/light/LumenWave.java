@@ -88,7 +88,7 @@ public class LumenWave extends BaseAbility implements IScanEntities, IExpand, IF
             sync(owner);
 
             if (spawn.world instanceof WorldServer) {
-                ((WorldServer) spawn.world).playSound(null, spawn.posX, spawn.posY, spawn.posZ, ModSounds.SLASH, SoundCategory.PLAYERS, 1.0F, (1.0F + (spawn.world.rand.nextFloat() - spawn.world.rand.nextFloat()) * 0.2F) * 0.7F);
+                ((WorldServer) spawn.world).playSound(null, spawn.posX, spawn.posY, spawn.posZ, ModSounds.LUMIN_WAVE_CAST, SoundCategory.PLAYERS, 1.0F, (1.0F + (spawn.world.rand.nextFloat() - spawn.world.rand.nextFloat()) * 0.2F) * 0.7F);
             }
         }
     }
@@ -131,6 +131,10 @@ public class LumenWave extends BaseAbility implements IScanEntities, IExpand, IF
 
         if (target.world instanceof WorldServer) {
             ((WorldServer) target.world).playSound(null, target.posX, target.posY, target.posZ, ModSounds.WIND_ON_HIT, SoundCategory.PLAYERS, 1.0F, (1.0F + (target.world.rand.nextFloat() - target.world.rand.nextFloat()) * 0.2F) * 0.7F);
+        }
+
+        if (target.world instanceof WorldServer) {
+            ((WorldServer) target.world).playSound(null, target.posX, target.posY, target.posZ, ModSounds.OFFLIGHT_ONHIT, SoundCategory.PLAYERS, 1.0F, (1.0F + (target.world.rand.nextFloat() - target.world.rand.nextFloat()) * 0.2F) * 0.7F);
         }
     }
     //* Entity *//

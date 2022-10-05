@@ -4,13 +4,16 @@ import arekkuusu.enderskills.api.capability.data.SkillData;
 import arekkuusu.enderskills.api.helper.RayTraceHelper;
 import arekkuusu.enderskills.client.render.skill.LumenWaveRenderer;
 import arekkuusu.enderskills.common.skill.SkillHelper;
+import arekkuusu.enderskills.common.sound.ModSounds;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.MoverType;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+import net.minecraft.world.WorldServer;
 
 import javax.annotation.Nullable;
 
@@ -39,6 +42,9 @@ public class EntityPlaceableLumenWave extends EntityPlaceableData {
                         setPosition(raytraceresult.hitVec.x, raytraceresult.hitVec.y + (raytraceresult.sideHit == EnumFacing.UP ? 1 : -1), raytraceresult.hitVec.z);
                     }
                     motionY = 0;
+                    if (world instanceof WorldServer) {
+                        ((WorldServer) world).playSound(null, posX, posY, posZ, ModSounds.LUMIN_WAVE_RELEASE, SoundCategory.PLAYERS, 1.0F, (1.0F + (world.rand.nextFloat() - world.rand.nextFloat()) * 0.2F) * 0.7F);
+                    }
                 }
             }
             move(MoverType.SELF, motionX, motionY, motionZ);

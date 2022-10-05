@@ -105,7 +105,7 @@ public class SolarLance extends BaseAbility implements ISkillAdvancement {
         target.attackEntityFrom(event.getSource(), event.toFloat());
 
         if (target.world instanceof WorldServer) {
-            ((WorldServer) target.world).playSound(null, target.posX, target.posY, target.posZ, ModSounds.WIND_ON_HIT, SoundCategory.PLAYERS, 1.0F, (1.0F + (target.world.rand.nextFloat() - target.world.rand.nextFloat()) * 0.2F) * 0.7F);
+            ((WorldServer) target.world).playSound(null, target.posX, target.posY, target.posZ, ModSounds.OFFLIGHT_ONHIT, SoundCategory.PLAYERS, 1.0F, (1.0F + (target.world.rand.nextFloat() - target.world.rand.nextFloat()) * 0.2F) * 0.7F);
         }
     }
 
@@ -156,7 +156,7 @@ public class SolarLance extends BaseAbility implements ISkillAdvancement {
                         description.add(TextHelper.translate("desc.stats.cooldown", TextHelper.format2FloatPoint(getCooldown(abilityInfo) / 20D), TextHelper.getTextComponent("desc.stats.suffix_time")));
                         description.add(TextHelper.translate("desc.stats.lance_range", TextHelper.format2FloatPoint(getLanceRange(abilityInfo)), TextHelper.getTextComponent("desc.stats.suffix_blocks")));
                         description.add(TextHelper.translate("desc.stats.range", TextHelper.format2FloatPoint(getRange(abilityInfo)), TextHelper.getTextComponent("desc.stats.suffix_blocks")));
-                        description.add(TextHelper.translate("desc.stats.piercing", TextHelper.format2FloatPoint(getPenis(abilityInfo)), TextHelper.getTextComponent("desc.stats.suffix_hearts")));
+                        description.add(TextHelper.translate("desc.stats.piercing", TextHelper.format2FloatPoint(getPenis(abilityInfo)), TextHelper.getTextComponent("desc.stats.suffix_enemies")));
                         description.add(TextHelper.translate("desc.stats.damage", TextHelper.format2FloatPoint(getDamage(abilityInfo) / 2D), TextHelper.getTextComponent("desc.stats.suffix_hearts")));
                         if (abilityInfo.getLevel() < getMaxLevel()) {
                             if (!GuiScreen.isCtrlKeyDown()) {
@@ -170,7 +170,7 @@ public class SolarLance extends BaseAbility implements ISkillAdvancement {
                                 description.add(TextHelper.translate("desc.stats.cooldown", TextHelper.format2FloatPoint(getCooldown(infoNew) / 20D), TextHelper.getTextComponent("desc.stats.suffix_time")));
                                 description.add(TextHelper.translate("desc.stats.lance_range", TextHelper.format2FloatPoint(getLanceRange(infoNew)), TextHelper.getTextComponent("desc.stats.suffix_blocks")));
                                 description.add(TextHelper.translate("desc.stats.range", TextHelper.format2FloatPoint(getRange(infoNew)), TextHelper.getTextComponent("desc.stats.suffix_blocks")));
-                                description.add(TextHelper.translate("desc.stats.piercing", TextHelper.format2FloatPoint(getPenis(infoNew)), TextHelper.getTextComponent("desc.stats.suffix_hearts")));
+                                description.add(TextHelper.translate("desc.stats.piercing", TextHelper.format2FloatPoint(getPenis(infoNew)), TextHelper.getTextComponent("desc.stats.suffix_enemies")));
                                 description.add(TextHelper.translate("desc.stats.damage", TextHelper.format2FloatPoint(getDamage(infoNew) / 2D), TextHelper.getTextComponent("desc.stats.suffix_hearts")));
                             }
                         }

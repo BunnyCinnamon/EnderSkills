@@ -78,7 +78,7 @@ public class RadiantRayRenderer extends SkillRenderer<RadiantRay> {
             }
             scale *= mod;
             long totalWorldTime = (long) (entity.world.getTotalWorldTime() + partialTicks);
-            GlStateManager.color(1F, 1F, 1F, 1F);
+            GlStateManager.color(122F / 255F, 1.0f,  252F / 255F, 1F);
             //Render cube
             GlStateManager.pushMatrix();
             float lastBrightnessX = OpenGlHelper.lastBrightnessX;
@@ -89,7 +89,7 @@ public class RadiantRayRenderer extends SkillRenderer<RadiantRay> {
             GlStateManager.depthMask(false);
             GLHelper.BLEND_SRC_ALPHA$ONE.blend();
             GlStateManager.pushMatrix();
-            GlStateManager.color(1,1,1, (float) (0.3 * mod));
+            GlStateManager.color(122F / 255F, 1.0f,  252F / 255F, (float) (0.3 * mod));
             Minecraft.getMinecraft().getTextureManager().bindTexture(GLINT);
             GlStateManager.matrixMode(GL11.GL_TEXTURE);
             GlStateManager.scale(0.06F, 0.06F, 0.06F);
@@ -107,7 +107,7 @@ public class RadiantRayRenderer extends SkillRenderer<RadiantRay> {
             GlStateManager.popMatrix();
             //Render cube
             GlStateManager.pushMatrix();
-            GlStateManager.color(1,1,1, (float) (0.3 * mod));
+            GlStateManager.color(122F / 255F, 1.0f,  252F / 255F, (float) (0.3 * mod));
             Minecraft.getMinecraft().getTextureManager().bindTexture(GLINT);
             GlStateManager.matrixMode(GL11.GL_TEXTURE);
             GlStateManager.scale(0.1F, 0.1F, 0.1F);

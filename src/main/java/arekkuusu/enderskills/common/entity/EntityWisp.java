@@ -4,10 +4,14 @@ import arekkuusu.enderskills.api.capability.data.SkillData;
 import arekkuusu.enderskills.api.helper.RayTraceHelper;
 import arekkuusu.enderskills.api.helper.TeamHelper;
 import arekkuusu.enderskills.common.entity.throwable.EntityThrowableData;
+import arekkuusu.enderskills.common.sound.ModSounds;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.MoverType;
+import net.minecraft.util.SoundCategory;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+import net.minecraft.world.WorldServer;
 
 import java.util.List;
 
@@ -41,7 +45,8 @@ public class EntityWisp extends EntityThrowableData {
                 if (tickDelay > getData().nbt.getInteger("delay")) {
                     EntityLivingBase owner = getEntityByUUID(getOwnerId());
                     if(owner != null && getFollowId() == null) {
-                        List<Entity> list = RayTraceHelper.getEntitiesInCone2(this, startVector, getDistance(), 60, TeamHelper.getEnemyTeamPredicate(owner));
+                        Vec3d vector = startVector.add(getLookVec().normalize().scale(-1).scale(3));
+                        List<Entity> list = RayTraceHelper.getEntitiesInCone2(this, vector, getDistance() + 3, 70, TeamHelper.getEnemyTeamPredicate(owner));
                         if (!list.isEmpty()) {
                             Entity target = list.get(0);
                             for (Entity entity : list) {
@@ -49,7 +54,12 @@ public class EntityWisp extends EntityThrowableData {
                                     target = entity;
                                 }
                             }
-                            if(target instanceof EntityLivingBase) setFollowId(target.getUniqueID());
+                            if(target instanceof EntityLivingBase) {
+                                setFollowId(target.getUniqueID());
+                                if (world instanceof WorldServer) {
+                                    ((WorldServer) world).playSound(null, posX, posY, posZ, ModSounds.BARRAGE_WHISPS_RELEASE, SoundCategory.PLAYERS, 1.0F, (1.0F + (world.rand.nextFloat() - world.rand.nextFloat()) * 0.2F) * 0.7F);
+                                }
+                            }
                         }
                     }
                     this.motionX = 0;

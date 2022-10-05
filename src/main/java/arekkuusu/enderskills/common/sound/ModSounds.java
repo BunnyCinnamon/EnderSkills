@@ -108,6 +108,19 @@ public final class ModSounds {
     public static final SoundEvent WARM_HEART = empty();
     public static final SoundEvent HOME_STAR_ACTIVE = empty();
     public static final SoundEvent HOME_STAR_BOOM = empty();
+    public static final SoundEvent BARRAGE_WHISPS_CAST = empty();
+    public static final SoundEvent BARRAGE_WHISPS_RELEASE = empty();
+    public static final SoundEvent FINAL_FLASH_CAST = empty();
+    public static final SoundEvent FINAL_FLASH_RELEASE = empty();
+    public static final SoundEvent GLEAM_BANG_CAST = empty();
+    public static final SoundEvent GLEAM_BANG_RELEASE = empty();
+    public static final SoundEvent LUMIN_WAVE_CAST = empty();
+    public static final SoundEvent LUMIN_WAVE_RELEASE = empty();
+    public static final SoundEvent OFFLIGHT_ONHIT = empty();
+    public static final SoundEvent PASSIVE_POP = empty();
+    public static final SoundEvent RADIANT_RAY_CAST = empty();
+    public static final SoundEvent RADIANT_RAY_RELEASE = empty();
+    public static final SoundEvent SOLAR_LANCE_CAST = empty();
 
     public static void register(IForgeRegistry<SoundEvent> registry) {
         registry.register(new SoundBase("page_turn"));
@@ -202,5 +215,18 @@ public final class ModSounds {
         registry.register(new SoundBase("warm_heart"));
         registry.register(new SoundBase("home_star_active"));
         registry.register(new SoundBase("home_star_boom"));
+        registry.register(new SoundBase("barrage_whisps_cast"));
+        registry.register(new SoundBase("barrage_whisps_release"));
+        registry.register(new SoundBase("final_flash_cast"));
+        registry.register(new SoundBase("final_flash_release"));
+        registry.register(new SoundBase("gleam_bang_cast"));
+        registry.register(new SoundBase("gleam_bang_release"));
+        registry.register(new SoundBase("lumin_wave_cast"));
+        registry.register(new SoundBase("lumin_wave_release"));
+        registry.register(new SoundBase("offlight_onhit"));
+        registry.register(new SoundBase("passive_pop"));
+        registry.register(new SoundBase("radiant_ray_cast"));
+        registry.register(new SoundBase("radiant_ray_release"));
+        registry.register(new SoundBase("solar_lance_cast"));
     }
 }

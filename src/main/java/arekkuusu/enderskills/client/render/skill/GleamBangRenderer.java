@@ -63,7 +63,7 @@ public class GleamBangRenderer extends SkillRenderer<GleamBang> {
             if (MinecraftForgeClient.getRenderPass() != 1) return;
             int tick = Math.min(entity.tick, EntityPlaceableData.MIN_TIME);
             double scale = entity.getRadius() * ((double) tick / (double) EntityPlaceableData.MIN_TIME);
-            GlStateManager.color(1F, 1F, 1F, 1F);
+            GlStateManager.color(122F / 255F, 1.0f,  252F / 255F, 1F);
             GlStateManager.pushMatrix();
             GlStateManager.translate(x, y, z);
             GLHelper.BLEND_SRC_ALPHA$ONE.blend();

@@ -78,7 +78,7 @@ public class RadiantRay extends BaseAbility implements IScanEntities, IImpact, I
             sync(owner);
 
             if (owner.world instanceof WorldServer) {
-                ((WorldServer) owner.world).playSound(null, owner.posX, owner.posY, owner.posZ, ModSounds.LIGHT_HIT, SoundCategory.PLAYERS, 5.0F, (1.0F + (owner.world.rand.nextFloat() - owner.world.rand.nextFloat()) * 0.2F) * 0.7F);
+                ((WorldServer) owner.world).playSound(null, owner.posX, owner.posY, owner.posZ, ModSounds.RADIANT_RAY_CAST, SoundCategory.PLAYERS, 5.0F, (1.0F + (owner.world.rand.nextFloat() - owner.world.rand.nextFloat()) * 0.2F) * 0.7F);
             }
         }
     }
@@ -103,6 +103,10 @@ public class RadiantRay extends BaseAbility implements IScanEntities, IImpact, I
         spawn.setRadius(radius);
         spawn.growTicks = 5;
         source.world.spawnEntity(spawn); //MANIFEST B L O O D!!
+
+        if (owner.world instanceof WorldServer) {
+            ((WorldServer) owner.world).playSound(null, owner.posX, owner.posY, owner.posZ, ModSounds.RADIANT_RAY_RELEASE, SoundCategory.PLAYERS, 5.0F, (1.0F + (owner.world.rand.nextFloat() - owner.world.rand.nextFloat()) * 0.2F) * 0.7F);
+        }
     }
 
     @Override
@@ -121,6 +125,10 @@ public class RadiantRay extends BaseAbility implements IScanEntities, IImpact, I
 
         if(event.getAmount() > 0 && event.getAmount() < Double.MAX_VALUE) {
             target.attackEntityFrom(event.getSource(), event.toFloat());
+        }
+
+        if (target.world instanceof WorldServer) {
+            ((WorldServer) target.world).playSound(null, target.posX, target.posY, target.posZ, ModSounds.OFFLIGHT_ONHIT, SoundCategory.PLAYERS, 1.0F, (1.0F + (target.world.rand.nextFloat() - target.world.rand.nextFloat()) * 0.2F) * 0.7F);
         }
     }
     //* Entity *//

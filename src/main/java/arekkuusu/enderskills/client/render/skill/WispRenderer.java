@@ -23,7 +23,7 @@ import org.lwjgl.opengl.GL11;
 public class WispRenderer extends OverlayRenderer<BarrageWisp> {
 
     public WispRenderer() {
-        EntityThrowableDataRenderer.add(ModAbilities.BARRAGE_WISP, ProjectileFlareRenderer::new);
+        EntityThrowableDataRenderer.add(ModAbilities.BARRAGE_WISP, ProjectileWispRenderer::new);
         MinecraftForge.EVENT_BUS.register(new Events());
     }
 

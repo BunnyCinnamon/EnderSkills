@@ -229,6 +229,8 @@ ui.enderskills.desc.stats.suffix_time=s
 ui.enderskills.desc.stats.suffix_percentage=%%
 ui.enderskills.desc.stats.suffix_blocks=⠀Blocks
 ui.enderskills.desc.stats.suffix_hearts=⠀Hearts
+ui.enderskills.desc.stats.suffix_enemies=⠀Enemies
+ui.enderskills.desc.stats.suffix_wisp=⠀Whisps
 #----------------------------------------------------------------------------------------------------------------------#
 ui.enderskills.tab.defense.title=Defense
 
@@ -391,7 +393,7 @@ ui.enderskills.skill.crush.description=Summons a wall of air that stuns the targ
 ui.enderskills.skill.updraft.title=Updraft
 ui.enderskills.skill.updraft.description=Fling everyone up in the affected area.
 ui.enderskills.skill.suffocate.title=Suffocate
-ui.enderskills.skill.suffocate.description=Completely drain air from an area creating a void that damages over time and prevents movement.
+ui.enderskills.skill.suffocate.description=Completely drain air from an area creating a void that damages over time and slows movement.
 
 ui.enderskills.skill.fire_spirit.title=Fire Spirit
 ui.enderskills.skill.fire_spirit.description=Gives all of your attacks the passive ability to burn enemies.
@@ -404,17 +406,17 @@ ui.enderskills.skill.focus_flame.description=Summon a whirling column of fire th
 ui.enderskills.skill.fireball.title=Fireball
 ui.enderskills.skill.fireball.description=Summon a ball of fire that explodes and burns on contact.
 ui.enderskills.skill.explode.title=Explode
-ui.enderskills.skill.explode.description=Spontaneously combust with a powerfull shockwave.
+ui.enderskills.skill.explode.description=Spontaneously combust with a powerful shockwave.
 
 ui.enderskills.skill.radiant_ray.title=Radiant Ray
 ui.enderskills.skill.radiant_ray.description=Sends down a ray of light at the target location from above. [Applies Glowing debuff]
-ui.enderskills.skill.lumen_wave.title=Lumen Wave
+ui.enderskills.skill.lumen_wave.title=Lumin Wave
 ui.enderskills.skill.lumen_wave.description=A wave of light that goes forward from the player. Causing small knock up. [Applies Glowing debuff]
 ui.enderskills.skill.gleam_flash.title=Gleam Flash
 ui.enderskills.skill.gleam_flash.description=A placeable AoE that explodes after a delay. [Applies Glowing debuff]
 ui.enderskills.skill.solar_lance.title=Solar Lance
 ui.enderskills.skill.solar_lance.description=Long range bolt with a very thin hit box. Pierces entities depending on level. [Applies Glowing debuff]
-ui.enderskills.skill.barrage_wisp.title=Barrage Wisp
+ui.enderskills.skill.barrage_wisp.title=Barrage Whisps
 ui.enderskills.skill.barrage_wisp.description=Cone that sends out wisps that fire out and sit in the air for a delay, then home towards the target in front. [Applies Glowing debuff]
 ui.enderskills.skill.final_flash.title=Final Flash
 ui.enderskills.skill.final_flash.description=A charge beam that takes seconds to wind up. [Applies Glowing debuff]

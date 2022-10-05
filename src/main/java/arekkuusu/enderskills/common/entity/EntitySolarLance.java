@@ -9,6 +9,7 @@ import arekkuusu.enderskills.common.entity.data.SkillExtendedData;
 import arekkuusu.enderskills.common.skill.ModAbilities;
 import arekkuusu.enderskills.common.skill.ModEffects;
 import arekkuusu.enderskills.common.skill.SkillHelper;
+import arekkuusu.enderskills.common.sound.ModSounds;
 import com.google.common.collect.Lists;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
@@ -83,7 +84,7 @@ public class EntitySolarLance extends Entity {
         points.clear();
         pointsWidth.clear();
         int steps = 8;
-        float girth = 1.5F;
+        float girth = 0.8F;
         Vec3d right = new Vec3d(15D / (steps + 1), 0, 0);
         Vec3d left = right.scale(-1);
         Vec3d lr = new Vec3d(0, 0, 0);
@@ -120,7 +121,7 @@ public class EntitySolarLance extends Entity {
         }
         if (getRadius() > 0) {
             if (tick == 0) {
-                world.playSound(posX, posY, posZ, SoundEvents.ENTITY_LIGHTNING_IMPACT, SoundCategory.HOSTILE, 8.0F, 1.0F, true);
+                world.playSound(posX, posY, posZ, ModSounds.SOLAR_LANCE_CAST, SoundCategory.HOSTILE, 8.0F, 1.0F, true);
             }
             if (!world.isRemote) {
                 SkillData data = getData();

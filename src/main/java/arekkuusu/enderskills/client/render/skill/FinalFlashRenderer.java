@@ -56,7 +56,7 @@ public class FinalFlashRenderer extends SkillRenderer<FinalFlash> {
             GlStateManager.rotate(entity.rotationPitch, 1.0F, 0.0F, 0.0F);
             GlStateManager.rotate((entity.ticksExisted * 5) % 360F, 0F, 0F, 1F);
             this.bindTexture(FOLLOWING);
-            float size = entity.getRadius() + 1;
+            float size = entity.getRadius() + 3;
             Tessellator tessellator = Tessellator.getInstance();
             BufferBuilder buffer = tessellator.getBuffer();
             buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
@@ -87,7 +87,7 @@ public class FinalFlashRenderer extends SkillRenderer<FinalFlash> {
                     ShaderLibrary.UNIVERSE.set("dimensions", Minecraft.getMinecraft().displayWidth, Minecraft.getMinecraft().displayHeight);
                     ShaderLibrary.UNIVERSE.set("yaw", (Minecraft.getMinecraft().player.rotationYaw * 2F * 3.141592653589793F / 360F));
                     ShaderLibrary.UNIVERSE.set("pitch", -(Minecraft.getMinecraft().player.rotationPitch * 2F * 3.141592653589793F / 360.0F));
-                    ShaderLibrary.UNIVERSE.set("color", 0F, 0, 0);
+                    ShaderLibrary.UNIVERSE.set("color", 122F / 255F, 1.0f,  252F / 255F);
                     ShaderLibrary.UNIVERSE.set("ticks", RenderMisc.getRenderPlayerTime() * 15);
                     ShaderLibrary.UNIVERSE.set("alpha", 1F);
                 } else {

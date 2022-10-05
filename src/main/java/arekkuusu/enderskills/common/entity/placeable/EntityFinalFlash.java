@@ -3,26 +3,21 @@ package arekkuusu.enderskills.common.entity.placeable;
 import arekkuusu.enderskills.api.capability.data.SkillData;
 import arekkuusu.enderskills.api.helper.NBTHelper;
 import arekkuusu.enderskills.api.helper.RayTraceHelper;
-import arekkuusu.enderskills.api.helper.TeamHelper;
-import arekkuusu.enderskills.client.sounds.FinalFlashSound;
 import arekkuusu.enderskills.common.entity.data.SkillExtendedData;
 import arekkuusu.enderskills.common.skill.ModAbilities;
 import arekkuusu.enderskills.common.skill.ModEffects;
 import arekkuusu.enderskills.common.skill.SkillHelper;
+import arekkuusu.enderskills.common.sound.ModSounds;
 import com.google.common.collect.Lists;
-import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.init.SoundEvents;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
-import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
@@ -114,15 +109,12 @@ public class EntityFinalFlash extends Entity {
         super.onUpdate();
         ignoreFrustumCheck = true;
         noClip = true;
-        if (world.isRemote && !isDead) {
-            makeSound();
-        }
         if (world.isRemote && getRadius() != 0 && points.isEmpty()) {
             this.setupShape(new Random(this.getSeed()));
         }
         if (getRadius() > 0) {
-            if (tick == 0) {
-                world.playSound(posX, posY, posZ, SoundEvents.ENTITY_LIGHTNING_IMPACT, SoundCategory.HOSTILE, 8.0F, 1.0F, true);
+            if (tickDelay == 0) {
+                world.playSound(posX, posY, posZ, ModSounds.FINAL_FLASH_CAST, SoundCategory.HOSTILE, 8.0F, 1.0F, true);
             }
             if (!world.isRemote) {
                 SkillData data = getData();
@@ -134,6 +126,9 @@ public class EntityFinalFlash extends Entity {
                     setDead();
                 }
                 if (tickDelay > getData().nbt.getInteger("delay")) {
+                    if (tick == 0) {
+                        world.playSound(posX, posY, posZ, ModSounds.FINAL_FLASH_RELEASE, SoundCategory.HOSTILE, 8.0F, 1.0F, true);
+                    }
                     List<EntityLivingBase> found = RayTraceHelper.findInRangeSize(this, getRange(), size, owner);
                     for (EntityLivingBase entity : found) {
                         ModAbilities.FINAL_FLASH.apply(entity, getData());
@@ -159,13 +154,6 @@ public class EntityFinalFlash extends Entity {
             tick++;
         } else {
             tickDelay++;
-        }
-    }
-
-    @SideOnly(Side.CLIENT)
-    public void makeSound() {
-        if (firstUpdate) {
-            Minecraft.getMinecraft().getSoundHandler().playSound(new FinalFlashSound(this));
         }
     }
 
