@@ -3,12 +3,15 @@ package arekkuusu.enderskills.common.entity.placeable;
 import arekkuusu.enderskills.api.capability.data.SkillData;
 import arekkuusu.enderskills.api.helper.NBTHelper;
 import arekkuusu.enderskills.api.helper.RayTraceHelper;
+import arekkuusu.enderskills.client.sounds.BlackHoleSound;
+import arekkuusu.enderskills.client.sounds.FinalFlashSound;
 import arekkuusu.enderskills.common.entity.data.SkillExtendedData;
 import arekkuusu.enderskills.common.skill.ModAbilities;
 import arekkuusu.enderskills.common.skill.ModEffects;
 import arekkuusu.enderskills.common.skill.SkillHelper;
 import arekkuusu.enderskills.common.sound.ModSounds;
 import com.google.common.collect.Lists;
+import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.nbt.NBTTagCompound;
@@ -32,7 +35,7 @@ import java.util.UUID;
 public class EntityFinalFlash extends Entity {
 
     public static final DataParameter<SkillExtendedData> DATA = EntityDataManager.createKey(EntityFinalFlash.class, SkillExtendedData.SERIALIZER);
-    public static final DataParameter<Float> LIFE_TIME = EntityDataManager.createKey(EntityFinalFlash.class, DataSerializers.FLOAT);
+    public static final DataParameter<Integer> LIFE_TIME = EntityDataManager.createKey(EntityFinalFlash.class, DataSerializers.VARINT);
     public static final DataParameter<BlockPos> SUCK_DICK = EntityDataManager.createKey(EntityFinalFlash.class, DataSerializers.BLOCK_POS);
     public static final DataParameter<Float> RADIUS = EntityDataManager.createKey(EntityFinalFlash.class, DataSerializers.FLOAT);
     public static final DataParameter<Float> RANGE = EntityDataManager.createKey(EntityFinalFlash.class, DataSerializers.FLOAT);
@@ -53,7 +56,7 @@ public class EntityFinalFlash extends Entity {
         setSize(0F, 0F);
     }
 
-    public EntityFinalFlash(World worldIn, @Nullable EntityLivingBase owner, SkillData skillData, float lifeTime) {
+    public EntityFinalFlash(World worldIn, @Nullable EntityLivingBase owner, SkillData skillData, int lifeTime) {
         this(worldIn);
         if (owner != null) {
             this.rotationPitch = owner.rotationPitch;
@@ -70,7 +73,7 @@ public class EntityFinalFlash extends Entity {
     @Override
     protected void entityInit() {
         this.dataManager.register(DATA, new SkillExtendedData(null));
-        this.dataManager.register(LIFE_TIME, 0F);
+        this.dataManager.register(LIFE_TIME, 0);
         this.dataManager.register(RANGE, 0F);
         this.dataManager.register(RADIUS, 0F);
         this.dataManager.register(SUCK_DICK, new BlockPos(0, 0, 0));
@@ -112,10 +115,10 @@ public class EntityFinalFlash extends Entity {
         if (world.isRemote && getRadius() != 0 && points.isEmpty()) {
             this.setupShape(new Random(this.getSeed()));
         }
+        if (tickDelay == 0) {
+            world.playSound(posX, posY, posZ, ModSounds.FINAL_FLASH_CAST, SoundCategory.PLAYERS, 0.5F, 1.0F, true);
+        }
         if (getRadius() > 0) {
-            if (tickDelay == 0) {
-                world.playSound(posX, posY, posZ, ModSounds.FINAL_FLASH_CAST, SoundCategory.HOSTILE, 8.0F, 1.0F, true);
-            }
             if (!world.isRemote) {
                 SkillData data = getData();
                 EntityLivingBase owner = SkillHelper.getOwner(data);
@@ -126,18 +129,15 @@ public class EntityFinalFlash extends Entity {
                     setDead();
                 }
                 if (tickDelay > getData().nbt.getInteger("delay")) {
-                    if (tick == 0) {
-                        world.playSound(posX, posY, posZ, ModSounds.FINAL_FLASH_RELEASE, SoundCategory.HOSTILE, 8.0F, 1.0F, true);
-                    }
                     List<EntityLivingBase> found = RayTraceHelper.findInRangeSize(this, getRange(), size, owner);
                     for (EntityLivingBase entity : found) {
                         ModAbilities.FINAL_FLASH.apply(entity, getData());
                         ModEffects.SLOWED.set(entity, getData(), 0.01D);
                         if (!entities.contains(entity.getPersistentID()) && entities.add(entity.getPersistentID())) {
                             if (SkillHelper.isActive(entity, ModEffects.GLOWING)) {
-                                ModEffects.GLOWING.activate(entity, data);
+                                //ModEffects.GLOWING.activate(entity, data);
                             } else {
-                                ModEffects.GLOWING.set(entity, data);
+                                //ModEffects.GLOWING.set(entity, data);
                             }
                         }
                     }
@@ -154,6 +154,9 @@ public class EntityFinalFlash extends Entity {
             tick++;
         } else {
             tickDelay++;
+        }
+        if (tick == 1 && world.isRemote) {
+            Minecraft.getMinecraft().getSoundHandler().playSound(new FinalFlashSound(this));
         }
     }
 
@@ -190,11 +193,11 @@ public class EntityFinalFlash extends Entity {
         return this.dataManager.get(SEED);
     }
 
-    public void setLifeTime(float age) {
+    public void setLifeTime(int age) {
         dataManager.set(LIFE_TIME, age);
     }
 
-    public float getLifeTime() {
+    public int getLifeTime() {
         return dataManager.get(LIFE_TIME);
     }
 
@@ -225,7 +228,7 @@ public class EntityFinalFlash extends Entity {
     @Override
     protected void readEntityFromNBT(NBTTagCompound compound) {
         setData(new SkillData(compound.getCompoundTag("data")));
-        setLifeTime(compound.getFloat("lifeTime"));
+        setLifeTime(compound.getInteger("lifeTime"));
         setRadius(compound.getFloat("radius"));
         setRadius(compound.getFloat("size"));
         this.dataManager.set(SUCK_DICK, NBTHelper.getBlockPos(compound, "aaa"));
@@ -234,7 +237,7 @@ public class EntityFinalFlash extends Entity {
     @Override
     protected void writeEntityToNBT(NBTTagCompound compound) {
         compound.setTag("data", getData().serializeNBT());
-        compound.setFloat("lifeTime", getLifeTime());
+        compound.setInteger("lifeTime", getLifeTime());
         compound.setFloat("radius", getRadius());
         compound.setFloat("size", getRange());
         NBTHelper.setBlockPos(compound, "aaa", this.dataManager.get(SUCK_DICK));

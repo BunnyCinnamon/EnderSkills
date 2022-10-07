@@ -22,6 +22,7 @@ import arekkuusu.enderskills.common.skill.ModAttributes;
 import arekkuusu.enderskills.common.skill.ModEffects;
 import arekkuusu.enderskills.common.skill.ability.AbilityInfo;
 import arekkuusu.enderskills.common.skill.ability.BaseAbility;
+import arekkuusu.enderskills.common.skill.ability.offence.light.GleamBang;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.EntityLivingBase;
@@ -211,7 +212,8 @@ public class Overheat extends BaseAbility implements ISkillAdvancement {
 
     @Override
     public void initSyncConfig() {
-        this.config = ConfigDSL.parse(Configuration.CONFIG_SYNC.dsl);
+        Configuration.CONFIG_SYNC.dsl = Configuration.CONFIG.dsl;
+        this.sigmaDic();
     }
 
     @Override
@@ -224,6 +226,11 @@ public class Overheat extends BaseAbility implements ISkillAdvancement {
     public void readSyncConfig(NBTTagCompound compound) {
         Configuration.CONFIG_SYNC.dsl = NBTHelper.getArray(compound, "config");
         Configuration.CONFIG_SYNC.applyAs = NBTHelper.getEnum(Configuration.Damage.class, compound, "applyAs");
+    }
+
+    @Override
+    public void sigmaDic() {
+        this.config = ConfigDSL.parse(Configuration.CONFIG_SYNC.dsl);
     }
 
     @Config(modid = LibMod.MOD_ID, name = CONFIG_FILE)

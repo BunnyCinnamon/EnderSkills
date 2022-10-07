@@ -52,7 +52,7 @@ public final class PacketHandler {
         Skill skill = registry.getValue(NBTHelper.getResourceLocation(compound, "location"));
         assert skill != null;
         ((Skill & IConfigSync) skill).readSyncConfig(compound);
-        ((Skill & IConfigSync) skill).initSyncConfig();
+        ((Skill & IConfigSync) skill).sigmaDic();
     }));
 
     public static final IPacketHandler SYNC_SKILLS = (((compound, context) -> {

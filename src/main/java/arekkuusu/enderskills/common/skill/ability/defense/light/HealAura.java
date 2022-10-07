@@ -178,7 +178,8 @@ public class HealAura extends BaseAbility implements IScanEntities, IExpand, IFi
 
     @Override
     public void initSyncConfig() {
-        this.config = ConfigDSL.parse(Configuration.CONFIG_SYNC.dsl);
+        Configuration.CONFIG_SYNC.dsl = Configuration.CONFIG.dsl;
+        this.sigmaDic();
     }
 
     @Override
@@ -189,6 +190,11 @@ public class HealAura extends BaseAbility implements IScanEntities, IExpand, IFi
     @Override
     public void readSyncConfig(NBTTagCompound compound) {
         Configuration.CONFIG_SYNC.dsl = NBTHelper.getArray(compound, "config");
+    }
+
+    @Override
+    public void sigmaDic() {
+        this.config = ConfigDSL.parse(Configuration.CONFIG_SYNC.dsl);
     }
 
     @Config(modid = LibMod.MOD_ID, name = CONFIG_FILE)

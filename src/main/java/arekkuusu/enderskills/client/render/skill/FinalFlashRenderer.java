@@ -8,6 +8,7 @@ import arekkuusu.enderskills.client.util.helper.GLHelper;
 import arekkuusu.enderskills.client.util.helper.RenderMisc;
 import arekkuusu.enderskills.common.entity.EntitySolarLance;
 import arekkuusu.enderskills.common.entity.placeable.EntityFinalFlash;
+import arekkuusu.enderskills.common.entity.placeable.EntityPlaceableData;
 import arekkuusu.enderskills.common.lib.LibMod;
 import arekkuusu.enderskills.common.skill.ability.offence.ender.BlackHole;
 import arekkuusu.enderskills.common.skill.ability.offence.light.FinalFlash;
@@ -100,6 +101,14 @@ public class FinalFlashRenderer extends SkillRenderer<FinalFlash> {
             }
             GL11.glEnable(3042);
             GlStateManager.depthMask(false);
+            float scale = 1F;
+            int growTime = EntityPlaceableData.MIN_TIME;
+            int shrinkTime = entity.getLifeTime() - 10;
+            if (entity.tick > growTime && entity.tick < shrinkTime) {
+                float ticks = RenderMisc.getRenderPlayerTime() * 40F;
+                float stab = 0.25F;
+                scale += Math.sin(ticks) * 0.10000000149011612F * stab;
+            }
             for (int q = 0; q <= 3; ++q) {
                 GL11.glBlendFunc(GL11.GL_SRC_ALPHA, (q < 3) ? GL11.GL_ONE : GL11.GL_ONE_MINUS_SRC_ALPHA);
                 if (entity.points.size() > 2) {
@@ -116,7 +125,7 @@ public class FinalFlashRenderer extends SkillRenderer<FinalFlash> {
                         colours[a][2] = 1F;
                         colours[a][3] = 1F;
                         radii[a] = entity.tickDelay > entity.getData().nbt.getInteger("delay")
-                                ? (float) entity.getScale(entity.tick + partialTicks) * entity.pointsWidth.get(a) * ((q < 3) ? (1.05F + 0.025F * q) : 1F)
+                                ? (float) entity.getScale(entity.tick + partialTicks) * entity.pointsWidth.get(a) * ((q < 3) ? (1.05F + 0.025F * q) : 1F) * scale
                                 : 0.05F;
                     }
                     this.gle.set_POLYCYL_TESS(12);

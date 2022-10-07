@@ -121,7 +121,7 @@ public class EntitySolarLance extends Entity {
         }
         if (getRadius() > 0) {
             if (tick == 0) {
-                world.playSound(posX, posY, posZ, ModSounds.SOLAR_LANCE_CAST, SoundCategory.HOSTILE, 8.0F, 1.0F, true);
+                world.playSound(posX, posY, posZ, ModSounds.SOLAR_LANCE_CAST, SoundCategory.PLAYERS, 8.0F, 1.0F, true);
             }
             if (!world.isRemote) {
                 SkillData data = getData();
@@ -139,9 +139,9 @@ public class EntitySolarLance extends Entity {
                     entities.add(raytraceresult.entityHit.getPersistentID());
                     ModAbilities.SOLAR_LANCE.apply((EntityLivingBase) raytraceresult.entityHit, getData());
                     if (SkillHelper.isActive(raytraceresult.entityHit, ModEffects.GLOWING)) {
-                        ModEffects.GLOWING.activate((EntityLivingBase) raytraceresult.entityHit, data);
+                        //ModEffects.GLOWING.activate((EntityLivingBase) raytraceresult.entityHit, data);
                     } else {
-                        ModEffects.GLOWING.set((EntityLivingBase) raytraceresult.entityHit, data);
+                        //ModEffects.GLOWING.set((EntityLivingBase) raytraceresult.entityHit, data);
                     }
                     penes++;
                     if (penes >= penesMaximus) {

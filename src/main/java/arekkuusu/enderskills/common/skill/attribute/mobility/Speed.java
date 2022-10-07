@@ -128,25 +128,31 @@ public class Speed extends BaseAttribute implements ISkillAdvancement {
 
     @Override
     public void initSyncConfig() {
-        this.config = ConfigDSL.parse(DamageResistance.Configuration.CONFIG_SYNC.dsl);
+        Configuration.CONFIG_SYNC.dsl = Configuration.CONFIG.dsl;
+        this.sigmaDic();
     }
 
     @Override
     public void writeSyncConfig(NBTTagCompound compound) {
-        NBTHelper.setArray(compound, "config", DamageResistance.Configuration.CONFIG.dsl);
+        NBTHelper.setArray(compound, "config", Configuration.CONFIG.dsl);
     }
 
     @Override
     public void readSyncConfig(NBTTagCompound compound) {
-        DamageResistance.Configuration.CONFIG_SYNC.dsl = NBTHelper.getArray(compound, "config");
+        Configuration.CONFIG_SYNC.dsl = NBTHelper.getArray(compound, "config");
+    }
+
+    @Override
+    public void sigmaDic() {
+        this.config = ConfigDSL.parse(Configuration.CONFIG_SYNC.dsl);
     }
 
     @Config(modid = LibMod.MOD_ID, name = CONFIG_FILE)
     public static class Configuration {
 
         @Config.Ignore
-        public static final DamageResistance.Configuration.Values CONFIG_SYNC = new DamageResistance.Configuration.Values();
-        public static final DamageResistance.Configuration.Values CONFIG = new DamageResistance.Configuration.Values();
+        public static final Configuration.Values CONFIG_SYNC = new Configuration.Values();
+        public static final Configuration.Values CONFIG = new Configuration.Values();
 
         public static class Values {
 

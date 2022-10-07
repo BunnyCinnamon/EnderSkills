@@ -9,6 +9,7 @@ import arekkuusu.enderskills.client.util.helper.TextHelper;
 import arekkuusu.enderskills.common.lib.LibMod;
 import arekkuusu.enderskills.common.lib.LibNames;
 import arekkuusu.enderskills.common.skill.SkillHelper;
+import arekkuusu.enderskills.common.skill.ability.defense.fire.Overheat;
 import arekkuusu.enderskills.common.skill.attribute.AttributeInfo;
 import arekkuusu.enderskills.common.skill.attribute.BaseAttribute;
 import net.minecraft.client.Minecraft;
@@ -137,6 +138,11 @@ public class MeleeDamage extends BaseAttribute implements ISkillAdvancement {
     public void readSyncConfig(NBTTagCompound compound) {
         Configuration.CONFIG_SYNC.dsl = NBTHelper.getArray(compound, "config");
         Configuration.CONFIG_SYNC.applyAs = NBTHelper.getEnum(Configuration.Damage_.class, compound, "applyAs");
+    }
+
+    @Override
+    public void sigmaDic() {
+        this.config = ConfigDSL.parse(Configuration.CONFIG_SYNC.dsl);
     }
 
     @Config(modid = LibMod.MOD_ID, name = CONFIG_FILE)

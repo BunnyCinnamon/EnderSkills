@@ -13,6 +13,7 @@ import arekkuusu.enderskills.api.util.Quat;
 import arekkuusu.enderskills.api.util.Vector;
 import arekkuusu.enderskills.client.gui.data.ISkillAdvancement;
 import arekkuusu.enderskills.client.util.helper.TextHelper;
+import arekkuusu.enderskills.common.CommonConfig;
 import arekkuusu.enderskills.common.entity.EntityWisp;
 import arekkuusu.enderskills.common.entity.data.IImpact;
 import arekkuusu.enderskills.common.lib.LibMod;
@@ -32,7 +33,6 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Config;
@@ -123,7 +123,7 @@ public class BarrageWisp extends BaseAbility implements IImpact, ISkillAdvanceme
     }
 
     public double getDamage(AbilityInfo info) {
-        return this.config.get(this, "DAMAGE", info.getLevel());
+        return this.config.get(this, "DAMAGE", info.getLevel(), CommonConfig.CONFIG_SYNC.skill.globalNegativeEffect);
     }
 
     public double getAmount(AbilityInfo info) {
@@ -200,7 +200,8 @@ public class BarrageWisp extends BaseAbility implements IImpact, ISkillAdvanceme
 
     @Override
     public void initSyncConfig() {
-        this.config = ConfigDSL.parse(Configuration.CONFIG_SYNC.dsl);
+        Configuration.CONFIG_SYNC.dsl = Configuration.CONFIG.dsl;
+        this.sigmaDic();
     }
 
     @Override
@@ -211,6 +212,11 @@ public class BarrageWisp extends BaseAbility implements IImpact, ISkillAdvanceme
     @Override
     public void readSyncConfig(NBTTagCompound compound) {
         Configuration.CONFIG_SYNC.dsl = NBTHelper.getArray(compound, "config");
+    }
+
+    @Override
+    public void sigmaDic() {
+        this.config = ConfigDSL.parse(Configuration.CONFIG_SYNC.dsl);
     }
 
     @Config(modid = LibMod.MOD_ID, name = CONFIG_FILE)

@@ -12,6 +12,7 @@ import arekkuusu.enderskills.common.lib.LibMod;
 import arekkuusu.enderskills.common.lib.LibNames;
 import arekkuusu.enderskills.common.network.PacketHelper;
 import arekkuusu.enderskills.common.skill.DynamicModifier;
+import arekkuusu.enderskills.common.skill.ability.offence.light.GleamBang;
 import arekkuusu.enderskills.common.skill.attribute.AttributeInfo;
 import arekkuusu.enderskills.common.skill.attribute.BaseAttribute;
 import com.google.common.collect.ImmutableMap;
@@ -232,9 +233,10 @@ public class Endurance extends BaseAttribute implements ISkillAdvancement {
 
     @Override
     public void initSyncConfig() {
-        this.config = ConfigDSL.parse(Configuration.CONFIG_SYNC.dsl);
+        Configuration.CONFIG_SYNC.dsl = Configuration.CONFIG.dsl;
         Configuration.CONFIG_SYNC.endurance = Configuration.CONFIG.endurance;
         Configuration.CONFIG_SYNC.enduranceMap = new HashMap<>(Configuration.CONFIG.enduranceMap);
+        this.sigmaDic();
     }
 
     @Override
@@ -263,6 +265,11 @@ public class Endurance extends BaseAttribute implements ISkillAdvancement {
             Integer cost = nbt.getInteger("cost");
             Configuration.CONFIG_SYNC.enduranceMap.put(skill, cost);
         }
+    }
+
+    @Override
+    public void sigmaDic() {
+        this.config = ConfigDSL.parse(Configuration.CONFIG_SYNC.dsl);
     }
 
     @Config(modid = LibMod.MOD_ID, name = CONFIG_FILE)

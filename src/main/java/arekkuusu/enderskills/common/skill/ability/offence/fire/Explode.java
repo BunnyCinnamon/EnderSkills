@@ -115,11 +115,11 @@ public class Explode extends BaseAbility implements IScanEntities, IExpand, IFin
     }
 
     public double getDoT(AbilityInfo info) {
-        return this.config.get(this, "DOT", info.getLevel());
+        return this.config.get(this, "DOT", info.getLevel(), CommonConfig.CONFIG_SYNC.skill.globalNegativeEffect);
     }
 
     public double getDamage(AbilityInfo info) {
-        return this.config.get(this, "DAMAGE", info.getLevel());
+        return this.config.get(this, "DAMAGE", info.getLevel(), CommonConfig.CONFIG_SYNC.skill.globalNegativeEffect);
     }
 
     public double getRange(AbilityInfo info) {
@@ -198,7 +198,8 @@ public class Explode extends BaseAbility implements IScanEntities, IExpand, IFin
 
     @Override
     public void initSyncConfig() {
-        this.config = ConfigDSL.parse(Configuration.CONFIG_SYNC.dsl);
+        Configuration.CONFIG_SYNC.dsl = Configuration.CONFIG.dsl;
+        this.sigmaDic();
     }
 
     @Override
@@ -209,6 +210,11 @@ public class Explode extends BaseAbility implements IScanEntities, IExpand, IFin
     @Override
     public void readSyncConfig(NBTTagCompound compound) {
         Configuration.CONFIG_SYNC.dsl = NBTHelper.getArray(compound, "config");
+    }
+
+    @Override
+    public void sigmaDic() {
+        this.config = ConfigDSL.parse(Configuration.CONFIG_SYNC.dsl);
     }
 
     @Config(modid = LibMod.MOD_ID, name = CONFIG_FILE)

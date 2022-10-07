@@ -155,8 +155,9 @@ public class AbilityPower extends BaseAttribute implements ISkillAdvancement {
 
     @Override
     public void initSyncConfig() {
-        this.config = ConfigDSL.parse(Configuration.CONFIG_SYNC.dsl);
+        Configuration.CONFIG_SYNC.dsl = Configuration.CONFIG.dsl;
         Configuration.CONFIG_SYNC.applyAs = Configuration.CONFIG.applyAs;
+        this.sigmaDic();
     }
 
     @Override
@@ -169,6 +170,11 @@ public class AbilityPower extends BaseAttribute implements ISkillAdvancement {
     public void readSyncConfig(NBTTagCompound compound) {
         Configuration.CONFIG_SYNC.dsl = NBTHelper.getArray(compound, "config");
         Configuration.CONFIG_SYNC.applyAs = NBTHelper.getEnum(Configuration.Damage.class, compound, "applyAs");
+    }
+
+    @Override
+    public void sigmaDic() {
+        this.config = ConfigDSL.parse(Configuration.CONFIG_SYNC.dsl);
     }
 
     @Config(modid = LibMod.MOD_ID, name = CONFIG_FILE)

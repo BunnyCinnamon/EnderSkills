@@ -13,6 +13,7 @@ import arekkuusu.enderskills.api.util.Quat;
 import arekkuusu.enderskills.api.util.Vector;
 import arekkuusu.enderskills.client.gui.data.ISkillAdvancement;
 import arekkuusu.enderskills.client.util.helper.TextHelper;
+import arekkuusu.enderskills.common.CommonConfig;
 import arekkuusu.enderskills.common.entity.data.IExpand;
 import arekkuusu.enderskills.common.entity.data.IScanEntities;
 import arekkuusu.enderskills.common.entity.placeable.EntityFinalFlash;
@@ -106,7 +107,7 @@ public class FinalFlash extends BaseAbility implements IScanEntities, IExpand, I
     }
 
     public double getDoT(AbilityInfo info) {
-        return this.config.get(this, "DOT", info.getLevel());
+        return this.config.get(this, "DOT", info.getLevel(), CommonConfig.CONFIG_SYNC.skill.globalNegativeEffect);
     }
 
     public double getDelay(AbilityInfo info) {
@@ -195,7 +196,8 @@ public class FinalFlash extends BaseAbility implements IScanEntities, IExpand, I
 
     @Override
     public void initSyncConfig() {
-        this.config = ConfigDSL.parse(Configuration.CONFIG_SYNC.dsl);
+        Configuration.CONFIG_SYNC.dsl = Configuration.CONFIG.dsl;
+        this.sigmaDic();
     }
 
     @Override
@@ -206,6 +208,11 @@ public class FinalFlash extends BaseAbility implements IScanEntities, IExpand, I
     @Override
     public void readSyncConfig(NBTTagCompound compound) {
         Configuration.CONFIG_SYNC.dsl = NBTHelper.getArray(compound, "config");
+    }
+
+    @Override
+    public void sigmaDic() {
+        this.config = ConfigDSL.parse(Configuration.CONFIG_SYNC.dsl);
     }
 
     @Config(modid = LibMod.MOD_ID, name = CONFIG_FILE)
@@ -301,7 +308,7 @@ public class FinalFlash extends BaseAbility implements IScanEntities, IExpand, I
                     "⠀DURATION (",
                     "⠀    curve: flat",
                     "⠀    start: 4s",
-                    "⠀    end:   6s",
+                    "⠀    end:   9s",
                     "⠀",
                     "⠀    {0 to 25} [",
                     "⠀        curve: ramp -50% 50%",
@@ -312,7 +319,7 @@ public class FinalFlash extends BaseAbility implements IScanEntities, IExpand, I
                     "⠀    {25 to 49} [",
                     "⠀        curve: ramp 50% 50%",
                     "⠀        start: {0 to 25}",
-                    "⠀        end: 5.4s",
+                    "⠀        end: 8s",
                     "⠀    ]",
                     "⠀",
                     "⠀    {50} [",

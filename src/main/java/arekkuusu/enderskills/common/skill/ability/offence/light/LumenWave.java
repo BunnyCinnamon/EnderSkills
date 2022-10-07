@@ -11,6 +11,7 @@ import arekkuusu.enderskills.api.registry.Skill;
 import arekkuusu.enderskills.api.util.ConfigDSL;
 import arekkuusu.enderskills.client.gui.data.ISkillAdvancement;
 import arekkuusu.enderskills.client.util.helper.TextHelper;
+import arekkuusu.enderskills.common.CommonConfig;
 import arekkuusu.enderskills.common.EnderSkills;
 import arekkuusu.enderskills.common.entity.data.IExpand;
 import arekkuusu.enderskills.common.entity.data.IFindEntity;
@@ -116,9 +117,9 @@ public class LumenWave extends BaseAbility implements IScanEntities, IExpand, IF
     @Override
     public void onFound(Entity source, @Nullable EntityLivingBase owner, EntityLivingBase target, SkillData skillData) {
         if (SkillHelper.isActive(target, ModEffects.GLOWING)) {
-            ModEffects.GLOWING.activate(target, skillData);
+            //ModEffects.GLOWING.activate(target, skillData);
         } else {
-            ModEffects.GLOWING.set(target, skillData);
+            //ModEffects.GLOWING.set(target, skillData);
         }
 
         apply(target, skillData);
@@ -144,7 +145,7 @@ public class LumenWave extends BaseAbility implements IScanEntities, IExpand, IF
     }
 
     public double getDamage(AbilityInfo info) {
-        return this.config.get(this, "DAMAGE", info.getLevel());
+        return this.config.get(this, "DAMAGE", info.getLevel(), CommonConfig.CONFIG_SYNC.skill.globalNegativeEffect);
     }
 
     public float getLaunch(AbilityInfo info) {
@@ -229,7 +230,8 @@ public class LumenWave extends BaseAbility implements IScanEntities, IExpand, IF
 
     @Override
     public void initSyncConfig() {
-        this.config = ConfigDSL.parse(Configuration.CONFIG_SYNC.dsl);
+        Configuration.CONFIG_SYNC.dsl = Configuration.CONFIG.dsl;
+        this.sigmaDic();
     }
 
     @Override
@@ -240,6 +242,11 @@ public class LumenWave extends BaseAbility implements IScanEntities, IExpand, IF
     @Override
     public void readSyncConfig(NBTTagCompound compound) {
         Configuration.CONFIG_SYNC.dsl = NBTHelper.getArray(compound, "config");
+    }
+
+    @Override
+    public void sigmaDic() {
+        this.config = ConfigDSL.parse(Configuration.CONFIG_SYNC.dsl);
     }
 
     @Config(modid = LibMod.MOD_ID, name = CONFIG_FILE)

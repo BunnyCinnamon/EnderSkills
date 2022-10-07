@@ -15,4 +15,7 @@ public interface IConfigSync {
     @SideOnly(Side.CLIENT)
     @Deprecated
     void readSyncConfig(NBTTagCompound compound);
+
+    @Deprecated
+    void sigmaDic();
 }

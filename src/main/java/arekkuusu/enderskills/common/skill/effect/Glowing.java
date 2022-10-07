@@ -1,34 +1,40 @@
 package arekkuusu.enderskills.common.skill.effect;
 
+import arekkuusu.enderskills.api.capability.Capabilities;
 import arekkuusu.enderskills.api.capability.data.SkillData;
+import arekkuusu.enderskills.api.capability.data.SkillInfo;
 import arekkuusu.enderskills.api.event.SkillDamageEvent;
 import arekkuusu.enderskills.api.event.SkillDamageSource;
+import arekkuusu.enderskills.api.helper.NBTHelper;
+import arekkuusu.enderskills.api.util.ConfigDSL;
 import arekkuusu.enderskills.client.proxy.ClientProxy;
 import arekkuusu.enderskills.common.entity.data.IExpand;
 import arekkuusu.enderskills.common.entity.data.IFindEntity;
 import arekkuusu.enderskills.common.entity.placeable.EntityPlaceableData;
 import arekkuusu.enderskills.common.entity.placeable.EntityPlaceableGlowing;
+import arekkuusu.enderskills.common.lib.LibMod;
 import arekkuusu.enderskills.common.lib.LibNames;
-import arekkuusu.enderskills.common.skill.ModAbilities;
-import arekkuusu.enderskills.common.skill.ModEffects;
+import arekkuusu.enderskills.common.skill.IConfigSync;
 import arekkuusu.enderskills.common.skill.SkillHelper;
+import arekkuusu.enderskills.common.skill.ability.AbilityInfo;
 import arekkuusu.enderskills.common.skill.ability.BaseAbility;
 import arekkuusu.enderskills.common.sound.ModSounds;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.init.MobEffects;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.common.eventhandler.EventPriority;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.common.config.Config;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public class Glowing extends BaseEffect implements IFindEntity, IExpand {
+public class Glowing extends BaseEffect implements IFindEntity, IExpand, IConfigSync {
 
     public Glowing() {
         super(LibNames.GLOWING, new Properties());
@@ -42,6 +48,12 @@ public class Glowing extends BaseEffect implements IFindEntity, IExpand {
     @Override
     public void end(EntityLivingBase entity, SkillData data) {
         entity.removeActivePotionEffect(MobEffects.GLOWING);
+    }
+
+    @Nonnull
+    @Override
+    public SkillInfo createInfo(NBTTagCompound compound) {
+        return new AbilityInfo(compound);
     }
 
     @Override
@@ -60,7 +72,14 @@ public class Glowing extends BaseEffect implements IFindEntity, IExpand {
     public void onFound(Entity source, @Nullable EntityLivingBase owner, EntityLivingBase target, SkillData data) {
         SkillDamageSource skillSource = new SkillDamageSource(BaseAbility.DAMAGE_HIT_TYPE, owner);
         skillSource.setMagicDamage();
-        SkillDamageEvent event = new SkillDamageEvent(owner, this, skillSource, 8);
+
+        double[] damage = new double[]{2};
+        Capabilities.get(owner).flatMap(skills -> skills.getOwned(this)).ifPresent(info -> {
+            AbilityInfo abilityInfo = (AbilityInfo) info;
+
+            damage[0] = this.config.get(this, "DAMAGE", abilityInfo.getLevel());
+        });
+        SkillDamageEvent event = new SkillDamageEvent(owner, this, skillSource, damage[0]);
         MinecraftForge.EVENT_BUS.post(event);
 
         if (event.getAmount() > 0 && event.getAmount() < Double.MAX_VALUE) {
@@ -79,9 +98,15 @@ public class Glowing extends BaseEffect implements IFindEntity, IExpand {
                 .put(data.nbt.copy(), data.watcher.copy())
                 .overrides(SkillData.Overrides.SAME)
                 .create();
+        double[] radius = new double[]{2};
+        Capabilities.get(SkillHelper.getOwner(data)).flatMap(skills -> skills.getOwned(this)).ifPresent(info -> {
+            AbilityInfo abilityInfo = (AbilityInfo) info;
+
+            radius[0] = this.config.get(this, "RANGE", abilityInfo.getLevel());
+        });
         EntityPlaceableGlowing spawn = new EntityPlaceableGlowing(entity.world, SkillHelper.getOwner(status), status, EntityPlaceableData.MIN_TIME);
         spawn.setPosition(entity.posX, entity.posY + entity.height / 2, entity.posZ);
-        spawn.setRadius(2);
+        spawn.setRadius(radius[0]);
         spawn.growTicks = 5;
         entity.world.spawnEntity(spawn);
         unapply(entity);
@@ -99,4 +124,61 @@ public class Glowing extends BaseEffect implements IFindEntity, IExpand {
         apply(entity, status);
         sync(entity, status);
     }
+
+
+    /*Config Section*/
+    public static final String CONFIG_FILE = LibNames.ATTRIBUTE_OFFENCE_FOLDER + LibNames.GLOWING;
+    public ConfigDSL.Config config = new ConfigDSL.Config();
+
+    @Override
+    public void initSyncConfig() {
+        Configuration.CONFIG_SYNC.dsl = Configuration.CONFIG.dsl;
+        this.sigmaDic();
+    }
+
+    @Override
+    public void writeSyncConfig(NBTTagCompound compound) {
+        NBTHelper.setArray(compound, "config", Configuration.CONFIG.dsl);
+    }
+
+    @Override
+    public void readSyncConfig(NBTTagCompound compound) {
+        Configuration.CONFIG_SYNC.dsl = NBTHelper.getArray(compound, "config");
+    }
+
+    @Override
+    public void sigmaDic() {
+        this.config = ConfigDSL.parse(Configuration.CONFIG_SYNC.dsl);
+    }
+
+    @Config(modid = LibMod.MOD_ID, name = CONFIG_FILE)
+    public static class Configuration {
+
+        @Config.Ignore
+        public static final Configuration.Values CONFIG_SYNC = new Configuration.Values();
+        public static final Configuration.Values CONFIG = new Configuration.Values();
+
+        public static class Values {
+
+            public String[] dsl = {
+                    "⠀#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~",
+                    "⠀",
+                    "⠀min_level: 0",
+                    "⠀max_level: infinite",
+                    "⠀",
+                    "⠀#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~",
+                    "⠀DAMAGE (",
+                    "⠀    curve: none",
+                    "⠀    value: 8h",
+                    "⠀)",
+                    "⠀#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~",
+                    "⠀RANGE (",
+                    "⠀    curve: none",
+                    "⠀    value: 2b",
+                    "⠀)",
+                    "⠀#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~",
+            };
+        }
+    }
+    /*Config Section*/
 }

@@ -105,7 +105,7 @@ public class RadiantRay extends BaseAbility implements IScanEntities, IImpact, I
         source.world.spawnEntity(spawn); //MANIFEST B L O O D!!
 
         if (owner.world instanceof WorldServer) {
-            ((WorldServer) owner.world).playSound(null, owner.posX, owner.posY, owner.posZ, ModSounds.RADIANT_RAY_RELEASE, SoundCategory.PLAYERS, 5.0F, (1.0F + (owner.world.rand.nextFloat() - owner.world.rand.nextFloat()) * 0.2F) * 0.7F);
+            ((WorldServer) owner.world).playSound(null, hitVector.x, hitVector.y, hitVector.z, ModSounds.RADIANT_RAY_RELEASE, SoundCategory.PLAYERS, 5.0F, (1.0F + (owner.world.rand.nextFloat() - owner.world.rand.nextFloat()) * 0.2F) * 0.7F);
         }
     }
 
@@ -138,7 +138,7 @@ public class RadiantRay extends BaseAbility implements IScanEntities, IImpact, I
     }
 
     public double getDamage(AbilityInfo info) {
-        return this.config.get(this, "DAMAGE", info.getLevel());
+        return this.config.get(this, "DAMAGE", info.getLevel(), CommonConfig.CONFIG_SYNC.skill.globalNegativeEffect);
     }
 
     public int getTime(AbilityInfo info) {
@@ -219,19 +219,23 @@ public class RadiantRay extends BaseAbility implements IScanEntities, IImpact, I
 
     @Override
     public void initSyncConfig() {
-        this.config = ConfigDSL.parse(Configuration.CONFIG_SYNC.dsl);
+        Configuration.CONFIG_SYNC.dsl = Configuration.CONFIG.dsl;
+        this.sigmaDic();
     }
 
     @Override
     public void writeSyncConfig(NBTTagCompound compound) {
         NBTHelper.setArray(compound, "config", Configuration.CONFIG.dsl);
-        initSyncConfig();
     }
 
     @Override
     public void readSyncConfig(NBTTagCompound compound) {
         Configuration.CONFIG_SYNC.dsl = NBTHelper.getArray(compound, "config");
-        initSyncConfig();
+    }
+
+    @Override
+    public void sigmaDic() {
+        this.config = ConfigDSL.parse(Configuration.CONFIG_SYNC.dsl);
     }
 
     @Config(modid = LibMod.MOD_ID, name = CONFIG_FILE)
