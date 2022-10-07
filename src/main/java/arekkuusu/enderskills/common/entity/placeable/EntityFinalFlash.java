@@ -116,7 +116,7 @@ public class EntityFinalFlash extends Entity {
             this.setupShape(new Random(this.getSeed()));
         }
         if (tickDelay == 0) {
-            world.playSound(posX, posY, posZ, ModSounds.FINAL_FLASH_CAST, SoundCategory.PLAYERS, 0.5F, 1.0F, true);
+            world.playSound(posX, posY, posZ, ModSounds.FINAL_FLASH_CAST, SoundCategory.PLAYERS, 5F, 1.0F, true);
         }
         if (getRadius() > 0) {
             if (!world.isRemote) {

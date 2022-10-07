@@ -2,8 +2,10 @@ package arekkuusu.enderskills.client.sounds;
 
 import arekkuusu.enderskills.common.entity.placeable.EntityPlaceableData;
 import arekkuusu.enderskills.common.sound.ModSounds;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.MovingSound;
 import net.minecraft.util.SoundCategory;
+import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -32,6 +34,8 @@ public class BloodPoolSound extends MovingSound {
     @Override
     public float getVolume() {
         EntityPlaceableData entity = reference.get();
-        return super.getVolume() * (entity == null ? 0F : 1F - ((float) entity.tick / (float) entity.getLifeTime()));
+        float dist = entity == null ? 0F : (float) Minecraft.getMinecraft().player.getDistance(entity);
+        return super.getVolume() * (entity == null ? 0F : 1F - ((float) entity.tick / (float) (entity.getLifeTime() + 20F))) * (1F - MathHelper.clamp(dist / 100F, 0F, 1F));
+
     }
 }

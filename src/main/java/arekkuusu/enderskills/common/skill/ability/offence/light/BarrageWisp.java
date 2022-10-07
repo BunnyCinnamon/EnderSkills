@@ -41,6 +41,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 import javax.annotation.Nullable;
 import java.util.List;
+import java.util.UUID;
 
 public class BarrageWisp extends BaseAbility implements IImpact, ISkillAdvancement {
 
@@ -72,8 +73,9 @@ public class BarrageWisp extends BaseAbility implements IImpact, ISkillAdvanceme
                     .overrides(SkillData.Overrides.EQUAL)
                     .create();
             float a = 360 / (float) amount;
+            UUID uuid = UUID.randomUUID();
             for (int i = 0; i < amount; i++) {
-                EntityWisp throwable = new EntityWisp(owner.world, owner, distance, data, false);
+                EntityWisp throwable = new EntityWisp(owner.world, owner, distance, data, false, uuid);
                 throwable.setOwnerId(owner.getUniqueID());
 
                 Vector direction = new Vector(owner.getLookVec()).normalize();

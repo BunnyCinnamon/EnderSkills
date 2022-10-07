@@ -10,15 +10,11 @@ import arekkuusu.enderskills.api.helper.NBTHelper;
 import arekkuusu.enderskills.api.registry.Skill;
 import arekkuusu.enderskills.api.util.ConfigDSL;
 import arekkuusu.enderskills.client.gui.data.ISkillAdvancement;
-import arekkuusu.enderskills.client.sounds.FlamingRainSound;
-import arekkuusu.enderskills.client.sounds.GleamBangSound;
 import arekkuusu.enderskills.client.util.helper.TextHelper;
 import arekkuusu.enderskills.common.CommonConfig;
 import arekkuusu.enderskills.common.entity.data.IExpand;
 import arekkuusu.enderskills.common.entity.data.IFindEntity;
 import arekkuusu.enderskills.common.entity.data.IImpact;
-import arekkuusu.enderskills.common.entity.data.ILoopSound;
-import arekkuusu.enderskills.common.entity.placeable.EntityPlaceableData;
 import arekkuusu.enderskills.common.entity.placeable.EntityPlaceableGleamFlash;
 import arekkuusu.enderskills.common.entity.throwable.EntityThrowableData;
 import arekkuusu.enderskills.common.lib.LibMod;
@@ -48,7 +44,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import javax.annotation.Nullable;
 import java.util.List;
 
-public class GleamBang extends BaseAbility implements IImpact, ILoopSound, IExpand, IFindEntity, ISkillAdvancement {
+public class GleamBang extends BaseAbility implements IImpact, IExpand, IFindEntity, ISkillAdvancement {
 
     public GleamBang() {
         super(LibNames.GLEAM_BANG, new AbilityProperties());
@@ -128,12 +124,6 @@ public class GleamBang extends BaseAbility implements IImpact, ILoopSound, IExpa
         if (target.world instanceof WorldServer) {
             ((WorldServer) target.world).playSound(null, target.posX, target.posY, target.posZ, ModSounds.OFFLIGHT_ONHIT, SoundCategory.PLAYERS, 1.0F, (1.0F + (target.world.rand.nextFloat() - target.world.rand.nextFloat()) * 0.2F) * 0.7F);
         }
-    }
-
-    @Override
-    @SideOnly(Side.CLIENT)
-    public void makeSound(Entity source) {
-        Minecraft.getMinecraft().getSoundHandler().playSound(new GleamBangSound((EntityPlaceableData) source));
     }
     //* Entity *//
 

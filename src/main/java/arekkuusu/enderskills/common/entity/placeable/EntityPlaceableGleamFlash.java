@@ -3,10 +3,12 @@ package arekkuusu.enderskills.common.entity.placeable;
 import arekkuusu.enderskills.api.capability.data.SkillData;
 import arekkuusu.enderskills.api.helper.RayTraceHelper;
 import arekkuusu.enderskills.common.skill.SkillHelper;
+import arekkuusu.enderskills.common.sound.ModSounds;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.MoverType;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumParticleTypes;
+import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
@@ -29,6 +31,9 @@ public class EntityPlaceableGleamFlash extends EntityPlaceableData {
     @Override
     public void onUpdate() {
         if (tickDelay > getData().nbt.getInteger("delay")) {
+            if (tick == 0) {
+                world.playSound(posX, posY, posZ, ModSounds.GLEAM_BANG_RELEASE, SoundCategory.PLAYERS, 5F, 1.0F, true);
+            }
             super.onUpdate();
         } else {
             if (world.isRemote) {
