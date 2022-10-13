@@ -114,10 +114,14 @@ public class Endurance extends BaseAttribute implements ISkillAdvancement {
                 if (capability.getEnduranceDelay() > 0) {
                     capability.setEnduranceDelay(capability.getEnduranceDelay() - 1);
                 } else if (capability.getEndurance() < maxEndurance) {
-                    capability.setEnduranceDelay(10); //Every half a second
+                    double[] a = {10};
+                    Capabilities.get(event.getEntityLiving()).flatMap(aaa -> aaa.getOwned(this)).ifPresent(iii -> a[0] = getRegen((AttributeInfo) iii));
+                    capability.setEnduranceDelay(a[0]); //Every half a second
                     capability.setEndurance(Math.min(capability.getEndurance() + (maxEndurance / (maxEndurance - capability.getEndurance())), maxEndurance));
                 } else if (capability.getEndurance() > maxEndurance) {
-                    capability.setEnduranceDelay(10); //Every half a second
+                    double[] a = {10};
+                    Capabilities.get(event.getEntityLiving()).flatMap(aaa -> aaa.getOwned(this)).ifPresent(iii -> a[0] = getRegen((AttributeInfo) iii));
+                    capability.setEnduranceDelay(a[0]); //Every half a second
                     capability.setEndurance(Math.max(capability.getEndurance() - (capability.getEndurance() / maxEndurance), 0D));
                 }
                 if (event.getEntityLiving() instanceof EntityPlayerMP) {
@@ -159,7 +163,9 @@ public class Endurance extends BaseAttribute implements ISkillAdvancement {
                     event.setCanceled(true);
                     return;
                 }
-                capability.drain(enduranceNeeded);
+                double[] a = {5 * 20};
+                Capabilities.get(entity).flatMap(aaa -> aaa.getOwned(this)).ifPresent(iii -> a[0] = getDelay((AttributeInfo) iii));
+                capability.drain(enduranceNeeded, a[0]);
                 if (entity instanceof EntityPlayerMP) {
                     PacketHelper.sendEnduranceSync((EntityPlayerMP) entity);
                 }
@@ -182,6 +188,14 @@ public class Endurance extends BaseAttribute implements ISkillAdvancement {
 
     public float getModifier(AttributeInfo info) {
         return (float) this.config.get(this, "MODIFIER", info.getLevel());
+    }
+
+    public float getDelay(AttributeInfo info) {
+        return (float) this.config.get(this, "DELAY", info.getLevel());
+    }
+
+    public float getRegen(AttributeInfo info) {
+        return (float) this.config.get(this, "REGEN", info.getLevel());
     }
 
     /*Advancement Section*/
@@ -380,6 +394,16 @@ public class Endurance extends BaseAttribute implements ISkillAdvancement {
                     "⠀    {0} [",
                     "⠀        curve: multiply 1e",
                     "⠀    ]",
+                    "⠀)",
+                    "⠀#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~",
+                    "⠀DELAY (",
+                    "⠀    curve: none",
+                    "⠀    value: 5s",
+                    "⠀)",
+                    "⠀#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~",
+                    "⠀REGEN (",
+                    "⠀    curve: none",
+                    "⠀    value: 0.5s",
                     "⠀)",
                     "⠀#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~",
                     "⠀XP (",

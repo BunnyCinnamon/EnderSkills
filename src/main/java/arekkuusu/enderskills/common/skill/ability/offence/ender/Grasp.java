@@ -63,11 +63,11 @@ public class Grasp extends BaseAbility implements IImpact, IExpand, ILoopSound, 
             if (!(owner instanceof EntityPlayer) || !((EntityPlayer) owner).capabilities.isCreativeMode) {
                 abilityInfo.setCooldown(getCooldown(abilityInfo));
             }
-            double distance = getRange(abilityInfo);
-            double range = getGraspRange(abilityInfo);
+            double distance = arekkuusu.enderskills.api.event.SkillRangeEvent.getRange(owner, this, getRange(abilityInfo));;
+            double range = arekkuusu.enderskills.api.event.SkillRangeEvent.getRange(owner, this, getGraspRange(abilityInfo));;
             int time = getGraspDuration(abilityInfo);
             double dot = getDoT(abilityInfo);
-            int dotDuration = getTime(abilityInfo);
+            int dotDuration = (int) arekkuusu.enderskills.api.event.SkillDurationEvent.getDuration(owner, this, getTime(abilityInfo));;
             NBTTagCompound compound = new NBTTagCompound();
             NBTHelper.setEntity(compound, owner, "owner");
             NBTHelper.setDouble(compound, "range", range);

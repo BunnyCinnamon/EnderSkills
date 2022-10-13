@@ -58,9 +58,9 @@ public class Explode extends BaseAbility implements IScanEntities, IExpand, IFin
             if (!(owner instanceof EntityPlayer) || !((EntityPlayer) owner).capabilities.isCreativeMode) {
                 abilityInfo.setCooldown(getCooldown(abilityInfo));
             }
-            double range = getRange(abilityInfo);
+            double range = arekkuusu.enderskills.api.event.SkillRangeEvent.getRange(owner, this, getRange(abilityInfo));;
             double damage = getDamage(abilityInfo);
-            int dotDuration = getTime(abilityInfo);
+            int dotDuration = (int) arekkuusu.enderskills.api.event.SkillDurationEvent.getDuration(owner, this, getTime(abilityInfo));;
             double dot = getDoT(abilityInfo);
             NBTTagCompound compound = new NBTTagCompound();
             NBTHelper.setEntity(compound, owner, "owner");

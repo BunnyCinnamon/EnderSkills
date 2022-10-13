@@ -56,8 +56,8 @@ public class FinalFlash extends BaseAbility implements IScanEntities, IExpand, I
             if (!(owner instanceof EntityPlayer) || !((EntityPlayer) owner).capabilities.isCreativeMode) {
                 abilityInfo.setCooldown(getCooldown(abilityInfo));
             }
-            int duration = getDuration(abilityInfo);
-            double range = getRange(abilityInfo);
+            int duration = (int) arekkuusu.enderskills.api.event.SkillDurationEvent.getDuration(owner, this, getDuration(abilityInfo));;
+            double range = arekkuusu.enderskills.api.event.SkillRangeEvent.getRange(owner, this, getRange(abilityInfo));;
             double dot = getDoT(abilityInfo);
             double delay = getDelay(abilityInfo);
             double size = getSize(abilityInfo);

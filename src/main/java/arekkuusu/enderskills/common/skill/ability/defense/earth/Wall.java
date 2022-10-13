@@ -43,7 +43,7 @@ public class Wall extends BaseAbility implements ISkillAdvancement {
     public void use(EntityLivingBase owner, SkillInfo skillInfo) {
         if (((IInfoCooldown) skillInfo).hasCooldown() || isClientWorld(owner)) return;
         AbilityInfo abilityInfo = (AbilityInfo) skillInfo;
-        double distance = getRange(abilityInfo);
+        double distance = arekkuusu.enderskills.api.event.SkillRangeEvent.getRange(owner, this, getRange(abilityInfo));;
 
         RayTraceHelper.getFloorLookedAt(owner, distance, distance).ifPresent(pos -> {
             pos = pos.up();
@@ -52,8 +52,8 @@ public class Wall extends BaseAbility implements ISkillAdvancement {
                     abilityInfo.setCooldown(getCooldown(abilityInfo));
                 }
                 EnumFacing cardinal = owner.getHorizontalFacing();
-                int height = getHeight(abilityInfo);
-                int width = getWidth(abilityInfo);
+                int height = (int) arekkuusu.enderskills.api.event.SkillRangeEvent.getRange(owner, this, getHeight(abilityInfo));;
+                int width = (int) arekkuusu.enderskills.api.event.SkillRangeEvent.getRange(owner, this, getWidth(abilityInfo));;
 
                 EntityWall wall = new EntityWall(owner.world, SkillData.of(this).by(owner).create());
                 wall.setPosition(pos.getX() + 0.5D, pos.getY(), pos.getZ() + 0.5D);

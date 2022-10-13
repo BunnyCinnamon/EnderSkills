@@ -62,7 +62,7 @@ public class SpeedBoost extends BaseAbility implements ISkillAdvancement {
             if (!(owner instanceof EntityPlayer) || !((EntityPlayer) owner).capabilities.isCreativeMode) {
                 abilityInfo.setCooldown(getCooldown(abilityInfo));
             }
-            int time = getTime(abilityInfo);
+            int time = (int) arekkuusu.enderskills.api.event.SkillDurationEvent.getDuration(owner, this, getTime(abilityInfo));;
             double speed = getSpeed(abilityInfo);
             NBTTagCompound compound = new NBTTagCompound();
             NBTHelper.setEntity(compound, owner, "owner");

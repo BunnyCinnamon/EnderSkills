@@ -48,7 +48,7 @@ public class Teleport extends BaseAbility implements ISkillAdvancement {
     public void use(EntityLivingBase owner, SkillInfo skillInfo) {
         if (((IInfoCooldown) skillInfo).hasCooldown() || isClientWorld(owner)) return;
         AbilityInfo abilityInfo = (AbilityInfo) skillInfo;
-        double distance = getRange(abilityInfo);
+        double distance = arekkuusu.enderskills.api.event.SkillRangeEvent.getRange(owner, this, getRange(abilityInfo));;
 
         RayTraceHelper.getVecLookedAt(owner, distance).ifPresent(targetVector -> {
             targetVector = new Vec3d(

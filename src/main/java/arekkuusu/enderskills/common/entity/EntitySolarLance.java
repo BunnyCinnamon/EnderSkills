@@ -139,7 +139,7 @@ public class EntitySolarLance extends Entity {
                     entities.add(raytraceresult.entityHit.getPersistentID());
                     ModAbilities.SOLAR_LANCE.apply((EntityLivingBase) raytraceresult.entityHit, getData());
                     if (SkillHelper.isActive(raytraceresult.entityHit, ModEffects.GLOWING)) {
-                        //ModEffects.GLOWING.activate((EntityLivingBase) raytraceresult.entityHit, data);
+                        ModEffects.GLOWING.activate((EntityLivingBase) raytraceresult.entityHit, data);
                     } else {
                         //ModEffects.GLOWING.set((EntityLivingBase) raytraceresult.entityHit, data);
                     }

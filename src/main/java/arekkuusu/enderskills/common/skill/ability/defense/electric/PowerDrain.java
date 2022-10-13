@@ -22,6 +22,7 @@ import arekkuusu.enderskills.common.skill.ModEffects;
 import arekkuusu.enderskills.common.skill.SkillHelper;
 import arekkuusu.enderskills.common.skill.ability.AbilityInfo;
 import arekkuusu.enderskills.common.skill.ability.BaseAbility;
+import arekkuusu.enderskills.common.skill.attribute.AttributeInfo;
 import arekkuusu.enderskills.common.sound.ModSounds;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
@@ -58,7 +59,7 @@ public class PowerDrain extends BaseAbility implements IFindEntity, IExpand {
             }
             double power = getPower(abilityInfo);
             double stun = getStun(abilityInfo);
-            double range = getRange(abilityInfo);
+            double range = arekkuusu.enderskills.api.event.SkillRangeEvent.getRange(owner, this, getRange(abilityInfo));;
             NBTTagCompound compound = new NBTTagCompound();
             NBTHelper.setEntity(compound, owner, "owner");
             NBTHelper.setDouble(compound, "stun", stun);
@@ -112,7 +113,9 @@ public class PowerDrain extends BaseAbility implements IFindEntity, IExpand {
         if (owner != null) {
             Capabilities.endurance(entity).ifPresent(capability -> {
                 double power = NBTHelper.getDouble(data.nbt, "power");
-                double drain = power - capability.drain(power);
+                double a[] = {5 * 20};
+                Capabilities.get(entity).flatMap(aaa -> aaa.getOwned(ModAttributes.ENDURANCE)).ifPresent(iii -> a[0] = ModAttributes.ENDURANCE.getRegen((AttributeInfo) iii));
+                double drain = power - capability.drain(power, a[0]);
                 if (drain > 0) {
                     if (!isClientWorld(entity)) {
                         if (entity instanceof EntityPlayerMP) {

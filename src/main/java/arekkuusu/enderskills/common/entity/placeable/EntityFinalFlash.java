@@ -135,7 +135,7 @@ public class EntityFinalFlash extends Entity {
                         ModEffects.SLOWED.set(entity, getData(), 0.01D);
                         if (!entities.contains(entity.getPersistentID()) && entities.add(entity.getPersistentID())) {
                             if (SkillHelper.isActive(entity, ModEffects.GLOWING)) {
-                                //ModEffects.GLOWING.activate(entity, data);
+                                ModEffects.GLOWING.activate(entity, data);
                             } else {
                                 //ModEffects.GLOWING.set(entity, data);
                             }

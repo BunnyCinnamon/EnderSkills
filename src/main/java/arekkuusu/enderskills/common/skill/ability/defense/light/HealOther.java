@@ -57,7 +57,7 @@ public class HealOther extends BaseAbility implements IImpact, ISkillAdvancement
             if (!(owner instanceof EntityPlayer) || !((EntityPlayer) owner).capabilities.isCreativeMode) {
                 abilityInfo.setCooldown(getCooldown(abilityInfo));
             }
-            double distance = getRange(abilityInfo);
+            double distance = arekkuusu.enderskills.api.event.SkillRangeEvent.getRange(owner, this, getRange(abilityInfo));;
             double heal = getHeal(abilityInfo);
             NBTTagCompound compound = new NBTTagCompound();
             NBTHelper.setDouble(compound, "heal", heal);

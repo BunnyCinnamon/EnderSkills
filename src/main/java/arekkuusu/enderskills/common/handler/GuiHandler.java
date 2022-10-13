@@ -1881,15 +1881,23 @@ public final class GuiHandler implements IGuiHandler {
                         shadow.addCondition(new SkillAdvancementConditionNot(bleed));
                         shadow.addCondition(new SkillAdvancementConditionNot(slash));
                         shadow.addCondition(new SkillAdvancementConditionNot(fire_spirit));
+                        shadow.addCondition(new SkillAdvancementConditionNot(radiant_ray));
                         bleed.addCondition(new SkillAdvancementConditionNot(shadow));
                         bleed.addCondition(new SkillAdvancementConditionNot(slash));
                         bleed.addCondition(new SkillAdvancementConditionNot(fire_spirit));
+                        bleed.addCondition(new SkillAdvancementConditionNot(radiant_ray));
                         slash.addCondition(new SkillAdvancementConditionNot(shadow));
                         slash.addCondition(new SkillAdvancementConditionNot(bleed));
                         slash.addCondition(new SkillAdvancementConditionNot(fire_spirit));
+                        slash.addCondition(new SkillAdvancementConditionNot(radiant_ray));
                         fire_spirit.addCondition(new SkillAdvancementConditionNot(shadow));
                         fire_spirit.addCondition(new SkillAdvancementConditionNot(bleed));
                         fire_spirit.addCondition(new SkillAdvancementConditionNot(slash));
+                        fire_spirit.addCondition(new SkillAdvancementConditionNot(radiant_ray));
+                        radiant_ray.addCondition(new SkillAdvancementConditionNot(shadow));
+                        radiant_ray.addCondition(new SkillAdvancementConditionNot(bleed));
+                        radiant_ray.addCondition(new SkillAdvancementConditionNot(slash));
+                        radiant_ray.addCondition(new SkillAdvancementConditionNot(fire_spirit));
                     }
                     return window;
                 }

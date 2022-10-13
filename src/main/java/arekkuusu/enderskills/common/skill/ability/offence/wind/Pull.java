@@ -56,13 +56,13 @@ public class Pull extends BaseAbility implements IImpact, ISkillAdvancement {
     public void use(EntityLivingBase owner, SkillInfo skillInfo) {
         if (((IInfoCooldown) skillInfo).hasCooldown() || isClientWorld(owner)) return;
         AbilityInfo abilityInfo = (AbilityInfo) skillInfo;
-        double distance = getRange(abilityInfo);
+        double distance = arekkuusu.enderskills.api.event.SkillRangeEvent.getRange(owner, this, getRange(abilityInfo));;
 
         if (isActionable(owner) && canActivate(owner)) {
             if (!(owner instanceof EntityPlayer) || !((EntityPlayer) owner).capabilities.isCreativeMode) {
                 abilityInfo.setCooldown(getCooldown(abilityInfo));
             }
-            int time = getTime(abilityInfo);
+            int time = (int) arekkuusu.enderskills.api.event.SkillDurationEvent.getDuration(owner, this, getTime(abilityInfo));;
             Vec3d lookVector = owner.getLook(1F);
             NBTTagCompound compound = new NBTTagCompound();
             NBTHelper.setEntity(compound, owner, "owner");

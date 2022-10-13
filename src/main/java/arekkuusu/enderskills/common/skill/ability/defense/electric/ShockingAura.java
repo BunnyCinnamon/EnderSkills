@@ -51,7 +51,7 @@ public class ShockingAura extends BaseAbility {
                 if (!(owner instanceof EntityPlayer) || !((EntityPlayer) owner).capabilities.isCreativeMode) {
                     abilityInfo.setCooldown(getCooldown(abilityInfo));
                 }
-                double range = getRange(abilityInfo);
+                double range = arekkuusu.enderskills.api.event.SkillRangeEvent.getRange(owner, this, getRange(abilityInfo));;
                 double stun = getStun(abilityInfo);
                 double slow = getSlow(abilityInfo);
                 NBTTagCompound compound = new NBTTagCompound();

@@ -73,7 +73,7 @@ public class Glowing extends BaseEffect implements IFindEntity, IExpand, IConfig
         SkillDamageSource skillSource = new SkillDamageSource(BaseAbility.DAMAGE_HIT_TYPE, owner);
         skillSource.setMagicDamage();
 
-        double[] damage = new double[]{2};
+        double[] damage = new double[]{this.config.get(this, "DAMAGE", 0)};
         Capabilities.get(owner).flatMap(skills -> skills.getOwned(this)).ifPresent(info -> {
             AbilityInfo abilityInfo = (AbilityInfo) info;
 
@@ -98,7 +98,7 @@ public class Glowing extends BaseEffect implements IFindEntity, IExpand, IConfig
                 .put(data.nbt.copy(), data.watcher.copy())
                 .overrides(SkillData.Overrides.SAME)
                 .create();
-        double[] radius = new double[]{2};
+        double[] radius = new double[]{this.config.get(this, "RANGE", 0)};
         Capabilities.get(SkillHelper.getOwner(data)).flatMap(skills -> skills.getOwned(this)).ifPresent(info -> {
             AbilityInfo abilityInfo = (AbilityInfo) info;
 
@@ -124,7 +124,6 @@ public class Glowing extends BaseEffect implements IFindEntity, IExpand, IConfig
         apply(entity, status);
         sync(entity, status);
     }
-
 
     /*Config Section*/
     public static final String CONFIG_FILE = LibNames.ATTRIBUTE_OFFENCE_FOLDER + LibNames.GLOWING;

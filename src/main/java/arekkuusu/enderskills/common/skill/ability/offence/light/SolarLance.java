@@ -57,8 +57,8 @@ public class SolarLance extends BaseAbility implements ISkillAdvancement {
                     if (!(owner instanceof EntityPlayer) || !((EntityPlayer) owner).capabilities.isCreativeMode) {
                         abilityInfo.setCooldown(getCooldown(abilityInfo));
                     }
-                    double distance = getRange(abilityInfo);
-                    double range = getLanceRange(abilityInfo);
+                    double distance = arekkuusu.enderskills.api.event.SkillRangeEvent.getRange(owner, this, getRange(abilityInfo));;
+                    double range = arekkuusu.enderskills.api.event.SkillRangeEvent.getRange(owner, this, getLanceRange(abilityInfo));;
                     int piercing = getPenis(abilityInfo);
                     double damage = getDamage(abilityInfo);
                     NBTTagCompound compound = new NBTTagCompound();

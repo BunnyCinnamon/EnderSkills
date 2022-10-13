@@ -64,8 +64,8 @@ public class Shockwave extends BaseAbility implements IScanEntities, IExpand, IF
                 abilityInfo.setCooldown(getCooldown(abilityInfo));
             }
             int time = getStunTime(abilityInfo);
-            double range = getRange(abilityInfo);
-            double rangeExtra = getRangeExtra(abilityInfo);
+            double range = arekkuusu.enderskills.api.event.SkillRangeEvent.getRange(owner, this, getRange(abilityInfo));;
+            double rangeExtra = arekkuusu.enderskills.api.event.SkillRangeEvent.getRange(owner, this, getRangeExtra(abilityInfo));;
             double push = getPush(abilityInfo);
             NBTTagCompound compound = new NBTTagCompound();
             NBTHelper.setEntity(compound, owner, "owner");

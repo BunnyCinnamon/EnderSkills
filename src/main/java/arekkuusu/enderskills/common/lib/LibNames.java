@@ -19,6 +19,8 @@ public class LibNames {
     public static final String ATTACK_SPEED = "attack_speed";
     public static final String KNOCKBACK = "knockback";
     public static final String ABILITY_POWER = "ability_power";
+    public static final String ABILITY_RANGE = "ability_range";
+    public static final String ABILITY_DURATION = "ability_duration";
     public static final String CRITICAL_CHANCE = "critical_chance";
     public static final String ARMOR_PENETRATION = "armor_penetration";
     //* Abilities *//

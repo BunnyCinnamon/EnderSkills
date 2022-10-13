@@ -62,9 +62,9 @@ public class GleamBang extends BaseAbility implements IImpact, IExpand, IFindEnt
                 abilityInfo.setCooldown(getCooldown(abilityInfo));
             }
             double distance = getTravel(abilityInfo);
-            double range = getRange(abilityInfo);
+            double range = arekkuusu.enderskills.api.event.SkillRangeEvent.getRange(owner, this, getRange(abilityInfo));;
             double damage = getDamage(abilityInfo);
-            double time = getTime(abilityInfo);
+            double time = arekkuusu.enderskills.api.event.SkillDurationEvent.getDuration(owner, this, getTime(abilityInfo));;
             double delay = getDelay(abilityInfo);
             NBTTagCompound compound = new NBTTagCompound();
             NBTHelper.setEntity(compound, owner, "owner");

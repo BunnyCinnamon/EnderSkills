@@ -54,7 +54,7 @@ public class ElectricPulse extends BaseAbility implements IScanEntities, IExpand
                 abilityInfo.setCooldown(getCooldown(abilityInfo));
             }
 
-            double range = getRange(abilityInfo);
+            double range = arekkuusu.enderskills.api.event.SkillRangeEvent.getRange(owner, this, getRange(abilityInfo));;
             double stun = getStun(abilityInfo);
             double slow = getSlow(abilityInfo);
             NBTTagCompound compound = new NBTTagCompound();

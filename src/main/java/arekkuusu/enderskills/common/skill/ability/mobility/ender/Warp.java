@@ -73,7 +73,7 @@ public class Warp extends BaseAbility implements ISkillAdvancement {
                     MathHelper.floor(targetVector.z) + 0.5D
             );
         }
-        double distance = getRange(abilityInfo);
+        double distance = arekkuusu.enderskills.api.event.SkillRangeEvent.getRange(owner, this, getRange(abilityInfo));;
         if (owner.getDistance(targetVector.x, targetVector.y, targetVector.z) > distance + 1) return; //Cheater...
 
         BlockPos posFloor = new BlockPos(targetVector); //One Bwock fwom bwock tawgeted
@@ -154,7 +154,7 @@ public class Warp extends BaseAbility implements ISkillAdvancement {
                     Capabilities.endurance(player).ifPresent(endurance -> {
                         int amount = ModAttributes.ENDURANCE.getEnduranceDrain(this);
                         if (endurance.getEndurance() - amount >= 0) {
-                            double distance = getRange(abilityInfo);
+                            double distance = arekkuusu.enderskills.api.event.SkillRangeEvent.getRange(player, this, getRange(abilityInfo));;
                             Vec3d lookVec = player.getLookVec();
                             double x = lookVec.x * distance;
                             double y = lookVec.y * distance;

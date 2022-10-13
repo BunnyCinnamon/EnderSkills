@@ -57,9 +57,9 @@ public class Suffocate extends BaseAbility implements IImpact, ILoopSound, IScan
             if (!(owner instanceof EntityPlayer) || !((EntityPlayer) owner).capabilities.isCreativeMode) {
                 abilityInfo.setCooldown(getCooldown(abilityInfo));
             }
-            double distance = getRange(abilityInfo);
-            double range = getSuffocateRange(abilityInfo);
-            int time = getTime(abilityInfo);
+            double distance = arekkuusu.enderskills.api.event.SkillRangeEvent.getRange(owner, this, getRange(abilityInfo));;
+            double range = arekkuusu.enderskills.api.event.SkillRangeEvent.getRange(owner, this, getSuffocateRange(abilityInfo));;
+            int time = (int) arekkuusu.enderskills.api.event.SkillDurationEvent.getDuration(owner, this, getTime(abilityInfo));;
             double dot = getSuffocateDoT(abilityInfo);
             int dotDuration = getSuffocateDoTDuration(abilityInfo);
             NBTTagCompound compound = new NBTTagCompound();

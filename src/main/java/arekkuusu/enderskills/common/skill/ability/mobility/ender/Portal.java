@@ -45,7 +45,7 @@ public class Portal extends BaseAbility implements ISkillAdvancement {
                 EntityPortal portal = new EntityPortal(owner.world, getTime(abilityInfo));
                 portal.setPosition(owner.posX, owner.posY + owner.getEyeHeight(), owner.posZ);
                 owner.world.spawnEntity(portal);
-                int time = getTime(abilityInfo);
+                int time = (int) arekkuusu.enderskills.api.event.SkillDurationEvent.getDuration(owner, this, getTime(abilityInfo));;
                 NBTTagCompound compound = new NBTTagCompound();
                 NBTHelper.setEntity(compound, portal, "portal");
                 NBTHelper.setEntity(compound, owner, "owner");

@@ -49,7 +49,7 @@ public class EnduranceCapability implements ICapabilitySerializable<NBTTagCompou
         this.enduranceDelay = enduranceDelay;
     }
 
-    public double drain(double enduranceNeeded) {
+    public double drain(double enduranceNeeded, double delay) {
         boolean drain = false;
         if (getAbsorption() > 0 && enduranceNeeded > 0) {
             if (getAbsorption() > enduranceNeeded) {
@@ -72,7 +72,7 @@ public class EnduranceCapability implements ICapabilitySerializable<NBTTagCompou
             drain = true;
         }
         if (drain) {
-            setEnduranceDelay(5 * 20);
+            setEnduranceDelay(delay);
         }
         return enduranceNeeded;
     }

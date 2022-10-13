@@ -63,10 +63,10 @@ public class LumenWave extends BaseAbility implements IScanEntities, IExpand, IF
                 abilityInfo.setCooldown(getCooldown(abilityInfo));
             }
             double distance = getTravel(abilityInfo);
-            double range = getRange(abilityInfo);
+            double range = arekkuusu.enderskills.api.event.SkillRangeEvent.getRange(owner, this, getRange(abilityInfo));;
             double force = getLaunch(abilityInfo);
             double damage = getDamage(abilityInfo);
-            int time = getTime(abilityInfo);
+            int time = (int) arekkuusu.enderskills.api.event.SkillDurationEvent.getDuration(owner, this, getTime(abilityInfo));;
             NBTTagCompound compound = new NBTTagCompound();
             NBTHelper.setEntity(compound, owner, "owner");
             NBTHelper.setDouble(compound, "damage", damage);
@@ -117,7 +117,7 @@ public class LumenWave extends BaseAbility implements IScanEntities, IExpand, IF
     @Override
     public void onFound(Entity source, @Nullable EntityLivingBase owner, EntityLivingBase target, SkillData skillData) {
         if (SkillHelper.isActive(target, ModEffects.GLOWING)) {
-            //ModEffects.GLOWING.activate(target, skillData);
+            ModEffects.GLOWING.activate(target, skillData);
         } else {
             //ModEffects.GLOWING.set(target, skillData);
         }

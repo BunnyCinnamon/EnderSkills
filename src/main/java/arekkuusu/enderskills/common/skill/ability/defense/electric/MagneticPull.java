@@ -50,8 +50,8 @@ public class MagneticPull extends BaseAbility {
                 abilityInfo.setCooldown(getCooldown(abilityInfo));
             }
 
-            int time = getTime(abilityInfo);
-            double range = getRange(abilityInfo);
+            int time = (int) arekkuusu.enderskills.api.event.SkillDurationEvent.getDuration(owner, this, getTime(abilityInfo));;
+            double range = arekkuusu.enderskills.api.event.SkillRangeEvent.getRange(owner, this, getRange(abilityInfo));;
             double stun = getStun(abilityInfo);
             double slow = getSlow(abilityInfo);
             double pull = getPull(abilityInfo);

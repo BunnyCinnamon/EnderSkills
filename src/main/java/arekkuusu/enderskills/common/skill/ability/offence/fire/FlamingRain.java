@@ -57,16 +57,16 @@ public class FlamingRain extends BaseAbility implements IImpact, ILoopSound, IEx
     public void use(EntityLivingBase owner, SkillInfo skillInfo) {
         if (((IInfoCooldown) skillInfo).hasCooldown() || isClientWorld(owner)) return;
         AbilityInfo abilityInfo = (AbilityInfo) skillInfo;
-        double distance = getRange(abilityInfo);
+        double distance = arekkuusu.enderskills.api.event.SkillRangeEvent.getRange(owner, this, getRange(abilityInfo));;
 
         if (isActionable(owner) && canActivate(owner)) {
             if (!(owner instanceof EntityPlayer) || !((EntityPlayer) owner).capabilities.isCreativeMode) {
                 abilityInfo.setCooldown(getCooldown(abilityInfo));
             }
-            double range = getRainRange(abilityInfo);
+            double range = arekkuusu.enderskills.api.event.SkillRangeEvent.getRange(owner, this, getRainRange(abilityInfo));;
             int time = getRainDuration(abilityInfo);
             double dot = getDoT(abilityInfo);
-            int dotDuration = getTime(abilityInfo);
+            int dotDuration = (int) arekkuusu.enderskills.api.event.SkillDurationEvent.getDuration(owner, this, getTime(abilityInfo));;
             NBTTagCompound compound = new NBTTagCompound();
             NBTHelper.setEntity(compound, owner, "owner");
             NBTHelper.setDouble(compound, "range", range);

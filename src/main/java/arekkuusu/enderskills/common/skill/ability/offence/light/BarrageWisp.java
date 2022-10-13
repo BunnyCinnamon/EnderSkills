@@ -59,7 +59,7 @@ public class BarrageWisp extends BaseAbility implements IImpact, ISkillAdvanceme
             if (!(owner instanceof EntityPlayer) || !((EntityPlayer) owner).capabilities.isCreativeMode) {
                 abilityInfo.setCooldown(getCooldown(abilityInfo));
             }
-            double distance = getRange(abilityInfo);
+            double distance = arekkuusu.enderskills.api.event.SkillRangeEvent.getRange(owner, this, getRange(abilityInfo));;
             double damage = getDamage(abilityInfo);
             double amount = getAmount(abilityInfo);
             NBTTagCompound compound = new NBTTagCompound();

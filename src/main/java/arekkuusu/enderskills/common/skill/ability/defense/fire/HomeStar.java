@@ -52,9 +52,9 @@ public class HomeStar extends BaseAbility implements ISkillAdvancement {
             if (!(owner instanceof EntityPlayer) || !((EntityPlayer) owner).capabilities.isCreativeMode) {
                 abilityInfo.setCooldown(getCooldown(abilityInfo));
             }
-            double range = getRange(abilityInfo);
-            double pulseRange = getPulseRange(abilityInfo);
-            int time = getTime(abilityInfo);
+            double range = arekkuusu.enderskills.api.event.SkillRangeEvent.getRange(owner, this, getRange(abilityInfo));;
+            double pulseRange = arekkuusu.enderskills.api.event.SkillRangeEvent.getRange(owner, this, getPulseRange(abilityInfo));;
+            int time = (int) arekkuusu.enderskills.api.event.SkillDurationEvent.getDuration(owner, this, getTime(abilityInfo));;
             int pulseTime = getPulseTime(abilityInfo);
             double dot = getDoT(abilityInfo);
             int dotDuration = getDoTTime(abilityInfo);

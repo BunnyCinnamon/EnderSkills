@@ -51,7 +51,7 @@ public class Hover extends BaseAbility implements ISkillAdvancement {
     public void use(EntityLivingBase owner, SkillInfo skillInfo) {
         if (isActionable(owner) && canActivate(owner)) {
             AbilityInfo abilityInfo = (AbilityInfo) skillInfo;
-            int maxHover = getTime(abilityInfo);
+            int maxHover = (int) arekkuusu.enderskills.api.event.SkillDurationEvent.getDuration(owner, this, getTime(abilityInfo));;
             NBTTagCompound compound = new NBTTagCompound();
             NBTHelper.setEntity(compound, owner, "owner");
             SkillData data = SkillData.of(this)
@@ -108,7 +108,7 @@ public class Hover extends BaseAbility implements ISkillAdvancement {
         if (player.capabilities.isCreativeMode) return;
         Capabilities.get(player).flatMap(c -> c.getOwned(this)).ifPresent(skillInfo -> {
             AbilityInfo abilityInfo = (AbilityInfo) skillInfo;
-            int maxHover = getTime(abilityInfo);
+            int maxHover = (int) arekkuusu.enderskills.api.event.SkillDurationEvent.getDuration(player, this, getTime(abilityInfo));;
             if (maxHover <= 0) return;
 
             boolean pressed = Minecraft.getMinecraft().gameSettings.keyBindJump.isKeyDown();
@@ -144,7 +144,7 @@ public class Hover extends BaseAbility implements ISkillAdvancement {
         }
         Capabilities.get(player).flatMap(c -> c.getOwned(this)).ifPresent(skillInfo -> {
             AbilityInfo abilityInfo = (AbilityInfo) skillInfo;
-            int maxHover = getTime(abilityInfo);
+            int maxHover = (int) arekkuusu.enderskills.api.event.SkillDurationEvent.getDuration(player, this, getTime(abilityInfo));;
             if (maxHover <= 0) return;
             if (hoverTime > maxHover) {
                 PacketHelper.sendSkillRemoveResponsePacket(player, this);

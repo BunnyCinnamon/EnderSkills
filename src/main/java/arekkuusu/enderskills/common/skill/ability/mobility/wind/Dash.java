@@ -60,7 +60,7 @@ public class Dash extends BaseAbility implements ISkillAdvancement {
             if (!(owner instanceof EntityPlayer) || !((EntityPlayer) owner).capabilities.isCreativeMode) {
                 abilityInfo.setCooldown(getCooldown(abilityInfo));
             }
-            double distance = getRange(abilityInfo);
+            double distance = arekkuusu.enderskills.api.event.SkillRangeEvent.getRange(owner, this, getRange(abilityInfo));;
             NBTTagCompound compound = new NBTTagCompound();
             NBTHelper.setVector(compound, "vector", vector);
             NBTHelper.setDouble(compound, "distance", distance);

@@ -1,7 +1,9 @@
 package arekkuusu.enderskills.client.render.skill;
 
 import arekkuusu.enderskills.api.capability.Capabilities;
+import arekkuusu.enderskills.client.ClientConfig;
 import arekkuusu.enderskills.client.util.helper.GLHelper;
+import arekkuusu.enderskills.common.CommonConfig;
 import arekkuusu.enderskills.common.skill.ModAbilities;
 import arekkuusu.enderskills.common.skill.ability.mobility.wind.SpeedBoost;
 import com.google.common.collect.Lists;
@@ -44,6 +46,7 @@ public class SpeedBoostRenderer extends SkillRenderer<SpeedBoost> {
         public void onEntityUpdate(LivingEvent.LivingUpdateEvent event) {
             EntityLivingBase entity = event.getEntityLiving();
             if (!entity.world.isRemote) return; //EAT ASS
+            if (ClientConfig.RENDER_CONFIG.rendering.helpMyFramesAreDying) return; //EAT ASS
             if ((entity.motionX != 0 || entity.motionY != 0 || entity.motionZ != 0) && !entity.isInvisible()) {
                 Capabilities.get(entity).filter(c -> c.isActive(ModAbilities.SPEED_BOOST) || c.isActive(ModAbilities.DASH)).ifPresent(c -> {
                     if (!TRAVELED_VECTORS.containsKey(entity)) {

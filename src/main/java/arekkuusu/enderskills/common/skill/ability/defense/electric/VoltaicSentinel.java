@@ -60,7 +60,7 @@ public class VoltaicSentinel extends BaseAbility {
                 sentinel.setDamage(getDamage(abilityInfo));
                 owner.world.spawnEntity(sentinel);
 
-                int time = getTime(abilityInfo);
+                int time = (int) arekkuusu.enderskills.api.event.SkillDurationEvent.getDuration(owner, this, getTime(abilityInfo));;
                 NBTTagCompound compound = new NBTTagCompound();
                 NBTHelper.setEntity(compound, owner, "owner");
                 NBTHelper.setEntity(compound, sentinel, "sentinel");

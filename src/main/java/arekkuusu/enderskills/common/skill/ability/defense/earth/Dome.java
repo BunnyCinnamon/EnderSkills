@@ -51,9 +51,9 @@ public class Dome extends BaseAbility implements ISkillAdvancement {
             if (!(owner instanceof EntityPlayer) || !((EntityPlayer) owner).capabilities.isCreativeMode) {
                 abilityInfo.setCooldown(getCooldown(abilityInfo));
             }
-            int height = getHeight(abilityInfo);
-            int size = getWidth(abilityInfo);
-            int time = getTime(abilityInfo);
+            int height = (int) arekkuusu.enderskills.api.event.SkillRangeEvent.getRange(owner, this, getHeight(abilityInfo));;
+            int size = (int) arekkuusu.enderskills.api.event.SkillRangeEvent.getRange(owner, this, getWidth(abilityInfo));;
+            int time = (int) arekkuusu.enderskills.api.event.SkillDurationEvent.getDuration(owner, this, getTime(abilityInfo));;
 
             EntityWall wall = new EntityWall(owner.world, SkillData.of(this).by(owner).create());
             wall.setPosition(pos.getX() + 0.5D, pos.getY() - size, pos.getZ() + .5);
