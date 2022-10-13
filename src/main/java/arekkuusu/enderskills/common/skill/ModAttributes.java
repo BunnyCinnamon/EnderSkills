@@ -57,6 +57,8 @@ public final class ModAttributes {
         registry.register(new AbilityPower());
         registry.register(new CriticalChance());
         registry.register(new ArmorPenetration());
+        registry.register(new AbilityDuration());
+        registry.register(new AbilityRange());
     }
 
     @SuppressWarnings({"UnusedReturnValue", "WeakerAccess"}) //Shut up
