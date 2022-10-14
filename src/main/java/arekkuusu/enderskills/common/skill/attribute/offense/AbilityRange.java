@@ -41,13 +41,13 @@ public class AbilityRange extends BaseAttribute implements ISkillAdvancement {
     public static final IAttribute ABILITY_RANGE = new RangedAttribute(null, "enderskills.generic.abilityRage", 0F, 0F, Float.MAX_VALUE).setDescription("Ability Range").setShouldWatch(true);
     //Vanilla Attribute Modifier for Endurance attribute
     public static final DynamicModifier ABILITY_RANGE_ATTRIBUTE = new DynamicModifier(
-            "a10bf31b-310d-4ef9-91es-6f84arc3860r",
+            "9af579f8-0c4d-4e12-af15-f7bf25c2f428",
             LibMod.MOD_ID + ":" + LibNames.ABILITY_RANGE,
             AbilityRange.ABILITY_RANGE,
             Constants.AttributeModifierOperation.ADD);
 
     public AbilityRange() {
-        super(LibNames.ABILITY_POWER, new BaseProperties());
+        super(LibNames.ABILITY_RANGE, new BaseProperties());
         MinecraftForge.EVENT_BUS.register(this);
         ((BaseProperties) getProperties()).setMaxLevelGetter(this::getMaxLevel);
     }

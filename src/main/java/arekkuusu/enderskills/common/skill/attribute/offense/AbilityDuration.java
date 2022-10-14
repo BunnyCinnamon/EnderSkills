@@ -40,13 +40,13 @@ public class AbilityDuration extends BaseAttribute implements ISkillAdvancement 
     public static final IAttribute ABILITY_DURATION = new RangedAttribute(null, "enderskills.generic.abilityDuration", 0F, 0F, Float.MAX_VALUE).setDescription("Ability Duration").setShouldWatch(true);
     //Vanilla Attribute Modifier for Endurance attribute
     public static final DynamicModifier ABILITY_DURATION_ATTRIBUTE = new DynamicModifier(
-            "a10bf31b-310d-4ef9-91es-6f84arc3860r",
+            "df7d610b-8be5-40ae-8f91-1eaa83a7fb82",
             LibMod.MOD_ID + ":" + LibNames.ABILITY_DURATION,
             AbilityDuration.ABILITY_DURATION,
             Constants.AttributeModifierOperation.ADD);
 
     public AbilityDuration() {
-        super(LibNames.ABILITY_POWER, new BaseProperties());
+        super(LibNames.ABILITY_DURATION, new BaseProperties());
         MinecraftForge.EVENT_BUS.register(this);
         ((BaseProperties) getProperties()).setMaxLevelGetter(this::getMaxLevel);
     }
