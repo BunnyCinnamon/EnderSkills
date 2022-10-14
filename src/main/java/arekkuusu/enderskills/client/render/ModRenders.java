@@ -21,7 +21,7 @@ import arekkuusu.enderskills.common.skill.ability.offence.blood.*;
 import arekkuusu.enderskills.common.skill.ability.offence.ender.*;
 import arekkuusu.enderskills.common.skill.ability.offence.fire.*;
 import arekkuusu.enderskills.common.skill.ability.offence.light.BarrageWisp;
-import arekkuusu.enderskills.common.skill.ability.offence.light.GleamBang;
+import arekkuusu.enderskills.common.skill.ability.offence.light.GleamFlash;
 import arekkuusu.enderskills.common.skill.ability.offence.light.LumenWave;
 import arekkuusu.enderskills.common.skill.ability.offence.light.RadiantRay;
 import arekkuusu.enderskills.common.skill.ability.offence.wind.*;
@@ -127,7 +127,7 @@ public final class ModRenders {
         registerSkill(HomeStar.class, new HomeStarRenderer());
         registerSkill(RadiantRay.class, new RadiantRayRenderer());
         registerSkill(LumenWave.class, new LumenWaveRenderer());
-        registerSkill(GleamBang.class, new GleamBangRenderer());
+        registerSkill(GleamFlash.class, new GleamBangRenderer());
         //Effects
         registerSkill(Bleeding.class, new BleedingRenderer());
         registerSkill(Blinded.class, new BlindedRenderer());

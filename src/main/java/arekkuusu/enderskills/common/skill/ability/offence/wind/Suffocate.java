@@ -110,7 +110,7 @@ public class Suffocate extends BaseAbility implements IImpact, ILoopSound, IScan
     @Override
     public void onScan(Entity source, @Nullable EntityLivingBase owner, EntityLivingBase target, SkillData skillData) {
         if(!target.world.isRemote) {
-            ModEffects.SLOWED.set(target, skillData, 0.01D);
+            ModEffects.ROOTED.set(target, skillData);
             ModEffects.DROWNED.set(target, skillData);
         }
     }

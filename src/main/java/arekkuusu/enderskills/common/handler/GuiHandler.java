@@ -1800,7 +1800,7 @@ public final class GuiHandler implements IGuiHandler {
                                         new TextComponentTranslation(get("skill.gleam_flash.title")),
                                         new TextComponentTranslation(get("skill.gleam_flash.description")),
                                         SkillAdvancementInfo.Frame.ROUNDED,
-                                        ModAbilities.GLEAM_BANG,
+                                        ModAbilities.GLEAM_FLASH,
                                         false
                                 ),
                                 2, 2
@@ -1820,7 +1820,7 @@ public final class GuiHandler implements IGuiHandler {
                                         new TextComponentTranslation(get("skill.barrage_wisp.title")),
                                         new TextComponentTranslation(get("skill.barrage_wisp.description")),
                                         SkillAdvancementInfo.Frame.ROUNDED,
-                                        ModAbilities.BARRAGE_WISP,
+                                        ModAbilities.BARRAGE_WISPS,
                                         false
                                 ),
                                 4, 2

@@ -46,7 +46,7 @@ import java.util.UUID;
 public class BarrageWisp extends BaseAbility implements IImpact, ISkillAdvancement {
 
     public BarrageWisp() {
-        super(LibNames.BARRAGE_WISP, new AbilityProperties());
+        super(LibNames.BARRAGE_WISPS, new AbilityProperties());
         ((AbilityProperties) getProperties()).setCooldownGetter(this::getCooldown).setMaxLevelGetter(this::getMaxLevel);
     }
 
@@ -197,7 +197,7 @@ public class BarrageWisp extends BaseAbility implements IImpact, ISkillAdvanceme
     /*Advancement Section*/
 
     /*Config Section*/
-    public static final String CONFIG_FILE = LibNames.LIGHT_OFFENCE_CONFIG + LibNames.BARRAGE_WISP;
+    public static final String CONFIG_FILE = LibNames.LIGHT_OFFENCE_CONFIG + LibNames.BARRAGE_WISPS;
     public ConfigDSL.Config config = new ConfigDSL.Config();
 
     @Override

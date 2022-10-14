@@ -44,9 +44,9 @@ public final class ModEntities {
         register(registry, EntityVoltaicSentinel.class, LibNames.VOLTAIC_SENTINEL, true);
         //Light
         register(registry, EntityPlaceableLumenWave.class, LibNames.LUMEN_WAVE, true);
-        register(registry, EntityPlaceableGleamFlash.class, LibNames.GLEAM_BANG, false);
+        register(registry, EntityPlaceableGleamFlash.class, LibNames.GLEAM_FLASH, false);
         register(registry, EntitySolarLance.class, LibNames.SOLAR_LANCE, true);
-        register(registry, EntityWisp.class, LibNames.BARRAGE_WISP, true);
+        register(registry, EntityWisp.class, LibNames.BARRAGE_WISPS, true);
         register(registry, EntityPlaceableGlowing.class, LibNames.GLOWING, false);
         register(registry, EntityFinalFlash.class, LibNames.FINAL_FLASH, false);
     }

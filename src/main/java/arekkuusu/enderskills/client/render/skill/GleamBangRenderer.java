@@ -10,7 +10,7 @@ import arekkuusu.enderskills.common.lib.LibMod;
 import arekkuusu.enderskills.common.skill.ModAbilities;
 import arekkuusu.enderskills.common.skill.ModEffects;
 import arekkuusu.enderskills.common.skill.SkillHelper;
-import arekkuusu.enderskills.common.skill.ability.offence.light.GleamBang;
+import arekkuusu.enderskills.common.skill.ability.offence.light.GleamFlash;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
@@ -29,12 +29,12 @@ import org.lwjgl.opengl.GL11;
 import javax.annotation.Nonnull;
 
 @SideOnly(Side.CLIENT)
-public class GleamBangRenderer extends SkillRenderer<GleamBang> {
+public class GleamBangRenderer extends SkillRenderer<GleamFlash> {
 
     private static final ResourceLocation PLACEABLE = new ResourceLocation(LibMod.MOD_ID, "textures/entity/glowing.png");
 
     public GleamBangRenderer() {
-        EntityThrowableDataRenderer.add(ModAbilities.GLEAM_BANG, ProjectileLightRenderer::new);
+        EntityThrowableDataRenderer.add(ModAbilities.GLEAM_FLASH, ProjectileLightRenderer::new);
         MinecraftForge.EVENT_BUS.register(new FogRenderer.Events());
     }
 
@@ -43,7 +43,7 @@ public class GleamBangRenderer extends SkillRenderer<GleamBang> {
 
         @SubscribeEvent
         public void onFogDensityRender(EntityViewRenderEvent.FogDensity event) {
-            if (!SkillHelper.isActive(event.getEntity(), ModEffects.BLINDED) && SkillHelper.isActive(event.getEntity(), ModAbilities.GLEAM_BANG)) {
+            if (!SkillHelper.isActive(event.getEntity(), ModEffects.BLINDED) && SkillHelper.isActive(event.getEntity(), ModAbilities.GLEAM_FLASH)) {
                 GlStateManager.setFog(GlStateManager.FogMode.EXP);
                 event.setDensity(1F);
                 event.setCanceled(true);

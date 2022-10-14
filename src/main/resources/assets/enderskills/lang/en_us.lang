@@ -404,7 +404,7 @@ ui.enderskills.skill.crush.description=Summons a wall of air that stuns the targ
 ui.enderskills.skill.updraft.title=Updraft
 ui.enderskills.skill.updraft.description=Fling everyone up in the affected area.
 ui.enderskills.skill.suffocate.title=Suffocate
-ui.enderskills.skill.suffocate.description=Completely drain air from an area creating a void that damages over time and slows movement.
+ui.enderskills.skill.suffocate.description=Completely drain air from an area creating a void that damages over time and stops movement.
 
 ui.enderskills.skill.fire_spirit.title=Fire Spirit
 ui.enderskills.skill.fire_spirit.description=Gives all of your attacks the passive ability to burn enemies.
@@ -422,7 +422,7 @@ ui.enderskills.skill.explode.description=Spontaneously combust with a powerful s
 ui.enderskills.skill.radiant_ray.title=Radiant Ray
 ui.enderskills.skill.radiant_ray.description=Sends down a ray of light at the target location from above. [Applies Glowing debuff]
 ui.enderskills.skill.lumen_wave.title=Lumen Wave
-ui.enderskills.skill.lumen_wave.description=A wave of light that goes forward from the player. Causing small knock up.
+ui.enderskills.skill.lumen_wave.description=A wave of light that goes forward from the player. Causing small knock up with minor stun.
 ui.enderskills.skill.gleam_flash.title=Gleam Flash
 ui.enderskills.skill.gleam_flash.description=A placeable AoE that explodes after a delay. [Applies Glowing debuff]
 ui.enderskills.skill.solar_lance.title=Solar Lance

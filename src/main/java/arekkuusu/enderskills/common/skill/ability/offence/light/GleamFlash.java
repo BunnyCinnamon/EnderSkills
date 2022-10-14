@@ -44,10 +44,10 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import javax.annotation.Nullable;
 import java.util.List;
 
-public class GleamBang extends BaseAbility implements IImpact, IExpand, IFindEntity, ISkillAdvancement {
+public class GleamFlash extends BaseAbility implements IImpact, IExpand, IFindEntity, ISkillAdvancement {
 
-    public GleamBang() {
-        super(LibNames.GLEAM_BANG, new AbilityProperties());
+    public GleamFlash() {
+        super(LibNames.GLEAM_FLASH, new AbilityProperties());
         ((AbilityProperties) getProperties()).setCooldownGetter(this::getCooldown).setMaxLevelGetter(this::getMaxLevel);
         MinecraftForge.EVENT_BUS.register(this);
     }
@@ -216,7 +216,7 @@ public class GleamBang extends BaseAbility implements IImpact, IExpand, IFindEnt
     /*Advancement Section*/
 
     /*Config Section*/
-    public static final String CONFIG_FILE = LibNames.LIGHT_OFFENCE_CONFIG + LibNames.GLEAM_BANG;
+    public static final String CONFIG_FILE = LibNames.LIGHT_OFFENCE_CONFIG + LibNames.GLEAM_FLASH;
     public ConfigDSL.Config config = new ConfigDSL.Config();
 
     @Override

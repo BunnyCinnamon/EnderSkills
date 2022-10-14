@@ -192,6 +192,7 @@ public class LumenWave extends BaseAbility implements IScanEntities, IExpand, IF
                         description.add(TextHelper.translate("desc.stats.range", TextHelper.format2FloatPoint(getRange(abilityInfo)), TextHelper.getTextComponent("desc.stats.suffix_blocks")));
                         description.add(TextHelper.translate("desc.stats.damage", TextHelper.format2FloatPoint(getDamage(abilityInfo) / 2D), TextHelper.getTextComponent("desc.stats.suffix_hearts")));
                         description.add(TextHelper.translate("desc.stats.distance", TextHelper.format2FloatPoint(getTravel(abilityInfo)), TextHelper.getTextComponent("desc.stats.suffix_blocks")));
+                        description.add(TextHelper.translate("desc.stats.stun", TextHelper.format2FloatPoint(getTime(abilityInfo) / 20D), TextHelper.getTextComponent("desc.stats.suffix_time")));
                         if (abilityInfo.getLevel() < getMaxLevel()) {
                             if (!GuiScreen.isCtrlKeyDown()) {
                                 description.add("");
@@ -205,6 +206,7 @@ public class LumenWave extends BaseAbility implements IScanEntities, IExpand, IF
                                 description.add(TextHelper.translate("desc.stats.range", TextHelper.format2FloatPoint(getRange(infoNew)), TextHelper.getTextComponent("desc.stats.suffix_blocks")));
                                 description.add(TextHelper.translate("desc.stats.damage", TextHelper.format2FloatPoint(getDamage(infoNew) / 2D), TextHelper.getTextComponent("desc.stats.suffix_hearts")));
                                 description.add(TextHelper.translate("desc.stats.distance", TextHelper.format2FloatPoint(getTravel(infoNew)), TextHelper.getTextComponent("desc.stats.suffix_blocks")));
+                                description.add(TextHelper.translate("desc.stats.stun", TextHelper.format2FloatPoint(getTime(infoNew) / 20D), TextHelper.getTextComponent("desc.stats.suffix_time")));
                             }
                         }
                     });

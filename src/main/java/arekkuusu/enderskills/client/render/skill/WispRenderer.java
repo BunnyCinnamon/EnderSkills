@@ -4,7 +4,6 @@ import arekkuusu.enderskills.client.render.entity.EntityThrowableDataRenderer;
 import arekkuusu.enderskills.client.render.skill.status.OverlayRenderer;
 import arekkuusu.enderskills.common.skill.ModAbilities;
 import arekkuusu.enderskills.common.skill.SkillHelper;
-import arekkuusu.enderskills.common.skill.ability.defense.fire.Flares;
 import arekkuusu.enderskills.common.skill.ability.offence.light.BarrageWisp;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
@@ -23,14 +22,14 @@ import org.lwjgl.opengl.GL11;
 public class WispRenderer extends OverlayRenderer<BarrageWisp> {
 
     public WispRenderer() {
-        EntityThrowableDataRenderer.add(ModAbilities.BARRAGE_WISP, ProjectileWispRenderer::new);
+        EntityThrowableDataRenderer.add(ModAbilities.BARRAGE_WISPS, ProjectileWispRenderer::new);
         MinecraftForge.EVENT_BUS.register(new Events());
     }
 
     @SideOnly(Side.CLIENT)
     public static class Events {
 
-        public final String tickKey = ModAbilities.BARRAGE_WISP.getRegistryName() + ":tick";
+        public final String tickKey = ModAbilities.BARRAGE_WISPS.getRegistryName() + ":tick";
 
         @SubscribeEvent()
         public void onLivingPostRender(RenderLivingEvent.Post<EntityLivingBase> event) {
@@ -88,7 +87,7 @@ public class WispRenderer extends OverlayRenderer<BarrageWisp> {
         @SubscribeEvent
         public void onLivingUpdate(LivingEvent.LivingUpdateEvent event) {
             if (!event.getEntityLiving().world.isRemote) return;
-            boolean active = SkillHelper.isActive(event.getEntity(), ModAbilities.BARRAGE_WISP);
+            boolean active = SkillHelper.isActive(event.getEntity(), ModAbilities.BARRAGE_WISPS);
             //Handle tick
             if (active) {
                 if (getTick(event.getEntity(), tickKey) < 10) {

@@ -109,9 +109,9 @@ public class SkillGroupCapability implements ICapabilitySerializable<NBTTagCompo
         //Offense-Light
         putWeight("Offense-Light", ModAbilities.RADIANT_RAY, 0);
         putWeight("Offense-Light", ModAbilities.LUMEN_WAVE, 1);
-        putWeight("Offense-Light", ModAbilities.GLEAM_BANG, 2);
+        putWeight("Offense-Light", ModAbilities.GLEAM_FLASH, 2);
         putWeight("Offense-Light", ModAbilities.SOLAR_LANCE, 3);
-        putWeight("Offense-Light", ModAbilities.BARRAGE_WISP, 4);
+        putWeight("Offense-Light", ModAbilities.BARRAGE_WISPS, 4);
         putWeight("Offense-Light", ModAbilities.FINAL_FLASH, 5);
     }
 
