@@ -26,14 +26,15 @@ public final class ConfigDSL {
     //Definitions
     public static final String[] FAKE_SPACE = {"⠀","└","┌","│","├"};
     public static final String COMMENT = "#";
+    public static final String VERSION = "v1.0";
     public static final String MIN_LEVEL = "min_level: ";
     public static final String MAX_LEVEL = "max_level: ";
     public static final String PROPERTY_OPEN = "(";
     public static final String BLOCK_OPEN = "[";
     public static final String SHAPE = "shape: ";
     @Deprecated public static final String CURVE = "curve: ";
-    public static final String RAMP_POSITIVE = "ramp positive";
-    public static final String RAMP_NEGATIVE = "ramp negative";
+    public static final String RAMP_POSITIVE = "positive";
+    public static final String RAMP_NEGATIVE = "negative";
     @Deprecated public static final String VALUE = "value: ";
     public static final String RETURN = "return: ";
     public static final String START = "start: ";
@@ -167,6 +168,9 @@ public final class ConfigDSL {
                     continue loop;
             }
 
+            if (line.startsWith(VERSION)) {
+                continue loop;
+            }
             if (line.startsWith(MIN_LEVEL)) {
                 String string = line.substring(MIN_LEVEL.length());
                 if (string.contains(INFINITE)) {
