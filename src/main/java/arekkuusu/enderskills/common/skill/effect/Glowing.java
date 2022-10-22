@@ -70,7 +70,7 @@ public class Glowing extends BaseEffect implements IFindEntity, IExpand, IConfig
 
     @Override
     public void onFound(Entity source, @Nullable EntityLivingBase owner, EntityLivingBase target, SkillData data) {
-        SkillDamageSource skillSource = new SkillDamageSource(BaseAbility.DAMAGE_HIT_TYPE, owner);
+        SkillDamageSource skillSource = new SkillDamageSource(BaseAbility.DAMAGE_DOT_TYPE, owner);
         skillSource.setMagicDamage();
 
         double[] damage = new double[]{this.config.get(this, "DAMAGE", 0)};
@@ -160,22 +160,22 @@ public class Glowing extends BaseEffect implements IFindEntity, IExpand, IConfig
         public static class Values {
 
             public String[] dsl = {
-                    "⠀#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~",
-                    "⠀",
-                    "⠀min_level: 0",
-                    "⠀max_level: infinite",
-                    "⠀",
-                    "⠀#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~",
-                    "⠀DAMAGE (",
-                    "⠀    curve: none",
-                    "⠀    value: 8h",
-                    "⠀)",
-                    "⠀#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~",
-                    "⠀RANGE (",
-                    "⠀    curve: none",
-                    "⠀    value: 2b",
-                    "⠀)",
-                    "⠀#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~",
+                    "",
+                    "│ ",
+                    "│ min_level: 0",
+                    "│ max_level: infinite",
+                    "│ ",
+                    "",
+                    "┌ DAMAGE (",
+                    "│     shape: none",
+                    "│     value: 8h",
+                    "└ )",
+                    "",
+                    "┌ RANGE (",
+                    "│     shape: none",
+                    "│     value: 2b",
+                    "└ )",
+                    "",
             };
         }
     }

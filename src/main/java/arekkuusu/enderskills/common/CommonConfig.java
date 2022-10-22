@@ -141,7 +141,7 @@ public final class CommonConfig {
             public double globalPositiveEffect = 1D;
 
             @Config.Comment("Modifies positive effects of all abilities (used for balancing heals)")
-            public double globalNegativeEffect = 1D;
+            public double globalNegativeEffect = 1.5D;
         }
 
         public static class SkillAdvancementConfig {
@@ -155,7 +155,7 @@ public final class CommonConfig {
 
             public static class Experience {
                 @Config.Comment("Cost increment of all advancements")
-                public double globalCostMultiplier = 1D;
+                public double globalCostMultiplier = 0.3D;
                 @Config.Comment("Cost increment when switching trees")
                 public double costIncrement = 0.5D;
                 @Config.Comment("Percentage of all xp spent that is returned on reset")

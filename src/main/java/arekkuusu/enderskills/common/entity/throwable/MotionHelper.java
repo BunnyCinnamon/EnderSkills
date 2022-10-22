@@ -1,5 +1,6 @@
 package arekkuusu.enderskills.common.entity.throwable;
 
+import arekkuusu.enderskills.api.helper.RayTraceHelper;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.Vec3d;
 
@@ -14,6 +15,16 @@ public final class MotionHelper {
                 lookVec.z * distance
         );
         Vec3d motion = position.subtract(userVec);
+        motion = new Vec3d(motion.x / (double) time, motion.y / (double) time, motion.z / (double) time);
+        throwable.motionX = motion.x;
+        throwable.motionY = motion.y;
+        throwable.motionZ = motion.z;
+    }
+
+    public static void ayylmaoMotion(Entity owner, Entity throwable, double distance, int time) {
+        Vec3d userVec = owner.getPositionEyes(1F);
+        Vec3d posLookedAtWeird = RayTraceHelper.getPosLookedAtWeird(owner, distance);
+        Vec3d motion = posLookedAtWeird.subtract(userVec);
         motion = new Vec3d(motion.x / (double) time, motion.y / (double) time, motion.z / (double) time);
         throwable.motionX = motion.x;
         throwable.motionY = motion.y;

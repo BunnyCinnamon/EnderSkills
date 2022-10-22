@@ -135,6 +135,17 @@ public final class RayTraceHelper {
         return Optional.ofNullable(traceBlocks != null && traceBlocks.typeOfHit == RayTraceResult.Type.BLOCK ? traceBlocks.getBlockPos() : null);
     }
 
+    public static Vec3d getPosLookedAtWeird(Entity source, double distance) {
+        Vec3d eyesVector = source.getPositionEyes(1F);
+        Vec3d lookVector = source.getLook(1F);
+
+        return eyesVector.addVector(
+                lookVector.x * distance,
+                lookVector.y * distance,
+                lookVector.z * distance
+        );
+    }
+
     public static Optional<Entity> getEntityLookedAt(Entity source, double distance) {
         World world = source.getEntityWorld();
         Vec3d eyesVector = source.getPositionEyes(1F);

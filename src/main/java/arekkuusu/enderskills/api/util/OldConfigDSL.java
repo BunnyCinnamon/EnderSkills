@@ -7,7 +7,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Queues;
 import it.unimi.dsi.fastutil.ints.Int2DoubleArrayMap;
-import joptsimple.internal.Strings;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Tuple;
 import net.minecraft.util.math.MathHelper;
@@ -19,20 +18,21 @@ import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-public final class ConfigDSL {
+public final class OldConfigDSL {
 
-    public static final Logger LOGGER = LogManager.getLogger(ConfigDSL.class);
+    public static final Logger LOGGER = LogManager.getLogger(OldConfigDSL.class);
 
     //Definitions
-    public static final String[] FAKE_SPACE = {"⠀","└","┌","│"};
+    public static final String FAKE_SPACE = "⠀";
     public static final String COMMENT = "#";
     public static final String MIN_LEVEL = "min_level: ";
     public static final String MAX_LEVEL = "max_level: ";
     public static final String PROPERTY_OPEN = "(";
     public static final String BLOCK_OPEN = "[";
-    public static final String CURVE = "shape: ";
+    public static final String CURVE = "curve: ";
     public static final String RAMP_POSITIVE = "ramp positive";
     public static final String RAMP_NEGATIVE = "ramp negative";
+    public static final String VALUE = "value: ";
     public static final String START = "start: ";
     public static final String END = "end: ";
     public static final String BLOCK_CLOSE = "]";
@@ -48,10 +48,7 @@ public final class ConfigDSL {
     public static final String PLACEHOLDER = "PLACEHOLDER";
 
     public static final List<Function<String, String>> FILTERS = Lists.newArrayList(
-            (s) -> s.replace(FAKE_SPACE[0], ""),
-            (s) -> s.replace(FAKE_SPACE[1], ""),
-            (s) -> s.replace(FAKE_SPACE[2], ""),
-            (s) -> s.replace(FAKE_SPACE[3], ""),
+            (s) -> s.replace(FAKE_SPACE, ""),
             (s) -> s.trim(),
             (s) -> s.startsWith(COMMENT) ? "" : s,
             (s) -> Optional.of(s.indexOf(COMMENT)).filter(n -> n > 0).map(n -> s.substring(0, n)).orElse(s)
@@ -64,10 +61,14 @@ public final class ConfigDSL {
             }
             if (line.startsWith(START)) {
                 block.start = parseDoubleFromString(property, line.substring(START.length()));
-                block.end = block.start;
             }
             if (line.startsWith(END)) {
                 block.end = parseDoubleFromString(property, line.substring(END.length()));
+            }
+            if (line.startsWith(VALUE)) {
+                double value = parseDoubleFromString(property, line.substring(VALUE.length()));
+                block.end = value;
+                block.start = value;
             }
         };
     }
@@ -79,10 +80,14 @@ public final class ConfigDSL {
             }
             if (line.startsWith(START)) {
                 property.start = parseDoubleFromString(property, line.substring(START.length()));
-                property.end = property.start;
             }
             if (line.startsWith(END)) {
                 property.end = parseDoubleFromString(property, line.substring(END.length()));
+            }
+            if (line.startsWith(VALUE)) {
+                double value = parseDoubleFromString(property, line.substring(VALUE.length()));
+                property.end = value;
+                property.start = value;
             }
             if (line.endsWith(BLOCK_OPEN)) {
                 String blockName = line.substring(0, line.indexOf(BLOCK_OPEN)).trim();
