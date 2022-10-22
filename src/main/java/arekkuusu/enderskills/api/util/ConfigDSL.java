@@ -386,7 +386,7 @@ public final class ConfigDSL {
             return Double.parseDouble(string.substring(0, string.indexOf(ENERGY)));
         }
         if (string.contains(REFERENCE)) {
-            String arg = string.substring(1, string.length() - 1);
+            String arg = string.trim().substring(1, string.length() - 1);
             switch (arg) {
                 case "min":
                     return property.start;
