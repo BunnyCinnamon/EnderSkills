@@ -161,10 +161,11 @@ public class Glowing extends BaseEffect implements IFindEntity, IExpand, IConfig
 
             public String[] dsl = {
                     "",
+                    "┌ v1.0",
                     "│ ",
-                    "│ min_level: 0",
-                    "│ max_level: infinite",
-                    "│ ",
+                    "├ min_level: 0",
+                    "├ max_level: infinite",
+                    "└ ",
                     "",
                     "┌ DAMAGE (",
                     "│     shape: none",

@@ -3,11 +3,11 @@ package arekkuusu.enderskills.api.util;
 import arekkuusu.enderskills.api.EnderSkillsAPI;
 import arekkuusu.enderskills.api.helper.ExpressionHelper;
 import arekkuusu.enderskills.api.registry.Skill;
+import arekkuusu.enderskills.common.EnderSkills;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Queues;
 import it.unimi.dsi.fastutil.ints.Int2DoubleArrayMap;
-import joptsimple.internal.Strings;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Tuple;
 import net.minecraft.util.math.MathHelper;
@@ -30,11 +30,16 @@ public final class ConfigDSL {
     public static final String MAX_LEVEL = "max_level: ";
     public static final String PROPERTY_OPEN = "(";
     public static final String BLOCK_OPEN = "[";
-    public static final String CURVE = "shape: ";
+    public static final String SHAPE = "shape: ";
+    @Deprecated public static final String CURVE = "curve: ";
     public static final String RAMP_POSITIVE = "ramp positive";
     public static final String RAMP_NEGATIVE = "ramp negative";
+    @Deprecated public static final String VALUE = "value: ";
+    public static final String RETURN = "return: ";
     public static final String START = "start: ";
+    public static final String MIN = "min: ";
     public static final String END = "end: ";
+    public static final String MAX = "max: ";
     public static final String BLOCK_CLOSE = "]";
     public static final String PROPERTY_CLOSE = ")";
     //Types
@@ -59,6 +64,9 @@ public final class ConfigDSL {
 
     public static Consumer<String> findBlockValues(Config config, Property property, Block block, Queue<Consumer<String>> contexts) {
         return line -> {
+            if (line.startsWith(SHAPE)) {
+                block.curve = generateCurveFromString(property, line.substring(SHAPE.length()));
+            }
             if (line.startsWith(CURVE)) {
                 block.curve = generateCurveFromString(property, line.substring(CURVE.length()));
             }
@@ -69,20 +77,42 @@ public final class ConfigDSL {
             if (line.startsWith(END)) {
                 block.end = parseDoubleFromString(property, line.substring(END.length()));
             }
+            if (line.startsWith(RETURN)) {
+                double value = parseDoubleFromString(property, line.substring(RETURN.length()));
+                block.end = value;
+                block.start = value;
+            }
+            if (line.startsWith(VALUE)) {
+                double value = parseDoubleFromString(property, line.substring(VALUE.length()));
+                block.end = value;
+                block.start = value;
+            }
         };
     }
 
     public static Consumer<String> findPropertyValues(Config config, Property property, Queue<Consumer<String>> contexts) {
         return line -> {
-            if (line.startsWith(CURVE)) {
-                property.curve = generateCurveFromString(property, line.substring(CURVE.length()));
+            if (line.startsWith(SHAPE)) {
+                property.curve = generateCurveFromString(property, line.substring(SHAPE.length()));
             }
             if (line.startsWith(START)) {
                 property.start = parseDoubleFromString(property, line.substring(START.length()));
                 property.end = property.start;
             }
+            if (line.startsWith(MIN)) {
+                property.start = parseDoubleFromString(property, line.substring(MIN.length()));
+                property.end = property.start;
+            }
             if (line.startsWith(END)) {
                 property.end = parseDoubleFromString(property, line.substring(END.length()));
+            }
+            if (line.startsWith(MAX)) {
+                property.end = parseDoubleFromString(property, line.substring(MAX.length()));
+            }
+            if (line.startsWith(VALUE)) {
+                double value = parseDoubleFromString(property, line.substring(VALUE.length()));
+                property.end = value;
+                property.start = value;
             }
             if (line.endsWith(BLOCK_OPEN)) {
                 String blockName = line.substring(0, line.indexOf(BLOCK_OPEN)).trim();
@@ -119,6 +149,10 @@ public final class ConfigDSL {
 
     @SuppressWarnings("UnnecessaryLabelOnContinueStatement") //????????????????????????????????????????????????????????
     public static Config parse(String[] lines) {
+        if(Arrays.stream(lines).anyMatch(s -> s.contains(FAKE_SPACE[0]))) {
+            EnderSkills.LOG.warn("You are using an OLD version config, newest is `v1.0` you are `v0.0`");
+        }
+
         Config config = new Config();
         Deque<Consumer<String>> filoContext = Queues.newArrayDeque();
         filoContext.add(findProperty(config, filoContext));
@@ -293,7 +327,11 @@ public final class ConfigDSL {
     public static final Function<String[], Curve> CURVE_FUNCTION = strings -> {
         String function = strings[0];
         return (min, max, start, end, n) -> {
-            return ExpressionHelper.getExpression(new ResourceLocation("dsl"), function, n, max);
+            String pureFunction = function
+                    .replace("{min}", "x")
+                    .replace("{max}", "y")
+                    .replace("{level}", "l");
+            return ExpressionHelper.getExpression(new ResourceLocation("dsl"), pureFunction, min, max, n);
         };
     };
 
@@ -309,9 +347,12 @@ public final class ConfigDSL {
                 return CURVE_RAMP.apply(property, Arrays.copyOfRange(splits, 1, splits.length));
             case "multiply":
                 return CURVE_MULTIPLY.apply(property, Arrays.copyOfRange(splits, 1, splits.length));
-            case "f(x,": //haha............
+            case "f(x,":
                 String[] function = string.split("->");
                 return CURVE_FUNCTION.apply(Arrays.copyOfRange(function, 1, splits.length));
+            case "solve":
+                String[] impureFunction = string.split("for");
+                return CURVE_FUNCTION.apply(Arrays.copyOfRange(impureFunction, 1, splits.length));
             default:
                 return CURVE_NONE;
         }
@@ -342,9 +383,9 @@ public final class ConfigDSL {
         if (string.contains(REFERENCE)) {
             String arg = string.substring(1, string.length() - 1);
             switch (arg) {
-                case "start":
+                case "min":
                     return property.start;
-                case "end":
+                case "max":
                     return property.end;
                 default:
                     return property.map.get(string).end;

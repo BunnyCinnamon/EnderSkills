@@ -32,6 +32,19 @@ public class ExpressionHelper {
         return getExpression(skill.getRegistryName(), functionArray, min, max);
     }
 
+    public static double getExpression(ResourceLocation location, String function, int min, int max, int level) {
+        Int2DoubleArrayMap cache = EnderSkillsAPI.EXPRESSION_CACHE.asMap().computeIfAbsent(new Tuple<>(location, function), ExpressionHelper.EXPRESSION_CACHE_SUPPLIER);
+        if(min > max) min = max;
+        if (!cache.containsKey(min)) {
+            Point x = new Point("x", String.valueOf(min));
+            Point y = new Point("y", String.valueOf(max));
+            Point l = new Point("l", String.valueOf(level));
+            ParserResult result = Parser.eval(function, x, y, l);
+            cache.put(min, result.getValue().doubleValue());
+        }
+        return cache.get(min);
+    }
+
     public static double getExpression(ResourceLocation location, String function, int min, int max) {
         Int2DoubleArrayMap cache = EnderSkillsAPI.EXPRESSION_CACHE.asMap().computeIfAbsent(new Tuple<>(location, function), ExpressionHelper.EXPRESSION_CACHE_SUPPLIER);
         if(min > max) min = max;
