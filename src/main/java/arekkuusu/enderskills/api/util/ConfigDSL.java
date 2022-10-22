@@ -24,7 +24,7 @@ public final class ConfigDSL {
     public static final Logger LOGGER = LogManager.getLogger(ConfigDSL.class);
 
     //Definitions
-    public static final String[] FAKE_SPACE = {"⠀","└","┌","│"};
+    public static final String[] FAKE_SPACE = {"⠀","└","┌","│","├"};
     public static final String COMMENT = "#";
     public static final String MIN_LEVEL = "min_level: ";
     public static final String MAX_LEVEL = "max_level: ";
@@ -57,6 +57,7 @@ public final class ConfigDSL {
             (s) -> s.replace(FAKE_SPACE[1], ""),
             (s) -> s.replace(FAKE_SPACE[2], ""),
             (s) -> s.replace(FAKE_SPACE[3], ""),
+            (s) -> s.replace(FAKE_SPACE[4], ""),
             (s) -> s.trim(),
             (s) -> s.startsWith(COMMENT) ? "" : s,
             (s) -> Optional.of(s.indexOf(COMMENT)).filter(n -> n > 0).map(n -> s.substring(0, n)).orElse(s)
