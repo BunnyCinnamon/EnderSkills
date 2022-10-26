@@ -58,7 +58,7 @@ public class Glowing extends BaseEffect implements IFindEntity, IExpand, IConfig
 
     @Override
     public void update(EntityLivingBase entity, SkillData data, int tick) {
-        if (entity.world.rand.nextDouble() < 0.5D && ClientProxy.canParticleSpawn()) {
+        if (entity.world.isRemote && entity.world.rand.nextDouble() < 0.5D && ClientProxy.canParticleSpawn()) {
             Vec3d vec = entity.getPositionVector();
             double posX = vec.x + entity.world.rand.nextDouble() - 0.5D;
             double posY = vec.y + entity.world.rand.nextDouble() * entity.height;

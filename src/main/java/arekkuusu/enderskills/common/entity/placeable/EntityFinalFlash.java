@@ -155,9 +155,14 @@ public class EntityFinalFlash extends Entity {
         } else {
             tickDelay++;
         }
-        if (tick == 1 && world.isRemote) {
-            Minecraft.getMinecraft().getSoundHandler().playSound(new FinalFlashSound(this));
+        if (!isDead && world.isRemote && tick == 1) {
+            makeSound();
         }
+    }
+
+    @SideOnly(Side.CLIENT)
+    public void makeSound() {
+        Minecraft.getMinecraft().getSoundHandler().playSound(new FinalFlashSound(this));
     }
 
     @Override

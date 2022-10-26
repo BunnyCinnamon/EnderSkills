@@ -319,7 +319,7 @@ public class AnimatedStoneGolem extends BaseAbility implements IImpact {
                     "│     ]",
                     "└ )",
                     "",
-                    "│ DAMAGE_MIRROR (",
+                    "┌ DAMAGE_MIRROR (",
                     "│     shape: flat",
                     "│     min: 5%",
                     "│     max: 100%",

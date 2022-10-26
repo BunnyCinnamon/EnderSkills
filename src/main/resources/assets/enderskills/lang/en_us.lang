@@ -138,7 +138,7 @@ ui.enderskills.gui.reset_no_unlocks_description=\n§4No skills to reset.§r
 ui.enderskills.gui.altar_power=%s Altar Power for next level
 ui.enderskills.gui.altar_power_full=Full Altar Power
 ui.enderskills.gui.advancement.or=OR
-ui.enderskills.gui.advancement.and===
+ui.enderskills.gui.advancement.and=&&
 ui.enderskills.gui.advancement.confirm_upgrade=Confirm Upgrade?
 ui.enderskills.gui.advancement.confirm_unlock=Confirm Unlock?
 ui.enderskills.gui.advancement.locked=Dialog locked
