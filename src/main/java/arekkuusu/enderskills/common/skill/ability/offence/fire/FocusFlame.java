@@ -61,9 +61,9 @@ public class FocusFlame extends BaseAbility implements IImpact, ILoopSound, ISca
                 abilityInfo.setCooldown(getCooldown(abilityInfo));
             }
             double range = arekkuusu.enderskills.api.event.SkillRangeEvent.getRange(owner, this, getFlameRange(abilityInfo));;
-            int time = getFlameDuration(abilityInfo);
+            int time = (int) arekkuusu.enderskills.api.event.SkillDurationEvent.getDuration(owner, this, getFlameDuration(abilityInfo));
             double damage = getDamage(abilityInfo);
-            int dotDuration = (int) arekkuusu.enderskills.api.event.SkillDurationEvent.getDuration(owner, this, getTime(abilityInfo));;
+            int dotDuration = (int) arekkuusu.enderskills.api.event.SkillDurationEvent.getDuration(owner, this, getTime(abilityInfo));
             double dot = getDoT(abilityInfo);
             NBTTagCompound compound = new NBTTagCompound();
             NBTHelper.setEntity(compound, owner, "owner");
@@ -359,20 +359,16 @@ public class FocusFlame extends BaseAbility implements IImpact, ILoopSound, ISca
                     "",
                     "┌ XP (",
                     "│     shape: flat",
-                    "│     min: 600",
+                    "│     min: 0",
                     "│     max: infinite",
                     "│ ",
                     "│     {0} [",
                     "│         shape: none",
-                    "│         return: {min}",
+                    "│         return: 600",
                     "│     ]",
                     "│ ",
-                    "│     {1 to 49} [",
-                    "│         shape: multiply 4",
-                    "│     ]",
-                    "│ ",
-                    "│     {50} [",
-                    "│         shape: solve for 4 * {level} + 4 * {level} * 0.1",
+                    "│     {1 to 50} [",
+                    "│         shape: multiply 8",
                     "│     ]",
                     "└ )",
                     "",

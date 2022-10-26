@@ -323,6 +323,27 @@ public final class ConfigDSL {
             return start + difference * progress;
         };
     };
+    public static final BiFunction<Property, String[], Curve> CURVE_CURVE = (property, strings) -> {
+        double modifier = Double.parseDouble(strings[1]);
+        boolean inverse = true;
+        switch (strings[0]) {
+            case RAMP_POSITIVE:
+                inverse = false;
+                break;
+            case RAMP_NEGATIVE:
+                inverse = true;
+                break;
+        }
+        final double finalModifier = modifier;
+        final boolean finalInverse = inverse;
+        return (min, max, start, end, n) -> {
+            double current = MathHelper.clamp(n, min, max);
+            double difference = end - start;
+            double progress = (current - min) / (max - min);
+            double curvature = ((Math.exp(finalModifier * progress) - 1D) / (Math.exp(modifier) - 1D));
+            return start + ((finalInverse ? (1 - curvature) : (curvature)) * difference);
+        };
+    };
     public static final BiFunction<Property, String[], Curve> CURVE_MULTIPLY = (property, strings) -> {
         double number = parseDoubleFromString(property, strings[0]);
         return (min, max, start, end, n) -> {
@@ -350,6 +371,8 @@ public final class ConfigDSL {
                 return CURVE_FLAT;
             case "ramp":
                 return CURVE_RAMP.apply(property, Arrays.copyOfRange(splits, 1, splits.length));
+            case "curve":
+                return CURVE_CURVE.apply(property, Arrays.copyOfRange(splits, 1, splits.length));
             case "multiply":
                 return CURVE_MULTIPLY.apply(property, Arrays.copyOfRange(splits, 1, splits.length));
             case "f(x,":

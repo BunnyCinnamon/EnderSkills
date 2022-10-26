@@ -64,7 +64,7 @@ public class FlamingRain extends BaseAbility implements IImpact, ILoopSound, IEx
                 abilityInfo.setCooldown(getCooldown(abilityInfo));
             }
             double range = arekkuusu.enderskills.api.event.SkillRangeEvent.getRange(owner, this, getRainRange(abilityInfo));;
-            int time = getRainDuration(abilityInfo);
+            int time = (int) arekkuusu.enderskills.api.event.SkillDurationEvent.getDuration(owner, this, getRainDuration(abilityInfo));
             double dot = getDoT(abilityInfo);
             int dotDuration = (int) arekkuusu.enderskills.api.event.SkillDurationEvent.getDuration(owner, this, getTime(abilityInfo));;
             NBTTagCompound compound = new NBTTagCompound();
@@ -370,20 +370,16 @@ public class FlamingRain extends BaseAbility implements IImpact, ILoopSound, IEx
                     "",
                     "┌ XP (",
                     "│     shape: flat",
-                    "│     min: 300",
+                    "│     min: 0",
                     "│     max: infinite",
                     "│ ",
                     "│     {0} [",
                     "│         shape: none",
-                    "│         return: {min}",
+                    "│         return: 300",
                     "│     ]",
                     "│ ",
-                    "│     {1 to 49} [",
-                    "│         shape: multiply 4",
-                    "│     ]",
-                    "│ ",
-                    "│     {50} [",
-                    "│         shape: solve for 4 * {level} + 4 * {level} * 0.1",
+                    "│     {1 to 50} [",
+                    "│         shape: multiply 6",
                     "│     ]",
                     "└ )",
                     "",
