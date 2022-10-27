@@ -155,9 +155,9 @@ public final class CommonConfig {
 
             public static class Experience {
                 @Config.Comment("Cost increment of all advancements")
-                public double globalCostMultiplier = 0.3D;
+                public double globalCostMultiplier = 0.5D;
                 @Config.Comment("Cost increment when switching trees")
-                public double costIncrement = 0.5D;
+                public double costIncrement = 0.9D;
                 @Config.Comment("Percentage of all xp spent that is returned on reset")
                 public double retryXPReturn = 0.8D;
                 @Config.Comment("Percentage of xp stored")
