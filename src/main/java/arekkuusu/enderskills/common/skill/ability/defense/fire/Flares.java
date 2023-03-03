@@ -50,6 +50,7 @@ public class Flares extends BaseAbility implements IImpact {
     public Flares() {
         super(LibNames.FLARES, new AbilityProperties());
         ((AbilityProperties) getProperties()).setCooldownGetter(this::getCooldown).setMaxLevelGetter(this::getMaxLevel);
+        ((AbilityProperties) getProperties()).setCooldownGetter(this::getCooldown).setTopLevelGetter(this::getTopLevel);
     }
 
     @Override
@@ -105,7 +106,8 @@ public class Flares extends BaseAbility implements IImpact {
         if (isClientWorld(owner)) return;
         if (tick % 20 == 0 && (!(owner instanceof EntityPlayer) || !((EntityPlayer) owner).capabilities.isCreativeMode)) {
             Capabilities.endurance(owner).ifPresent(capability -> {
-                int drain = ModAttributes.ENDURANCE.getEnduranceDrain(this);
+                int level = Capabilities.get(owner).flatMap(a -> a.getOwned(this)).map(a -> ((AbilityInfo) a).getLevel()).orElse(0);
+                int drain = ModAttributes.ENDURANCE.getEnduranceDrain(this, level);
                 if (capability.getEndurance() - drain >= 0) {
                     capability.setEndurance(capability.getEndurance() - drain);
                     capability.setEnduranceDelay(30);
@@ -171,6 +173,10 @@ public class Flares extends BaseAbility implements IImpact {
         return this.config.max_level;
     }
 
+    public int getTopLevel() {
+        return this.config.top_level;
+    }
+
     public double getDamage(AbilityInfo info) {
         return this.config.get(this, "DAMAGE", info.getLevel(), CommonConfig.CONFIG_SYNC.skill.globalNegativeEffect);
     }
@@ -200,7 +206,7 @@ public class Flares extends BaseAbility implements IImpact {
                     c.getOwned(this).ifPresent(skillInfo -> {
                         AbilityInfo abilityInfo = (AbilityInfo) skillInfo;
                         description.clear();
-                        description.add(TextHelper.translate("desc.stats.endurance", String.valueOf(ModAttributes.ENDURANCE.getEnduranceDrain(this))));
+                        description.add(TextHelper.translate("desc.stats.endurance", String.valueOf(ModAttributes.ENDURANCE.getEnduranceDrain(this, abilityInfo.getLevel()))));
                         description.add("");
                         if (abilityInfo.getLevel() >= getMaxLevel()) {
                             description.add(TextHelper.translate("desc.stats.level_max", getMaxLevel()));
@@ -241,6 +247,12 @@ public class Flares extends BaseAbility implements IImpact {
     public double getExperience(int lvl) {
         return this.config.get(this, "XP", lvl);
     }
+
+    @Override
+    public int getEndurance(int lvl) {
+        return (int) this.config.get(this, "ENDURANCE", lvl);
+    }
+
     /*Advancement Section*/
 
     /*Config Section*/
@@ -321,6 +333,11 @@ public class Flares extends BaseAbility implements IImpact {
                     "┌ DAMAGE (",
                     "│     shape: none",
                     "│     value: 2h",
+                    "└ )",
+                    "",
+                    "┌ ENDURANCE (",
+                    "│     shape: none",
+                    "│     value: 1",
                     "└ )",
                     "",
                     "┌ XP (",

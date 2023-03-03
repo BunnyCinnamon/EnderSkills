@@ -38,6 +38,7 @@ public class Dome extends BaseAbility implements ISkillAdvancement {
     public Dome() {
         super(LibNames.DOME, new AbilityProperties());
         ((AbilityProperties) getProperties()).setCooldownGetter(this::getCooldown).setMaxLevelGetter(this::getMaxLevel);
+        ((AbilityProperties) getProperties()).setCooldownGetter(this::getCooldown).setTopLevelGetter(this::getTopLevel);
     }
 
     @Override
@@ -78,6 +79,10 @@ public class Dome extends BaseAbility implements ISkillAdvancement {
         return this.config.max_level;
     }
 
+    public int getTopLevel() {
+        return this.config.top_level;
+    }
+
     public float getForce(AbilityInfo info) {
         return (float) this.config.get(this, "FORCE", info.getLevel());
     }
@@ -111,7 +116,7 @@ public class Dome extends BaseAbility implements ISkillAdvancement {
                     c.getOwned(this).ifPresent(skillInfo -> {
                         AbilityInfo abilityInfo = (AbilityInfo) skillInfo;
                         description.clear();
-                        description.add(TextHelper.translate("desc.stats.endurance", String.valueOf(ModAttributes.ENDURANCE.getEnduranceDrain(this))));
+                        description.add(TextHelper.translate("desc.stats.endurance", String.valueOf(ModAttributes.ENDURANCE.getEnduranceDrain(this, abilityInfo.getLevel()))));
                         description.add("");
                         if (abilityInfo.getLevel() >= getMaxLevel()) {
                             description.add(TextHelper.translate("desc.stats.level_max", getMaxLevel()));
@@ -154,6 +159,12 @@ public class Dome extends BaseAbility implements ISkillAdvancement {
     public double getExperience(int lvl) {
         return this.config.get(this, "XP", lvl);
     }
+
+    @Override
+    public int getEndurance(int lvl) {
+        return (int) this.config.get(this, "ENDURANCE", lvl);
+    }
+
     /*Advancement Section*/
 
     /*Config Section*/
@@ -280,6 +291,11 @@ public class Dome extends BaseAbility implements ISkillAdvancement {
                     "│         start: {0 to 25}",
                     "│         end:   {max}",
                     "│     ]",
+                    "└ )",
+                    "",
+                    "┌ ENDURANCE (",
+                    "│     shape: none",
+                    "│     value: 9",
                     "└ )",
                     "",
                     "┌ XP (",

@@ -99,9 +99,16 @@ public final class GuiSkillAdvancementSimple extends GuiSkillAdvancement {
         Capabilities.get(mc.player).flatMap(c -> c.getOwned(advancement.info.skill)).ifPresent(skillInfo -> {
             if (advancement.info.skill.getProperties() instanceof BaseSkill.BaseProperties && skillInfo instanceof SkillInfo.IInfoUpgradeable) {
                 int skillTier = ((SkillInfo.IInfoUpgradeable) skillInfo).getLevel();
-                if (skillTier > 0) {
+                int topLevel = ((BaseSkill.BaseProperties) advancement.info.skill.getProperties()).getTopLevel();
+                if(skillTier > topLevel && topLevel > 0) {
+                    String tier = String.valueOf(topLevel);
+                    String plus = "+" + (skillTier - topLevel);
+                    drawString(mc.fontRenderer, tier, this.xOffset + 18 + 10 - mc.fontRenderer.getStringWidth(tier) - mc.fontRenderer.getStringWidth(plus),
+                            this.yOffset + 18 + mc.fontRenderer.FONT_HEIGHT / 2, -1);
+                    drawString(mc.fontRenderer, plus, this.xOffset + 18 + 10 - mc.fontRenderer.getStringWidth(plus),
+                            this.yOffset + 18 + mc.fontRenderer.FONT_HEIGHT / 2, 0xFFDB32);
+                } else if (skillTier > 0) {
                     String tier = String.valueOf(skillTier);
-                    if (skillTier > 9999) tier = "9999+";
                     drawString(mc.fontRenderer, tier, this.xOffset + 18 + 10 - mc.fontRenderer.getStringWidth(tier),
                             this.yOffset + 18 + mc.fontRenderer.FONT_HEIGHT / 2, -1);
                 }

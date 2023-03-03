@@ -7,7 +7,6 @@ import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoCooldown;
 import arekkuusu.enderskills.api.event.SkillDamageEvent;
 import arekkuusu.enderskills.api.event.SkillDamageSource;
 import arekkuusu.enderskills.api.helper.NBTHelper;
-import arekkuusu.enderskills.api.helper.RayTraceHelper;
 import arekkuusu.enderskills.api.registry.Skill;
 import arekkuusu.enderskills.api.util.ConfigDSL;
 import arekkuusu.enderskills.api.util.Quat;
@@ -31,9 +30,6 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.SoundCategory;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Config;
@@ -47,6 +43,7 @@ public class SolarLance extends BaseAbility implements ISkillAdvancement {
     public SolarLance() {
         super(LibNames.SOLAR_LANCE, new AbilityProperties());
         ((AbilityProperties) getProperties()).setCooldownGetter(this::getCooldown).setMaxLevelGetter(this::getMaxLevel);
+        ((AbilityProperties) getProperties()).setCooldownGetter(this::getCooldown).setTopLevelGetter(this::getTopLevel);
     }
 
     @Override
@@ -117,6 +114,10 @@ public class SolarLance extends BaseAbility implements ISkillAdvancement {
         return this.config.max_level;
     }
 
+    public int getTopLevel() {
+        return this.config.top_level;
+    }
+
     public double getDamage(AbilityInfo info) {
         return this.config.get(this, "DAMAGE", info.getLevel(), CommonConfig.CONFIG_SYNC.skill.globalNegativeEffect);
     }
@@ -150,7 +151,7 @@ public class SolarLance extends BaseAbility implements ISkillAdvancement {
                     c.getOwned(this).ifPresent(skillInfo -> {
                         AbilityInfo abilityInfo = (AbilityInfo) skillInfo;
                         description.clear();
-                        description.add(TextHelper.translate("desc.stats.endurance", String.valueOf(ModAttributes.ENDURANCE.getEnduranceDrain(this))));
+                        description.add(TextHelper.translate("desc.stats.endurance", String.valueOf(ModAttributes.ENDURANCE.getEnduranceDrain(this, abilityInfo.getLevel()))));
                         description.add("");
                         if (abilityInfo.getLevel() >= getMaxLevel()) {
                             description.add(TextHelper.translate("desc.stats.level_max", getMaxLevel()));
@@ -193,6 +194,12 @@ public class SolarLance extends BaseAbility implements ISkillAdvancement {
     public double getExperience(int lvl) {
         return this.config.get(this, "XP", lvl);
     }
+
+    @Override
+    public int getEndurance(int lvl) {
+        return (int) this.config.get(this, "ENDURANCE", lvl);
+    }
+
     /*Advancement Section*/
 
     /*Config Section*/
@@ -219,7 +226,6 @@ public class SolarLance extends BaseAbility implements ISkillAdvancement {
     public void sigmaDic() {
         this.config = ConfigDSL.parse(Configuration.CONFIG_SYNC.dsl);
     }
-
 
     @Config(modid = LibMod.MOD_ID, name = CONFIG_FILE)
     public static class Configuration {
@@ -335,6 +341,11 @@ public class SolarLance extends BaseAbility implements ISkillAdvancement {
                     "│     ]",
                     "└ )",
                     "",
+                    "┌ ENDURANCE (",
+                    "│     shape: none",
+                    "│     value: 16",
+                    "└ )",
+                    "",
                     "┌ XP (",
                     "│     shape: flat",
                     "│     min: 0",
@@ -342,11 +353,11 @@ public class SolarLance extends BaseAbility implements ISkillAdvancement {
                     "│ ",
                     "│     {0} [",
                     "│         shape: none",
-                    "│         return: 600",
+                    "│         return: 300",
                     "│     ]",
                     "│ ",
                     "│     {1 to 50} [",
-                    "│         shape: multiply 8",
+                    "│         shape: multiply 6",
                     "│     ]",
                     "└ )",
                     "",

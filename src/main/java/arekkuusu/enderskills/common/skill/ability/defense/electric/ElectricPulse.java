@@ -12,6 +12,7 @@ import arekkuusu.enderskills.common.entity.data.IExpand;
 import arekkuusu.enderskills.common.entity.data.IFindEntity;
 import arekkuusu.enderskills.common.entity.data.IScanEntities;
 import arekkuusu.enderskills.common.entity.placeable.EntityPlaceableData;
+import arekkuusu.enderskills.common.entity.throwable.MotionHelper;
 import arekkuusu.enderskills.common.lib.LibMod;
 import arekkuusu.enderskills.common.lib.LibNames;
 import arekkuusu.enderskills.common.skill.ModAbilities;
@@ -29,6 +30,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.SoundCategory;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.config.Config;
 import net.minecraftforge.fml.relauncher.Side;
@@ -42,6 +44,7 @@ public class ElectricPulse extends BaseAbility implements IScanEntities, IExpand
     public ElectricPulse() {
         super(LibNames.ELECTRIC_PULSE, new AbilityProperties());
         ((AbilityProperties) getProperties()).setCooldownGetter(this::getCooldown).setMaxLevelGetter(this::getMaxLevel);
+        ((AbilityProperties) getProperties()).setCooldownGetter(this::getCooldown).setTopLevelGetter(this::getTopLevel);
     }
 
     @Override
@@ -57,11 +60,14 @@ public class ElectricPulse extends BaseAbility implements IScanEntities, IExpand
             double range = arekkuusu.enderskills.api.event.SkillRangeEvent.getRange(owner, this, getRange(abilityInfo));;
             double stun = getStun(abilityInfo);
             double slow = getSlow(abilityInfo);
+            double push = getPush(abilityInfo);
             NBTTagCompound compound = new NBTTagCompound();
             NBTHelper.setEntity(compound, owner, "owner");
             NBTHelper.setDouble(compound, "range", range);
             NBTHelper.setDouble(compound, "stun", stun);
             NBTHelper.setDouble(compound, "slow", slow);
+            NBTHelper.setDouble(compound, "push", push);
+            NBTHelper.setVector(compound, "pusherVector", owner.getPositionVector());
             SkillData data = SkillData.of(this)
                     .by(owner)
                     .with(10)
@@ -101,14 +107,29 @@ public class ElectricPulse extends BaseAbility implements IScanEntities, IExpand
     public void update(EntityLivingBase entity, SkillData data, int tick) {
         if (isClientWorld(entity)) return;
         EnderSkills.getProxy().addToQueue(() -> ModEffects.SLOWED.set(entity, data, data.nbt.getDouble("slowed")));
+        if (isClientWorld(entity) && !(entity instanceof EntityPlayer)) return;
+        Vec3d pusherVector = NBTHelper.getVector(data.nbt, "pusherVector");
+        double push = NBTHelper.getDouble(data.nbt, "push");
+        MotionHelper.push(pusherVector, entity, push);
+        if (entity.collidedHorizontally) {
+            entity.motionY = 0;
+        }
     }
 
     public int getMaxLevel() {
         return this.config.max_level;
     }
 
+    public int getTopLevel() {
+        return this.config.top_level;
+    }
+
     public double getSlow(AbilityInfo info) {
         return this.config.get(this, "SLOW", info.getLevel());
+    }
+
+    public double getPush(AbilityInfo info) {
+        return this.config.get(this, "FORCE", info.getLevel());
     }
 
     public float getStun(AbilityInfo info) {
@@ -136,7 +157,7 @@ public class ElectricPulse extends BaseAbility implements IScanEntities, IExpand
                     c.getOwned(this).ifPresent(skillInfo -> {
                         AbilityInfo abilityInfo = (AbilityInfo) skillInfo;
                         description.clear();
-                        description.add(TextHelper.translate("desc.stats.endurance", String.valueOf(ModAttributes.ENDURANCE.getEnduranceDrain(this))));
+                        description.add(TextHelper.translate("desc.stats.endurance", String.valueOf(ModAttributes.ENDURANCE.getEnduranceDrain(this, abilityInfo.getLevel()))));
                         description.add("");
                         if (abilityInfo.getLevel() >= getMaxLevel()) {
                             description.add(TextHelper.translate("desc.stats.level_max", getMaxLevel()));
@@ -179,6 +200,12 @@ public class ElectricPulse extends BaseAbility implements IScanEntities, IExpand
     public double getExperience(int lvl) {
         return this.config.get(this, "XP", lvl);
     }
+
+    @Override
+    public int getEndurance(int lvl) {
+        return (int) this.config.get(this, "ENDURANCE", lvl);
+    }
+
     /*Advancement Section*/
 
     /*Config Section*/
@@ -269,6 +296,29 @@ public class ElectricPulse extends BaseAbility implements IScanEntities, IExpand
                     "│     ]",
                     "└ )",
                     "",
+                    "┌ FORCE (",
+                    "│     shape: flat",
+                    "│     min: 1.25b",
+                    "│     max: 3b",
+                    "│ ",
+                    "│     {0 to 25} [",
+                    "│         shape: ramp negative",
+                    "│         start: {min}",
+                    "│         end:   1.75b",
+                    "│     ]",
+                    "│ ",
+                    "│     {25 to 49} [",
+                    "│         shape: ramp positive",
+                    "│         start: {0 to 25}",
+                    "│         end:   2b",
+                    "│     ]",
+                    "│ ",
+                    "│     {50} [",
+                    "│         shape: none",
+                    "│         return: {max}",
+                    "│     ]",
+                    "└ )",
+                    "",
                     "┌ STUN (",
                     "│     shape: none",
                     "│     value: 5s",
@@ -277,6 +327,11 @@ public class ElectricPulse extends BaseAbility implements IScanEntities, IExpand
                     "┌ SLOW (",
                     "│     shape: none",
                     "│     value: 50%",
+                    "└ )",
+                    "",
+                    "┌ ENDURANCE (",
+                    "│     shape: none",
+                    "│     value: 4",
                     "└ )",
                     "",
                     "┌ XP (",

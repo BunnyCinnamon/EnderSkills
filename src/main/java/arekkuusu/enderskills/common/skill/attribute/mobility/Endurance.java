@@ -8,10 +8,13 @@ import arekkuusu.enderskills.api.registry.Skill;
 import arekkuusu.enderskills.api.util.ConfigDSL;
 import arekkuusu.enderskills.client.gui.data.ISkillAdvancement;
 import arekkuusu.enderskills.client.util.helper.TextHelper;
+import arekkuusu.enderskills.common.CommonConfig;
 import arekkuusu.enderskills.common.lib.LibMod;
 import arekkuusu.enderskills.common.lib.LibNames;
 import arekkuusu.enderskills.common.network.PacketHelper;
 import arekkuusu.enderskills.common.skill.DynamicModifier;
+import arekkuusu.enderskills.common.skill.ability.AbilityInfo;
+import arekkuusu.enderskills.common.skill.ability.BaseAbility;
 import arekkuusu.enderskills.common.skill.attribute.AttributeInfo;
 import arekkuusu.enderskills.common.skill.attribute.BaseAttribute;
 import com.google.common.collect.ImmutableMap;
@@ -62,6 +65,7 @@ public class Endurance extends BaseAttribute implements ISkillAdvancement {
         super(LibNames.ENDURANCE, new BaseProperties());
         MinecraftForge.EVENT_BUS.register(this);
         ((BaseProperties) getProperties()).setMaxLevelGetter(this::getMaxLevel);
+        ((BaseProperties) getProperties()).setTopLevelGetter(this::getTopLevel);
     }
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
@@ -136,8 +140,9 @@ public class Endurance extends BaseAttribute implements ISkillAdvancement {
         if (isClientWorld(event.getEntityLiving()) || event.isCanceled()) return;
         EntityLivingBase entity = event.getEntityLiving();
         Capabilities.endurance(entity).ifPresent(capability -> {
-            if (hasEnduranceDrain(event.getSkill())) {
-                int enduranceNeeded = getEnduranceDrain(event.getSkill());
+            int level = Capabilities.get(entity).flatMap(a -> a.getOwned(this)).map(a -> ((AbilityInfo) a).getLevel()).orElse(0);
+            if (hasEnduranceDrain(event.getSkill(), level)) {
+                int enduranceNeeded = getEnduranceDrain(event.getSkill(), level);
                 if (entity instanceof EntityPlayer && ((EntityPlayer) entity).capabilities.isCreativeMode) {
                     enduranceNeeded = 0;
                 }
@@ -153,8 +158,9 @@ public class Endurance extends BaseAttribute implements ISkillAdvancement {
         if (isClientWorld(event.getEntityLiving()) || event.isCanceled()) return;
         EntityLivingBase entity = event.getEntityLiving();
         Capabilities.endurance(entity).ifPresent(capability -> {
-            if (hasEnduranceDrain(event.getSkill())) {
-                int enduranceNeeded = getEnduranceDrain(event.getSkill());
+            int level = Capabilities.get(entity).flatMap(a -> a.getOwned(this)).map(a -> ((AbilityInfo) a).getLevel()).orElse(0);
+            if (hasEnduranceDrain(event.getSkill(), level)) {
+                int enduranceNeeded = getEnduranceDrain(event.getSkill(), level);
                 if (entity instanceof EntityPlayer && ((EntityPlayer) entity).capabilities.isCreativeMode) {
                     enduranceNeeded = 0;
                 }
@@ -172,17 +178,29 @@ public class Endurance extends BaseAttribute implements ISkillAdvancement {
         });
     }
 
-    public boolean hasEnduranceDrain(Skill skill) {
-        return getEnduranceDrain(skill) != 0;
+    public boolean hasEnduranceDrain(Skill skill, int lvl) {
+        return getEnduranceDrain(skill, lvl) != 0;
     }
 
-    public int getEnduranceDrain(Skill skill) {
-        String skillRegistryName = Objects.requireNonNull(skill.getRegistryName()).toString();
-        return Configuration.CONFIG_SYNC.enduranceMap.getOrDefault(skillRegistryName, 0);
+    public int getEnduranceDrain(Skill skill, int lvl) {
+        if (skill instanceof BaseAbility) {
+            int endurance = ((BaseAbility) skill).getEndurance(lvl);
+            if(endurance == 0) {
+                String skillRegistryName = Objects.requireNonNull(skill.getRegistryName()).toString();
+                endurance = Configuration.CONFIG_SYNC.enduranceMap.getOrDefault(skillRegistryName, 0);
+            }
+            return endurance;
+        }
+        
+        return 0;
     }
 
     public int getMaxLevel() {
         return this.config.max_level;
+    }
+
+    public int getTopLevel() {
+        return this.config.top_level;
     }
 
     public float getModifier(AttributeInfo info) {
@@ -237,6 +255,11 @@ public class Endurance extends BaseAttribute implements ISkillAdvancement {
     @Override
     public double getExperience(int lvl) {
         return this.config.get(this, "XP", lvl);
+    }
+
+    @Override
+    public int getEndurance(int lvl) {
+        return (int) this.config.get(this, "ENDURANCE", lvl);
     }
     /*Advancement Section*/
 

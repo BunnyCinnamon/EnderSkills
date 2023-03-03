@@ -193,6 +193,7 @@ ui.enderskills.desc.stats.push_distance=§fPush Distance: §r%1$s%2$s
 ui.enderskills.desc.stats.launch_force=§fLaunch Force: §r%1$s%2$s
 ui.enderskills.desc.stats.portal_range=§fPortal Range: §r%1$s%2$s
 ui.enderskills.desc.stats.radiant_range=§fRadiant Range: §r%1$s%2$s
+ui.enderskills.desc.stats.magnetic_range=§fMagnetic Range: §r%1$s%2$s
 ui.enderskills.desc.stats.lance_range=§fLance Range: §r%1$s%2$s
 ui.enderskills.desc.stats.portal_teleport_range=§fPortal Teleport Range: §r%1$s%2$s
 ui.enderskills.desc.stats.jumps=§fJumps: §r+%1$s

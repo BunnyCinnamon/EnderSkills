@@ -18,14 +18,24 @@ public abstract class BaseSkill extends Skill implements IConfigSync, ISkillAdva
     public static class BaseProperties extends Properties {
 
         public IntSupplier maxLevelFunction;
+        public IntSupplier topLevelFunction;
 
         public BaseProperties setMaxLevelGetter(IntSupplier maxLevelFunction) {
             this.maxLevelFunction = maxLevelFunction;
             return this;
         }
 
+        public BaseProperties setTopLevelGetter(IntSupplier topLevelFunction) {
+            this.topLevelFunction = topLevelFunction;
+            return this;
+        }
+
         public int getMaxLevel() {
             return maxLevelFunction.getAsInt();
+        }
+
+        public int getTopLevel() {
+            return topLevelFunction.getAsInt();
         }
     }
 }

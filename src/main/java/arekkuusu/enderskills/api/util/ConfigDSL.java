@@ -29,6 +29,7 @@ public final class ConfigDSL {
     public static final String VERSION = "v1.0";
     public static final String MIN_LEVEL = "min_level: ";
     public static final String MAX_LEVEL = "max_level: ";
+    public static final String TOP_LEVEL = "top_level: ";
     public static final String PROPERTY_OPEN = "(";
     public static final String BLOCK_OPEN = "[";
     public static final String SHAPE = "shape: ";
@@ -122,10 +123,19 @@ public final class ConfigDSL {
                 String[] clampValueStrings = clampString.split("to");
                 Block block = new Block();
                 block.curve = property.curve;
-                block.min = Integer.parseInt(clampValueStrings[0].trim());
+                if (clampValueStrings[0].contains("%")) {
+                    block.min = 0;
+                } else {
+                    block.min = Integer.parseInt(clampValueStrings[0].trim());
+                }
                 block.max = config.max_level;
                 block.start = property.start;
                 block.end = property.end;
+                if (clampValueStrings[0].contains("%")) {
+                    String percentage = clampValueStrings[0].trim();
+                    double progress = Double.parseDouble(percentage.substring(0, percentage.indexOf(PERCENTAGE))) / 100D;
+                    block.max = (int) Math.floor(progress * config.max_level);
+                }
                 if (clampValueStrings.length > 1) {
                     block.max = Integer.parseInt(clampValueStrings[1].trim());
                 }
@@ -152,7 +162,7 @@ public final class ConfigDSL {
     @SuppressWarnings("UnnecessaryLabelOnContinueStatement") //????????????????????????????????????????????????????????
     public static Config parse(String[] lines) {
         if(Arrays.stream(lines).anyMatch(s -> s.contains(FAKE_SPACE[0]))) {
-            EnderSkills.LOG.warn("You are using an OLD version config, newest is `v1.0` you are `v0.0`");
+            EnderSkills.LOG.warn("You are using an OLD config version, newest is `v1.0`");
         }
 
         Config config = new Config();
@@ -189,6 +199,15 @@ public final class ConfigDSL {
                 }
                 continue loop;
             }
+            if (line.startsWith(TOP_LEVEL)) {
+                String string = line.substring(TOP_LEVEL.length());
+                if (string.contains(INFINITE)) {
+                    config.top_level = Integer.MAX_VALUE;
+                } else {
+                    config.top_level = Integer.parseInt(line.substring(TOP_LEVEL.length()));
+                }
+                continue loop;
+            }
 
             if (!filoContext.isEmpty()) {
                 filoContext.peekLast().accept(line);
@@ -205,7 +224,7 @@ public final class ConfigDSL {
     }
 
     public static class Config {
-        public int min_level, max_level;
+        public int min_level, max_level, top_level;
         public Map<String, Property> map = Maps.newHashMap();
 
         public double get(Skill skill, String name, int lvl) {
@@ -242,8 +261,8 @@ public final class ConfigDSL {
                 double clampLeft = Math.min(start, end);
                 double clampRight = Math.max(end, start);
                 result = curve.get(min, max, start, end, lvl);
-                result *= effective;
                 result = MathHelper.clamp(result, clampLeft, clampRight);
+                result *= effective;
             } catch (Exception e) {
                 LOGGER.error("Malformed `{}` config for property: {} with level: {}", skill.getRegistryName(), name, lvl);
                 LOGGER.error("It is possible it is missing the property with name {}", name);
@@ -356,7 +375,8 @@ public final class ConfigDSL {
             String pureFunction = function
                     .replace("{min}", "x")
                     .replace("{max}", "y")
-                    .replace("{level}", "l");
+                    .replace("{level}", "l")
+                    .replaceAll("([\\d]+)%", "($1/100)");
             return ExpressionHelper.getExpression(new ResourceLocation("dsl"), pureFunction, min, max, n);
         };
     };

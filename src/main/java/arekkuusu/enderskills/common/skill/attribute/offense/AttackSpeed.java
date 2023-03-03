@@ -5,6 +5,7 @@ import arekkuusu.enderskills.api.helper.NBTHelper;
 import arekkuusu.enderskills.api.util.ConfigDSL;
 import arekkuusu.enderskills.client.gui.data.ISkillAdvancement;
 import arekkuusu.enderskills.client.util.helper.TextHelper;
+import arekkuusu.enderskills.common.CommonConfig;
 import arekkuusu.enderskills.common.lib.LibMod;
 import arekkuusu.enderskills.common.lib.LibNames;
 import arekkuusu.enderskills.common.skill.DynamicModifier;
@@ -51,12 +52,14 @@ public class AttackSpeed extends BaseAttribute implements ISkillAdvancement {
             "2b3b2ec9-00d5-43e7-86f4-bb51d6c5c1e7",
             LibMod.MOD_ID + ":" + LibNames.ATTACK_SPEED,
             SharedMonsterAttributes.ATTACK_SPEED,
-            Constants.AttributeModifierOperation.ADD);
+            Constants.AttributeModifierOperation.ADD_MULTIPLE
+    );
 
     public AttackSpeed() {
         super(LibNames.ATTACK_SPEED, new BaseProperties());
         MinecraftForge.EVENT_BUS.register(this);
         ((BaseProperties) getProperties()).setMaxLevelGetter(this::getMaxLevel);
+        ((BaseProperties) getProperties()).setTopLevelGetter(this::getTopLevel);
     }
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
@@ -70,10 +73,12 @@ public class AttackSpeed extends BaseAttribute implements ISkillAdvancement {
                     AttributeInfo attributeInfo = (AttributeInfo) skillInfo;
                     ItemStack heldMain = entity.getHeldItemMainhand();
                     ItemStack heldOff = entity.getHeldItemOffhand();
-                    double heldMainSpeed = getItemStackSpeedModifier(entity, heldMain);
-                    double heldOffSpeed = getItemStackSpeedModifier(entity, heldOff);
-                    double bigChungus = Math.min(heldMainSpeed, heldOffSpeed);
-                    SPEED_ATTRIBUTE.apply(entity, getModifier(attributeInfo) * getChungness(bigChungus));
+                    double heldMainSpeed = getItemStackSpeedModifier(entity, heldMain, EntityEquipmentSlot.MAINHAND);
+                    double heldOffSpeed = getItemStackSpeedModifier(entity, heldOff, EntityEquipmentSlot.OFFHAND);
+                    double bigChungus = Math.max(heldMainSpeed, heldOffSpeed);
+                    float modifier = getModifier(attributeInfo);
+                    double chungness = getChungness(bigChungus);
+                    SPEED_ATTRIBUTE.apply(entity, modifier * chungness);
                 });
             } else {
                 SPEED_ATTRIBUTE.remove(entity);
@@ -85,12 +90,12 @@ public class AttackSpeed extends BaseAttribute implements ISkillAdvancement {
         return MathHelper.clamp(chungusThicc / SharedMonsterAttributes.ATTACK_SPEED.getDefaultValue(), 0F, 1F);
     }
 
-    public double getItemStackSpeedModifier(EntityLivingBase entity, ItemStack stack) {
+    public double getItemStackSpeedModifier(EntityLivingBase entity, ItemStack stack, EntityEquipmentSlot slot) {
         double amountAttribute = 0;
-        Multimap<String, AttributeModifier> modifiers = stack.getAttributeModifiers(EntityEquipmentSlot.MAINHAND);
+        Multimap<String, AttributeModifier> modifiers = stack.getItem().getAttributeModifiers(slot, stack);
         for (Map.Entry<String, AttributeModifier> entry : modifiers.entries()) {
             AttributeModifier attributemodifier = entry.getValue();
-            if (attributemodifier.getID() == ITEM_ATTACK_SPEED_MODIFIER) {
+            if (attributemodifier.getID().equals(ITEM_ATTACK_SPEED_MODIFIER)) {
                 amountAttribute = entity.getEntityAttribute(SharedMonsterAttributes.ATTACK_SPEED).getBaseValue();
                 break;
             }
@@ -100,6 +105,10 @@ public class AttackSpeed extends BaseAttribute implements ISkillAdvancement {
 
     public int getMaxLevel() {
         return this.config.max_level;
+    }
+
+    public int getTopLevel() {
+        return this.config.top_level;
     }
 
     public float getModifier(AttributeInfo info) {
@@ -147,6 +156,12 @@ public class AttackSpeed extends BaseAttribute implements ISkillAdvancement {
     public double getExperience(int lvl) {
         return this.config.get(this, "XP", lvl);
     }
+
+    @Override
+    public int getEndurance(int lvl) {
+        return (int) this.config.get(this, "ENDURANCE", lvl);
+    }
+
     /*Advancement Section*/
 
     /*Config Section*/

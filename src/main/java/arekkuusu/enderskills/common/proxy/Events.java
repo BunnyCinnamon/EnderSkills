@@ -6,13 +6,17 @@ import arekkuusu.enderskills.api.capability.data.SkillInfo;
 import arekkuusu.enderskills.api.event.SkillActionableEvent;
 import arekkuusu.enderskills.api.registry.Skill;
 import arekkuusu.enderskills.common.CommonConfig;
+import arekkuusu.enderskills.common.item.ModItems;
 import arekkuusu.enderskills.common.lib.LibMod;
 import arekkuusu.enderskills.common.network.PacketHelper;
 import arekkuusu.enderskills.common.skill.ability.BaseAbility;
 import com.google.common.collect.Lists;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.EnumCreatureType;
+import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.DamageSource;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.entity.EntityTravelToDimensionEvent;
@@ -37,6 +41,23 @@ public class Events {
     public static void onPlayerJoin(PlayerEvent.PlayerLoggedInEvent event) {
         if (event.player instanceof EntityPlayerMP) {
             PacketHelper.sendConfigReload((EntityPlayerMP) event.player);
+        }
+    }
+
+    @SubscribeEvent
+    public static void onMonsterDeath(LivingDeathEvent event) {
+        EntityLivingBase entityLiving = event.getEntityLiving();
+        String damageType = event.getSource().damageType;
+
+        if(!entityLiving.world.isRemote
+                && CommonConfig.CONFIG.worldDrops.enderTokenDropToggle
+                && entityLiving.isCreatureType(EnumCreatureType.MONSTER, false)
+                && (damageType.equals(BaseAbility.DAMAGE_DOT_TYPE)
+                || damageType.equals(BaseAbility.DAMAGE_HIT_TYPE))
+                && entityLiving.world.rand.nextFloat() < CommonConfig.CONFIG.worldDrops.enderTokenDropRate) {
+            ItemStack stack = new ItemStack(ModItems.TOKEN, 1);
+            EntityItem entityItem = new EntityItem(entityLiving.world, entityLiving.posX, entityLiving.posY, entityLiving.posZ, stack);
+            entityItem.world.spawnEntity(entityItem);
         }
     }
 

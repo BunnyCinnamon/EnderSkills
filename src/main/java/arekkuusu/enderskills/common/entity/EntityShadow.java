@@ -29,6 +29,7 @@ public class EntityShadow extends Entity {
     public static final DataParameter<Boolean> FADED = EntityDataManager.createKey(EntityShadow.class, DataSerializers.BOOLEAN);
     public WeakHashMap<EntityLivingBase, Float> attackMap = new WeakHashMap<>();
     public int fadedCountdown = 30;
+    public boolean updating = false;
 
     public EntityShadow(World world) {
         super(world);
@@ -50,7 +51,8 @@ public class EntityShadow extends Entity {
                     }
                     if (ticksExisted % 10 == 0 && !attackMap.isEmpty()) {
                         boolean animation = false;
-                        for (Map.Entry<EntityLivingBase, Float> set : attackMap.entrySet()) {
+                        if (!updating) for (Map.Entry<EntityLivingBase, Float> set : attackMap.entrySet()) {
+                            updating = true;
                             EntityLivingBase entity = set.getKey();
                             float damage = set.getValue() + (set.getValue() * getMirrorDamage());
                             entity.attackEntityFrom(new EntityDamageSource("shadow", owner), damage);
@@ -62,6 +64,7 @@ public class EntityShadow extends Entity {
                                 teleportNextToOwner();
                                 animation = true;
                             }
+                            updating = false;
                         }
                         attackMap.clear();
                     }

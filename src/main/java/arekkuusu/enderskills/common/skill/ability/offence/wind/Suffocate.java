@@ -46,6 +46,7 @@ public class Suffocate extends BaseAbility implements IImpact, ILoopSound, IScan
     public Suffocate() {
         super(LibNames.SUFFOCATE, new AbilityProperties());
         ((AbilityProperties) getProperties()).setCooldownGetter(this::getCooldown).setMaxLevelGetter(this::getMaxLevel);
+        ((AbilityProperties) getProperties()).setCooldownGetter(this::getCooldown).setTopLevelGetter(this::getTopLevel);
     }
 
     @Override
@@ -120,6 +121,10 @@ public class Suffocate extends BaseAbility implements IImpact, ILoopSound, IScan
         return this.config.max_level;
     }
 
+    public int getTopLevel() {
+        return this.config.top_level;
+    }
+
     public double getSuffocateRange(AbilityInfo info) {
         return this.config.get(this, "SIZE", info.getLevel());
     }
@@ -157,7 +162,7 @@ public class Suffocate extends BaseAbility implements IImpact, ILoopSound, IScan
                     c.getOwned(this).ifPresent(skillInfo -> {
                         AbilityInfo abilityInfo = (AbilityInfo) skillInfo;
                         description.clear();
-                        description.add(TextHelper.translate("desc.stats.endurance", String.valueOf(ModAttributes.ENDURANCE.getEnduranceDrain(this))));
+                        description.add(TextHelper.translate("desc.stats.endurance", String.valueOf(ModAttributes.ENDURANCE.getEnduranceDrain(this, abilityInfo.getLevel()))));
                         description.add("");
                         if (abilityInfo.getLevel() >= getMaxLevel()) {
                             description.add(TextHelper.translate("desc.stats.level_max", getMaxLevel()));
@@ -200,6 +205,12 @@ public class Suffocate extends BaseAbility implements IImpact, ILoopSound, IScan
     public double getExperience(int lvl) {
         return this.config.get(this, "XP", lvl);
     }
+
+    @Override
+    public int getEndurance(int lvl) {
+        return (int) this.config.get(this, "ENDURANCE", lvl);
+    }
+
     /*Advancement Section*/
 
     /*Config Section*/
@@ -364,9 +375,19 @@ public class Suffocate extends BaseAbility implements IImpact, ILoopSound, IScan
                     "│     ]",
                     "└ )",
                     "",
-                    "│ DOT_DURATION (",
+                    "┌ DOT_DURATION (",
                     "│     shape: none",
                     "│     value: 3s",
+                    "└ )",
+                    "",
+                    "┌ ENDURANCE (",
+                    "│     shape: none",
+                    "│     value: 8",
+                    "└ )",
+                    "",
+                    "┌ ENDURANCE (",
+                    "│     shape: none",
+                    "│     value: 18",
                     "└ )",
                     "",
                     "┌ XP (",

@@ -17,7 +17,6 @@ import arekkuusu.enderskills.common.entity.data.IFindEntity;
 import arekkuusu.enderskills.common.entity.data.IImpact;
 import arekkuusu.enderskills.common.entity.data.IScanEntities;
 import arekkuusu.enderskills.common.entity.placeable.EntityPlaceableData;
-import arekkuusu.enderskills.common.entity.placeable.EntityPlaceableExplode;
 import arekkuusu.enderskills.common.entity.throwable.EntityThrowableData;
 import arekkuusu.enderskills.common.lib.LibMod;
 import arekkuusu.enderskills.common.lib.LibNames;
@@ -51,6 +50,7 @@ public class RadiantRay extends BaseAbility implements IScanEntities, IImpact, I
     public RadiantRay() {
         super(LibNames.RADIANT_RAY, new AbilityProperties());
         ((AbilityProperties) getProperties()).setCooldownGetter(this::getCooldown).setMaxLevelGetter(this::getMaxLevel);
+        ((AbilityProperties) getProperties()).setCooldownGetter(this::getCooldown).setTopLevelGetter(this::getTopLevel);
     }
 
     @Override
@@ -137,6 +137,10 @@ public class RadiantRay extends BaseAbility implements IScanEntities, IImpact, I
         return this.config.max_level;
     }
 
+    public int getTopLevel() {
+        return this.config.top_level;
+    }
+
     public double getDamage(AbilityInfo info) {
         return this.config.get(this, "DAMAGE", info.getLevel(), CommonConfig.CONFIG_SYNC.skill.globalNegativeEffect);
     }
@@ -170,7 +174,7 @@ public class RadiantRay extends BaseAbility implements IScanEntities, IImpact, I
                     c.getOwned(this).ifPresent(skillInfo -> {
                         AbilityInfo abilityInfo = (AbilityInfo) skillInfo;
                         description.clear();
-                        description.add(TextHelper.translate("desc.stats.endurance", String.valueOf(ModAttributes.ENDURANCE.getEnduranceDrain(this))));
+                        description.add(TextHelper.translate("desc.stats.endurance", String.valueOf(ModAttributes.ENDURANCE.getEnduranceDrain(this, abilityInfo.getLevel()))));
                         description.add("");
                         if (abilityInfo.getLevel() >= getMaxLevel()) {
                             description.add(TextHelper.translate("desc.stats.level_max", getMaxLevel()));
@@ -178,8 +182,8 @@ public class RadiantRay extends BaseAbility implements IScanEntities, IImpact, I
                             description.add(TextHelper.translate("desc.stats.level_current", abilityInfo.getLevel(), abilityInfo.getLevel() + 1));
                         }
                         description.add(TextHelper.translate("desc.stats.cooldown", TextHelper.format2FloatPoint(getCooldown(abilityInfo) / 20D), TextHelper.getTextComponent("desc.stats.suffix_time")));
-                        description.add(TextHelper.translate("desc.stats.radiant_range", TextHelper.format2FloatPoint(getRange(abilityInfo)), TextHelper.getTextComponent("desc.stats.suffix_blocks")));
-                        description.add(TextHelper.translate("desc.stats.range", TextHelper.format2FloatPoint(getLightRange(abilityInfo)), TextHelper.getTextComponent("desc.stats.suffix_blocks")));
+                        description.add(TextHelper.translate("desc.stats.radiant_range", TextHelper.format2FloatPoint(getLightRange(abilityInfo)), TextHelper.getTextComponent("desc.stats.suffix_blocks")));
+                        description.add(TextHelper.translate("desc.stats.range", TextHelper.format2FloatPoint(getRange(abilityInfo)), TextHelper.getTextComponent("desc.stats.suffix_blocks")));
                         description.add(TextHelper.translate("desc.stats.damage", TextHelper.format2FloatPoint(getDamage(abilityInfo) / 2D), TextHelper.getTextComponent("desc.stats.suffix_hearts")));
                         if (abilityInfo.getLevel() < getMaxLevel()) {
                             if (!GuiScreen.isCtrlKeyDown()) {
@@ -191,8 +195,8 @@ public class RadiantRay extends BaseAbility implements IScanEntities, IImpact, I
                                 description.add("");
                                 description.add(TextHelper.translate("desc.stats.level_next", abilityInfo.getLevel(), infoNew.getLevel()));
                                 description.add(TextHelper.translate("desc.stats.cooldown", TextHelper.format2FloatPoint(getCooldown(infoNew) / 20D), TextHelper.getTextComponent("desc.stats.suffix_time")));
-                                description.add(TextHelper.translate("desc.stats.radiant_range", TextHelper.format2FloatPoint(getRange(infoNew)), TextHelper.getTextComponent("desc.stats.suffix_blocks")));
-                                description.add(TextHelper.translate("desc.stats.range", TextHelper.format2FloatPoint(getLightRange(infoNew)), TextHelper.getTextComponent("desc.stats.suffix_blocks")));
+                                description.add(TextHelper.translate("desc.stats.radiant_range", TextHelper.format2FloatPoint(getLightRange(infoNew)), TextHelper.getTextComponent("desc.stats.suffix_blocks")));
+                                description.add(TextHelper.translate("desc.stats.range", TextHelper.format2FloatPoint(getRange(infoNew)), TextHelper.getTextComponent("desc.stats.suffix_blocks")));
                                 description.add(TextHelper.translate("desc.stats.damage", TextHelper.format2FloatPoint(getDamage(infoNew) / 2D), TextHelper.getTextComponent("desc.stats.suffix_hearts")));
                             }
                         }
@@ -211,6 +215,12 @@ public class RadiantRay extends BaseAbility implements IScanEntities, IImpact, I
     public double getExperience(int lvl) {
         return this.config.get(this, "XP", lvl);
     }
+
+    @Override
+    public int getEndurance(int lvl) {
+        return (int) this.config.get(this, "ENDURANCE", lvl);
+    }
+
     /*Advancement Section*/
 
     /*Config Section*/
@@ -350,6 +360,11 @@ public class RadiantRay extends BaseAbility implements IScanEntities, IImpact, I
                     "│         shape: none",
                     "│         return: {max}",
                     "│     ]",
+                    "└ )",
+                    "",
+                    "┌ ENDURANCE (",
+                    "│     shape: none",
+                    "│     value: 1",
                     "└ )",
                     "",
                     "┌ XP (",

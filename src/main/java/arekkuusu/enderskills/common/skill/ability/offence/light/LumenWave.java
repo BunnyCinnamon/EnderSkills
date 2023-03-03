@@ -17,7 +17,6 @@ import arekkuusu.enderskills.common.entity.data.IExpand;
 import arekkuusu.enderskills.common.entity.data.IFindEntity;
 import arekkuusu.enderskills.common.entity.data.IScanEntities;
 import arekkuusu.enderskills.common.entity.placeable.EntityPlaceableLumenWave;
-import arekkuusu.enderskills.common.entity.placeable.EntityPlaceableSlash;
 import arekkuusu.enderskills.common.entity.throwable.MotionHelper;
 import arekkuusu.enderskills.common.lib.LibMod;
 import arekkuusu.enderskills.common.lib.LibNames;
@@ -51,6 +50,7 @@ public class LumenWave extends BaseAbility implements IScanEntities, IExpand, IF
     public LumenWave() {
         super(LibNames.LUMEN_WAVE, new AbilityProperties());
         ((AbilityProperties) getProperties()).setCooldownGetter(this::getCooldown).setMaxLevelGetter(this::getMaxLevel);
+        ((AbilityProperties) getProperties()).setCooldownGetter(this::getCooldown).setTopLevelGetter(this::getTopLevel);
     }
 
     @Override
@@ -144,6 +144,10 @@ public class LumenWave extends BaseAbility implements IScanEntities, IExpand, IF
         return this.config.max_level;
     }
 
+    public int getTopLevel() {
+        return this.config.top_level;
+    }
+
     public double getDamage(AbilityInfo info) {
         return this.config.get(this, "DAMAGE", info.getLevel(), CommonConfig.CONFIG_SYNC.skill.globalNegativeEffect);
     }
@@ -181,7 +185,7 @@ public class LumenWave extends BaseAbility implements IScanEntities, IExpand, IF
                     c.getOwned(this).ifPresent(skillInfo -> {
                         AbilityInfo abilityInfo = (AbilityInfo) skillInfo;
                         description.clear();
-                        description.add(TextHelper.translate("desc.stats.endurance", String.valueOf(ModAttributes.ENDURANCE.getEnduranceDrain(this))));
+                        description.add(TextHelper.translate("desc.stats.endurance", String.valueOf(ModAttributes.ENDURANCE.getEnduranceDrain(this, abilityInfo.getLevel()))));
                         description.add("");
                         if (abilityInfo.getLevel() >= getMaxLevel()) {
                             description.add(TextHelper.translate("desc.stats.level_max", getMaxLevel()));
@@ -224,6 +228,12 @@ public class LumenWave extends BaseAbility implements IScanEntities, IExpand, IF
     public double getExperience(int lvl) {
         return this.config.get(this, "XP", lvl);
     }
+
+    @Override
+    public int getEndurance(int lvl) {
+        return (int) this.config.get(this, "ENDURANCE", lvl);
+    }
+
     /*Advancement Section*/
 
     /*Config Section*/
@@ -350,6 +360,11 @@ public class LumenWave extends BaseAbility implements IScanEntities, IExpand, IF
                     "┌ FORCE (",
                     "│     shape: none",
                     "│     value: 4b",
+                    "└ )",
+                    "",
+                    "┌ ENDURANCE (",
+                    "│     shape: none",
+                    "│     value: 8",
                     "└ )",
                     "",
                     "┌ XP (",

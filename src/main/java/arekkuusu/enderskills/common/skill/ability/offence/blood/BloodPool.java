@@ -51,6 +51,7 @@ public class BloodPool extends BaseAbility implements IImpact, ILoopSound, IExpa
     public BloodPool() {
         super(LibNames.BLOOD_POOL, new AbilityProperties());
         ((AbilityProperties) getProperties()).setCooldownGetter(this::getCooldown).setMaxLevelGetter(this::getMaxLevel);
+        ((AbilityProperties) getProperties()).setCooldownGetter(this::getCooldown).setTopLevelGetter(this::getTopLevel);
     }
 
     @Override
@@ -144,6 +145,10 @@ public class BloodPool extends BaseAbility implements IImpact, ILoopSound, IExpa
         return this.config.max_level;
     }
 
+    public int getTopLevel() {
+        return this.config.top_level;
+    }
+
     public float getPoolRange(AbilityInfo info) {
         return (float) this.config.get(this, "POOL_RANGE", info.getLevel());
     }
@@ -177,7 +182,7 @@ public class BloodPool extends BaseAbility implements IImpact, ILoopSound, IExpa
                     c.getOwned(this).ifPresent(skillInfo -> {
                         AbilityInfo abilityInfo = (AbilityInfo) skillInfo;
                         description.clear();
-                        description.add(TextHelper.translate("desc.stats.endurance", String.valueOf(ModAttributes.ENDURANCE.getEnduranceDrain(this))));
+                        description.add(TextHelper.translate("desc.stats.endurance", String.valueOf(ModAttributes.ENDURANCE.getEnduranceDrain(this, abilityInfo.getLevel()))));
                         description.add("");
                         if (abilityInfo.getLevel() >= getMaxLevel()) {
                             description.add(TextHelper.translate("desc.stats.level_max", getMaxLevel()));
@@ -220,6 +225,12 @@ public class BloodPool extends BaseAbility implements IImpact, ILoopSound, IExpa
     public double getExperience(int lvl) {
         return this.config.get(this, "XP", lvl);
     }
+
+    @Override
+    public int getEndurance(int lvl) {
+        return (int) this.config.get(this, "ENDURANCE", lvl);
+    }
+
     /*Advancement Section*/
 
     /*Config Section*/
@@ -310,7 +321,7 @@ public class BloodPool extends BaseAbility implements IImpact, ILoopSound, IExpa
                     "│     ]",
                     "└ )",
                     "",
-                    "│ DOT_DURATION (",
+                    "┌ DOT_DURATION (",
                     "│     shape: none",
                     "│     value: 6s",
                     "└ )",
@@ -359,6 +370,11 @@ public class BloodPool extends BaseAbility implements IImpact, ILoopSound, IExpa
                     "│         shape: none",
                     "│         return: {max}",
                     "│     ]",
+                    "└ )",
+                    "",
+                    "┌ ENDURANCE (",
+                    "│     shape: none",
+                    "│     value: 6",
                     "└ )",
                     "",
                     "┌ XP (",

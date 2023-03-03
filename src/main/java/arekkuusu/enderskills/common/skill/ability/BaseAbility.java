@@ -103,6 +103,8 @@ public abstract class BaseAbility extends BaseSkill {
 
     public abstract double getExperience(int lvl);
 
+    public abstract int getEndurance(int lvl);
+
     public boolean isActionable(EntityLivingBase entity) {
         SkillActionableEvent event = new SkillActionableEvent(entity, this);
         MinecraftForge.EVENT_BUS.post(event);

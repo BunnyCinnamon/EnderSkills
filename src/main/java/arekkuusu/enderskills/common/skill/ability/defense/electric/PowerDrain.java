@@ -46,6 +46,7 @@ public class PowerDrain extends BaseAbility implements IFindEntity, IExpand {
     public PowerDrain() {
         super(LibNames.POWER_DRAIN, new AbilityProperties());
         ((AbilityProperties) getProperties()).setCooldownGetter(this::getCooldown).setMaxLevelGetter(this::getMaxLevel);
+        ((AbilityProperties) getProperties()).setCooldownGetter(this::getCooldown).setTopLevelGetter(this::getTopLevel);
     }
 
     @Override
@@ -142,6 +143,10 @@ public class PowerDrain extends BaseAbility implements IFindEntity, IExpand {
         return this.config.max_level;
     }
 
+    public int getTopLevel() {
+        return this.config.top_level;
+    }
+
     public float getPower(AbilityInfo info) {
         return (float) this.config.get(this, "DRAIN", info.getLevel());
     }
@@ -171,7 +176,7 @@ public class PowerDrain extends BaseAbility implements IFindEntity, IExpand {
                     c.getOwned(this).ifPresent(skillInfo -> {
                         AbilityInfo abilityInfo = (AbilityInfo) skillInfo;
                         description.clear();
-                        description.add(TextHelper.translate("desc.stats.endurance", String.valueOf(ModAttributes.ENDURANCE.getEnduranceDrain(this))));
+                        description.add(TextHelper.translate("desc.stats.endurance", String.valueOf(ModAttributes.ENDURANCE.getEnduranceDrain(this, abilityInfo.getLevel()))));
                         description.add("");
                         if (abilityInfo.getLevel() >= getMaxLevel()) {
                             description.add(TextHelper.translate("desc.stats.level_max", getMaxLevel()));
@@ -214,6 +219,12 @@ public class PowerDrain extends BaseAbility implements IFindEntity, IExpand {
     public double getExperience(int lvl) {
         return this.config.get(this, "XP", lvl);
     }
+
+    @Override
+    public int getEndurance(int lvl) {
+        return (int) this.config.get(this, "ENDURANCE", lvl);
+    }
+
     /*Advancement Section*/
 
     /*Config Section*/
@@ -330,6 +341,11 @@ public class PowerDrain extends BaseAbility implements IFindEntity, IExpand {
                     "┌ STUN (",
                     "│     shape: none",
                     "│     value: 3s",
+                    "└ )",
+                    "",
+                    "┌ ENDURANCE (",
+                    "│     shape: none",
+                    "│     value: 12",
                     "└ )",
                     "",
                     "┌ XP (",

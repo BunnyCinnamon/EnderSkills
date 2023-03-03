@@ -50,6 +50,7 @@ public class Taunt extends BaseAbility implements IScanEntities, IExpand, IFindE
     public Taunt() {
         super(LibNames.TAUNT, new AbilityProperties());
         ((AbilityProperties) getProperties()).setCooldownGetter(this::getCooldown).setMaxLevelGetter(this::getMaxLevel);
+        ((AbilityProperties) getProperties()).setCooldownGetter(this::getCooldown).setTopLevelGetter(this::getTopLevel);
         MinecraftForge.EVENT_BUS.register(this);
     }
 
@@ -146,6 +147,10 @@ public class Taunt extends BaseAbility implements IScanEntities, IExpand, IFindE
         return this.config.max_level;
     }
 
+    public int getTopLevel() {
+        return this.config.top_level;
+    }
+
     public double getRange(AbilityInfo info) {
         return this.config.get(this, "RANGE", info.getLevel());
     }
@@ -171,7 +176,7 @@ public class Taunt extends BaseAbility implements IScanEntities, IExpand, IFindE
                     c.getOwned(this).ifPresent(skillInfo -> {
                         AbilityInfo abilityInfo = (AbilityInfo) skillInfo;
                         description.clear();
-                        description.add(TextHelper.translate("desc.stats.endurance", String.valueOf(ModAttributes.ENDURANCE.getEnduranceDrain(this))));
+                        description.add(TextHelper.translate("desc.stats.endurance", String.valueOf(ModAttributes.ENDURANCE.getEnduranceDrain(this, abilityInfo.getLevel()))));
                         description.add("");
                         if (abilityInfo.getLevel() >= getMaxLevel()) {
                             description.add(TextHelper.translate("desc.stats.level_max", getMaxLevel()));
@@ -210,6 +215,12 @@ public class Taunt extends BaseAbility implements IScanEntities, IExpand, IFindE
     public double getExperience(int lvl) {
         return this.config.get(this, "XP", lvl);
     }
+
+    @Override
+    public int getEndurance(int lvl) {
+        return (int) this.config.get(this, "ENDURANCE", lvl);
+    }
+
     /*Advancement Section*/
 
     /*Config Section*/
@@ -320,6 +331,11 @@ public class Taunt extends BaseAbility implements IScanEntities, IExpand, IFindE
                     "│         shape: none",
                     "│         return: {max}",
                     "│     ]",
+                    "└ )",
+                    "",
+                    "┌ ENDURANCE (",
+                    "│     shape: none",
+                    "│     value: 8",
                     "└ )",
                     "",
                     "┌ XP (",

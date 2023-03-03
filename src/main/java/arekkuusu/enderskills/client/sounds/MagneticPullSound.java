@@ -4,6 +4,7 @@ import arekkuusu.enderskills.common.skill.ModAbilities;
 import arekkuusu.enderskills.common.skill.SkillHelper;
 import arekkuusu.enderskills.common.sound.ModSounds;
 import net.minecraft.client.audio.MovingSound;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.SoundCategory;
 import net.minecraftforge.fml.relauncher.Side;
@@ -14,10 +15,10 @@ import java.lang.ref.WeakReference;
 @SideOnly(Side.CLIENT)
 public class MagneticPullSound extends MovingSound {
 
-    public final WeakReference<EntityLivingBase> reference;
+    public final WeakReference<Entity> reference;
     public int tick = 10;
 
-    public MagneticPullSound(EntityLivingBase entity) {
+    public MagneticPullSound(Entity entity) {
         super(ModSounds.MAGNETIC_PULL, SoundCategory.PLAYERS);
         this.reference = new WeakReference<>(entity);
         this.xPosF = (float) entity.posX;
@@ -28,7 +29,7 @@ public class MagneticPullSound extends MovingSound {
 
     @Override
     public void update() {
-        EntityLivingBase entity = reference.get();
+        Entity entity = reference.get();
         if (entity != null && !entity.isDead) {
             if (SkillHelper.isActive(entity, ModAbilities.MAGNETIC_PULL)) {
                 this.xPosF = (float) entity.posX;

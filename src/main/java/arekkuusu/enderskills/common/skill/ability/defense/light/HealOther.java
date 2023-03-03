@@ -46,6 +46,7 @@ public class HealOther extends BaseAbility implements IImpact, ISkillAdvancement
     public HealOther() {
         super(LibNames.HEAL_OTHER, new AbilityProperties());
         ((AbilityProperties) getProperties()).setCooldownGetter(this::getCooldown).setMaxLevelGetter(this::getMaxLevel);
+        ((AbilityProperties) getProperties()).setCooldownGetter(this::getCooldown).setTopLevelGetter(this::getTopLevel);
     }
 
     @Override
@@ -113,6 +114,10 @@ public class HealOther extends BaseAbility implements IImpact, ISkillAdvancement
         return this.config.max_level;
     }
 
+    public int getTopLevel() {
+        return this.config.top_level;
+    }
+
     public float getHeal(AbilityInfo info) {
         return (float) this.config.get(this, "HEAL", info.getLevel(), CommonConfig.CONFIG_SYNC.skill.globalPositiveEffect);
     }
@@ -138,7 +143,7 @@ public class HealOther extends BaseAbility implements IImpact, ISkillAdvancement
                     c.getOwned(this).ifPresent(skillInfo -> {
                         AbilityInfo abilityInfo = (AbilityInfo) skillInfo;
                         description.clear();
-                        description.add(TextHelper.translate("desc.stats.endurance", String.valueOf(ModAttributes.ENDURANCE.getEnduranceDrain(this))));
+                        description.add(TextHelper.translate("desc.stats.endurance", String.valueOf(ModAttributes.ENDURANCE.getEnduranceDrain(this, abilityInfo.getLevel()))));
                         description.add("");
                         if (abilityInfo.getLevel() >= getMaxLevel()) {
                             description.add(TextHelper.translate("desc.stats.level_max", getMaxLevel()));
@@ -177,6 +182,12 @@ public class HealOther extends BaseAbility implements IImpact, ISkillAdvancement
     public double getExperience(int lvl) {
         return this.config.get(this, "XP", lvl);
     }
+
+    @Override
+    public int getEndurance(int lvl) {
+        return (int) this.config.get(this, "ENDURANCE", lvl);
+    }
+
     /*Advancement Section*/
 
     /*Config Section*/
@@ -288,6 +299,11 @@ public class HealOther extends BaseAbility implements IImpact, ISkillAdvancement
                     "│         shape: none",
                     "│         return: {max}",
                     "│     ]",
+                    "└ )",
+                    "",
+                    "┌ ENDURANCE (",
+                    "│     shape: none",
+                    "│     value: 12",
                     "└ )",
                     "",
                     "┌ XP (",

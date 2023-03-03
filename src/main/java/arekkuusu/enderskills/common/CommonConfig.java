@@ -119,6 +119,7 @@ public final class CommonConfig {
         public final SkillGlobalConfig skill = new SkillGlobalConfig();
         public final SkillAdvancementConfig advancement = new SkillAdvancementConfig();
         public final WorldGen worldGen = new WorldGen();
+        public final WorldDrops worldDrops = new WorldDrops();
 
         @Config.Comment("Syncs config reloads to all players in the server upon connecting or reloading server config files, if you are a dedicated server owner you might want this turned off")
         public boolean syncValuesToClient = true;
@@ -137,10 +138,10 @@ public final class CommonConfig {
             @Config.Comment("Disallows abilities to target passive mobs")
             public boolean defaultAnimalTeam = false;
 
-            @Config.Comment("Modifies negative effects of all abilities (used for balancing damage)")
+            @Config.Comment("Modifies negative effects of all abilities (used for balancing heals)")
             public double globalPositiveEffect = 1D;
 
-            @Config.Comment("Modifies positive effects of all abilities (used for balancing heals)")
+            @Config.Comment("Modifies positive effects of all abilities (used for balancing damage)")
             public double globalNegativeEffect = 1.5D;
         }
 
@@ -216,6 +217,16 @@ public final class CommonConfig {
             @Config.Comment("Max number of dust dropped?")
             @Config.RangeInt(min = 0)
             public int enderOreItemDropsMax = 4;
+        }
+
+        public static class WorldDrops {
+
+            @Config.Comment("Chance of ender token drops?")
+            @Config.RangeDouble(min = 0D, max = 1D)
+            public double enderTokenDropRate = 0.07D;
+
+            @Config.Comment("Toggle ender token drops")
+            public boolean enderTokenDropToggle = true;
         }
     }
 }

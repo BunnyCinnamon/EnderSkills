@@ -4,11 +4,16 @@ import arekkuusu.enderskills.api.capability.Capabilities;
 import arekkuusu.enderskills.api.capability.data.SkillData;
 import arekkuusu.enderskills.api.capability.data.SkillInfo;
 import arekkuusu.enderskills.api.helper.NBTHelper;
-import arekkuusu.enderskills.api.helper.TeamHelper;
 import arekkuusu.enderskills.api.registry.Skill;
 import arekkuusu.enderskills.api.util.ConfigDSL;
 import arekkuusu.enderskills.client.sounds.MagneticPullSound;
 import arekkuusu.enderskills.client.util.helper.TextHelper;
+import arekkuusu.enderskills.common.entity.data.IExpand;
+import arekkuusu.enderskills.common.entity.data.IImpact;
+import arekkuusu.enderskills.common.entity.data.ILoopSound;
+import arekkuusu.enderskills.common.entity.data.IScanEntities;
+import arekkuusu.enderskills.common.entity.placeable.EntityPlaceableData;
+import arekkuusu.enderskills.common.entity.throwable.EntityThrowableData;
 import arekkuusu.enderskills.common.entity.throwable.MotionHelper;
 import arekkuusu.enderskills.common.lib.LibMod;
 import arekkuusu.enderskills.common.lib.LibNames;
@@ -18,26 +23,31 @@ import arekkuusu.enderskills.common.skill.ModEffects;
 import arekkuusu.enderskills.common.skill.SkillHelper;
 import arekkuusu.enderskills.common.skill.ability.AbilityInfo;
 import arekkuusu.enderskills.common.skill.ability.BaseAbility;
+import arekkuusu.enderskills.common.sound.ModSounds;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.DamageSource;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.SoundCategory;
+import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.config.Config;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+import javax.annotation.Nullable;
 import java.util.List;
 
-public class MagneticPull extends BaseAbility {
+public class MagneticPull extends BaseAbility implements IScanEntities, ILoopSound, IImpact, IExpand {
 
     public MagneticPull() {
         super(LibNames.MAGNETIC_PULL, new AbilityProperties());
         ((AbilityProperties) getProperties()).setCooldownGetter(this::getCooldown).setMaxLevelGetter(this::getMaxLevel);
+        ((AbilityProperties) getProperties()).setCooldownGetter(this::getCooldown).setTopLevelGetter(this::getTopLevel);
     }
 
     @Override
@@ -50,8 +60,9 @@ public class MagneticPull extends BaseAbility {
                 abilityInfo.setCooldown(getCooldown(abilityInfo));
             }
 
-            int time = (int) arekkuusu.enderskills.api.event.SkillDurationEvent.getDuration(owner, this, getTime(abilityInfo));;
-            double range = arekkuusu.enderskills.api.event.SkillRangeEvent.getRange(owner, this, getRange(abilityInfo));;
+            int time = (int) arekkuusu.enderskills.api.event.SkillDurationEvent.getDuration(owner, this, getTime(abilityInfo));
+            double range = arekkuusu.enderskills.api.event.SkillRangeEvent.getRange(owner, this, getMagneticRange(abilityInfo));
+            double distance = arekkuusu.enderskills.api.event.SkillRangeEvent.getRange(owner, this, getRange(abilityInfo));;
             double stun = getStun(abilityInfo);
             double slow = getSlow(abilityInfo);
             double pull = getPull(abilityInfo);
@@ -59,65 +70,82 @@ public class MagneticPull extends BaseAbility {
             NBTHelper.setEntity(compound, owner, "owner");
             NBTHelper.setDouble(compound, "time", time);
             NBTHelper.setDouble(compound, "range", range);
+            NBTHelper.setDouble(compound, "distance", distance);
             NBTHelper.setDouble(compound, "stun", stun);
             NBTHelper.setDouble(compound, "slow", slow);
             NBTHelper.setDouble(compound, "pull", pull);
             SkillData data = SkillData.of(this)
-                    .by(owner)
-                    .with(time)
                     .put(compound)
-                    .overrides(SkillData.Overrides.EQUAL)
                     .create();
-            apply(owner, data);
-            sync(owner, data);
+            EntityThrowableData.throwFor(owner, distance, data, false);
             sync(owner);
+
+            if (owner.world instanceof WorldServer) {
+                ((WorldServer) owner.world).playSound(null, owner.posX, owner.posY, owner.posZ, ModSounds.ELECTRIC_HIT, SoundCategory.PLAYERS, 5.0F, (1.0F + (owner.world.rand.nextFloat() - owner.world.rand.nextFloat()) * 0.2F) * 0.7F);
+            }
+        }
+    }
+
+    //* Entity *//
+    @Override
+    public void onImpact(Entity source, @Nullable EntityLivingBase owner, SkillData skillData, RayTraceResult trace) {
+        int time = skillData.nbt.getInteger("time");
+        double radius = skillData.nbt.getDouble("range");
+        Vec3d hitVector = trace.hitVec;
+        if (trace.typeOfHit == RayTraceResult.Type.ENTITY) {
+            hitVector = new Vec3d(hitVector.x, hitVector.y + trace.entityHit.getEyeHeight(), hitVector.z);
+        }
+        SkillData status = SkillData.of(this)
+                .by(skillData.id + ":" + skillData.skill.getRegistryName())
+                .with(1)
+                .put(skillData.nbt.copy(), skillData.watcher.copy())
+                .overrides(SkillData.Overrides.EQUAL)
+                .create();
+        EntityPlaceableData spawn = new EntityPlaceableData(source.world, owner, status, time + 5);
+        spawn.setPosition(hitVector.x, hitVector.y, hitVector.z);
+        spawn.setRadius(radius);
+        spawn.growTicks = 5;
+        source.world.spawnEntity(spawn); //MANIFEST B L O O D!!
+
+        if (owner.world instanceof WorldServer) {
+            ((WorldServer) owner.world).playSound(null, hitVector.x, hitVector.y, hitVector.z, ModSounds.RADIANT_RAY_RELEASE, SoundCategory.PLAYERS, 5.0F, (1.0F + (owner.world.rand.nextFloat() - owner.world.rand.nextFloat()) * 0.2F) * 0.7F);
         }
     }
 
     @Override
-    public void begin(EntityLivingBase owner, SkillData data) {
-        if (isClientWorld(owner)) {
-            makeSound(owner);
+    public void onScan(Entity source, @Nullable EntityLivingBase owner, EntityLivingBase target, SkillData skillData) {
+        double slow = NBTHelper.getDouble(skillData.nbt, "slow");
+        double pull = NBTHelper.getDouble(skillData.nbt, "pull");
+        int stun = NBTHelper.getInteger(skillData.nbt, "stun");
+        if (!isClientWorld(target)) {
+            if (SkillHelper.isActive(target, ModEffects.ELECTRIFIED)) {
+                ModEffects.ELECTRIFIED.propagate(target, skillData, stun);
+            }
+            if (target.isWet() && source.ticksExisted % 20 == 0) {
+                target.attackEntityFrom(DamageSource.LIGHTNING_BOLT, 2);
+            }
+            ModEffects.SLOWED.set(target, skillData, slow);
+        }
+        if (!isClientWorld(target) || target instanceof EntityPlayer) {
+            MotionHelper.pull(source.getPositionVector(), target, pull);
+            if (target.collidedHorizontally) {
+                target.motionY = 0;
+            }
         }
     }
-
-    @SideOnly(Side.CLIENT)
-    public void makeSound(EntityLivingBase entity) {
-        Minecraft.getMinecraft().getSoundHandler().playSound(new MagneticPullSound(entity));
-    }
+    //* Entity *//
 
     @Override
-    public void update(EntityLivingBase owner, SkillData data, int tick) {
-        double distance = NBTHelper.getDouble(data.nbt, "range") * MathHelper.clamp(((double) tick / (10)), 0D, 1D);
-        double slow = NBTHelper.getDouble(data.nbt, "slow");
-        double pull = NBTHelper.getDouble(data.nbt, "pull");
-        int stun = NBTHelper.getInteger(data.nbt, "stun");
-        Vec3d pos = owner.getPositionVector();
-        pos = new Vec3d(pos.x, pos.y + owner.height / 2, pos.z);
-        Vec3d min = pos.subtract(0.5D, 0.5D, 0.5D);
-        Vec3d max = pos.addVector(0.5D, 0.5D, 0.5D);
-        AxisAlignedBB bb = new AxisAlignedBB(min.x, min.y, min.z, max.x, max.y, max.z);
-        owner.world.getEntitiesWithinAABB(EntityLivingBase.class, bb.grow(distance), TeamHelper.SELECTOR_ENEMY.apply(owner)).forEach(target -> {
-            if (!isClientWorld(target)) {
-                if (SkillHelper.isActive(target, ModEffects.ELECTRIFIED)) {
-                    ModEffects.ELECTRIFIED.propagate(target, data, stun);
-                }
-                if (target.isWet() && tick % 20 == 0) {
-                    target.attackEntityFrom(DamageSource.LIGHTNING_BOLT, 2);
-                }
-                ModEffects.SLOWED.set(target, data, slow);
-            }
-            if (!isClientWorld(target) || target instanceof EntityPlayer) {
-                MotionHelper.pull(owner.getPositionVector(), target, pull);
-                if (target.collidedHorizontally) {
-                    target.motionY = 0;
-                }
-            }
-        });
+    public void makeSound(Entity source) {
+        Minecraft.getMinecraft().getSoundHandler().playSound(new MagneticPullSound(source));
     }
 
     public int getMaxLevel() {
         return this.config.max_level;
+    }
+
+    public int getTopLevel() {
+        return this.config.top_level;
     }
 
     public double getSlow(AbilityInfo info) {
@@ -134,6 +162,10 @@ public class MagneticPull extends BaseAbility {
 
     public double getRange(AbilityInfo info) {
         return this.config.get(this, "RANGE", info.getLevel());
+    }
+
+    public double getMagneticRange(AbilityInfo info) {
+        return this.config.get(this, "SIZE", info.getLevel());
     }
 
     public int getCooldown(AbilityInfo info) {
@@ -157,7 +189,7 @@ public class MagneticPull extends BaseAbility {
                     c.getOwned(this).ifPresent(skillInfo -> {
                         AbilityInfo abilityInfo = (AbilityInfo) skillInfo;
                         description.clear();
-                        description.add(TextHelper.translate("desc.stats.endurance", String.valueOf(ModAttributes.ENDURANCE.getEnduranceDrain(this))));
+                        description.add(TextHelper.translate("desc.stats.endurance", String.valueOf(ModAttributes.ENDURANCE.getEnduranceDrain(this, abilityInfo.getLevel()))));
                         description.add("");
                         if (abilityInfo.getLevel() >= getMaxLevel()) {
                             description.add(TextHelper.translate("desc.stats.level_max", getMaxLevel()));
@@ -166,6 +198,7 @@ public class MagneticPull extends BaseAbility {
                         }
                         description.add(TextHelper.translate("desc.stats.cooldown", TextHelper.format2FloatPoint(getCooldown(abilityInfo) / 20D), TextHelper.getTextComponent("desc.stats.suffix_time")));
                         description.add(TextHelper.translate("desc.stats.range", TextHelper.format2FloatPoint(getRange(abilityInfo)), TextHelper.getTextComponent("desc.stats.suffix_blocks")));
+                        description.add(TextHelper.translate("desc.stats.magnetic_range", TextHelper.format2FloatPoint(getMagneticRange(abilityInfo)), TextHelper.getTextComponent("desc.stats.suffix_blocks")));
                         description.add(TextHelper.translate("desc.stats.duration", TextHelper.format2FloatPoint(getTime(abilityInfo) / 20D), TextHelper.getTextComponent("desc.stats.suffix_time")));
                         description.add(TextHelper.translate("desc.stats.slow", TextHelper.format2FloatPoint(getSlow(abilityInfo) * 100), TextHelper.getTextComponent("desc.stats.suffix_percentage")));
                         description.add(TextHelper.translate("desc.stats.when_electrified"));
@@ -180,6 +213,7 @@ public class MagneticPull extends BaseAbility {
                                 description.add("");
                                 description.add(TextHelper.translate("desc.stats.level_next", abilityInfo.getLevel(), infoNew.getLevel()));
                                 description.add(TextHelper.translate("desc.stats.cooldown", TextHelper.format2FloatPoint(getCooldown(infoNew) / 20D), TextHelper.getTextComponent("desc.stats.suffix_time")));
+                                description.add(TextHelper.translate("desc.stats.magnetic_range", TextHelper.format2FloatPoint(getMagneticRange(infoNew)), TextHelper.getTextComponent("desc.stats.suffix_blocks")));
                                 description.add(TextHelper.translate("desc.stats.range", TextHelper.format2FloatPoint(getRange(infoNew)), TextHelper.getTextComponent("desc.stats.suffix_blocks")));
                                 description.add(TextHelper.translate("desc.stats.duration", TextHelper.format2FloatPoint(getTime(infoNew) / 20D), TextHelper.getTextComponent("desc.stats.suffix_time")));
                                 description.add(TextHelper.translate("desc.stats.slow", TextHelper.format2FloatPoint(getSlow(infoNew) * 100), TextHelper.getTextComponent("desc.stats.suffix_percentage")));
@@ -202,6 +236,12 @@ public class MagneticPull extends BaseAbility {
     public double getExperience(int lvl) {
         return this.config.get(this, "XP", lvl);
     }
+
+    @Override
+    public int getEndurance(int lvl) {
+        return (int) this.config.get(this, "ENDURANCE", lvl);
+    }
+
     /*Advancement Section*/
 
     /*Config Section*/
@@ -294,6 +334,29 @@ public class MagneticPull extends BaseAbility {
                     "",
                     "┌ RANGE (",
                     "│     shape: flat",
+                    "│     min: 12b",
+                    "│     max: 18b",
+                    "│ ",
+                    "│     {0 to 25} [",
+                    "│         shape: ramp negative",
+                    "│         start: {min}",
+                    "│         end:   15b",
+                    "│     ]",
+                    "│ ",
+                    "│     {25 to 49} [",
+                    "│         shape: ramp positive",
+                    "│         start: {0 to 25}",
+                    "│         end:   25b",
+                    "│     ]",
+                    "│ ",
+                    "│     {50} [",
+                    "│         shape: none",
+                    "│         return: {max}",
+                    "│     ]",
+                    "└ )",
+                    "",
+                    "┌ SIZE (",
+                    "│     shape: flat",
                     "│     min: 3b",
                     "│     max: 9b",
                     "│ ",
@@ -339,6 +402,11 @@ public class MagneticPull extends BaseAbility {
                     "┌ STUN (",
                     "│     shape: none",
                     "│     value: 3s",
+                    "└ )",
+                    "",
+                    "┌ ENDURANCE (",
+                    "│     shape: none",
+                    "│     value: 4",
                     "└ )",
                     "",
                     "┌ XP (",

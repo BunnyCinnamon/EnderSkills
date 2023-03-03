@@ -5,6 +5,7 @@ import arekkuusu.enderskills.api.helper.NBTHelper;
 import arekkuusu.enderskills.api.util.ConfigDSL;
 import arekkuusu.enderskills.client.gui.data.ISkillAdvancement;
 import arekkuusu.enderskills.client.util.helper.TextHelper;
+import arekkuusu.enderskills.common.CommonConfig;
 import arekkuusu.enderskills.common.lib.LibMod;
 import arekkuusu.enderskills.common.lib.LibNames;
 import arekkuusu.enderskills.common.skill.attribute.AttributeInfo;
@@ -29,6 +30,7 @@ public class JumpHeight extends BaseAttribute implements ISkillAdvancement {
         super(LibNames.JUMP_HEIGHT, new BaseProperties());
         MinecraftForge.EVENT_BUS.register(this);
         ((BaseProperties) getProperties()).setMaxLevelGetter(this::getMaxLevel);
+        ((BaseProperties) getProperties()).setTopLevelGetter(this::getTopLevel);
     }
 
     @SideOnly(Side.CLIENT)
@@ -48,6 +50,10 @@ public class JumpHeight extends BaseAttribute implements ISkillAdvancement {
 
     public int getMaxLevel() {
         return this.config.max_level;
+    }
+
+    public int getTopLevel() {
+        return this.config.top_level;
     }
 
     public float getModifier(AttributeInfo info) {
@@ -95,6 +101,12 @@ public class JumpHeight extends BaseAttribute implements ISkillAdvancement {
     public double getExperience(int lvl) {
         return this.config.get(this, "XP", lvl);
     }
+
+    @Override
+    public int getEndurance(int lvl) {
+        return (int) this.config.get(this, "ENDURANCE", lvl);
+    }
+
     /*Advancement Section*/
 
     /*Config Section*/
@@ -136,13 +148,14 @@ public class JumpHeight extends BaseAttribute implements ISkillAdvancement {
                     "┌ v1.0",
                     "│ ",
                     "├ min_level: 0",
+                    "├ top_level: 50",
                     "├ max_level: infinite",
                     "└ ",
                     "",
                     "┌ MODIFIER (",
                     "│     shape: flat",
                     "│     min: 0%",
-                    "│     max: 99%",
+                    "│     max: infinite",
                     "│ ",
                     "│     {0} [",
                     "│         shape: solve for 0.5 * {level} * 0.15",

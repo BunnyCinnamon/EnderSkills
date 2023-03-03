@@ -50,6 +50,7 @@ public class SpeedBoost extends BaseAbility implements ISkillAdvancement {
     public SpeedBoost() {
         super(LibNames.SPEED_BOOST, new AbilityProperties());
         ((AbilityProperties) getProperties()).setCooldownGetter(this::getCooldown).setMaxLevelGetter(this::getMaxLevel);
+        ((AbilityProperties) getProperties()).setCooldownGetter(this::getCooldown).setTopLevelGetter(this::getTopLevel);
         MinecraftForge.EVENT_BUS.register(this);
     }
 
@@ -139,6 +140,10 @@ public class SpeedBoost extends BaseAbility implements ISkillAdvancement {
         return this.config.max_level;
     }
 
+    public int getTopLevel() {
+        return this.config.top_level;
+    }
+
     public float getSpeed(AbilityInfo info) {
         return (float) this.config.get(this, "SPEED", info.getLevel());
     }
@@ -164,7 +169,7 @@ public class SpeedBoost extends BaseAbility implements ISkillAdvancement {
                     c.getOwned(this).ifPresent(skillInfo -> {
                         AbilityInfo abilityInfo = (AbilityInfo) skillInfo;
                         description.clear();
-                        description.add(TextHelper.translate("desc.stats.endurance", String.valueOf(ModAttributes.ENDURANCE.getEnduranceDrain(this))));
+                        description.add(TextHelper.translate("desc.stats.endurance", String.valueOf(ModAttributes.ENDURANCE.getEnduranceDrain(this, abilityInfo.getLevel()))));
                         description.add("");
                         if (abilityInfo.getLevel() >= getMaxLevel()) {
                             description.add(TextHelper.translate("desc.stats.level_max", getMaxLevel()));
@@ -203,6 +208,12 @@ public class SpeedBoost extends BaseAbility implements ISkillAdvancement {
     public double getExperience(int lvl) {
         return this.config.get(this, "XP", lvl);
     }
+
+    @Override
+    public int getEndurance(int lvl) {
+        return (int) this.config.get(this, "ENDURANCE", lvl);
+    }
+
     /*Advancement Section*/
 
     /*Config Section*/
@@ -314,6 +325,11 @@ public class SpeedBoost extends BaseAbility implements ISkillAdvancement {
                     "│         shape: none",
                     "│         return: {max}",
                     "│     ]",
+                    "└ )",
+                    "",
+                    "┌ ENDURANCE (",
+                    "│     shape: none",
+                    "│     value: 18",
                     "└ )",
                     "",
                     "┌ XP (",

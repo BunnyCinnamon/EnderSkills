@@ -112,7 +112,7 @@ public class Events {
         });
     }
 
-    @SubscribeEvent(priority = EventPriority.LOWEST)
+    @SubscribeEvent(priority = EventPriority.HIGHEST, receiveCanceled = true)
     public static void onGroupRender(RenderGameOverlayEvent.Post event) {
         EntityPlayerSP player = Minecraft.getMinecraft().player;
         Minecraft mc = Minecraft.getMinecraft();
@@ -284,7 +284,7 @@ public class Events {
         }
     }
 
-    @SubscribeEvent(priority = EventPriority.LOWEST)
+    @SubscribeEvent(priority = EventPriority.HIGHEST, receiveCanceled = true)
     public static void onEnduranceRender(RenderGameOverlayEvent.Post event) {
         if (hideOverlay) return;
         EntityPlayerSP player = Minecraft.getMinecraft().player;

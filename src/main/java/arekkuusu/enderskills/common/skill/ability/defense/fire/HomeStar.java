@@ -41,6 +41,7 @@ public class HomeStar extends BaseAbility implements ISkillAdvancement {
     public HomeStar() {
         super(LibNames.HOME_STAR, new AbilityProperties());
         ((AbilityProperties) getProperties()).setCooldownGetter(this::getCooldown).setMaxLevelGetter(this::getMaxLevel);
+        ((AbilityProperties) getProperties()).setCooldownGetter(this::getCooldown).setTopLevelGetter(this::getTopLevel);
     }
 
     @Override
@@ -116,6 +117,10 @@ public class HomeStar extends BaseAbility implements ISkillAdvancement {
         return this.config.max_level;
     }
 
+    public int getTopLevel() {
+        return this.config.top_level;
+    }
+
     public double getDoT(AbilityInfo info) {
         return this.config.get(this, "PULSE_DOT", info.getLevel(), CommonConfig.CONFIG_SYNC.skill.globalNegativeEffect);
     }
@@ -161,7 +166,7 @@ public class HomeStar extends BaseAbility implements ISkillAdvancement {
                     c.getOwned(this).ifPresent(skillInfo -> {
                         AbilityInfo abilityInfo = (AbilityInfo) skillInfo;
                         description.clear();
-                        description.add(TextHelper.translate("desc.stats.endurance", String.valueOf(ModAttributes.ENDURANCE.getEnduranceDrain(this))));
+                        description.add(TextHelper.translate("desc.stats.endurance", String.valueOf(ModAttributes.ENDURANCE.getEnduranceDrain(this, abilityInfo.getLevel()))));
                         description.add("");
                         if (abilityInfo.getLevel() >= getMaxLevel()) {
                             description.add(TextHelper.translate("desc.stats.level_max", getMaxLevel()));
@@ -211,6 +216,12 @@ public class HomeStar extends BaseAbility implements ISkillAdvancement {
     public double getExperience(int lvl) {
         return this.config.get(this, "XP", lvl);
     }
+
+    @Override
+    public int getEndurance(int lvl) {
+        return (int) this.config.get(this, "ENDURANCE", lvl);
+    }
+
     /*Advancement Section*/
 
     /*Config Section*/
@@ -365,6 +376,11 @@ public class HomeStar extends BaseAbility implements ISkillAdvancement {
                     "│ PULSE_DOT_DURATION (",
                     "│     shape: none",
                     "│     value: 4s",
+                    "└ )",
+                    "",
+                    "┌ ENDURANCE (",
+                    "│     shape: none",
+                    "│     value: 18",
                     "└ )",
                     "",
                     "┌ XP (",

@@ -50,6 +50,7 @@ public class FlamingRain extends BaseAbility implements IImpact, ILoopSound, IEx
     public FlamingRain() {
         super(LibNames.FLAMING_RAIN, new AbilityProperties());
         ((AbilityProperties) getProperties()).setCooldownGetter(this::getCooldown).setMaxLevelGetter(this::getMaxLevel);
+        ((AbilityProperties) getProperties()).setCooldownGetter(this::getCooldown).setTopLevelGetter(this::getTopLevel);
         MinecraftForge.EVENT_BUS.register(this);
     }
 
@@ -122,6 +123,10 @@ public class FlamingRain extends BaseAbility implements IImpact, ILoopSound, IEx
         return this.config.max_level;
     }
 
+    public int getTopLevel() {
+        return this.config.top_level;
+    }
+
     public double getRainRange(AbilityInfo info) {
         return (float) this.config.get(this, "SIZE", info.getLevel());
     }
@@ -159,7 +164,7 @@ public class FlamingRain extends BaseAbility implements IImpact, ILoopSound, IEx
                     c.getOwned(this).ifPresent(skillInfo -> {
                         AbilityInfo abilityInfo = (AbilityInfo) skillInfo;
                         description.clear();
-                        description.add(TextHelper.translate("desc.stats.endurance", String.valueOf(ModAttributes.ENDURANCE.getEnduranceDrain(this))));
+                        description.add(TextHelper.translate("desc.stats.endurance", String.valueOf(ModAttributes.ENDURANCE.getEnduranceDrain(this, abilityInfo.getLevel()))));
                         description.add("");
                         if (abilityInfo.getLevel() >= getMaxLevel()) {
                             description.add(TextHelper.translate("desc.stats.level_max", getMaxLevel()));
@@ -204,6 +209,12 @@ public class FlamingRain extends BaseAbility implements IImpact, ILoopSound, IEx
     public double getExperience(int lvl) {
         return this.config.get(this, "XP", lvl);
     }
+
+    @Override
+    public int getEndurance(int lvl) {
+        return (int) this.config.get(this, "ENDURANCE", lvl);
+    }
+
     /*Advancement Section*/
 
     /*Config Section*/
@@ -363,9 +374,14 @@ public class FlamingRain extends BaseAbility implements IImpact, ILoopSound, IEx
                     "│     ]",
                     "└ )",
                     "",
-                    "│ DOT_DURATION (",
+                    "┌ DOT_DURATION (",
                     "│     shape: none",
                     "│     value: 4s",
+                    "└ )",
+                    "",
+                    "┌ ENDURANCE (",
+                    "│     shape: none",
+                    "│     value: 10",
                     "└ )",
                     "",
                     "┌ XP (",

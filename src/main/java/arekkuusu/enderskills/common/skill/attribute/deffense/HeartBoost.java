@@ -5,6 +5,7 @@ import arekkuusu.enderskills.api.helper.NBTHelper;
 import arekkuusu.enderskills.api.util.ConfigDSL;
 import arekkuusu.enderskills.client.gui.data.ISkillAdvancement;
 import arekkuusu.enderskills.client.util.helper.TextHelper;
+import arekkuusu.enderskills.common.CommonConfig;
 import arekkuusu.enderskills.common.lib.LibMod;
 import arekkuusu.enderskills.common.lib.LibNames;
 import arekkuusu.enderskills.common.skill.DynamicModifier;
@@ -38,6 +39,7 @@ public class HeartBoost extends BaseAttribute implements ISkillAdvancement {
         super(LibNames.HEART_BOOST, new BaseProperties());
         MinecraftForge.EVENT_BUS.register(this);
         ((BaseProperties) getProperties()).setMaxLevelGetter(this::getMaxLevel);
+        ((BaseProperties) getProperties()).setTopLevelGetter(this::getTopLevel);
     }
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
@@ -59,6 +61,10 @@ public class HeartBoost extends BaseAttribute implements ISkillAdvancement {
 
     public int getMaxLevel() {
         return this.config.max_level;
+    }
+
+    public int getTopLevel() {
+        return this.config.top_level;
     }
 
     public float getModifier(AttributeInfo info) {
@@ -106,6 +112,12 @@ public class HeartBoost extends BaseAttribute implements ISkillAdvancement {
     public double getExperience(int lvl) {
         return this.config.get(this, "XP", lvl);
     }
+
+    @Override
+    public int getEndurance(int lvl) {
+        return (int) this.config.get(this, "ENDURANCE", lvl);
+    }
+
     /*Advancement Section*/
 
     /*Config Section*/

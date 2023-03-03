@@ -4,9 +4,11 @@ import arekkuusu.enderskills.api.capability.Capabilities;
 import arekkuusu.enderskills.api.event.SkillDamageEvent;
 import arekkuusu.enderskills.api.helper.MathUtil;
 import arekkuusu.enderskills.api.helper.NBTHelper;
+import arekkuusu.enderskills.api.helper.XPHelper;
 import arekkuusu.enderskills.api.util.ConfigDSL;
 import arekkuusu.enderskills.client.gui.data.ISkillAdvancement;
 import arekkuusu.enderskills.client.util.helper.TextHelper;
+import arekkuusu.enderskills.common.CommonConfig;
 import arekkuusu.enderskills.common.lib.LibMod;
 import arekkuusu.enderskills.common.lib.LibNames;
 import arekkuusu.enderskills.common.skill.DynamicModifier;
@@ -49,6 +51,7 @@ public class AbilityPower extends BaseAttribute implements ISkillAdvancement {
         super(LibNames.ABILITY_POWER, new BaseProperties());
         MinecraftForge.EVENT_BUS.register(this);
         ((BaseProperties) getProperties()).setMaxLevelGetter(this::getMaxLevel);
+        ((BaseProperties) getProperties()).setTopLevelGetter(this::getTopLevel);
     }
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
@@ -92,6 +95,10 @@ public class AbilityPower extends BaseAttribute implements ISkillAdvancement {
 
     public int getMaxLevel() {
         return this.config.max_level;
+    }
+
+    public int getTopLevel() {
+        return this.config.top_level;
     }
 
     public float getModifier(AttributeInfo info) {
@@ -147,6 +154,12 @@ public class AbilityPower extends BaseAttribute implements ISkillAdvancement {
     public double getExperience(int lvl) {
         return this.config.get(this, "XP", lvl);
     }
+
+    @Override
+    public int getEndurance(int lvl) {
+        return (int) this.config.get(this, "ENDURANCE", lvl);
+    }
+
     /*Advancement Section*/
 
     /*Config Section*/
@@ -203,16 +216,23 @@ public class AbilityPower extends BaseAttribute implements ISkillAdvancement {
                     "┌ v1.0",
                     "│ ",
                     "├ min_level: 0",
+                    "├ top_level: 50",
                     "├ max_level: infinite",
                     "└ ",
                     "",
                     "┌ MODIFIER (",
                     "│     shape: flat",
                     "│     min: 0%",
-                    "│     max: 99%",
+                    "│     max: infinite",
                     "│ ",
-                    "│     {0} [",
-                    "│         shape: solve for 1 - e^(-0.05 * {level})",
+                    "│     {0 to 50} [",
+                    "│         shape: curve positive 3.25",
+                    "│         start: {min}",
+                    "│         end: 100%",
+                    "│     ]",
+                    "│ ",
+                    "│     {51} [",
+                    "│         shape: solve for 1 + ({level} * 0.1)",
                     "│     ]",
                     "└ )",
                     "",
@@ -228,6 +248,11 @@ public class AbilityPower extends BaseAttribute implements ISkillAdvancement {
                     "│ ",
                     "│     {1} [",
                     "│         shape: solve for 5 + 14 * {level}",
+                    "│     ]",
+                    "│ ",
+                    "│     {51} [",
+                    "│         shape: none",
+                    "│         start: " + XPHelper.getXPValueFromLevel(30),
                     "│     ]",
                     "└ )",
                     "",

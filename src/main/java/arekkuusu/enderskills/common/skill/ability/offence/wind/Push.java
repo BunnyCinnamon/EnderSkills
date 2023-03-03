@@ -50,6 +50,7 @@ public class Push extends BaseAbility implements IImpact, IScanEntities, IExpand
     public Push() {
         super(LibNames.PUSH, new AbilityProperties());
         ((AbilityProperties) getProperties()).setCooldownGetter(this::getCooldown).setMaxLevelGetter(this::getMaxLevel);
+        ((AbilityProperties) getProperties()).setCooldownGetter(this::getCooldown).setTopLevelGetter(this::getTopLevel);
         MinecraftForge.EVENT_BUS.register(this);
     }
 
@@ -159,6 +160,10 @@ public class Push extends BaseAbility implements IImpact, IScanEntities, IExpand
         return this.config.max_level;
     }
 
+    public int getTopLevel() {
+        return this.config.top_level;
+    }
+
     public double getPushRange(AbilityInfo info) {
         return this.config.get(this, "SIZE", info.getLevel());
     }
@@ -192,7 +197,7 @@ public class Push extends BaseAbility implements IImpact, IScanEntities, IExpand
                     c.getOwned(this).ifPresent(skillInfo -> {
                         AbilityInfo abilityInfo = (AbilityInfo) skillInfo;
                         description.clear();
-                        description.add(TextHelper.translate("desc.stats.endurance", String.valueOf(ModAttributes.ENDURANCE.getEnduranceDrain(this))));
+                        description.add(TextHelper.translate("desc.stats.endurance", String.valueOf(ModAttributes.ENDURANCE.getEnduranceDrain(this, abilityInfo.getLevel()))));
                         description.add("");
                         if (abilityInfo.getLevel() >= getMaxLevel()) {
                             description.add(TextHelper.translate("desc.stats.level_max", getMaxLevel()));
@@ -235,6 +240,12 @@ public class Push extends BaseAbility implements IImpact, IScanEntities, IExpand
     public double getExperience(int lvl) {
         return this.config.get(this, "XP", lvl);
     }
+
+    @Override
+    public int getEndurance(int lvl) {
+        return (int) this.config.get(this, "ENDURANCE", lvl);
+    }
+
     /*Advancement Section*/
 
     /*Config Section*/
@@ -356,6 +367,11 @@ public class Push extends BaseAbility implements IImpact, IScanEntities, IExpand
                     "┌ STUN (",
                     "│     shape: none",
                     "│     value: 2s",
+                    "└ )",
+                    "",
+                    "┌ ENDURANCE (",
+                    "│     shape: none",
+                    "│     value: 4",
                     "└ )",
                     "",
                     "┌ XP (",

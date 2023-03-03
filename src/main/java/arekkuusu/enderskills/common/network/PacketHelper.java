@@ -30,13 +30,13 @@ import java.util.Objects;
 public final class PacketHelper {
 
     public static void sendConfigReload(EntityPlayerMP player) {
+        PacketHelper.sendGlobalConfigPacket(player);
         IForgeRegistry<Skill> registry = GameRegistry.findRegistry(Skill.class);
         for (Map.Entry<ResourceLocation, Skill> entry : registry.getEntries()) {
             if (entry.getValue() instanceof IConfigSync) {
                 PacketHelper.sendConfigPacket(player, (Skill & IConfigSync) entry.getValue());
             }
         }
-        PacketHelper.sendGlobalConfigPacket(player);
     }
 
     private static void sendGlobalConfigPacket(EntityPlayerMP player) {

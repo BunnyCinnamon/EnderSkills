@@ -37,6 +37,7 @@ public class CriticalChance extends BaseAttribute implements ISkillAdvancement {
         super(LibNames.CRITICAL_CHANCE, new BaseProperties());
         MinecraftForge.EVENT_BUS.register(this);
         ((BaseProperties) getProperties()).setMaxLevelGetter(this::getMaxLevel);
+        ((BaseProperties) getProperties()).setTopLevelGetter(this::getTopLevel);
     }
 
     @SubscribeEvent(priority = EventPriority.LOW)
@@ -81,6 +82,10 @@ public class CriticalChance extends BaseAttribute implements ISkillAdvancement {
 
     public int getMaxLevel() {
         return this.config.max_level;
+    }
+
+    public int getTopLevel() {
+        return this.config.top_level;
     }
 
     public float getModifier(AttributeInfo info) {
@@ -128,6 +133,12 @@ public class CriticalChance extends BaseAttribute implements ISkillAdvancement {
     public double getExperience(int lvl) {
         return this.config.get(this, "XP", lvl);
     }
+
+    @Override
+    public int getEndurance(int lvl) {
+        return (int) this.config.get(this, "ENDURANCE", lvl);
+    }
+
     /*Advancement Section*/
 
     /*Config Section*/

@@ -46,6 +46,7 @@ public class UnstablePortal extends BaseAbility implements IImpact, IExpand, ISc
     public UnstablePortal() {
         super(LibNames.UNSTABLE_PORTAL, new AbilityProperties());
         ((AbilityProperties) getProperties()).setCooldownGetter(this::getCooldown).setMaxLevelGetter(this::getMaxLevel);
+        ((AbilityProperties) getProperties()).setCooldownGetter(this::getCooldown).setTopLevelGetter(this::getTopLevel);
     }
 
     @Override
@@ -113,7 +114,7 @@ public class UnstablePortal extends BaseAbility implements IImpact, IExpand, ISc
 
     @Override
     public void begin(EntityLivingBase entity, SkillData data) {
-        if (isClientWorld(entity) && !(entity instanceof EntityPlayer)) return;
+        if (isClientWorld(entity)) return;
         double distance = NBTHelper.getDouble(data.nbt, "teleport");
         double x = entity.posX + (entity.getRNG().nextDouble() - 0.5D) * distance;
         double y = entity.posY + (((entity.getRNG().nextDouble()) * distance) - (distance / 2));
@@ -137,6 +138,10 @@ public class UnstablePortal extends BaseAbility implements IImpact, IExpand, ISc
 
     public int getMaxLevel() {
         return this.config.max_level;
+    }
+
+    public int getTopLevel() {
+        return this.config.top_level;
     }
 
     public float getPortalRange(AbilityInfo info) {
@@ -172,7 +177,7 @@ public class UnstablePortal extends BaseAbility implements IImpact, IExpand, ISc
                     c.getOwned(this).ifPresent(skillInfo -> {
                         AbilityInfo abilityInfo = (AbilityInfo) skillInfo;
                         description.clear();
-                        description.add(TextHelper.translate("desc.stats.endurance", String.valueOf(ModAttributes.ENDURANCE.getEnduranceDrain(this))));
+                        description.add(TextHelper.translate("desc.stats.endurance", String.valueOf(ModAttributes.ENDURANCE.getEnduranceDrain(this, abilityInfo.getLevel()))));
                         description.add("");
                         if (abilityInfo.getLevel() >= getMaxLevel()) {
                             description.add(TextHelper.translate("desc.stats.level_max", getMaxLevel()));
@@ -215,6 +220,12 @@ public class UnstablePortal extends BaseAbility implements IImpact, IExpand, ISc
     public double getExperience(int lvl) {
         return this.config.get(this, "XP", lvl);
     }
+
+    @Override
+    public int getEndurance(int lvl) {
+        return (int) this.config.get(this, "ENDURANCE", lvl);
+    }
+
     /*Advancement Section*/
 
     /*Config Section*/
@@ -372,6 +383,11 @@ public class UnstablePortal extends BaseAbility implements IImpact, IExpand, ISc
                     "│         shape: none",
                     "│         return: {max}",
                     "│     ]",
+                    "└ )",
+                    "",
+                    "┌ ENDURANCE (",
+                    "│     shape: none",
+                    "│     value: 14",
                     "└ )",
                     "",
                     "┌ XP (",

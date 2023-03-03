@@ -44,6 +44,7 @@ public class Shadow extends BaseAbility implements ISkillAdvancement {
     public Shadow() {
         super(LibNames.SHADOW, new AbilityProperties());
         ((AbilityProperties) getProperties()).setCooldownGetter(this::getCooldown).setMaxLevelGetter(this::getMaxLevel);
+        ((AbilityProperties) getProperties()).setCooldownGetter(this::getCooldown).setTopLevelGetter(this::getTopLevel);
         MinecraftForge.EVENT_BUS.register(this);
     }
 
@@ -95,7 +96,8 @@ public class Shadow extends BaseAbility implements ISkillAdvancement {
         if (shadow != null) {
             if (tick % 20 == 0 && (!(owner instanceof EntityPlayer) || !((EntityPlayer) owner).capabilities.isCreativeMode)) {
                 Capabilities.endurance(owner).ifPresent(capability -> {
-                    int drain = ModAttributes.ENDURANCE.getEnduranceDrain(this);
+                    int level = Capabilities.get(owner).flatMap(a -> a.getOwned(this)).map(a -> ((AbilityInfo) a).getLevel()).orElse(0);
+                    int drain = ModAttributes.ENDURANCE.getEnduranceDrain(this, level);
                     if (capability.getEndurance() - drain >= 0) {
                         capability.setEndurance(capability.getEndurance() - drain);
                         capability.setEnduranceDelay(30);
@@ -133,6 +135,10 @@ public class Shadow extends BaseAbility implements ISkillAdvancement {
         return this.config.max_level;
     }
 
+    public int getTopLevel() {
+        return this.config.top_level;
+    }
+
     public float getMirror(AbilityInfo info) {
         return (float) this.config.get(this, "DAMAGE_MIRROR", info.getLevel());
     }
@@ -154,7 +160,7 @@ public class Shadow extends BaseAbility implements ISkillAdvancement {
                     c.getOwned(this).ifPresent(skillInfo -> {
                         AbilityInfo abilityInfo = (AbilityInfo) skillInfo;
                         description.clear();
-                        description.add(TextHelper.translate("desc.stats.endurance", String.valueOf(ModAttributes.ENDURANCE.getEnduranceDrain(this))));
+                        description.add(TextHelper.translate("desc.stats.endurance", String.valueOf(ModAttributes.ENDURANCE.getEnduranceDrain(this, abilityInfo.getLevel()))));
                         description.add("");
                         if (abilityInfo.getLevel() >= getMaxLevel()) {
                             description.add(TextHelper.translate("desc.stats.level_max", getMaxLevel()));
@@ -191,6 +197,12 @@ public class Shadow extends BaseAbility implements ISkillAdvancement {
     public double getExperience(int lvl) {
         return this.config.get(this, "XP", lvl);
     }
+
+    @Override
+    public int getEndurance(int lvl) {
+        return (int) this.config.get(this, "ENDURANCE", lvl);
+    }
+
     /*Advancement Section*/
 
     /*Config Section*/
@@ -279,6 +291,11 @@ public class Shadow extends BaseAbility implements ISkillAdvancement {
                     "│         shape: none",
                     "│         return: {max}",
                     "│     ]",
+                    "└ )",
+                    "",
+                    "┌ ENDURANCE (",
+                    "│     shape: none",
+                    "│     value: 1",
                     "└ )",
                     "",
                     "┌ XP (",

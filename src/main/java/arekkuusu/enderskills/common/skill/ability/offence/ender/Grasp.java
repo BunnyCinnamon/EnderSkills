@@ -52,6 +52,7 @@ public class Grasp extends BaseAbility implements IImpact, IExpand, ILoopSound, 
     public Grasp() {
         super(LibNames.GRASP, new AbilityProperties());
         ((AbilityProperties) getProperties()).setCooldownGetter(this::getCooldown).setMaxLevelGetter(this::getMaxLevel);
+        ((AbilityProperties) getProperties()).setCooldownGetter(this::getCooldown).setTopLevelGetter(this::getTopLevel);
     }
 
     @Override
@@ -158,6 +159,10 @@ public class Grasp extends BaseAbility implements IImpact, IExpand, ILoopSound, 
         return this.config.max_level;
     }
 
+    public int getTopLevel() {
+        return this.config.top_level;
+    }
+
     public float getGraspRange(AbilityInfo info) {
         return (float) this.config.get(this, "SIZE", info.getLevel());
     }
@@ -195,7 +200,7 @@ public class Grasp extends BaseAbility implements IImpact, IExpand, ILoopSound, 
                     c.getOwned(this).ifPresent(skillInfo -> {
                         AbilityInfo abilityInfo = (AbilityInfo) skillInfo;
                         description.clear();
-                        description.add(TextHelper.translate("desc.stats.endurance", String.valueOf(ModAttributes.ENDURANCE.getEnduranceDrain(this))));
+                        description.add(TextHelper.translate("desc.stats.endurance", String.valueOf(ModAttributes.ENDURANCE.getEnduranceDrain(this, abilityInfo.getLevel()))));
                         description.add("");
                         if (abilityInfo.getLevel() >= getMaxLevel()) {
                             description.add(TextHelper.translate("desc.stats.level_max", getMaxLevel()));
@@ -240,6 +245,12 @@ public class Grasp extends BaseAbility implements IImpact, IExpand, ILoopSound, 
     public double getExperience(int lvl) {
         return this.config.get(this, "XP", lvl);
     }
+
+    @Override
+    public int getEndurance(int lvl) {
+        return (int) this.config.get(this, "ENDURANCE", lvl);
+    }
+
     /*Advancement Section*/
 
     /*Config Section*/
@@ -393,9 +404,14 @@ public class Grasp extends BaseAbility implements IImpact, IExpand, ILoopSound, 
                     "│     ]",
                     "└ )",
                     "",
-                    "│ DOT_DURATION (",
+                    "┌ DOT_DURATION (",
                     "│     shape: none",
                     "│     value: 8s",
+                    "└ )",
+                    "",
+                    "┌ ENDURANCE (",
+                    "│     shape: none",
+                    "│     value: 8",
                     "└ )",
                     "",
                     "┌ XP (",

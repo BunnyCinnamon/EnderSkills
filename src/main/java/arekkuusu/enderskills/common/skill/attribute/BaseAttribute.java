@@ -56,6 +56,8 @@ public abstract class BaseAttribute extends BaseSkill {
 
     public abstract double getExperience(int lvl);
 
+    public abstract int getEndurance(int lvl);
+
     @Nonnull
     @Override
     public SkillInfo createInfo(NBTTagCompound compound) {

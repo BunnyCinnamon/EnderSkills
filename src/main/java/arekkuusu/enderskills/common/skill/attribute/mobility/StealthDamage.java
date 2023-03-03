@@ -5,6 +5,7 @@ import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoUpgradeable;
 import arekkuusu.enderskills.api.event.SkillDamageSource;
 import arekkuusu.enderskills.api.helper.ExpressionHelper;
 import arekkuusu.enderskills.api.helper.NBTHelper;
+import arekkuusu.enderskills.api.helper.XPHelper;
 import arekkuusu.enderskills.api.util.ConfigDSL;
 import arekkuusu.enderskills.client.gui.data.ISkillAdvancement;
 import arekkuusu.enderskills.client.util.helper.TextHelper;
@@ -38,6 +39,7 @@ public class StealthDamage extends BaseAttribute implements ISkillAdvancement {
         super(LibNames.STEALTH_DAMAGE, new BaseProperties());
         MinecraftForge.EVENT_BUS.register(this);
         ((BaseProperties) getProperties()).setMaxLevelGetter(this::getMaxLevel);
+        ((BaseProperties) getProperties()).setTopLevelGetter(this::getTopLevel);
     }
 
     @SubscribeEvent(priority = EventPriority.LOW)
@@ -85,6 +87,10 @@ public class StealthDamage extends BaseAttribute implements ISkillAdvancement {
         return this.config.max_level;
     }
 
+    public int getTopLevel() {
+        return this.config.top_level;
+    }
+
     public float getModifier(AttributeInfo info) {
         return (float) this.config.get(this, "MODIFIER", info.getLevel());
     }
@@ -130,6 +136,12 @@ public class StealthDamage extends BaseAttribute implements ISkillAdvancement {
     public double getExperience(int lvl) {
         return this.config.get(this, "XP", lvl);
     }
+
+    @Override
+    public int getEndurance(int lvl) {
+        return (int) this.config.get(this, "ENDURANCE", lvl);
+    }
+
     /*Advancement Section*/
 
     /*Config Section*/
@@ -171,16 +183,23 @@ public class StealthDamage extends BaseAttribute implements ISkillAdvancement {
                     "┌ v1.0",
                     "│ ",
                     "├ min_level: 0",
+                    "├ top_level: 50",
                     "├ max_level: infinite",
                     "└ ",
                     "",
                     "┌ MODIFIER (",
                     "│     shape: flat",
                     "│     min: 0%",
-                    "│     max: 99%",
+                    "│     max: infinite",
                     "│ ",
-                    "│     {0} [",
-                    "│         shape: solve for 1 - e^(-0.05 * {level})",
+                    "│     {0 to 50} [",
+                    "│         shape: curve positive 3.25",
+                    "│         start: {min}",
+                    "│         end: 100%",
+                    "│     ]",
+                    "│ ",
+                    "│     {51} [",
+                    "│         shape: solve for 1 + ({level} * 0.1)",
                     "│     ]",
                     "└ )",
                     "",
@@ -196,6 +215,11 @@ public class StealthDamage extends BaseAttribute implements ISkillAdvancement {
                     "│ ",
                     "│     {1} [",
                     "│         shape: solve for 5 + 14 * {level}",
+                    "│     ]",
+                    "│ ",
+                    "│     {51} [",
+                    "│         shape: none",
+                    "│         start: " + XPHelper.getXPValueFromLevel(30),
                     "│     ]",
                     "└ )",
                     "",

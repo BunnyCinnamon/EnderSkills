@@ -51,6 +51,7 @@ public class Fireball extends BaseAbility implements IImpact, IScanEntities, IEx
     public Fireball() {
         super(LibNames.FIREBALL, new AbilityProperties());
         ((AbilityProperties) getProperties()).setCooldownGetter(this::getCooldown).setMaxLevelGetter(this::getMaxLevel);
+        ((AbilityProperties) getProperties()).setCooldownGetter(this::getCooldown).setTopLevelGetter(this::getTopLevel);
     }
 
     @Override
@@ -148,6 +149,10 @@ public class Fireball extends BaseAbility implements IImpact, IScanEntities, IEx
         return this.config.max_level;
     }
 
+    public int getTopLevel() {
+        return this.config.top_level;
+    }
+
     public float getFlameRange(AbilityInfo info) {
         return (float) this.config.get(this, "SIZE", info.getLevel());
     }
@@ -189,7 +194,7 @@ public class Fireball extends BaseAbility implements IImpact, IScanEntities, IEx
                     c.getOwned(this).ifPresent(skillInfo -> {
                         AbilityInfo abilityInfo = (AbilityInfo) skillInfo;
                         description.clear();
-                        description.add(TextHelper.translate("desc.stats.endurance", String.valueOf(ModAttributes.ENDURANCE.getEnduranceDrain(this))));
+                        description.add(TextHelper.translate("desc.stats.endurance", String.valueOf(ModAttributes.ENDURANCE.getEnduranceDrain(this, abilityInfo.getLevel()))));
                         description.add("");
                         if (abilityInfo.getLevel() >= getMaxLevel()) {
                             description.add(TextHelper.translate("desc.stats.level_max", getMaxLevel()));
@@ -234,6 +239,12 @@ public class Fireball extends BaseAbility implements IImpact, IScanEntities, IEx
     public double getExperience(int lvl) {
         return this.config.get(this, "XP", lvl);
     }
+
+    @Override
+    public int getEndurance(int lvl) {
+        return (int) this.config.get(this, "ENDURANCE", lvl);
+    }
+
     /*Advancement Section*/
 
     /*Config Section*/
@@ -398,9 +409,14 @@ public class Fireball extends BaseAbility implements IImpact, IScanEntities, IEx
                     "│     ]",
                     "└ )",
                     "",
-                    "│ DOT_DURATION (",
+                    "┌ DOT_DURATION (",
                     "│     shape: none",
                     "│     value: 4s",
+                    "└ )",
+                    "",
+                    "┌ ENDURANCE (",
+                    "│     shape: none",
+                    "│     value: 16",
                     "└ )",
                     "",
                     "┌ XP (",

@@ -45,6 +45,7 @@ public class ExtraJump extends BaseAbility implements ISkillAdvancement {
             }
         });
         ((AbilityProperties) getProperties()).setCooldownGetter(this::getCooldown).setMaxLevelGetter(this::getMaxLevel);
+        ((AbilityProperties) getProperties()).setCooldownGetter(this::getCooldown).setTopLevelGetter(this::getTopLevel);
         MinecraftForge.EVENT_BUS.register(this);
     }
 
@@ -101,7 +102,8 @@ public class ExtraJump extends BaseAbility implements ISkillAdvancement {
             boolean tapped = Minecraft.getMinecraft().gameSettings.keyBindJump.isKeyDown();
             if (tapped && !wasTapped && ticksForNextTap == 0 && !player.onGround) {
                 Capabilities.endurance(player).ifPresent(endurance -> {
-                    int amount = ModAttributes.ENDURANCE.getEnduranceDrain(this);
+                    int level = Capabilities.get(player).flatMap(a -> a.getOwned(this)).map(a -> ((AbilityInfo) a).getLevel()).orElse(0);
+                    int amount = ModAttributes.ENDURANCE.getEnduranceDrain(this, level);
                     if (endurance.getEndurance() - amount >= 0) {
                         jumps++;
                         ticksForNextTap = 5;
@@ -126,6 +128,10 @@ public class ExtraJump extends BaseAbility implements ISkillAdvancement {
         return this.config.max_level;
     }
 
+    public int getTopLevel() {
+        return this.config.top_level;
+    }
+
     public int getRange(AbilityInfo info) {
         return (int) this.config.get(this, "JUMPS", info.getLevel());
     }
@@ -147,7 +153,7 @@ public class ExtraJump extends BaseAbility implements ISkillAdvancement {
                     c.getOwned(this).ifPresent(skillInfo -> {
                         AbilityInfo abilityInfo = (AbilityInfo) skillInfo;
                         description.clear();
-                        description.add(TextHelper.translate("desc.stats.endurance", String.valueOf(ModAttributes.ENDURANCE.getEnduranceDrain(this))));
+                        description.add(TextHelper.translate("desc.stats.endurance", String.valueOf(ModAttributes.ENDURANCE.getEnduranceDrain(this, abilityInfo.getLevel()))));
                         description.add("");
                         if (abilityInfo.getLevel() >= getMaxLevel()) {
                             description.add(TextHelper.translate("desc.stats.level_max", getMaxLevel()));
@@ -182,6 +188,12 @@ public class ExtraJump extends BaseAbility implements ISkillAdvancement {
     public double getExperience(int lvl) {
         return this.config.get(this, "XP", lvl);
     }
+
+    @Override
+    public int getEndurance(int lvl) {
+        return (int) this.config.get(this, "ENDURANCE", lvl);
+    }
+
     /*Advancement Section*/
 
     /*Config Section*/
@@ -253,6 +265,11 @@ public class ExtraJump extends BaseAbility implements ISkillAdvancement {
                     "│     shape: flat",
                     "│     min: 1",
                     "│     max: 2",
+                    "└ )",
+                    "",
+                    "┌ ENDURANCE (",
+                    "│     shape: none",
+                    "│     value: 2",
                     "└ )",
                     "",
                     "┌ XP (",
