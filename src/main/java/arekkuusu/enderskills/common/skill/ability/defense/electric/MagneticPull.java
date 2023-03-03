@@ -136,6 +136,7 @@ public class MagneticPull extends BaseAbility implements IScanEntities, ILoopSou
     //* Entity *//
 
     @Override
+    @SideOnly(Side.CLIENT)
     public void makeSound(Entity source) {
         Minecraft.getMinecraft().getSoundHandler().playSound(new MagneticPullSound(source));
     }
