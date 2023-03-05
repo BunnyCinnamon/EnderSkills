@@ -7,11 +7,9 @@ import arekkuusu.enderskills.api.helper.XPHelper;
 import arekkuusu.enderskills.api.util.ConfigDSL;
 import arekkuusu.enderskills.client.gui.data.ISkillAdvancement;
 import arekkuusu.enderskills.client.util.helper.TextHelper;
-import arekkuusu.enderskills.common.CommonConfig;
 import arekkuusu.enderskills.common.lib.LibMod;
 import arekkuusu.enderskills.common.lib.LibNames;
 import arekkuusu.enderskills.common.skill.SkillHelper;
-import arekkuusu.enderskills.common.skill.ability.defense.fire.Overheat;
 import arekkuusu.enderskills.common.skill.attribute.AttributeInfo;
 import arekkuusu.enderskills.common.skill.attribute.BaseAttribute;
 import net.minecraft.client.Minecraft;
@@ -137,19 +135,22 @@ public class MeleeDamage extends BaseAttribute implements ISkillAdvancement {
 
     @Override
     public void initSyncConfig() {
-        this.config = ConfigDSL.parse(Configuration.CONFIG_SYNC.dsl);
+        Configuration.CONFIG_SYNC.dsl = Configuration.CONFIG.dsl;
         Configuration.CONFIG_SYNC.applyAs = Configuration.CONFIG.applyAs;
+        this.sigmaDic();
     }
 
     @Override
     public void writeSyncConfig(NBTTagCompound compound) {
         NBTHelper.setArray(compound, "config", Configuration.CONFIG.dsl);
+        initSyncConfig();
         NBTHelper.setEnum(compound, "applyAs", Configuration.CONFIG.applyAs);
     }
 
     @Override
     public void readSyncConfig(NBTTagCompound compound) {
         Configuration.CONFIG_SYNC.dsl = NBTHelper.getArray(compound, "config");
+        sigmaDic();
         Configuration.CONFIG_SYNC.applyAs = NBTHelper.getEnum(Configuration.Damage_.class, compound, "applyAs");
     }
 
@@ -162,8 +163,8 @@ public class MeleeDamage extends BaseAttribute implements ISkillAdvancement {
     public static class Configuration {
 
         @Config.Ignore
-        public static final Configuration.Values CONFIG_SYNC = new Configuration.Values();
-        public static final Configuration.Values CONFIG = new Configuration.Values();
+        public static Configuration.Values CONFIG_SYNC = new Configuration.Values();
+        public static Configuration.Values CONFIG = new Configuration.Values();
 
         public enum Damage_ implements IStringSerializable {
             MULTIPLICATION,

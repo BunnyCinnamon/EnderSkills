@@ -240,11 +240,13 @@ public class PowerDrain extends BaseAbility implements IFindEntity, IExpand {
     @Override
     public void writeSyncConfig(NBTTagCompound compound) {
         NBTHelper.setArray(compound, "config", Configuration.CONFIG.dsl);
+        initSyncConfig();
     }
 
     @Override
     public void readSyncConfig(NBTTagCompound compound) {
         Configuration.CONFIG_SYNC.dsl = NBTHelper.getArray(compound, "config");
+        sigmaDic();
     }
 
     @Override
@@ -256,8 +258,8 @@ public class PowerDrain extends BaseAbility implements IFindEntity, IExpand {
     public static class Configuration {
 
         @Config.Ignore
-        public static final Configuration.Values CONFIG_SYNC = new Configuration.Values();
-        public static final Configuration.Values CONFIG = new Configuration.Values();
+        public static Configuration.Values CONFIG_SYNC = new Configuration.Values();
+        public static Configuration.Values CONFIG = new Configuration.Values();
 
         public static class Values {
 

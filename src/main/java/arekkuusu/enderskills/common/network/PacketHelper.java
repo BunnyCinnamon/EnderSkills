@@ -49,7 +49,6 @@ public final class PacketHelper {
         NBTTagCompound compound = new NBTTagCompound();
         NBTHelper.setResourceLocation(compound, "location", Objects.requireNonNull(skill.getRegistryName()));
         skill.writeSyncConfig(compound);
-        skill.initSyncConfig();
         PacketHandler.NETWORK.sendTo(new ServerToClientPacket(PacketHandler.SYNC_SKILLS_CONFIG, compound), player);
     }
 

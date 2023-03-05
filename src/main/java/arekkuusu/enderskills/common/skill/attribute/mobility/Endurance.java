@@ -140,8 +140,7 @@ public class Endurance extends BaseAttribute implements ISkillAdvancement {
         if (isClientWorld(event.getEntityLiving()) || event.isCanceled()) return;
         EntityLivingBase entity = event.getEntityLiving();
         Capabilities.endurance(entity).ifPresent(capability -> {
-            int level = Capabilities.get(entity).flatMap(a -> a.getOwned(this)).map(a -> ((AbilityInfo) a).getLevel()).orElse(0);
-            if (hasEnduranceDrain(event.getSkill(), level)) {
+            int level = Capabilities.get(entity).flatMap(a -> a.getOwned(this)).map(a -> a instanceof AbilityInfo ? ((AbilityInfo) a).getLevel() : a instanceof AttributeInfo ? ((AttributeInfo) a).getLevel() : 0).orElse(0);            if (hasEnduranceDrain(event.getSkill(), level)) {
                 int enduranceNeeded = getEnduranceDrain(event.getSkill(), level);
                 if (entity instanceof EntityPlayer && ((EntityPlayer) entity).capabilities.isCreativeMode) {
                     enduranceNeeded = 0;
@@ -158,7 +157,7 @@ public class Endurance extends BaseAttribute implements ISkillAdvancement {
         if (isClientWorld(event.getEntityLiving()) || event.isCanceled()) return;
         EntityLivingBase entity = event.getEntityLiving();
         Capabilities.endurance(entity).ifPresent(capability -> {
-            int level = Capabilities.get(entity).flatMap(a -> a.getOwned(this)).map(a -> ((AbilityInfo) a).getLevel()).orElse(0);
+            int level = Capabilities.get(entity).flatMap(a -> a.getOwned(this)).map(a -> a instanceof AbilityInfo ? ((AbilityInfo) a).getLevel() : a instanceof AttributeInfo ? ((AttributeInfo) a).getLevel() : 0).orElse(0);
             if (hasEnduranceDrain(event.getSkill(), level)) {
                 int enduranceNeeded = getEnduranceDrain(event.getSkill(), level);
                 if (entity instanceof EntityPlayer && ((EntityPlayer) entity).capabilities.isCreativeMode) {
@@ -278,6 +277,7 @@ public class Endurance extends BaseAttribute implements ISkillAdvancement {
     @Override
     public void writeSyncConfig(NBTTagCompound compound) {
         NBTHelper.setArray(compound, "config", Configuration.CONFIG.dsl);
+        initSyncConfig();
         compound.setDouble("endurance", Configuration.CONFIG.endurance);
         NBTTagList list = new NBTTagList();
         for (Map.Entry<String, Integer> entry : Configuration.CONFIG.enduranceMap.entrySet()) {
@@ -292,6 +292,7 @@ public class Endurance extends BaseAttribute implements ISkillAdvancement {
     @Override
     public void readSyncConfig(NBTTagCompound compound) {
         Configuration.CONFIG_SYNC.dsl = NBTHelper.getArray(compound, "config");
+        sigmaDic();
         Configuration.CONFIG_SYNC.endurance = compound.getDouble("endurance");
         NBTTagList list = compound.getTagList("extra.enduranceMap", Constants.NBT.TAG_COMPOUND);
         Configuration.CONFIG_SYNC.enduranceMap.clear();
@@ -312,8 +313,8 @@ public class Endurance extends BaseAttribute implements ISkillAdvancement {
     public static class Configuration {
 
         @Config.Ignore
-        public static final Configuration.Values CONFIG_SYNC = new Configuration.Values();
-        public static final Configuration.Values CONFIG = new Configuration.Values();
+        public static Configuration.Values CONFIG_SYNC = new Configuration.Values();
+        public static Configuration.Values CONFIG = new Configuration.Values();
 
         public static class Values {
             @Config.Comment("Default start endurance")

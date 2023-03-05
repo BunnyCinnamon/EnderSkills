@@ -177,12 +177,14 @@ public class AbilityRange extends BaseAttribute implements ISkillAdvancement {
     @Override
     public void writeSyncConfig(NBTTagCompound compound) {
         NBTHelper.setArray(compound, "config", Configuration.CONFIG.dsl);
+        initSyncConfig();
         NBTHelper.setEnum(compound, "applyAs", Configuration.CONFIG.applyAs);
     }
 
     @Override
     public void readSyncConfig(NBTTagCompound compound) {
         Configuration.CONFIG_SYNC.dsl = NBTHelper.getArray(compound, "config");
+        sigmaDic();
         Configuration.CONFIG_SYNC.applyAs = NBTHelper.getEnum(Configuration.Damage.class, compound, "applyAs");
     }
 

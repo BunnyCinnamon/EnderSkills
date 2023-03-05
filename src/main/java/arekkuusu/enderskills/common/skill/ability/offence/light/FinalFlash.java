@@ -214,11 +214,13 @@ public class FinalFlash extends BaseAbility implements IScanEntities, IExpand, I
     @Override
     public void writeSyncConfig(NBTTagCompound compound) {
         NBTHelper.setArray(compound, "config", Configuration.CONFIG.dsl);
+        initSyncConfig();
     }
 
     @Override
     public void readSyncConfig(NBTTagCompound compound) {
         Configuration.CONFIG_SYNC.dsl = NBTHelper.getArray(compound, "config");
+        sigmaDic();
     }
 
     @Override
@@ -230,7 +232,7 @@ public class FinalFlash extends BaseAbility implements IScanEntities, IExpand, I
     public static class Configuration {
 
         @Config.Ignore
-        public static final Configuration.Values CONFIG_SYNC = new Values();
+        public static Configuration.Values CONFIG_SYNC = new Values();
         public static final Values CONFIG = new Values();
 
         public static class Values {

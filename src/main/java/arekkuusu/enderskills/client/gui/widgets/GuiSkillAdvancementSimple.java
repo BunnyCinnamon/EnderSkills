@@ -296,13 +296,11 @@ public final class GuiSkillAdvancementSimple extends GuiSkillAdvancement {
                             description += TextHelper.translate("gui.advancement.description");
                             description += TextHelper.translate("gui.advancement.description_levels", lvl, lvl + 1);
                         }
-                        if (levels > 0 || (xp > 0)) {
-                            description += TextHelper.translate("gui.advancement.requires");
-                        }
+                        description += TextHelper.translate("gui.advancement.requires");
                         if (levels > 0) {
                             description += TextHelper.translate("gui.advancement.requires_levels", levels);
                         }
-                        if (xp > 0) {
+                        if(xp != 0) {
                             description += TextHelper.translate("gui.advancement.requires_xp", TextHelper.format2FloatPoint(xp));
                         }
                     }
