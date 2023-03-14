@@ -117,12 +117,12 @@ public class Endurance extends BaseAttribute implements ISkillAdvancement {
                 if (capability.getEnduranceDelay() > 0) {
                     capability.setEnduranceDelay(capability.getEnduranceDelay() - 1);
                 } else if (capability.getEndurance() < maxEndurance) {
-                    double[] a = {10};
+                    double[] a = {CommonConfig.getSyncValues().skill.enduranceRegen};
                     Capabilities.get(event.getEntityLiving()).flatMap(aaa -> aaa.getOwned(this)).ifPresent(iii -> a[0] = getRegen((AttributeInfo) iii));
                     capability.setEnduranceDelay(a[0]); //Every half a second
                     capability.setEndurance(Math.min(capability.getEndurance() + (maxEndurance / (maxEndurance - capability.getEndurance())), maxEndurance));
                 } else if (capability.getEndurance() > maxEndurance) {
-                    double[] a = {10};
+                    double[] a = {CommonConfig.getSyncValues().skill.enduranceRegen};
                     Capabilities.get(event.getEntityLiving()).flatMap(aaa -> aaa.getOwned(this)).ifPresent(iii -> a[0] = getRegen((AttributeInfo) iii));
                     capability.setEnduranceDelay(a[0]); //Every half a second
                     capability.setEndurance(Math.max(capability.getEndurance() - (capability.getEndurance() / maxEndurance), 0D));
@@ -167,7 +167,7 @@ public class Endurance extends BaseAttribute implements ISkillAdvancement {
                     event.setCanceled(true);
                     return;
                 }
-                double[] a = {5 * 20};
+                double[] a = {CommonConfig.getSyncValues().skill.enduranceDelay};
                 Capabilities.get(entity).flatMap(aaa -> aaa.getOwned(this)).ifPresent(iii -> a[0] = getDelay((AttributeInfo) iii));
                 capability.drain(enduranceNeeded, a[0]);
                 if (entity instanceof EntityPlayerMP) {

@@ -69,8 +69,6 @@ public class Hover extends BaseAbility implements ISkillAdvancement {
 
     @Override
     public void begin(EntityLivingBase owner, SkillData data) {
-        if (isClientWorld(owner) && !(owner instanceof EntityPlayer)) return;
-        owner.fallDistance = 0;
         if (isClientWorld(owner)) {
             makeSound(owner);
         }
@@ -83,6 +81,7 @@ public class Hover extends BaseAbility implements ISkillAdvancement {
 
     @Override
     public void update(EntityLivingBase owner, SkillData data, int tick) {
+        owner.fallDistance = 0;
         if (isClientWorld(owner) && !(owner instanceof EntityPlayer)) return;
         if (owner.motionY < 0) owner.motionY *= 0.4D;
     }

@@ -38,6 +38,8 @@ public final class CommonConfig {
         CommonConfig.getSyncValues().skill.defaultAnimalTeam = CommonConfig.getConfig().skill.defaultAnimalTeam;
         CommonConfig.getSyncValues().skill.globalNegativeEffect = CommonConfig.getConfig().skill.globalNegativeEffect;
         CommonConfig.getSyncValues().skill.globalPositiveEffect = CommonConfig.getConfig().skill.globalPositiveEffect;
+        CommonConfig.getSyncValues().skill.enduranceRegen = CommonConfig.getConfig().skill.enduranceRegen;
+        CommonConfig.getSyncValues().skill.enduranceDelay = CommonConfig.getConfig().skill.enduranceDelay;
         CommonConfig.getSyncValues().advancement.oneTreePerClass = CommonConfig.getConfig().advancement.oneTreePerClass;
         CommonConfig.getSyncValues().advancement.xp.globalCostMultiplier = CommonConfig.getConfig().advancement.xp.globalCostMultiplier;
         CommonConfig.getSyncValues().advancement.xp.retryXPReturn = CommonConfig.getConfig().advancement.xp.retryXPReturn;
@@ -80,6 +82,8 @@ public final class CommonConfig {
         compound.setBoolean("defaultAnimalTeam", CommonConfig.getConfig().skill.defaultAnimalTeam);
         compound.setDouble("globalPositiveEffect", CommonConfig.getConfig().skill.globalPositiveEffect);
         compound.setDouble("globalNegativeEffect", CommonConfig.getConfig().skill.globalNegativeEffect);
+        compound.setInteger("enduranceDelay", CommonConfig.getConfig().skill.enduranceDelay);
+        compound.setInteger("enduranceRegen", CommonConfig.getConfig().skill.enduranceRegen);
         EnderSkillsAPI.defaultHumanTeam = CommonConfig.getConfig().skill.defaultHumanTeam;
         EnderSkillsAPI.defaultAnimalTeam = CommonConfig.getConfig().skill.defaultAnimalTeam;
         EnderSkillsAPI.EXPRESSION_FUNCTION_CACHE.invalidateAll();
@@ -106,6 +110,8 @@ public final class CommonConfig {
         CommonConfig.getSyncValues().skill.defaultAnimalTeam = compound.getBoolean("defaultAnimalTeam");
         CommonConfig.getSyncValues().skill.globalPositiveEffect = compound.getDouble("globalPositiveEffect");
         CommonConfig.getSyncValues().skill.globalNegativeEffect = compound.getDouble("globalNegativeEffect");
+        CommonConfig.getSyncValues().skill.enduranceRegen = compound.getInteger("enduranceRegen");
+        CommonConfig.getSyncValues().skill.enduranceDelay = compound.getInteger("enduranceDelay");
         EnderSkillsAPI.defaultHumanTeam = CommonConfig.getSyncValues().skill.defaultHumanTeam;
         EnderSkillsAPI.defaultAnimalTeam = CommonConfig.getSyncValues().skill.defaultAnimalTeam;
         EnderSkillsAPI.EXPRESSION_FUNCTION_CACHE.invalidateAll();
@@ -143,6 +149,12 @@ public final class CommonConfig {
 
             @Config.Comment("Modifies positive effects of all abilities (used for balancing damage)")
             public double globalNegativeEffect = 1.5D;
+
+            @Config.Comment("Modifies regeneration delay after using an ability in minecraft seconds (20 = one second)")
+            public int enduranceDelay = 5 * 20;
+
+            @Config.Comment("Modifies regeneration speed in minecraft seconds (20 = one second)")
+            public int enduranceRegen = 10;
         }
 
         public static class SkillAdvancementConfig {
