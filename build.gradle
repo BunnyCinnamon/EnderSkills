@@ -1,63 +1,87 @@
 buildscript {
     repositories {
-        jcenter()
+        maven { url = 'https://maven.minecraftforge.net/' }
         maven { url = "http://files.minecraftforge.net/maven" }
+        maven {
+            name "ModMaven"
+            url "https://modmaven.dev"
+        }
+        mavenCentral()
+        jcenter()
     }
     dependencies {
-        classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
+        classpath 'net.minecraftforge.gradle:ForgeGradle:3.+'
         classpath 'com.github.jengelman.gradle.plugins:shadow:4.0.4'
     }
 }
-apply plugin: 'net.minecraftforge.gradle.forge'
+apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'com.github.johnrengelman.shadow'
 
-version = "${mc_version}-${mayor}.${noapi}.${minor}.${patch}${extra}"
+version = "1.12.2-${mayor}.${noapi}.${minor}.${patch}${extra}"
 group = "arekkuusu.enderskills"
 archivesBaseName = "EnderSkills"
 
 compileJava.options.encoding = "UTF-8"
-sourceCompatibility = targetCompatibility = '1.8'
-compileJava {
-    sourceCompatibility = targetCompatibility = '1.8'
-}
+sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8'
 
 minecraft {
-    version = "${mc_version}-${forge_version}"
-    runDir = "run"
+    mappings channel: 'snapshot', version: '20171003-1.12'
 
-    mappings = mc_mappings
+    runs {
+        client {
+            workingDirectory project.file('run')
 
-    replace 'GRADLE:VERSION', project.version
-    replaceIn 'LibMod.java'
+            // Recommended logging data for a userdev environment
+            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
+
+            // Recommended logging level for the console
+            property 'forge.logging.console.level', 'debug'
+        }
+
+        server {
+
+            // Recommended logging data for a userdev environment
+            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
+
+            // Recommended logging level for the console
+            property 'forge.logging.console.level', 'debug'
+        }
+    }
 }
 
 repositories {
-    maven {
-        name = "JEI"
-        url = "https://dvs1.progwml6.com/files/maven/"
-    }
     flatDir {
         dirs 'lib'
     }
 }
 
 dependencies {
+    minecraft 'net.minecraftforge:forge:1.12.2-14.23.5.2860'
+
     compileOnly (name: "EventHelper-1.12.2-2.6.2-dev")
     shadow(name: 'com.expression.parser-2.0.0')
 }
 
 processResources {
-    inputs.property "version", project.version
-    inputs.property "mcversion", project.minecraft.version
-
-    from(sourceSets.main.resources.srcDirs) {
-        include 'mcmod.info'
-
-        expand 'version': project.version, 'mcversion': project.minecraft.version
+    inputs.files "src/main/resources"
+    outputs.dir "build/classes/main"
+    copy {
+        from("src/main/resources")
+        into("build/classes/main")
     }
+}
 
-    from(sourceSets.main.resources.srcDirs) {
-        exclude 'mcmod.info'
+jar {
+    manifest {
+        attributes([
+                "Specification-Title": "enderskills",
+                "Specification-Vendor": archivesBaseName,
+                "Specification-Version": version,
+                "Implementation-Title": project.name,
+                "Implementation-Version": "${version}",
+                "Implementation-Vendor" : archivesBaseName,
+                "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
+        ])
     }
 }
 
