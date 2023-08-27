@@ -1,12 +1,15 @@
 package arekkuusu.enderskills.common.skill.ability.defense.electric;
 
 import arekkuusu.enderskills.api.capability.Capabilities;
+import arekkuusu.enderskills.api.capability.data.InfoCooldown;
 import arekkuusu.enderskills.api.capability.data.SkillData;
 import arekkuusu.enderskills.api.capability.data.SkillInfo;
+import arekkuusu.enderskills.api.configuration.DSLConfig;
+import arekkuusu.enderskills.api.configuration.DSLDefaults;
 import arekkuusu.enderskills.api.helper.NBTHelper;
 import arekkuusu.enderskills.api.helper.TeamHelper;
 import arekkuusu.enderskills.api.registry.Skill;
-import arekkuusu.enderskills.api.util.ConfigDSL;
+import arekkuusu.enderskills.api.configuration.parser.DSLParser;
 import arekkuusu.enderskills.api.util.Vector;
 import arekkuusu.enderskills.client.util.helper.TextHelper;
 import arekkuusu.enderskills.common.EnderSkills;
@@ -44,14 +47,12 @@ import java.util.List;
 public class PowerDrain extends BaseAbility implements IFindEntity, IExpand {
 
     public PowerDrain() {
-        super(LibNames.POWER_DRAIN, new AbilityProperties());
-        ((AbilityProperties) getProperties()).setCooldownGetter(this::getCooldown).setMaxLevelGetter(this::getMaxLevel);
-        ((AbilityProperties) getProperties()).setCooldownGetter(this::getCooldown).setTopLevelGetter(this::getTopLevel);
+        super(LibNames.POWER_DRAIN, new Properties());
     }
 
     @Override
     public void use(EntityLivingBase owner, SkillInfo skillInfo) {
-        if (((SkillInfo.IInfoCooldown) skillInfo).hasCooldown() || isClientWorld(owner)) return;
+        if (((InfoCooldown) skillInfo).hasCooldown() || isClientWorld(owner)) return;
         AbilityInfo abilityInfo = (AbilityInfo) skillInfo;
 
         if (isActionable(owner) && canActivate(owner)) {
@@ -74,7 +75,7 @@ public class PowerDrain extends BaseAbility implements IFindEntity, IExpand {
             spawn.setPosition(owner.posX, owner.posY + owner.height / 2, owner.posZ);
             spawn.setRadius(range);
             owner.world.spawnEntity(spawn);
-            sync(owner);
+            super.sync(owner);
 
             if (owner.world instanceof WorldServer) {
                 ((WorldServer) owner.world).playSound(null, owner.posX, owner.posY, owner.posZ, ModSounds.POWER_DRAIN, SoundCategory.PLAYERS, 5.0F, (1.0F + (owner.world.rand.nextFloat() - owner.world.rand.nextFloat()) * 0.2F) * 0.7F);
@@ -90,7 +91,7 @@ public class PowerDrain extends BaseAbility implements IFindEntity, IExpand {
 
     @Override
     public void onFound(Entity source, @Nullable EntityLivingBase owner, EntityLivingBase target, SkillData skillData) {
-        apply(target, skillData);
+       super.apply(target, skillData);
         sync(target, skillData);
     }
 
@@ -115,7 +116,7 @@ public class PowerDrain extends BaseAbility implements IFindEntity, IExpand {
             Capabilities.endurance(entity).ifPresent(capability -> {
                 double power = NBTHelper.getDouble(data.nbt, "power");
                 double a[] = {5 * 20};
-                Capabilities.get(entity).flatMap(aaa -> aaa.getOwned(ModAttributes.ENDURANCE)).ifPresent(iii -> a[0] = ModAttributes.ENDURANCE.getRegen((AttributeInfo) iii));
+                Capabilities.get(entity).flatMap(aaa -> aaa.getOwned(ModAttributes.ENDURANCE)).ifPresent(iii -> a[0] = DSLDefaults.getRegen(ModAttributes.ENDURANCE, ((AttributeInfo) iii).getLevel()));
                 double drain = power - capability.drain(power, a[0]);
                 if (drain > 0) {
                     if (!isClientWorld(entity)) {
@@ -144,7 +145,7 @@ public class PowerDrain extends BaseAbility implements IFindEntity, IExpand {
     }
 
     public int getTopLevel() {
-        return this.config.top_level;
+        return this.config.limit_level;
     }
 
     public float getPower(AbilityInfo info) {
@@ -229,7 +230,7 @@ public class PowerDrain extends BaseAbility implements IFindEntity, IExpand {
 
     /*Config Section*/
     public static final String CONFIG_FILE = LibNames.ELECTRIC_DEFENSE_CONFIG + LibNames.POWER_DRAIN;
-    public ConfigDSL.Config config = new ConfigDSL.Config();
+    public DSLConfig config = new DSLConfig();
 
     @Override
     public void initSyncConfig() {
@@ -251,7 +252,7 @@ public class PowerDrain extends BaseAbility implements IFindEntity, IExpand {
 
     @Override
     public void sigmaDic() {
-        this.config = ConfigDSL.parse(Configuration.CONFIG_SYNC.dsl);
+        this.config = DSLParser.parse(Configuration.CONFIG_SYNC.dsl);
     }
 
     @Config(modid = LibMod.MOD_ID, name = CONFIG_FILE)

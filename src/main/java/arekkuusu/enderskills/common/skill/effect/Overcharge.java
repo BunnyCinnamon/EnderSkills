@@ -30,7 +30,7 @@ public class Overcharge extends BaseEffect {
         if (charge > 0) {
             NBTHelper.setDouble(data.nbt, "over_charge", charge);
         } else if (!isClientWorld(entity)) {
-            unapply(entity, data);
+           super.unapply(entity, data);
             async(entity, data);
         }
     }
@@ -71,7 +71,7 @@ public class Overcharge extends BaseEffect {
                         .with(INDEFINITE)
                         .put(compound)
                         .create();
-                apply(entity, data);
+               super.apply(entity, data);
                 sync(entity, data);
             }
         });

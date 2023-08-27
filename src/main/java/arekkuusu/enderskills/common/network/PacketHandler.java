@@ -4,13 +4,14 @@ import arekkuusu.enderskills.api.capability.Capabilities;
 import arekkuusu.enderskills.api.capability.SkilledEntityCapability;
 import arekkuusu.enderskills.api.capability.data.SkillData;
 import arekkuusu.enderskills.api.capability.data.SkillHolder;
-import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoUpgradeable;
+import arekkuusu.enderskills.api.capability.data.InfoUpgradeable;
+import arekkuusu.enderskills.api.configuration.network.ConfigSynchronizer;
 import arekkuusu.enderskills.api.event.SkillUpgradeSyncEvent;
 import arekkuusu.enderskills.api.helper.NBTHelper;
 import arekkuusu.enderskills.api.helper.XPHelper;
 import arekkuusu.enderskills.api.registry.Skill;
 import arekkuusu.enderskills.api.util.Vector;
-import arekkuusu.enderskills.client.gui.data.ISkillAdvancement;
+import arekkuusu.enderskills.client.gui.data.SkillAdvancement;
 import arekkuusu.enderskills.client.sounds.BleedSound;
 import arekkuusu.enderskills.common.CommonConfig;
 import arekkuusu.enderskills.common.EnderSkills;
@@ -43,15 +44,10 @@ public final class PacketHandler {
 
     public static final List<IPacketHandler> HANDLERS = Lists.newArrayList();
 
-    public static final IPacketHandler SYNC_GLOBAL_CONFIG = (((compound, context) -> {
-        CommonConfig.readSyncConfig(compound);
-    }));
-
-    public static final IPacketHandler SYNC_SKILLS_CONFIG = (((compound, context) -> {
-        IForgeRegistry<Skill> registry = GameRegistry.findRegistry(Skill.class);
-        Skill skill = registry.getValue(NBTHelper.getResourceLocation(compound, "location"));
-        assert skill != null;
-        ((Skill & IConfigSync) skill).readSyncConfig(compound);
+    public static final IPacketHandler SYNC_CONFIG = (((compound, context) -> {
+        IForgeRegistry<ConfigSynchronizer> registry = GameRegistry.findRegistry(ConfigSynchronizer.class);
+        ConfigSynchronizer configSynchronizer = registry.getValue(NBTHelper.getResourceLocation(compound, "location"));
+        configSynchronizer.readSyncConfig(compound);
     }));
 
     public static final IPacketHandler SYNC_SKILLS = (((compound, context) -> {
@@ -158,20 +154,20 @@ public final class PacketHandler {
             Capabilities.get(e).ifPresent(c -> {
                 if (c.isOwned(skill)) {
                     c.getOwned(skill).ifPresent(info -> {
-                        if (skill.getProperties() instanceof BaseSkill.BaseProperties && info instanceof IInfoUpgradeable) {
-                            int lvl = ((IInfoUpgradeable) info).getLevel() + 1;
+                        if (skill.getProperties() instanceof BaseSkill.BaseProperties && info instanceof InfoUpgradeable) {
+                            int lvl = ((InfoUpgradeable) info).getLevel() + 1;
                             if (lvl <= ((BaseSkill.BaseProperties) skill.getProperties()).getMaxLevel()) {
-                                if (skill instanceof ISkillAdvancement) {
-                                    ISkillAdvancement advancement = (ISkillAdvancement) skill;
+                                if (skill instanceof SkillAdvancement) {
+                                    SkillAdvancement advancement = (SkillAdvancement) skill;
                                     if (advancement.canUpgrade(e)) {
                                         advancement.onUpgrade(e);
-                                        ((IInfoUpgradeable) info).setLevel(lvl);
+                                        ((InfoUpgradeable) info).setLevel(lvl);
                                         PacketHelper.sendSkillsSync((EntityPlayerMP) e);
                                         PacketHelper.sendAdvancementSync((EntityPlayerMP) e);
                                         PacketHelper.sendSkillUpgradeSync((EntityPlayerMP) e);
                                     }
                                 } else {
-                                    ((IInfoUpgradeable) info).setLevel(lvl);
+                                    ((InfoUpgradeable) info).setLevel(lvl);
                                     PacketHelper.sendSkillSync((EntityPlayerMP) e, skill);
                                     PacketHelper.sendSkillUpgradeSync((EntityPlayerMP) e);
                                 }
@@ -179,8 +175,8 @@ public final class PacketHandler {
                         }
                     });
                 } else {
-                    if (skill instanceof ISkillAdvancement) {
-                        ISkillAdvancement advancement = (ISkillAdvancement) skill;
+                    if (skill instanceof SkillAdvancement) {
+                        SkillAdvancement advancement = (SkillAdvancement) skill;
                         if (advancement.canUpgrade(e)) {
                             advancement.onUpgrade(e);
                             c.addOwned(skill);
@@ -342,8 +338,7 @@ public final class PacketHandler {
     public static void init() {
         register(ServerToClientPacket.Handler.class, ServerToClientPacket.class, Side.CLIENT);
         register(ClientToServerPacket.Handler.class, ClientToServerPacket.class, Side.SERVER);
-        HANDLERS.add(SYNC_GLOBAL_CONFIG);
-        HANDLERS.add(SYNC_SKILLS_CONFIG);
+        HANDLERS.add(SYNC_CONFIG);
         HANDLERS.add(SYNC_SKILLS);
         HANDLERS.add(SYNC_SKILLS_TRACKING);
         HANDLERS.add(SYNC_SKILL);

@@ -3,13 +3,14 @@ package arekkuusu.enderskills.common.skill.ability.offence.light;
 import arekkuusu.enderskills.api.capability.Capabilities;
 import arekkuusu.enderskills.api.capability.data.SkillData;
 import arekkuusu.enderskills.api.capability.data.SkillInfo;
-import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoCooldown;
+import arekkuusu.enderskills.api.capability.data.InfoCooldown;
+import arekkuusu.enderskills.api.configuration.DSLConfig;
+import arekkuusu.enderskills.api.configuration.parser.DSLParser;
 import arekkuusu.enderskills.api.event.SkillDamageEvent;
 import arekkuusu.enderskills.api.event.SkillDamageSource;
 import arekkuusu.enderskills.api.helper.NBTHelper;
 import arekkuusu.enderskills.api.registry.Skill;
-import arekkuusu.enderskills.api.util.ConfigDSL;
-import arekkuusu.enderskills.client.gui.data.ISkillAdvancement;
+import arekkuusu.enderskills.client.gui.data.SkillAdvancement;
 import arekkuusu.enderskills.client.util.helper.TextHelper;
 import arekkuusu.enderskills.common.CommonConfig;
 import arekkuusu.enderskills.common.EnderSkills;
@@ -45,17 +46,15 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import javax.annotation.Nullable;
 import java.util.List;
 
-public class LumenWave extends BaseAbility implements IScanEntities, IExpand, IFindEntity, ISkillAdvancement {
+public class LumenWave extends BaseAbility implements IScanEntities, IExpand, IFindEntity, SkillAdvancement {
 
     public LumenWave() {
-        super(LibNames.LUMEN_WAVE, new AbilityProperties());
-        ((AbilityProperties) getProperties()).setCooldownGetter(this::getCooldown).setMaxLevelGetter(this::getMaxLevel);
-        ((AbilityProperties) getProperties()).setCooldownGetter(this::getCooldown).setTopLevelGetter(this::getTopLevel);
+        super(LibNames.LUMEN_WAVE, new Properties());
     }
 
     @Override
     public void use(EntityLivingBase owner, SkillInfo skillInfo) {
-        if (((IInfoCooldown) skillInfo).hasCooldown() || isClientWorld(owner)) return;
+        if (((InfoCooldown) skillInfo).hasCooldown() || isClientWorld(owner)) return;
         AbilityInfo abilityInfo = (AbilityInfo) skillInfo;
 
         if (isActionable(owner) && canActivate(owner)) {
@@ -86,7 +85,7 @@ public class LumenWave extends BaseAbility implements IScanEntities, IExpand, IF
             spawn.setGrowTicks(5);
             spawn.setRadius(range);
             owner.world.spawnEntity(spawn);
-            sync(owner);
+            super.sync(owner);
 
             if (spawn.world instanceof WorldServer) {
                 ((WorldServer) spawn.world).playSound(null, spawn.posX, spawn.posY, spawn.posZ, ModSounds.LUMIN_WAVE_CAST, SoundCategory.PLAYERS, 1.0F, (1.0F + (spawn.world.rand.nextFloat() - spawn.world.rand.nextFloat()) * 0.2F) * 0.7F);
@@ -145,7 +144,7 @@ public class LumenWave extends BaseAbility implements IScanEntities, IExpand, IF
     }
 
     public int getTopLevel() {
-        return this.config.top_level;
+        return this.config.limit_level;
     }
 
     public double getDamage(AbilityInfo info) {
@@ -238,7 +237,7 @@ public class LumenWave extends BaseAbility implements IScanEntities, IExpand, IF
 
     /*Config Section*/
     public static final String CONFIG_FILE = LibNames.LIGHT_OFFENCE_CONFIG + LibNames.LUMEN_WAVE;
-    public ConfigDSL.Config config = new ConfigDSL.Config();
+    public DSLConfig config = new DSLConfig();
 
     @Override
     public void initSyncConfig() {
@@ -260,7 +259,7 @@ public class LumenWave extends BaseAbility implements IScanEntities, IExpand, IF
 
     @Override
     public void sigmaDic() {
-        this.config = ConfigDSL.parse(Configuration.CONFIG_SYNC.dsl);
+        this.config = DSLParser.parse(Configuration.CONFIG_SYNC.dsl);
     }
 
     @Config(modid = LibMod.MOD_ID, name = CONFIG_FILE)

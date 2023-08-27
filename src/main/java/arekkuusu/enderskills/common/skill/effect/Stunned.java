@@ -91,7 +91,7 @@ public class Stunned extends BaseEffect {
                 .with(time)
                 .overrides(SkillData.Overrides.EQUAL)
                 .create();
-        apply(entity, status);
+       super.apply(entity, status);
         sync(entity, status);
     }
 }

@@ -36,13 +36,13 @@ public class SkillRangeEvent extends Event {
         this.amount = value;
     }
 
-    public float toFloat() {
-        return (float) getAmount();
+    public int toInteger() {
+        return (int) getAmount();
     }
 
-    public static double getRange(EntityLivingBase owner, Skill skill, double original) {
+    public static SkillRangeEvent trigger(EntityLivingBase owner, Skill skill, double original) {
         SkillRangeEvent event = new SkillRangeEvent(owner, skill, original);
         MinecraftForge.EVENT_BUS.post(event);
-        return event.getAmount();
+        return event;
     }
 }

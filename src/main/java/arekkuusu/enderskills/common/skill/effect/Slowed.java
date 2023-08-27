@@ -71,7 +71,7 @@ public class Slowed extends BaseEffect {
                 .put(compound)
                 .overrides(SkillData.Overrides.EQUAL)
                 .create();
-        apply(entity, status);
+       super.apply(entity, status);
         sync(entity, status);
     }
 }

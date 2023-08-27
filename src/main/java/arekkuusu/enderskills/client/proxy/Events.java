@@ -3,6 +3,7 @@ package arekkuusu.enderskills.client.proxy;
 import arekkuusu.enderskills.api.capability.Capabilities;
 import arekkuusu.enderskills.api.capability.SkillGroupCapability;
 import arekkuusu.enderskills.api.capability.SkilledEntityCapability;
+import arekkuusu.enderskills.api.capability.data.InfoCooldown;
 import arekkuusu.enderskills.api.capability.data.SkillGroup;
 import arekkuusu.enderskills.api.capability.data.SkillHolder;
 import arekkuusu.enderskills.api.capability.data.SkillInfo;
@@ -181,7 +182,7 @@ public class Events {
                     //Draw icon
                     mc.getTextureManager().bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
                     double remaining = getOwnerActiveRemainingTime(skill);
-                    int cool = info instanceof SkillInfo.IInfoCooldown ? (int) Math.ceil(((SkillInfo.IInfoCooldown) info).getCooldown() / 20D) : 0;
+                    int cool = info instanceof InfoCooldown ? (int) Math.ceil(((InfoCooldown) info).getCooldown() / 20D) : 0;
                     boolean hasCool = cool > 0 || info == null;
                     float color = hasCool && remaining <= 0D ? 0.4F : 1F;
                     GlStateManager.color(color, color, color, 1F);
@@ -446,8 +447,8 @@ public class Events {
                 //Iterate Cooldowns
                 for (Map.Entry<Skill, SkillInfo> entry : skills.getAllOwned().entrySet()) {
                     SkillInfo skillInfo = entry.getValue();
-                    if (skillInfo instanceof SkillInfo.IInfoCooldown && ((SkillInfo.IInfoCooldown) skillInfo).hasCooldown()) {
-                        ((SkillInfo.IInfoCooldown) skillInfo).setCooldown(((SkillInfo.IInfoCooldown) skillInfo).getCooldown() - 1);
+                    if (skillInfo instanceof InfoCooldown && ((InfoCooldown) skillInfo).hasCooldown()) {
+                        ((InfoCooldown) skillInfo).setCooldown(((InfoCooldown) skillInfo).getCooldown() - 1);
                     }
                 }
             });

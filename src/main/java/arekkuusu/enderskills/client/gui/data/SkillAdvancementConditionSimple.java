@@ -36,9 +36,9 @@ public class SkillAdvancementConditionSimple extends SkillAdvancementCondition {
     }
 
     public boolean upgrade() {
-        if (info.skill instanceof ISkillAdvancement) {
+        if (info.skill instanceof SkillAdvancement) {
             EntityPlayer player = Minecraft.getMinecraft().player;
-            ISkillAdvancement.Requirement requirement = ((ISkillAdvancement) info.skill).getRequirement(player);
+            SkillAdvancement.Requirement requirement = ((SkillAdvancement) info.skill).getRequirement(player);
             Optional<AdvancementCapability> capability = Capabilities.advancement(player);
             if (capability.isPresent()) {
                 AdvancementCapability c = capability.get();

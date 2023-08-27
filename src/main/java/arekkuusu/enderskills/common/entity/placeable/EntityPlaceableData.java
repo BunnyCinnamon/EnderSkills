@@ -171,6 +171,10 @@ public class EntityPlaceableData extends Entity {
         return this.dataManager.get(DATA).data;
     }
 
+    public void spawnEntity() {
+        this.world.spawnEntity(this);
+    }
+
     @Override
     protected void readEntityFromNBT(NBTTagCompound compound) {
         if (compound.hasKey("data")) {

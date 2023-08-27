@@ -3,11 +3,12 @@ package arekkuusu.enderskills.common.skill.ability.mobility.wind;
 import arekkuusu.enderskills.api.capability.Capabilities;
 import arekkuusu.enderskills.api.capability.data.SkillData;
 import arekkuusu.enderskills.api.capability.data.SkillInfo;
-import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoCooldown;
+import arekkuusu.enderskills.api.capability.data.InfoCooldown;
+import arekkuusu.enderskills.api.configuration.DSLConfig;
 import arekkuusu.enderskills.api.helper.NBTHelper;
 import arekkuusu.enderskills.api.registry.Skill;
-import arekkuusu.enderskills.api.util.ConfigDSL;
-import arekkuusu.enderskills.client.gui.data.ISkillAdvancement;
+import arekkuusu.enderskills.api.configuration.parser.DSLParser;
+import arekkuusu.enderskills.client.gui.data.SkillAdvancement;
 import arekkuusu.enderskills.client.keybind.KeyBounds;
 import arekkuusu.enderskills.client.util.helper.TextHelper;
 import arekkuusu.enderskills.common.lib.LibMod;
@@ -40,22 +41,20 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 import java.util.List;
 
-public class Dash extends BaseAbility implements ISkillAdvancement {
+public class Dash extends BaseAbility {
 
     public Dash() {
-        super(LibNames.DASH, new AbilityProperties() {
+        super(LibNames.DASH, new Properties() {
             @Override
             public boolean isKeyBound() {
                 return false;
             }
         });
-        ((AbilityProperties) getProperties()).setCooldownGetter(this::getCooldown).setMaxLevelGetter(this::getMaxLevel);
-        ((AbilityProperties) getProperties()).setCooldownGetter(this::getCooldown).setTopLevelGetter(this::getTopLevel);
         MinecraftForge.EVENT_BUS.register(this);
     }
 
     public void use(EntityLivingBase owner, SkillInfo skillInfo, Vec3d vector) {
-        if (((IInfoCooldown) skillInfo).hasCooldown() || isClientWorld(owner)) return;
+        if (((InfoCooldown) skillInfo).hasCooldown() || isClientWorld(owner)) return;
         AbilityInfo abilityInfo = (AbilityInfo) skillInfo;
         if (isActionable(owner) && canActivate(owner)) {
             if (!(owner instanceof EntityPlayer) || !((EntityPlayer) owner).capabilities.isCreativeMode) {
@@ -71,9 +70,9 @@ public class Dash extends BaseAbility implements ISkillAdvancement {
                     .put(compound)
                     .overrides(SkillData.Overrides.SAME)
                     .create();
-            apply(owner, data);
-            sync(owner, data);
-            sync(owner);
+           super.apply(owner, data);
+            super.sync(owner, data);
+            super.sync(owner);
         }
     }
 
@@ -116,8 +115,8 @@ public class Dash extends BaseAbility implements ISkillAdvancement {
             }
         }
         if (owner.isSneaking()) {
-            unapply(owner);
-            async(owner);
+           super.unapply(owner);
+            super.async(owner);
         }
     }
 
@@ -205,7 +204,7 @@ public class Dash extends BaseAbility implements ISkillAdvancement {
     }
 
     public int getTopLevel() {
-        return this.config.top_level;
+        return this.config.limit_level;
     }
 
     public double getRange(AbilityInfo info) {
@@ -276,7 +275,7 @@ public class Dash extends BaseAbility implements ISkillAdvancement {
 
     /*Config Section*/
     public static final String CONFIG_FILE = LibNames.WIND_MOBILITY_CONFIG + LibNames.DASH;
-    public ConfigDSL.Config config = new ConfigDSL.Config();
+    public DSLConfig config = new DSLConfig();
 
     @Override
     public void initSyncConfig() {
@@ -298,7 +297,7 @@ public class Dash extends BaseAbility implements ISkillAdvancement {
 
     @Override
     public void sigmaDic() {
-        this.config = ConfigDSL.parse(Configuration.CONFIG_SYNC.dsl);
+        this.config = DSLParser.parse(Configuration.CONFIG_SYNC.dsl);
     }
 
     @Config(modid = LibMod.MOD_ID, name = CONFIG_FILE)

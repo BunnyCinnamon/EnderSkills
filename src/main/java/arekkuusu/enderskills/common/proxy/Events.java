@@ -1,6 +1,7 @@
 package arekkuusu.enderskills.common.proxy;
 
 import arekkuusu.enderskills.api.capability.Capabilities;
+import arekkuusu.enderskills.api.capability.data.InfoCooldown;
 import arekkuusu.enderskills.api.capability.data.SkillHolder;
 import arekkuusu.enderskills.api.capability.data.SkillInfo;
 import arekkuusu.enderskills.api.event.SkillActionableEvent;
@@ -196,8 +197,8 @@ public class Events {
                 //Iterate Cooldowns
                 for (Map.Entry<Skill, SkillInfo> entry : skills.getAllOwned().entrySet()) {
                     SkillInfo skillInfo = entry.getValue();
-                    if (skillInfo instanceof SkillInfo.IInfoCooldown && ((SkillInfo.IInfoCooldown) skillInfo).hasCooldown()) {
-                        ((SkillInfo.IInfoCooldown) skillInfo).setCooldown(((SkillInfo.IInfoCooldown) skillInfo).getCooldown() - 1);
+                    if (skillInfo instanceof InfoCooldown && ((InfoCooldown) skillInfo).hasCooldown()) {
+                        ((InfoCooldown) skillInfo).setCooldown(((InfoCooldown) skillInfo).getCooldown() - 1);
                     }
                 }
             });

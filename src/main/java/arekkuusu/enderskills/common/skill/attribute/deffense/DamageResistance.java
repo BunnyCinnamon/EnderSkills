@@ -1,12 +1,12 @@
 package arekkuusu.enderskills.common.skill.attribute.deffense;
 
 import arekkuusu.enderskills.api.capability.Capabilities;
+import arekkuusu.enderskills.api.configuration.DSLConfig;
+import arekkuusu.enderskills.api.configuration.parser.DSLParser;
 import arekkuusu.enderskills.api.helper.NBTHelper;
 import arekkuusu.enderskills.api.helper.XPHelper;
-import arekkuusu.enderskills.api.util.ConfigDSL;
-import arekkuusu.enderskills.client.gui.data.ISkillAdvancement;
+import arekkuusu.enderskills.client.gui.data.SkillAdvancement;
 import arekkuusu.enderskills.client.util.helper.TextHelper;
-import arekkuusu.enderskills.common.CommonConfig;
 import arekkuusu.enderskills.common.lib.LibMod;
 import arekkuusu.enderskills.common.lib.LibNames;
 import arekkuusu.enderskills.common.skill.attribute.AttributeInfo;
@@ -25,7 +25,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 import java.util.List;
 
-public class DamageResistance extends BaseAttribute implements ISkillAdvancement {
+public class DamageResistance extends BaseAttribute {
 
     public DamageResistance() {
         super(LibNames.DAMAGE_RESISTANCE, new BaseProperties());
@@ -56,7 +56,7 @@ public class DamageResistance extends BaseAttribute implements ISkillAdvancement
     }
 
     public int getTopLevel() {
-        return this.config.top_level;
+        return this.config.limit_level;
     }
 
     public float getModifier(AttributeInfo info) {
@@ -114,7 +114,7 @@ public class DamageResistance extends BaseAttribute implements ISkillAdvancement
 
     /*Config Section*/
     public static final String CONFIG_FILE = LibNames.ATTRIBUTE_DEFENSE_FOLDER + LibNames.DAMAGE_RESISTANCE;
-    public ConfigDSL.Config config = new ConfigDSL.Config();
+    public DSLConfig config = new DSLConfig();
 
     @Override
     public void initSyncConfig() {
@@ -136,7 +136,7 @@ public class DamageResistance extends BaseAttribute implements ISkillAdvancement
 
     @Override
     public void sigmaDic() {
-        this.config = ConfigDSL.parse(Configuration.CONFIG_SYNC.dsl);
+        this.config = DSLParser.parse(Configuration.CONFIG_SYNC.dsl);
     }
 
     @Config(modid = LibMod.MOD_ID, name = CONFIG_FILE)

@@ -1,13 +1,12 @@
 package arekkuusu.enderskills.common.skill.attribute.mobility;
 
 import arekkuusu.enderskills.api.capability.Capabilities;
+import arekkuusu.enderskills.api.configuration.DSL;
+import arekkuusu.enderskills.api.configuration.DSLDefaults;
+import arekkuusu.enderskills.api.configuration.DSLFactory;
 import arekkuusu.enderskills.api.event.SkillActionableEvent;
 import arekkuusu.enderskills.api.event.SkillActivateEvent;
-import arekkuusu.enderskills.api.helper.NBTHelper;
 import arekkuusu.enderskills.api.registry.Skill;
-import arekkuusu.enderskills.api.util.ConfigDSL;
-import arekkuusu.enderskills.client.gui.data.ISkillAdvancement;
-import arekkuusu.enderskills.client.util.helper.TextHelper;
 import arekkuusu.enderskills.common.CommonConfig;
 import arekkuusu.enderskills.common.lib.LibMod;
 import arekkuusu.enderskills.common.lib.LibNames;
@@ -18,16 +17,12 @@ import arekkuusu.enderskills.common.skill.ability.BaseAbility;
 import arekkuusu.enderskills.common.skill.attribute.AttributeInfo;
 import arekkuusu.enderskills.common.skill.attribute.BaseAttribute;
 import com.google.common.collect.ImmutableMap;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.ai.attributes.IAttribute;
 import net.minecraft.entity.ai.attributes.RangedAttribute;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Config;
 import net.minecraftforge.common.util.Constants;
@@ -36,15 +31,12 @@ import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-public class Endurance extends BaseAttribute implements ISkillAdvancement {
+public class Endurance extends BaseAttribute {
 
     //Vanilla Attribute
     public static final IAttribute MAX_ENDURANCE = new RangedAttribute(null, "enderskills.generic.maxEndurance", 0F, 0F, Float.MAX_VALUE).setDescription("Max Endurance").setShouldWatch(true);
@@ -62,10 +54,8 @@ public class Endurance extends BaseAttribute implements ISkillAdvancement {
             Constants.AttributeModifierOperation.ADD);
 
     public Endurance() {
-        super(LibNames.ENDURANCE, new BaseProperties());
+        super(LibNames.ENDURANCE, new Properties());
         MinecraftForge.EVENT_BUS.register(this);
-        ((BaseProperties) getProperties()).setMaxLevelGetter(this::getMaxLevel);
-        ((BaseProperties) getProperties()).setTopLevelGetter(this::getTopLevel);
     }
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
@@ -77,7 +67,7 @@ public class Endurance extends BaseAttribute implements ISkillAdvancement {
             if (capability.isOwned(this)) {
                 capability.getOwned(this).ifPresent(skillInfo -> {
                     AttributeInfo attributeInfo = (AttributeInfo) skillInfo;
-                    ENDURANCE_ATTRIBUTE.apply(entity, getModifier(attributeInfo));
+                    ENDURANCE_ATTRIBUTE.apply(entity, DSLDefaults.getModifier(this, attributeInfo.getLevel()));
                 });
             } else {
                 if (ENDURANCE_ATTRIBUTE.remove(entity)) {
@@ -118,12 +108,12 @@ public class Endurance extends BaseAttribute implements ISkillAdvancement {
                     capability.setEnduranceDelay(capability.getEnduranceDelay() - 1);
                 } else if (capability.getEndurance() < maxEndurance) {
                     double[] a = {CommonConfig.getSyncValues().skill.enduranceRegen};
-                    Capabilities.get(event.getEntityLiving()).flatMap(aaa -> aaa.getOwned(this)).ifPresent(iii -> a[0] = getRegen((AttributeInfo) iii));
+                    Capabilities.get(event.getEntityLiving()).flatMap(aaa -> aaa.getOwned(this)).ifPresent(iii -> a[0] = DSLDefaults.getRegen(this, ((AttributeInfo) iii).getLevel()));
                     capability.setEnduranceDelay(a[0]); //Every half a second
                     capability.setEndurance(Math.min(capability.getEndurance() + (maxEndurance / (maxEndurance - capability.getEndurance())), maxEndurance));
                 } else if (capability.getEndurance() > maxEndurance) {
                     double[] a = {CommonConfig.getSyncValues().skill.enduranceRegen};
-                    Capabilities.get(event.getEntityLiving()).flatMap(aaa -> aaa.getOwned(this)).ifPresent(iii -> a[0] = getRegen((AttributeInfo) iii));
+                    Capabilities.get(event.getEntityLiving()).flatMap(aaa -> aaa.getOwned(this)).ifPresent(iii -> a[0] = DSLDefaults.getRegen(this, ((AttributeInfo) iii).getLevel()));
                     capability.setEnduranceDelay(a[0]); //Every half a second
                     capability.setEndurance(Math.max(capability.getEndurance() - (capability.getEndurance() / maxEndurance), 0D));
                 }
@@ -131,7 +121,7 @@ public class Endurance extends BaseAttribute implements ISkillAdvancement {
                     PacketHelper.sendEnduranceSync((EntityPlayerMP) event.getEntityLiving());
                 }
             });
-            ENDURANCE_DEFAULT_ATTRIBUTE.apply(event.getEntityLiving(), Configuration.CONFIG_SYNC.endurance);
+            ENDURANCE_DEFAULT_ATTRIBUTE.apply(event.getEntityLiving(), Configuration.LOCAL_VALUES.endurance);
         }
     }
 
@@ -140,7 +130,8 @@ public class Endurance extends BaseAttribute implements ISkillAdvancement {
         if (isClientWorld(event.getEntityLiving()) || event.isCanceled()) return;
         EntityLivingBase entity = event.getEntityLiving();
         Capabilities.endurance(entity).ifPresent(capability -> {
-            int level = Capabilities.get(entity).flatMap(a -> a.getOwned(this)).map(a -> a instanceof AbilityInfo ? ((AbilityInfo) a).getLevel() : a instanceof AttributeInfo ? ((AttributeInfo) a).getLevel() : 0).orElse(0);            if (hasEnduranceDrain(event.getSkill(), level)) {
+            int level = Capabilities.get(entity).flatMap(a -> a.getOwned(this)).map(a -> a instanceof AbilityInfo ? ((AbilityInfo) a).getLevel() : a instanceof AttributeInfo ? ((AttributeInfo) a).getLevel() : 0).orElse(0);
+            if (hasEnduranceDrain(event.getSkill(), level)) {
                 int enduranceNeeded = getEnduranceDrain(event.getSkill(), level);
                 if (entity instanceof EntityPlayer && ((EntityPlayer) entity).capabilities.isCreativeMode) {
                     enduranceNeeded = 0;
@@ -168,7 +159,7 @@ public class Endurance extends BaseAttribute implements ISkillAdvancement {
                     return;
                 }
                 double[] a = {CommonConfig.getSyncValues().skill.enduranceDelay};
-                Capabilities.get(entity).flatMap(aaa -> aaa.getOwned(this)).ifPresent(iii -> a[0] = getDelay((AttributeInfo) iii));
+                Capabilities.get(entity).flatMap(aaa -> aaa.getOwned(this)).ifPresent(iii -> a[0] = DSLDefaults.getDelay(this, ((AttributeInfo) iii).getLevel()));
                 capability.drain(enduranceNeeded, a[0]);
                 if (entity instanceof EntityPlayerMP) {
                     PacketHelper.sendEnduranceSync((EntityPlayerMP) entity);
@@ -183,138 +174,26 @@ public class Endurance extends BaseAttribute implements ISkillAdvancement {
 
     public int getEnduranceDrain(Skill skill, int lvl) {
         if (skill instanceof BaseAbility) {
-            int endurance = ((BaseAbility) skill).getEndurance(lvl);
-            if(endurance == 0) {
+            int endurance = DSLDefaults.getEndurance(skill, lvl);
+            if (endurance == 0) {
                 String skillRegistryName = Objects.requireNonNull(skill.getRegistryName()).toString();
-                endurance = Configuration.CONFIG_SYNC.enduranceMap.getOrDefault(skillRegistryName, 0);
+                endurance = Configuration.LOCAL_VALUES.enduranceMap.getOrDefault(skillRegistryName, 0);
             }
             return endurance;
         }
-        
+
         return 0;
     }
 
-    public int getMaxLevel() {
-        return this.config.max_level;
-    }
-
-    public int getTopLevel() {
-        return this.config.top_level;
-    }
-
-    public float getModifier(AttributeInfo info) {
-        return (float) this.config.get(this, "MODIFIER", info.getLevel());
-    }
-
-    public float getDelay(AttributeInfo info) {
-        return (float) this.config.get(this, "DELAY", info.getLevel());
-    }
-
-    public float getRegen(AttributeInfo info) {
-        return (float) this.config.get(this, "REGEN", info.getLevel());
-    }
-
-    /*Advancement Section*/
-    @Override
-    @SideOnly(Side.CLIENT)
-    public void addDescription(List<String> description) {
-        Capabilities.get(Minecraft.getMinecraft().player).ifPresent(c -> {
-            if (c.isOwned(this)) {
-                if (!GuiScreen.isShiftKeyDown()) {
-                    description.add("");
-                    description.add(TextHelper.translate("desc.stats.shift"));
-                } else {
-                    c.getOwned(this).ifPresent(skillInfo -> {
-                        AttributeInfo attributeInfo = (AttributeInfo) skillInfo;
-                        description.clear();
-                        if (attributeInfo.getLevel() >= getMaxLevel()) {
-                            description.add(TextHelper.translate("desc.stats.level_max"));
-                        } else {
-                            description.add(TextHelper.translate("desc.stats.level_current", attributeInfo.getLevel(), attributeInfo.getLevel() + 1));
-                        }
-                        description.add(TextHelper.translate("desc.stats.boost", TextHelper.format2FloatPoint(getModifier(attributeInfo))));
-                        if (attributeInfo.getLevel() < getMaxLevel()) {
-                            if (!GuiScreen.isCtrlKeyDown()) {
-                                description.add("");
-                                description.add(TextHelper.translate("desc.stats.ctrl"));
-                            } else { //Copy info and set a higher level...
-                            AttributeInfo infoNew = new AttributeInfo(attributeInfo.serializeNBT());
-                            infoNew.setLevel(infoNew.getLevel() + 1);
-                            description.add("");
-                            description.add(TextHelper.translate("desc.stats.level_next", attributeInfo.getLevel(), infoNew.getLevel()));
-                            description.add(TextHelper.translate("desc.stats.boost", TextHelper.format2FloatPoint(getModifier(infoNew))));
-                            }
-                        }
-                    });
-                }
-            }
-        });
-    }
-
-    @Override
-    public double getExperience(int lvl) {
-        return this.config.get(this, "XP", lvl);
-    }
-
-    @Override
-    public int getEndurance(int lvl) {
-        return (int) this.config.get(this, "ENDURANCE", lvl);
-    }
-    /*Advancement Section*/
-
     /*Config Section*/
     public static final String CONFIG_FILE = LibNames.ATTRIBUTE_MOBILITY_FOLDER + LibNames.ENDURANCE;
-    public ConfigDSL.Config config = new ConfigDSL.Config();
 
-    @Override
-    public void initSyncConfig() {
-        Configuration.CONFIG_SYNC.dsl = Configuration.CONFIG.dsl;
-        Configuration.CONFIG_SYNC.endurance = Configuration.CONFIG.endurance;
-        Configuration.CONFIG_SYNC.enduranceMap = new HashMap<>(Configuration.CONFIG.enduranceMap);
-        this.sigmaDic();
-    }
-
-    @Override
-    public void writeSyncConfig(NBTTagCompound compound) {
-        NBTHelper.setArray(compound, "config", Configuration.CONFIG.dsl);
-        initSyncConfig();
-        compound.setDouble("endurance", Configuration.CONFIG.endurance);
-        NBTTagList list = new NBTTagList();
-        for (Map.Entry<String, Integer> entry : Configuration.CONFIG.enduranceMap.entrySet()) {
-            NBTTagCompound nbt = new NBTTagCompound();
-            NBTHelper.setString(nbt, "skill", entry.getKey());
-            NBTHelper.setInteger(nbt, "cost", entry.getValue());
-            list.appendTag(nbt);
-        }
-        compound.setTag("extra.enduranceMap", list);
-    }
-
-    @Override
-    public void readSyncConfig(NBTTagCompound compound) {
-        Configuration.CONFIG_SYNC.dsl = NBTHelper.getArray(compound, "config");
-        sigmaDic();
-        Configuration.CONFIG_SYNC.endurance = compound.getDouble("endurance");
-        NBTTagList list = compound.getTagList("extra.enduranceMap", Constants.NBT.TAG_COMPOUND);
-        Configuration.CONFIG_SYNC.enduranceMap.clear();
-        for (int i = 0; i < list.tagCount(); i++) {
-            NBTTagCompound nbt = list.getCompoundTagAt(i);
-            String skill = nbt.getString("skill");
-            Integer cost = nbt.getInteger("cost");
-            Configuration.CONFIG_SYNC.enduranceMap.put(skill, cost);
-        }
-    }
-
-    @Override
-    public void sigmaDic() {
-        this.config = ConfigDSL.parse(Configuration.CONFIG_SYNC.dsl);
-    }
-
-    @Config(modid = LibMod.MOD_ID, name = CONFIG_FILE)
+    @Config(modid = LibMod.MOD_ID, name = Endurance.CONFIG_FILE)
     public static class Configuration {
 
         @Config.Ignore
-        public static Configuration.Values CONFIG_SYNC = new Configuration.Values();
-        public static Configuration.Values CONFIG = new Configuration.Values();
+        public static Configuration.Values LOCAL_VALUES = new Configuration.Values();
+        public static Configuration.Values VALUES = new Configuration.Values();
 
         public static class Values {
             @Config.Comment("Default start endurance")
@@ -401,52 +280,9 @@ public class Endurance extends BaseAttribute implements ISkillAdvancement {
                     .put(LibMod.MOD_ID + ":" + LibNames.FINAL_FLASH, 20)
                     .build()
             );
-
-            public String[] dsl = {
-                    "",
-                    "┌ v1.0",
-                    "│ ",
-                    "├ min_level: 0",
-                    "├ max_level: infinite",
-                    "└ ",
-                    "",
-                    "┌ MODIFIER (",
-                    "│     shape: flat",
-                    "│     min: 0e",
-                    "│     max: infinite",
-                    "│ ",
-                    "│     {0} [",
-                    "│         shape: multiply 1e",
-                    "│     ]",
-                    "└ )",
-                    "",
-                    "┌ DELAY (",
-                    "│     shape: none",
-                    "│     value: 5s",
-                    "└ )",
-                    "",
-                    "┌ REGEN (",
-                    "│     shape: none",
-                    "│     value: 0.5s",
-                    "└ )",
-                    "",
-                    "┌ XP (",
-                    "│     shape: flat",
-                    "│     min: 0",
-                    "│     max: infinite",
-                    "│ ",
-                    "│     {0} [",
-                    "│         shape: none",
-                    "│         return: 69",
-                    "│     ]",
-                    "│ ",
-                    "│     {1} [",
-                    "│         shape: solve for 5 + 14 * {level}",
-                    "│     ]",
-                    "└ )",
-                    "",
-            };
         }
+
+        public static DSL CONFIG = DSLFactory.create(Endurance.CONFIG_FILE);
     }
     /*Config Section*/
 }

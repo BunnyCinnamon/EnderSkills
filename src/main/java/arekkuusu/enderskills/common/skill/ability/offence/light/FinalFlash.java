@@ -3,15 +3,16 @@ package arekkuusu.enderskills.common.skill.ability.offence.light;
 import arekkuusu.enderskills.api.capability.Capabilities;
 import arekkuusu.enderskills.api.capability.data.SkillData;
 import arekkuusu.enderskills.api.capability.data.SkillInfo;
-import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoCooldown;
+import arekkuusu.enderskills.api.capability.data.InfoCooldown;
+import arekkuusu.enderskills.api.configuration.DSLConfig;
+import arekkuusu.enderskills.api.configuration.parser.DSLParser;
 import arekkuusu.enderskills.api.event.SkillDamageEvent;
 import arekkuusu.enderskills.api.event.SkillDamageSource;
 import arekkuusu.enderskills.api.helper.NBTHelper;
 import arekkuusu.enderskills.api.registry.Skill;
-import arekkuusu.enderskills.api.util.ConfigDSL;
 import arekkuusu.enderskills.api.util.Quat;
 import arekkuusu.enderskills.api.util.Vector;
-import arekkuusu.enderskills.client.gui.data.ISkillAdvancement;
+import arekkuusu.enderskills.client.gui.data.SkillAdvancement;
 import arekkuusu.enderskills.client.util.helper.TextHelper;
 import arekkuusu.enderskills.common.CommonConfig;
 import arekkuusu.enderskills.common.entity.data.IExpand;
@@ -39,18 +40,16 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 import java.util.List;
 
-public class FinalFlash extends BaseAbility implements IScanEntities, IExpand, ISkillAdvancement {
+public class FinalFlash extends BaseAbility implements IScanEntities, IExpand, SkillAdvancement {
 
     public FinalFlash() {
-        super(LibNames.FINAL_FLASH, new AbilityProperties());
-        ((AbilityProperties) getProperties()).setCooldownGetter(this::getCooldown).setMaxLevelGetter(this::getMaxLevel);
-        ((AbilityProperties) getProperties()).setCooldownGetter(this::getCooldown).setTopLevelGetter(this::getTopLevel);
+        super(LibNames.FINAL_FLASH, new Properties());
         MinecraftForge.EVENT_BUS.register(this);
     }
 
     @Override
     public void use(EntityLivingBase owner, SkillInfo skillInfo) {
-        if (((IInfoCooldown) skillInfo).hasCooldown() || isClientWorld(owner)) return;
+        if (((InfoCooldown) skillInfo).hasCooldown() || isClientWorld(owner)) return;
         AbilityInfo abilityInfo = (AbilityInfo) skillInfo;
 
         if (isActionable(owner) && canActivate(owner)) {
@@ -84,7 +83,7 @@ public class FinalFlash extends BaseAbility implements IScanEntities, IExpand, I
             spawn.setRange(range);
             spawn.setRadius(size);
             owner.world.spawnEntity(spawn);
-            sync(owner);
+            super.sync(owner);
         }
     }
 
@@ -108,7 +107,7 @@ public class FinalFlash extends BaseAbility implements IScanEntities, IExpand, I
     }
 
     public int getTopLevel() {
-        return this.config.top_level;
+        return this.config.limit_level;
     }
 
     public double getDoT(AbilityInfo info) {
@@ -203,7 +202,7 @@ public class FinalFlash extends BaseAbility implements IScanEntities, IExpand, I
 
     /*Config Section*/
     public static final String CONFIG_FILE = LibNames.LIGHT_OFFENCE_CONFIG + LibNames.FINAL_FLASH;
-    public ConfigDSL.Config config = new ConfigDSL.Config();
+    public DSLConfig config = new DSLConfig();
 
     @Override
     public void initSyncConfig() {
@@ -225,7 +224,7 @@ public class FinalFlash extends BaseAbility implements IScanEntities, IExpand, I
 
     @Override
     public void sigmaDic() {
-        this.config = ConfigDSL.parse(Configuration.CONFIG_SYNC.dsl);
+        this.config = DSLParser.parse(Configuration.CONFIG_SYNC.dsl);
     }
 
     @Config(modid = LibMod.MOD_ID, name = CONFIG_FILE)

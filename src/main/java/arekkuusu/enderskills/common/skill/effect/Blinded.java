@@ -17,7 +17,7 @@ public class Blinded extends BaseEffect {
                 .with(5)
                 .overrides(SkillData.Overrides.EQUAL)
                 .create();
-        apply(entity, status);
+       super.apply(entity, status);
         sync(entity, status);
     }
 }

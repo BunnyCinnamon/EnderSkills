@@ -1,6 +1,3 @@
-import groovy.json.JsonOutput
-import groovy.json.JsonSlurper
-
 buildscript {
     repositories {
         maven { url = 'https://maven.minecraftforge.net/' }
@@ -60,9 +57,10 @@ repositories {
 
 dependencies {
     minecraft 'net.minecraftforge:forge:1.12.2-14.23.5.2860'
-    implementation 'org.codehaus.groovy:groovy-json:3.0.9'
 
     compileOnly (name: "EventHelper-1.12.2-2.6.2-dev")
+    compile (name: "com.expression.parser-2.0.0")
+    implementation (name: "com.expression.parser-2.0.0")
     shadow(name: 'com.expression.parser-2.0.0')
 }
 

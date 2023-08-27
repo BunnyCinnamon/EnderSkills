@@ -3,13 +3,14 @@ package arekkuusu.enderskills.common.skill.ability.mobility.wind;
 import arekkuusu.enderskills.api.capability.Capabilities;
 import arekkuusu.enderskills.api.capability.data.SkillData;
 import arekkuusu.enderskills.api.capability.data.SkillInfo;
-import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoCooldown;
+import arekkuusu.enderskills.api.capability.data.InfoCooldown;
+import arekkuusu.enderskills.api.configuration.DSLConfig;
+import arekkuusu.enderskills.api.configuration.parser.DSLParser;
 import arekkuusu.enderskills.api.event.SkillActivateEvent;
 import arekkuusu.enderskills.api.event.SkillDamageSource;
 import arekkuusu.enderskills.api.helper.NBTHelper;
 import arekkuusu.enderskills.api.registry.Skill;
-import arekkuusu.enderskills.api.util.ConfigDSL;
-import arekkuusu.enderskills.client.gui.data.ISkillAdvancement;
+import arekkuusu.enderskills.client.gui.data.SkillAdvancement;
 import arekkuusu.enderskills.client.util.helper.TextHelper;
 import arekkuusu.enderskills.common.lib.LibMod;
 import arekkuusu.enderskills.common.lib.LibNames;
@@ -39,18 +40,16 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 import java.util.List;
 
-public class Fog extends BaseAbility implements ISkillAdvancement {
+public class Fog extends BaseAbility {
 
     public Fog() {
-        super(LibNames.FOG, new AbilityProperties());
-        ((AbilityProperties) getProperties()).setCooldownGetter(this::getCooldown).setMaxLevelGetter(this::getMaxLevel);
-        ((AbilityProperties) getProperties()).setCooldownGetter(this::getCooldown).setTopLevelGetter(this::getTopLevel);
+        super(LibNames.FOG, new Properties());
         MinecraftForge.EVENT_BUS.register(this);
     }
 
     @Override
     public void use(EntityLivingBase owner, SkillInfo skillInfo) {
-        if (((IInfoCooldown) skillInfo).hasCooldown() || isClientWorld(owner)) return;
+        if (((InfoCooldown) skillInfo).hasCooldown() || isClientWorld(owner)) return;
         AbilityInfo abilityInfo = (AbilityInfo) skillInfo;
 
         if (isActionable(owner) && canActivate(owner)) {
@@ -66,9 +65,9 @@ public class Fog extends BaseAbility implements ISkillAdvancement {
                     .put(compound)
                     .overrides(SkillData.Overrides.EQUAL)
                     .create();
-            apply(owner, data);
-            sync(owner, data);
-            sync(owner);
+           super.apply(owner, data);
+            super.sync(owner, data);
+            super.sync(owner);
         }
     }
 
@@ -104,7 +103,7 @@ public class Fog extends BaseAbility implements ISkillAdvancement {
         if (source.getTrueSource() == null || source instanceof SkillDamageSource || source.getImmediateSource() != source.getTrueSource())
             return;
         SkillHelper.getActiveFrom(event.getEntityLiving(), this).ifPresent(data -> {
-            unapply(event.getEntityLiving(), data);
+           super.unapply(event.getEntityLiving(), data);
             async(event.getEntityLiving(), data);
         });
     }
@@ -113,7 +112,7 @@ public class Fog extends BaseAbility implements ISkillAdvancement {
     public void onSkillUse(SkillActivateEvent event) {
         if (isClientWorld(event.getEntityLiving())) return;
         SkillHelper.getActiveFrom(event.getEntityLiving(), this).ifPresent(data -> {
-            unapply(event.getEntityLiving(), data);
+           super.unapply(event.getEntityLiving(), data);
             async(event.getEntityLiving(), data);
         });
     }
@@ -123,7 +122,7 @@ public class Fog extends BaseAbility implements ISkillAdvancement {
     }
 
     public int getTopLevel() {
-        return this.config.top_level;
+        return this.config.limit_level;
     }
 
     public int getCooldown(AbilityInfo info) {
@@ -194,7 +193,7 @@ public class Fog extends BaseAbility implements ISkillAdvancement {
 
     /*Config Section*/
     public static final String CONFIG_FILE = LibNames.WIND_MOBILITY_CONFIG + LibNames.FOG;
-    public ConfigDSL.Config config = new ConfigDSL.Config();
+    public DSLConfig config = new DSLConfig();
 
     @Override
     public void initSyncConfig() {
@@ -216,7 +215,7 @@ public class Fog extends BaseAbility implements ISkillAdvancement {
 
     @Override
     public void sigmaDic() {
-        this.config = ConfigDSL.parse(Configuration.CONFIG_SYNC.dsl);
+        this.config = DSLParser.parse(Configuration.CONFIG_SYNC.dsl);
     }
 
     @Config(modid = LibMod.MOD_ID, name = CONFIG_FILE)

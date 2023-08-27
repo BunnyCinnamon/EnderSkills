@@ -3,11 +3,12 @@ package arekkuusu.enderskills.common.skill.ability.mobility.wind;
 import arekkuusu.enderskills.api.capability.Capabilities;
 import arekkuusu.enderskills.api.capability.data.SkillData;
 import arekkuusu.enderskills.api.capability.data.SkillInfo;
-import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoCooldown;
+import arekkuusu.enderskills.api.capability.data.InfoCooldown;
+import arekkuusu.enderskills.api.configuration.DSLConfig;
+import arekkuusu.enderskills.api.configuration.parser.DSLParser;
 import arekkuusu.enderskills.api.helper.NBTHelper;
 import arekkuusu.enderskills.api.registry.Skill;
-import arekkuusu.enderskills.api.util.ConfigDSL;
-import arekkuusu.enderskills.client.gui.data.ISkillAdvancement;
+import arekkuusu.enderskills.client.gui.data.SkillAdvancement;
 import arekkuusu.enderskills.client.keybind.KeyBounds;
 import arekkuusu.enderskills.client.util.helper.TextHelper;
 import arekkuusu.enderskills.common.entity.data.IExpand;
@@ -49,17 +50,15 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import javax.annotation.Nullable;
 import java.util.List;
 
-public class Smash extends BaseAbility implements IScanEntities, IExpand, IFindEntity, ISkillAdvancement {
+public class Smash extends BaseAbility implements IScanEntities, IExpand, IFindEntity, SkillAdvancement {
 
     public Smash() {
-        super(LibNames.SMASH, new AbilityProperties() {
+        super(LibNames.SMASH, new Properties() {
             @Override
             public boolean isKeyBound() {
                 return false;
             }
         });
-        ((AbilityProperties) getProperties()).setCooldownGetter(this::getCooldown).setMaxLevelGetter(this::getMaxLevel);
-        ((AbilityProperties) getProperties()).setCooldownGetter(this::getCooldown).setTopLevelGetter(this::getTopLevel);
         MinecraftForge.EVENT_BUS.register(this);
     }
 
@@ -68,7 +67,7 @@ public class Smash extends BaseAbility implements IScanEntities, IExpand, IFindE
         if (isClientWorld(owner) || (owner instanceof EntityPlayer && ((EntityPlayer) owner).capabilities.isCreativeMode))
             return;
         AbilityInfo abilityInfo = (AbilityInfo) skillInfo;
-        if (!owner.onGround && !((IInfoCooldown) skillInfo).hasCooldown() && isActionable(owner) && canActivate(owner)) {
+        if (!owner.onGround && !((InfoCooldown) skillInfo).hasCooldown() && isActionable(owner) && canActivate(owner)) {
             abilityInfo.setCooldown(getCooldown(abilityInfo));
             double range = arekkuusu.enderskills.api.event.SkillRangeEvent.getRange(owner, this, getRange(abilityInfo));;
             int time = (int) arekkuusu.enderskills.api.event.SkillDurationEvent.getDuration(owner, this, getTime(abilityInfo));;
@@ -83,9 +82,9 @@ public class Smash extends BaseAbility implements IScanEntities, IExpand, IFindE
                     .put(compound)
                     .overrides(SkillData.Overrides.EQUAL)
                     .create();
-            apply(owner, data);
-            sync(owner, data);
-            sync(owner);
+           super.apply(owner, data);
+            super.sync(owner, data);
+            super.sync(owner);
         }
     }
 
@@ -113,8 +112,8 @@ public class Smash extends BaseAbility implements IScanEntities, IExpand, IFindE
     @Override
     public void update(EntityLivingBase owner, SkillData data, int tick) {
         if (!isClientWorld(owner) && owner.onGround) {
-            unapply(owner, data);
-            async(owner, data);
+           super.unapply(owner, data);
+            super.async(owner, data);
         }
         if (owner.motionY < 0D) {
             owner.motionY *= 1.05D;
@@ -141,8 +140,8 @@ public class Smash extends BaseAbility implements IScanEntities, IExpand, IFindE
             spawn.setPosition(owner.posX, owner.posY, owner.posZ);
             spawn.setRadius(range);
             owner.world.spawnEntity(spawn);
-            unapply(owner, data);
-            async(owner, data);
+           super.unapply(owner, data);
+            super.async(owner, data);
         });
     }
 
@@ -170,7 +169,7 @@ public class Smash extends BaseAbility implements IScanEntities, IExpand, IFindE
     }
 
     public int getTopLevel() {
-        return this.config.top_level;
+        return this.config.limit_level;
     }
 
     public double getRange(AbilityInfo info) {
@@ -247,7 +246,7 @@ public class Smash extends BaseAbility implements IScanEntities, IExpand, IFindE
 
     /*Config Section*/
     public static final String CONFIG_FILE = LibNames.WIND_MOBILITY_CONFIG + LibNames.SMASH;
-    public ConfigDSL.Config config = new ConfigDSL.Config();
+    public DSLConfig config = new DSLConfig();
 
     @Override
     public void initSyncConfig() {
@@ -269,7 +268,7 @@ public class Smash extends BaseAbility implements IScanEntities, IExpand, IFindE
 
     @Override
     public void sigmaDic() {
-        this.config = ConfigDSL.parse(Configuration.CONFIG_SYNC.dsl);
+        this.config = DSLParser.parse(Configuration.CONFIG_SYNC.dsl);
     }
 
     @Config(modid = LibMod.MOD_ID, name = CONFIG_FILE)

@@ -4,6 +4,7 @@ import arekkuusu.enderskills.api.capability.Capabilities;
 import arekkuusu.enderskills.api.capability.data.SkillData;
 import arekkuusu.enderskills.api.helper.NBTHelper;
 import arekkuusu.enderskills.api.registry.Skill;
+import arekkuusu.enderskills.common.entity.EntityStoneGolem;
 import arekkuusu.enderskills.common.skill.ability.BaseAbility;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
@@ -36,6 +37,11 @@ public final class SkillHelper {
 
     public static Optional<SkillData> getActiveFrom(Entity owner, Skill skill) {
         return SkillHelper.getActive(owner, skill, owner.getUniqueID().toString());
+    }
+
+    public static <T extends Entity> Optional<T> getActiveEntityFrom(Entity owner, Skill skill, Class<T> clss, String name) {
+        return SkillHelper.getActive(owner, skill, owner.getUniqueID().toString())
+                .flatMap(data -> Optional.ofNullable(NBTHelper.getEntity(clss, data.nbt, name)));
     }
 
     public static Optional<SkillData> getActive(Entity owner, Skill skill, String id) {

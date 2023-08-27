@@ -1,72 +1,56 @@
 package arekkuusu.enderskills.api.helper;
 
 import arekkuusu.enderskills.api.EnderSkillsAPI;
-import arekkuusu.enderskills.api.registry.Skill;
+import arekkuusu.enderskills.api.util.Pair;
+import arekkuusu.enderskills.api.util.Triple;
 import com.expression.parser.Parser;
 import com.expression.parser.util.ParserResult;
 import com.expression.parser.util.Point;
-import it.unimi.dsi.fastutil.ints.Int2DoubleArrayMap;
-import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
-import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.Tuple;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class ExpressionHelper {
 
-    public static final Function<Tuple<ResourceLocation, String>, Int2DoubleArrayMap> EXPRESSION_CACHE_SUPPLIER = (s) -> new Int2DoubleArrayMap();
-    public static final Function<ResourceLocation, Object2ObjectArrayMap<String, FunctionInfo>> EXPRESSION_FUNCTION_CACHE_SUPPLIER = (s) -> new Object2ObjectArrayMap<>();
-
-    public static final Function<String, FunctionInfo> EXPRESSION_PARSER_SUPPLIER = ExpressionHelper::parse;
     public static final String EXPRESSION_REGEX = "^\\(([\\+\\-\\d]+)\\)\\{(.+)\\}$";
 
-    public static double getExpression(Skill skill, String function, int min, int max) {
-        return getExpression(skill.getRegistryName(), function, min, max);
-    }
-
-    public static double getExpression(Skill skill, String[] functionArray, int min, int max) {
-        return getExpression(skill.getRegistryName(), functionArray, min, max);
-    }
-
     public static double getExpression(ResourceLocation location, String function, int min, int max, int level) {
-        Int2DoubleArrayMap cache = EnderSkillsAPI.EXPRESSION_CACHE.asMap().computeIfAbsent(new Tuple<>(location, function), ExpressionHelper.EXPRESSION_CACHE_SUPPLIER);
+        Triple<ResourceLocation, String, Integer> key = new Triple<>(location, function, level);
         if (min > max) min = max;
-        if (!cache.containsKey(level)) {
+        if (!EnderSkillsAPI.EXPRESSION_CACHE.asMap().containsKey(key)) {
             List<Point> points = new ArrayList<>();
             points.add(new Point("x", String.valueOf(min)));
             points.add(new Point("y", String.valueOf(max)));
             points.add(new Point("l", String.valueOf(level)));
             ParserResult result = Parser.eval(function, points.toArray(new Point[]{}));
-            cache.put(level, result.getValue().doubleValue());
+            EnderSkillsAPI.EXPRESSION_CACHE.put(key, result.getValue());
         }
-        return cache.get(level);
+        return EnderSkillsAPI.EXPRESSION_CACHE.asMap().get(key);
     }
 
     public static double getExpression(ResourceLocation location, String function, int min, int max) {
-        Int2DoubleArrayMap cache = EnderSkillsAPI.EXPRESSION_CACHE.asMap().computeIfAbsent(new Tuple<>(location, function), ExpressionHelper.EXPRESSION_CACHE_SUPPLIER);
+        Triple<ResourceLocation, String, Integer> key = new Triple<>(location, function, min);
         if (min > max) min = max;
-        if (!cache.containsKey(min)) {
+        if (!EnderSkillsAPI.EXPRESSION_CACHE.asMap().containsKey(key)) {
             Point x = new Point("x", String.valueOf(min));
             Point y = new Point("y", String.valueOf(max));
             ParserResult result = Parser.eval(function, x, y);
-            cache.put(min, result.getValue().doubleValue());
+            EnderSkillsAPI.EXPRESSION_CACHE.put(key, result.getValue());
         }
-        return cache.get(min);
+        return EnderSkillsAPI.EXPRESSION_CACHE.asMap().get(key);
     }
 
     public static double getExpression(ResourceLocation location, String[] functionArray, int min, int max) {
-        Object2ObjectMap<String, FunctionInfo> cache = EnderSkillsAPI.EXPRESSION_FUNCTION_CACHE.asMap().computeIfAbsent(location, ExpressionHelper.EXPRESSION_FUNCTION_CACHE_SUPPLIER);
         FunctionInfo match = null;
         FunctionInfo temp = null;
         if (min > max) min = max;
-        for (String s : functionArray) {
-            FunctionInfo info = cache.computeIfAbsent(s, ExpressionHelper.EXPRESSION_PARSER_SUPPLIER);
+        for (String function : functionArray) {
+            Pair<ResourceLocation, String> key = new Pair<>(location, function);
+            FunctionInfo info = EnderSkillsAPI.EXPRESSION_FUNCTION_CACHE.asMap().computeIfAbsent(key, ignored -> parse(function));
             if (info.matches(min) && isNotOverride(temp, info, min)) {
                 match = info;
             }

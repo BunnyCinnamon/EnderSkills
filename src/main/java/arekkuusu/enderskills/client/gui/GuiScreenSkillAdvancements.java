@@ -527,10 +527,12 @@ public final class GuiScreenSkillAdvancements extends GuiScreen {
                 GuiScreenSkillAdvancements.confirmation = null;
             }
         } else if (keyCode == 203) {
-            this.selectedTab.tabPage = Math.max(this.selectedTab.tabPage - 1, 0);
+            if(this.selectedTab != null)
+                this.selectedTab.tabPage = Math.max(this.selectedTab.tabPage - 1, 0);
             Minecraft.getMinecraft().getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.UI_BUTTON_CLICK, 1.0F));
         } else if (keyCode == 205) {
-            this.selectedTab.tabPage = Math.min(this.selectedTab.tabPage + 1, this.selectedTab.maxPages - 1);
+            if(this.selectedTab != null)
+                this.selectedTab.tabPage = Math.min(this.selectedTab.tabPage + 1, this.selectedTab.maxPages - 1);
             Minecraft.getMinecraft().getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.UI_BUTTON_CLICK, 1.0F));
         }
         if (GuiScreenSkillAdvancements.confirmation != null) {

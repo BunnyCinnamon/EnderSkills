@@ -11,9 +11,9 @@ public class SkillDurationEvent extends Event {
 
     private final EntityLivingBase entity;
     private final Skill skill;
-    private double amount;
+    private int amount;
 
-    public SkillDurationEvent(@Nullable EntityLivingBase entity, Skill skill, double amount) {
+    public SkillDurationEvent(@Nullable EntityLivingBase entity, Skill skill, int amount) {
         this.entity = entity;
         this.skill = skill;
         this.amount = amount;
@@ -28,21 +28,17 @@ public class SkillDurationEvent extends Event {
         return skill;
     }
 
-    public double getAmount() {
+    public int getAmount() {
         return amount;
     }
 
-    public void setAmount(double value) {
+    public void setAmount(int value) {
         this.amount = value;
     }
 
-    public float toFloat() {
-        return (float) getAmount();
-    }
-
-    public static double getDuration(EntityLivingBase owner, Skill skill, double original) {
+    public static SkillDurationEvent trigger(EntityLivingBase owner, Skill skill, int original) {
         SkillDurationEvent event = new SkillDurationEvent(owner, skill, original);
         MinecraftForge.EVENT_BUS.post(event);
-        return event.getAmount();
+        return event;
     }
 }

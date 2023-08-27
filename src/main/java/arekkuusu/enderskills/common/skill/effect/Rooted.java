@@ -31,7 +31,7 @@ public class Rooted extends BaseEffect {
                 .put(data.nbt.copy(), data.watcher.copy())
                 .overrides(SkillData.Overrides.EQUAL)
                 .create();
-        apply(entity, status);
+       super.apply(entity, status);
         sync(entity, status);
     }
 }

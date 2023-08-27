@@ -1,11 +1,11 @@
 package arekkuusu.enderskills.common.skill.attribute.deffense;
 
 import arekkuusu.enderskills.api.capability.Capabilities;
+import arekkuusu.enderskills.api.configuration.DSLConfig;
 import arekkuusu.enderskills.api.helper.NBTHelper;
-import arekkuusu.enderskills.api.util.ConfigDSL;
-import arekkuusu.enderskills.client.gui.data.ISkillAdvancement;
+import arekkuusu.enderskills.api.configuration.parser.DSLParser;
+import arekkuusu.enderskills.client.gui.data.SkillAdvancement;
 import arekkuusu.enderskills.client.util.helper.TextHelper;
-import arekkuusu.enderskills.common.CommonConfig;
 import arekkuusu.enderskills.common.lib.LibMod;
 import arekkuusu.enderskills.common.lib.LibNames;
 import arekkuusu.enderskills.common.skill.DynamicModifier;
@@ -27,7 +27,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 import java.util.List;
 
-public class HeartBoost extends BaseAttribute implements ISkillAdvancement {
+public class HeartBoost extends BaseAttribute {
 
     public static final DynamicModifier HEALTH_ATTRIBUTE = new DynamicModifier(
             "b49606db-d189-4e63-a577-638b00c9d782",
@@ -64,7 +64,7 @@ public class HeartBoost extends BaseAttribute implements ISkillAdvancement {
     }
 
     public int getTopLevel() {
-        return this.config.top_level;
+        return this.config.limit_level;
     }
 
     public float getModifier(AttributeInfo info) {
@@ -122,7 +122,7 @@ public class HeartBoost extends BaseAttribute implements ISkillAdvancement {
 
     /*Config Section*/
     public static final String CONFIG_FILE = LibNames.ATTRIBUTE_DEFENSE_FOLDER + LibNames.HEART_BOOST;
-    public ConfigDSL.Config config = new ConfigDSL.Config();
+    public DSLConfig config = new DSLConfig();
 
     @Override
     public void initSyncConfig() {
@@ -144,7 +144,7 @@ public class HeartBoost extends BaseAttribute implements ISkillAdvancement {
 
     @Override
     public void sigmaDic() {
-        this.config = ConfigDSL.parse(Configuration.CONFIG_SYNC.dsl);
+        this.config = DSLParser.parse(Configuration.CONFIG_SYNC.dsl);
     }
 
     @Config(modid = LibMod.MOD_ID, name = CONFIG_FILE)

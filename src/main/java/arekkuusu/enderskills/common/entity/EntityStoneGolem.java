@@ -391,6 +391,10 @@ public class EntityStoneGolem extends EntityGolem {
         this.getEntityAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(health);
     }
 
+    public void spawnEntity() {
+        this.world.spawnEntity(this);
+    }
+
     public void readEntityFromNBT(NBTTagCompound compound) {
         super.readEntityFromNBT(compound);
         if (world != null && !world.isRemote) {

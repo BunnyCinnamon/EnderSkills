@@ -19,7 +19,6 @@ public class PotionAbilityPower extends PotionBase {
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public void onSkillDamage(SkillDamageEvent event) {
         if (event.getEntityLiving() == null) return;
-        if (event.getEntityLiving().world.isRemote) return;
         if (event.getAmount() <= 0 || !event.getSource().getDamageType().equals(BaseAbility.DAMAGE_HIT_TYPE)) return;
         EntityLivingBase entity = event.getEntityLiving();
         if (entity.isPotionActive(ModPotions.POTION_ABILITY_POWER_EFFECT)) {

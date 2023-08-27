@@ -3,6 +3,7 @@ package arekkuusu.enderskills.common.network;
 import arekkuusu.enderskills.api.capability.Capabilities;
 import arekkuusu.enderskills.api.capability.data.SkillData;
 import arekkuusu.enderskills.api.capability.data.SkillHolder;
+import arekkuusu.enderskills.api.configuration.network.ConfigSynchronizer;
 import arekkuusu.enderskills.api.helper.NBTHelper;
 import arekkuusu.enderskills.api.registry.Skill;
 import arekkuusu.enderskills.api.util.Vector;
@@ -30,26 +31,17 @@ import java.util.Objects;
 public final class PacketHelper {
 
     public static void sendConfigReload(EntityPlayerMP player) {
-        PacketHelper.sendGlobalConfigPacket(player);
-        IForgeRegistry<Skill> registry = GameRegistry.findRegistry(Skill.class);
-        for (Map.Entry<ResourceLocation, Skill> entry : registry.getEntries()) {
-            if (entry.getValue() instanceof IConfigSync) {
-                PacketHelper.sendConfigPacket(player, (Skill & IConfigSync) entry.getValue());
-            }
+        IForgeRegistry<ConfigSynchronizer> registry2 = GameRegistry.findRegistry(ConfigSynchronizer.class);
+        for (Map.Entry<ResourceLocation, ConfigSynchronizer> entry : registry2.getEntries()) {
+            PacketHelper.sendConfigPacket(player, entry.getValue());
         }
     }
 
-    private static void sendGlobalConfigPacket(EntityPlayerMP player) {
+    private static <T extends ConfigSynchronizer> void sendConfigPacket(EntityPlayerMP player, T configSynchronizer) {
         NBTTagCompound compound = new NBTTagCompound();
-        CommonConfig.writeSyncConfig(compound);
-        PacketHandler.NETWORK.sendTo(new ServerToClientPacket(PacketHandler.SYNC_GLOBAL_CONFIG, compound), player);
-    }
-
-    private static <T extends Skill & IConfigSync> void sendConfigPacket(EntityPlayerMP player, T skill) {
-        NBTTagCompound compound = new NBTTagCompound();
-        NBTHelper.setResourceLocation(compound, "location", Objects.requireNonNull(skill.getRegistryName()));
-        skill.writeSyncConfig(compound);
-        PacketHandler.NETWORK.sendTo(new ServerToClientPacket(PacketHandler.SYNC_SKILLS_CONFIG, compound), player);
+        NBTHelper.setResourceLocation(compound, "location", Objects.requireNonNull(configSynchronizer.getRegistryName()));
+        configSynchronizer.writeSyncConfig(compound);
+        PacketHandler.NETWORK.sendTo(new ServerToClientPacket(PacketHandler.SYNC_CONFIG, compound), player);
     }
 
     public static void sendSkillsSync(EntityPlayerMP player) {

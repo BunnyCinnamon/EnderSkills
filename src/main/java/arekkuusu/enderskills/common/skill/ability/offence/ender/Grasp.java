@@ -3,12 +3,13 @@ package arekkuusu.enderskills.common.skill.ability.offence.ender;
 import arekkuusu.enderskills.api.capability.Capabilities;
 import arekkuusu.enderskills.api.capability.data.SkillData;
 import arekkuusu.enderskills.api.capability.data.SkillInfo;
-import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoCooldown;
+import arekkuusu.enderskills.api.capability.data.InfoCooldown;
+import arekkuusu.enderskills.api.configuration.DSLConfig;
 import arekkuusu.enderskills.api.helper.NBTHelper;
 import arekkuusu.enderskills.api.helper.TeamHelper;
 import arekkuusu.enderskills.api.registry.Skill;
-import arekkuusu.enderskills.api.util.ConfigDSL;
-import arekkuusu.enderskills.client.gui.data.ISkillAdvancement;
+import arekkuusu.enderskills.api.configuration.parser.DSLParser;
+import arekkuusu.enderskills.client.gui.data.SkillAdvancement;
 import arekkuusu.enderskills.client.sounds.GraspSound;
 import arekkuusu.enderskills.client.util.helper.TextHelper;
 import arekkuusu.enderskills.common.CommonConfig;
@@ -47,17 +48,15 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import javax.annotation.Nullable;
 import java.util.List;
 
-public class Grasp extends BaseAbility implements IImpact, IExpand, ILoopSound, IScanEntities, ISkillAdvancement {
+public class Grasp extends BaseAbility implements IImpact, IExpand, ILoopSound, IScanEntities, SkillAdvancement {
 
     public Grasp() {
-        super(LibNames.GRASP, new AbilityProperties());
-        ((AbilityProperties) getProperties()).setCooldownGetter(this::getCooldown).setMaxLevelGetter(this::getMaxLevel);
-        ((AbilityProperties) getProperties()).setCooldownGetter(this::getCooldown).setTopLevelGetter(this::getTopLevel);
+        super(LibNames.GRASP, new Properties());
     }
 
     @Override
     public void use(EntityLivingBase owner, SkillInfo skillInfo) {
-        if (((IInfoCooldown) skillInfo).hasCooldown() || isClientWorld(owner)) return;
+        if (((InfoCooldown) skillInfo).hasCooldown() || isClientWorld(owner)) return;
         AbilityInfo abilityInfo = (AbilityInfo) skillInfo;
 
         if (canActivate(owner)) {
@@ -81,7 +80,7 @@ public class Grasp extends BaseAbility implements IImpact, IExpand, ILoopSound, 
                     .overrides(SkillData.Overrides.SAME)
                     .create();
             EntityThrowableData.throwFor(owner, distance, data, false);
-            sync(owner);
+            super.sync(owner);
 
             if (owner.world instanceof WorldServer) {
                 ((WorldServer) owner.world).playSound(null, owner.posX, owner.posY, owner.posZ, ModSounds.GRASP, SoundCategory.PLAYERS, 1.0F, (1.0F + (owner.world.rand.nextFloat() - owner.world.rand.nextFloat()) * 0.2F) * 0.7F);
@@ -144,7 +143,7 @@ public class Grasp extends BaseAbility implements IImpact, IExpand, ILoopSound, 
     public void onScan(Entity source, @Nullable EntityLivingBase owner, EntityLivingBase target, SkillData skillData) {
         if(!target.world.isRemote) {
             if (!SkillHelper.isActive(target, this)) {
-                apply(target, skillData);
+               super.apply(target, skillData);
                 sync(target, skillData);
             }
             if (!SkillHelper.isActive(target, ModEffects.ROOTED)) {
@@ -160,7 +159,7 @@ public class Grasp extends BaseAbility implements IImpact, IExpand, ILoopSound, 
     }
 
     public int getTopLevel() {
-        return this.config.top_level;
+        return this.config.limit_level;
     }
 
     public float getGraspRange(AbilityInfo info) {
@@ -255,7 +254,7 @@ public class Grasp extends BaseAbility implements IImpact, IExpand, ILoopSound, 
 
     /*Config Section*/
     public static final String CONFIG_FILE = LibNames.VOID_OFFENCE_CONFIG + LibNames.GRASP;
-    public ConfigDSL.Config config = new ConfigDSL.Config();
+    public DSLConfig config = new DSLConfig();
 
     @Override
     public void initSyncConfig() {
@@ -277,7 +276,7 @@ public class Grasp extends BaseAbility implements IImpact, IExpand, ILoopSound, 
 
     @Override
     public void sigmaDic() {
-        this.config = ConfigDSL.parse(Configuration.CONFIG_SYNC.dsl);
+        this.config = DSLParser.parse(Configuration.CONFIG_SYNC.dsl);
     }
 
     @Config(modid = LibMod.MOD_ID, name = CONFIG_FILE)

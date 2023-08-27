@@ -3,13 +3,14 @@ package arekkuusu.enderskills.common.skill.ability.mobility.wind;
 import arekkuusu.enderskills.api.capability.Capabilities;
 import arekkuusu.enderskills.api.capability.data.SkillData;
 import arekkuusu.enderskills.api.capability.data.SkillInfo;
-import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoCooldown;
+import arekkuusu.enderskills.api.capability.data.InfoCooldown;
+import arekkuusu.enderskills.api.configuration.DSLConfig;
 import arekkuusu.enderskills.api.event.SkillActivateEvent;
 import arekkuusu.enderskills.api.helper.MathUtil;
 import arekkuusu.enderskills.api.helper.NBTHelper;
 import arekkuusu.enderskills.api.registry.Skill;
-import arekkuusu.enderskills.api.util.ConfigDSL;
-import arekkuusu.enderskills.client.gui.data.ISkillAdvancement;
+import arekkuusu.enderskills.api.configuration.parser.DSLParser;
+import arekkuusu.enderskills.client.gui.data.SkillAdvancement;
 import arekkuusu.enderskills.client.util.helper.TextHelper;
 import arekkuusu.enderskills.common.lib.LibMod;
 import arekkuusu.enderskills.common.lib.LibNames;
@@ -46,7 +47,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 import java.util.*;
 
-public class Hasten extends BaseAbility implements ISkillAdvancement {
+public class Hasten extends BaseAbility {
 
     //Vanilla Attribute
     public static final IAttribute HASTEN = new RangedAttribute(null, "enderskills.generic.cooldownReduction", 0F, 0F, 1F).setDescription("Cooldown Reduction").setShouldWatch(true);
@@ -58,15 +59,13 @@ public class Hasten extends BaseAbility implements ISkillAdvancement {
             Constants.AttributeModifierOperation.ADD);
 
     public Hasten() {
-        super(LibNames.HASTEN, new AbilityProperties());
+        super(LibNames.HASTEN, new Properties());
         MinecraftForge.EVENT_BUS.register(this);
-        ((AbilityProperties) getProperties()).setCooldownGetter(this::getCooldown).setMaxLevelGetter(this::getMaxLevel);
-        ((AbilityProperties) getProperties()).setCooldownGetter(this::getCooldown).setTopLevelGetter(this::getTopLevel);
     }
 
     @Override
     public void use(EntityLivingBase owner, SkillInfo skillInfo) {
-        if (((IInfoCooldown) skillInfo).hasCooldown() || isClientWorld(owner)) return;
+        if (((InfoCooldown) skillInfo).hasCooldown() || isClientWorld(owner)) return;
         AbilityInfo abilityInfo = (AbilityInfo) skillInfo;
 
         if (isActionable(owner) && canActivate(owner)) {
@@ -85,8 +84,8 @@ public class Hasten extends BaseAbility implements ISkillAdvancement {
                     .overrides(SkillData.Overrides.SAME)
                     .create();
             apply(owner, data);
-            sync(owner, data);
-            sync(owner);
+            super.sync(owner, data);
+            super.sync(owner);
         }
     }
 
@@ -134,10 +133,10 @@ public class Hasten extends BaseAbility implements ISkillAdvancement {
                 Skill skill = entry.getKey();
                 ResourceLocation location = skill.getRegistryName();
                 if (skill.getProperties() instanceof BaseAbility.AbilityProperties && !locations.contains(location)
-                        && info instanceof SkillInfo.IInfoCooldown && location != null) {
-                    if (((SkillInfo.IInfoCooldown) info).hasCooldown()) {
-                        ((SkillInfo.IInfoCooldown) info).setCooldown(
-                                Math.max(0, ((SkillInfo.IInfoCooldown) info).getCooldown() - (int) (((BaseAbility.AbilityProperties) skill.getProperties()).getCooldown((AbilityInfo) info) * crd))
+                        && info instanceof InfoCooldown && location != null) {
+                    if (((InfoCooldown) info).hasCooldown()) {
+                        ((InfoCooldown) info).setCooldown(
+                                Math.max(0, ((InfoCooldown) info).getCooldown() - (int) (((BaseAbility.AbilityProperties) skill.getProperties()).getCooldown((AbilityInfo) info) * crd))
                         );
                         if (entity instanceof EntityPlayer) {
                             PacketHelper.sendSkillSync((EntityPlayerMP) entity, skill);
@@ -184,7 +183,7 @@ public class Hasten extends BaseAbility implements ISkillAdvancement {
     }
 
     public int getTopLevel() {
-        return this.config.top_level;
+        return this.config.limit_level;
     }
 
     public double getCDR(AbilityInfo info) {
@@ -261,7 +260,7 @@ public class Hasten extends BaseAbility implements ISkillAdvancement {
 
     /*Config Section*/
     public static final String CONFIG_FILE = LibNames.WIND_MOBILITY_CONFIG + LibNames.HASTEN;
-    public ConfigDSL.Config config = new ConfigDSL.Config();
+    public DSLConfig config = new DSLConfig();
 
     @Override
     public void initSyncConfig() {
@@ -283,7 +282,7 @@ public class Hasten extends BaseAbility implements ISkillAdvancement {
 
     @Override
     public void sigmaDic() {
-        this.config = ConfigDSL.parse(Configuration.CONFIG_SYNC.dsl);
+        this.config = DSLParser.parse(Configuration.CONFIG_SYNC.dsl);
     }
 
     @Config(modid = LibMod.MOD_ID, name = CONFIG_FILE)

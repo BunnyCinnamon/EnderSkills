@@ -3,14 +3,15 @@ package arekkuusu.enderskills.common.skill.ability.defense.light;
 import arekkuusu.enderskills.api.capability.Capabilities;
 import arekkuusu.enderskills.api.capability.data.SkillData;
 import arekkuusu.enderskills.api.capability.data.SkillInfo;
-import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoCooldown;
+import arekkuusu.enderskills.api.capability.data.InfoCooldown;
+import arekkuusu.enderskills.api.configuration.DSLConfig;
 import arekkuusu.enderskills.api.event.SkillActionableEvent;
 import arekkuusu.enderskills.api.helper.NBTHelper;
 import arekkuusu.enderskills.api.helper.RayTraceHelper;
 import arekkuusu.enderskills.api.helper.TeamHelper;
 import arekkuusu.enderskills.api.registry.Skill;
-import arekkuusu.enderskills.api.util.ConfigDSL;
-import arekkuusu.enderskills.client.gui.data.ISkillAdvancement;
+import arekkuusu.enderskills.api.configuration.parser.DSLParser;
+import arekkuusu.enderskills.client.gui.data.SkillAdvancement;
 import arekkuusu.enderskills.client.util.helper.TextHelper;
 import arekkuusu.enderskills.common.entity.data.IImpact;
 import arekkuusu.enderskills.common.entity.throwable.EntityThrowableData;
@@ -47,20 +48,18 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-public class Charm extends BaseAbility implements IImpact, ISkillAdvancement {
+public class Charm extends BaseAbility implements IImpact, SkillAdvancement {
 
     public static final UUID CHARM_UUID = UUID.fromString("c0fef459-78da-47df-8c6c-62c95c2f5609");
 
     public Charm() {
-        super(LibNames.CHARM, new AbilityProperties());
-        ((AbilityProperties) getProperties()).setCooldownGetter(this::getCooldown).setMaxLevelGetter(this::getMaxLevel);
-        ((AbilityProperties) getProperties()).setCooldownGetter(this::getCooldown).setTopLevelGetter(this::getTopLevel);
+        super(LibNames.CHARM, new Properties());
         MinecraftForge.EVENT_BUS.register(this);
     }
 
     @Override
     public void use(EntityLivingBase owner, SkillInfo skillInfo) {
-        if (((IInfoCooldown) skillInfo).hasCooldown() || isClientWorld(owner)) return;
+        if (((InfoCooldown) skillInfo).hasCooldown() || isClientWorld(owner)) return;
         AbilityInfo abilityInfo = (AbilityInfo) skillInfo;
         double distance = arekkuusu.enderskills.api.event.SkillRangeEvent.getRange(owner, this, getRange(abilityInfo));;
 
@@ -77,7 +76,7 @@ public class Charm extends BaseAbility implements IImpact, ISkillAdvancement {
                     .overrides(SkillData.Overrides.ID)
                     .create();
             EntityThrowableData.throwForTarget(owner, distance, data, false);
-            sync(owner);
+            super.sync(owner);
 
             if (owner.world instanceof WorldServer) {
                 ((WorldServer) owner.world).playSound(null, owner.posX, owner.posY, owner.posZ, ModSounds.CHARM, SoundCategory.PLAYERS, 5.0F, (1.0F + (owner.world.rand.nextFloat() - owner.world.rand.nextFloat()) * 0.2F) * 0.7F);
@@ -179,7 +178,7 @@ public class Charm extends BaseAbility implements IImpact, ISkillAdvancement {
     }
 
     public int getTopLevel() {
-        return this.config.top_level;
+        return this.config.limit_level;
     }
 
     public double getRange(AbilityInfo info) {
@@ -256,7 +255,7 @@ public class Charm extends BaseAbility implements IImpact, ISkillAdvancement {
 
     /*Config Section*/
     public static final String CONFIG_FILE = LibNames.LIGHT_DEFENSE_CONFIG + LibNames.CHARM;
-    public ConfigDSL.Config config = new ConfigDSL.Config();
+    public DSLConfig config = new DSLConfig();
 
     @Override
     public void initSyncConfig() {
@@ -278,7 +277,7 @@ public class Charm extends BaseAbility implements IImpact, ISkillAdvancement {
 
     @Override
     public void sigmaDic() {
-        this.config = ConfigDSL.parse(Configuration.CONFIG_SYNC.dsl);
+        this.config = DSLParser.parse(Configuration.CONFIG_SYNC.dsl);
     }
 
     @Config(modid = LibMod.MOD_ID, name = CONFIG_FILE)

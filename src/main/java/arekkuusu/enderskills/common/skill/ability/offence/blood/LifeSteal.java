@@ -3,13 +3,14 @@ package arekkuusu.enderskills.common.skill.ability.offence.blood;
 import arekkuusu.enderskills.api.capability.Capabilities;
 import arekkuusu.enderskills.api.capability.data.SkillData;
 import arekkuusu.enderskills.api.capability.data.SkillInfo;
-import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoCooldown;
+import arekkuusu.enderskills.api.capability.data.InfoCooldown;
+import arekkuusu.enderskills.api.configuration.DSLConfig;
 import arekkuusu.enderskills.api.event.SkillDamageSource;
 import arekkuusu.enderskills.api.helper.NBTHelper;
 import arekkuusu.enderskills.api.helper.TeamHelper;
 import arekkuusu.enderskills.api.registry.Skill;
-import arekkuusu.enderskills.api.util.ConfigDSL;
-import arekkuusu.enderskills.client.gui.data.ISkillAdvancement;
+import arekkuusu.enderskills.api.configuration.parser.DSLParser;
+import arekkuusu.enderskills.client.gui.data.SkillAdvancement;
 import arekkuusu.enderskills.client.util.ResourceLibrary;
 import arekkuusu.enderskills.client.util.helper.TextHelper;
 import arekkuusu.enderskills.common.CommonConfig;
@@ -43,12 +44,10 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 import java.util.List;
 
-public class LifeSteal extends BaseAbility implements ISkillAdvancement {
+public class LifeSteal extends BaseAbility {
 
     public LifeSteal() {
-        super(LibNames.LIFE_STEAL, new AbilityProperties());
-        ((AbilityProperties) getProperties()).setCooldownGetter(this::getCooldown).setMaxLevelGetter(this::getMaxLevel);
-        ((AbilityProperties) getProperties()).setCooldownGetter(this::getCooldown).setTopLevelGetter(this::getTopLevel);
+        super(LibNames.LIFE_STEAL, new Properties());
         MinecraftForge.EVENT_BUS.register(this);
     }
 
@@ -59,7 +58,7 @@ public class LifeSteal extends BaseAbility implements ISkillAdvancement {
 
         Capabilities.get(owner).ifPresent(capability -> {
             if (!SkillHelper.isActiveFrom(owner, this)) {
-                if (!((IInfoCooldown) skillInfo).hasCooldown() && canActivate(owner)) {
+                if (!((InfoCooldown) skillInfo).hasCooldown() && canActivate(owner)) {
                     if (!(owner instanceof EntityPlayer) || !((EntityPlayer) owner).capabilities.isCreativeMode) {
                         abilityInfo.setCooldown(getCooldown(abilityInfo));
                     }
@@ -73,9 +72,9 @@ public class LifeSteal extends BaseAbility implements ISkillAdvancement {
                             .put(compound)
                             .overrides(SkillData.Overrides.EQUAL)
                             .create();
-                    apply(owner, data);
-                    sync(owner, data);
-                    sync(owner);
+                   super.apply(owner, data);
+                    super.sync(owner, data);
+                    super.sync(owner);
 
                     if (owner.world instanceof WorldServer) {
                         ((WorldServer) owner.world).playSound(null, owner.posX, owner.posY, owner.posZ, ModSounds.LIFE_STEAL, SoundCategory.PLAYERS, 1.0F, (1.0F + (owner.world.rand.nextFloat() - owner.world.rand.nextFloat()) * 0.2F) * 0.7F);
@@ -83,8 +82,8 @@ public class LifeSteal extends BaseAbility implements ISkillAdvancement {
                 }
             } else {
                 SkillHelper.getActiveFrom(owner, this).ifPresent(data -> {
-                    unapply(owner, data);
-                    async(owner, data);
+                   super.unapply(owner, data);
+                    super.async(owner, data);
                 });
             }
         });
@@ -111,8 +110,8 @@ public class LifeSteal extends BaseAbility implements ISkillAdvancement {
                         PacketHelper.sendEnduranceSync((EntityPlayerMP) owner);
                     }
                 } else {
-                    unapply(owner, data);
-                    async(owner, data);
+                   super.unapply(owner, data);
+                    super.async(owner, data);
                 }
             });
         }
@@ -157,7 +156,7 @@ public class LifeSteal extends BaseAbility implements ISkillAdvancement {
     }
 
     public int getTopLevel() {
-        return this.config.top_level;
+        return this.config.limit_level;
     }
 
     public float getHeal(AbilityInfo info) {
@@ -228,7 +227,7 @@ public class LifeSteal extends BaseAbility implements ISkillAdvancement {
 
     /*Config Section*/
     public static final String CONFIG_FILE = LibNames.BLOOD_OFFENCE_CONFIG + LibNames.LIFE_STEAL;
-    public ConfigDSL.Config config = new ConfigDSL.Config();
+    public DSLConfig config = new DSLConfig();
 
     @Override
     public void initSyncConfig() {
@@ -250,7 +249,7 @@ public class LifeSteal extends BaseAbility implements ISkillAdvancement {
 
     @Override
     public void sigmaDic() {
-        this.config = ConfigDSL.parse(Configuration.CONFIG_SYNC.dsl);
+        this.config = DSLParser.parse(Configuration.CONFIG_SYNC.dsl);
     }
 
     @Config(modid = LibMod.MOD_ID, name = CONFIG_FILE)

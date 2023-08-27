@@ -28,7 +28,7 @@ public class Invulnerable extends BaseEffect {
         if (isClientWorld(entity)) return;
         EntityLivingBase owner = SkillHelper.getOwner(data);
         if (owner == null || !isWithinEffectiveDistance(entity, owner)) {
-            unapply(entity, data);
+           super.unapply(entity, data);
             async(entity, data);
         } else {
             if (entity.isBurning()) {
@@ -67,7 +67,7 @@ public class Invulnerable extends BaseEffect {
                     .overrides(SkillData.Overrides.SAME)
                     .put(data.nbt.copy(), data.watcher.copy())
                     .create();
-            apply(entity, status);
+           super.apply(entity, status);
             sync(entity, status);
     }
 }

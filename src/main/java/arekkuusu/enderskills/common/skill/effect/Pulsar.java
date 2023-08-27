@@ -41,7 +41,7 @@ public class Pulsar extends BaseEffect implements IExpand, IFindEntity {
         if (!isClientWorld(entity)) {
             EntityLivingBase owner = SkillHelper.getOwner(data);
             if (owner == null || !isWithinEffectiveDistance(entity, owner)) {
-                unapply(entity, data);
+               super.unapply(entity, data);
                 async(entity, data);
             } else if (tick % pulseTime == 0) {
                 double radius = NBTHelper.getDouble(data.nbt, "pulseRange");
@@ -118,7 +118,7 @@ public class Pulsar extends BaseEffect implements IExpand, IFindEntity {
                 .overrides(SkillData.Overrides.SAME)
                 .put(data.nbt.copy(), data.watcher.copy())
                 .create();
-        apply(entity, status);
+       super.apply(entity, status);
         sync(entity, status);
     }
 }

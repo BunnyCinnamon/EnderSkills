@@ -3,11 +3,12 @@ package arekkuusu.enderskills.common.skill.ability.mobility.ender;
 import arekkuusu.enderskills.api.capability.Capabilities;
 import arekkuusu.enderskills.api.capability.data.SkillData;
 import arekkuusu.enderskills.api.capability.data.SkillInfo;
-import arekkuusu.enderskills.api.capability.data.SkillInfo.IInfoCooldown;
+import arekkuusu.enderskills.api.capability.data.InfoCooldown;
+import arekkuusu.enderskills.api.configuration.DSLConfig;
+import arekkuusu.enderskills.api.configuration.parser.DSLParser;
 import arekkuusu.enderskills.api.helper.NBTHelper;
 import arekkuusu.enderskills.api.registry.Skill;
-import arekkuusu.enderskills.api.util.ConfigDSL;
-import arekkuusu.enderskills.client.gui.data.ISkillAdvancement;
+import arekkuusu.enderskills.client.gui.data.SkillAdvancement;
 import arekkuusu.enderskills.client.util.helper.TextHelper;
 import arekkuusu.enderskills.common.entity.EntityPortal;
 import arekkuusu.enderskills.common.lib.LibMod;
@@ -28,12 +29,10 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 import java.util.List;
 
-public class Portal extends BaseAbility implements ISkillAdvancement {
+public class Portal extends BaseAbility {
 
     public Portal() {
-        super(LibNames.PORTAL, new AbilityProperties());
-        ((AbilityProperties) getProperties()).setCooldownGetter(this::getCooldown).setMaxLevelGetter(this::getMaxLevel);
-        ((AbilityProperties) getProperties()).setCooldownGetter(this::getCooldown).setTopLevelGetter(this::getTopLevel);
+        super(LibNames.PORTAL, new Properties());
     }
 
     @Override
@@ -42,7 +41,7 @@ public class Portal extends BaseAbility implements ISkillAdvancement {
         AbilityInfo abilityInfo = (AbilityInfo) skillInfo;
 
         if (!SkillHelper.isActiveFrom(owner, this)) {
-            if (isActionable(owner) && !((IInfoCooldown) skillInfo).hasCooldown()) {
+            if (isActionable(owner) && !((InfoCooldown) skillInfo).hasCooldown()) {
                 EntityPortal portal = new EntityPortal(owner.world, getTime(abilityInfo));
                 portal.setPosition(owner.posX, owner.posY + owner.getEyeHeight(), owner.posZ);
                 owner.world.spawnEntity(portal);
@@ -57,8 +56,8 @@ public class Portal extends BaseAbility implements ISkillAdvancement {
                         .put(compound)
                         .overrides(SkillData.Overrides.SAME)
                         .create();
-                apply(owner, data);
-                sync(owner, data);
+               super.apply(owner, data);
+                super.sync(owner, data);
             }
         } else {
             SkillHelper.getActiveFrom(owner, this).ifPresent(data -> {
@@ -74,7 +73,7 @@ public class Portal extends BaseAbility implements ISkillAdvancement {
                             if (!(owner instanceof EntityPlayer) || !((EntityPlayer) owner).capabilities.isCreativeMode) {
                                 abilityInfo.setCooldown(getCooldown(abilityInfo));
                             }
-                            sync(owner);
+                            super.sync(owner);
                         }
                     } else {
                         originalPortal.setDead();
@@ -82,8 +81,8 @@ public class Portal extends BaseAbility implements ISkillAdvancement {
                     }
                 }
             });
-            unapply(owner);
-            async(owner);
+           super.unapply(owner);
+            super.async(owner);
         }
     }
 
@@ -96,10 +95,10 @@ public class Portal extends BaseAbility implements ISkillAdvancement {
                 if (!(owner instanceof EntityPlayer) || !((EntityPlayer) owner).capabilities.isCreativeMode) {
                     ((AbilityInfo) skillInfo).setCooldown(getCooldown((AbilityInfo) skillInfo));
                 }
-                sync(owner);
+                super.sync(owner);
             });
-            unapply(owner, data);
-            async(owner, data);
+           super.unapply(owner, data);
+            super.async(owner, data);
         }
     }
 
@@ -108,7 +107,7 @@ public class Portal extends BaseAbility implements ISkillAdvancement {
     }
 
     public int getTopLevel() {
-        return this.config.top_level;
+        return this.config.limit_level;
     }
 
     public int getCooldown(AbilityInfo info) {
@@ -179,7 +178,7 @@ public class Portal extends BaseAbility implements ISkillAdvancement {
 
     /*Config Section*/
     public static final String CONFIG_FILE = LibNames.VOID_MOBILITY_CONFIG + LibNames.PORTAL;
-    public ConfigDSL.Config config = new ConfigDSL.Config();
+    public DSLConfig config = new DSLConfig();
 
     @Override
     public void initSyncConfig() {
@@ -201,7 +200,7 @@ public class Portal extends BaseAbility implements ISkillAdvancement {
 
     @Override
     public void sigmaDic() {
-        this.config = ConfigDSL.parse(Configuration.CONFIG_SYNC.dsl);
+        this.config = DSLParser.parse(Configuration.CONFIG_SYNC.dsl);
     }
 
     @Config(modid = LibMod.MOD_ID, name = CONFIG_FILE)

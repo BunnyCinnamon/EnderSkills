@@ -33,7 +33,7 @@ public class Electrified extends BaseEffect {
     public void update(EntityLivingBase entity, SkillData data, int tick) {
         if (isClientWorld(entity)) return;
         if (SkillHelper.isActive(entity, ModEffects.STUNNED)) {
-            unapply(entity, data);
+           super.unapply(entity, data);
             async(entity, data);
         }
     }
@@ -101,7 +101,7 @@ public class Electrified extends BaseEffect {
                 .put(data.nbt, data.watcher.copy())
                 .overrides(SkillData.Overrides.EQUAL)
                 .create();
-        apply(entity, status);
+       super.apply(entity, status);
         sync(entity, status);
     }
 

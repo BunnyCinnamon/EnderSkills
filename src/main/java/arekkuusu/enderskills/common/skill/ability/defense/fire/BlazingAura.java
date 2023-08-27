@@ -1,12 +1,14 @@
 package arekkuusu.enderskills.common.skill.ability.defense.fire;
 
 import arekkuusu.enderskills.api.capability.Capabilities;
+import arekkuusu.enderskills.api.capability.data.InfoCooldown;
 import arekkuusu.enderskills.api.capability.data.SkillData;
 import arekkuusu.enderskills.api.capability.data.SkillInfo;
+import arekkuusu.enderskills.api.configuration.DSLConfig;
 import arekkuusu.enderskills.api.helper.NBTHelper;
 import arekkuusu.enderskills.api.helper.TeamHelper;
 import arekkuusu.enderskills.api.registry.Skill;
-import arekkuusu.enderskills.api.util.ConfigDSL;
+import arekkuusu.enderskills.api.configuration.parser.DSLParser;
 import arekkuusu.enderskills.client.proxy.ClientProxy;
 import arekkuusu.enderskills.client.sounds.BlazingAuraSound;
 import arekkuusu.enderskills.client.util.helper.TextHelper;
@@ -42,9 +44,7 @@ import java.util.List;
 public class BlazingAura extends BaseAbility {
 
     public BlazingAura() {
-        super(LibNames.BLAZING_AURA, new AbilityProperties());
-        ((AbilityProperties) getProperties()).setCooldownGetter(this::getCooldown).setMaxLevelGetter(this::getMaxLevel);
-        ((AbilityProperties) getProperties()).setCooldownGetter(this::getCooldown).setTopLevelGetter(this::getTopLevel);
+        super(LibNames.BLAZING_AURA, new Properties());
     }
 
     @Override
@@ -53,32 +53,32 @@ public class BlazingAura extends BaseAbility {
         AbilityInfo abilityInfo = (AbilityInfo) skillInfo;
 
         if (!SkillHelper.isActiveFrom(owner, this)) {
-            if (!((SkillInfo.IInfoCooldown) skillInfo).hasCooldown() && isActionable(owner) && canActivate(owner)) {
+            if (!((InfoCooldown) skillInfo).hasCooldown() && isActionable(owner) && canActivate(owner)) {
                 if (!(owner instanceof EntityPlayer) || !((EntityPlayer) owner).capabilities.isCreativeMode) {
                     abilityInfo.setCooldown(getCooldown(abilityInfo));
                 }
                 double range = arekkuusu.enderskills.api.event.SkillRangeEvent.getRange(owner, this, getRange(abilityInfo));;
                 double dot = getDoT(abilityInfo);
-                double time = arekkuusu.enderskills.api.event.SkillDurationEvent.getDuration(owner, this, getTime(abilityInfo));;
+                int time = arekkuusu.enderskills.api.event.SkillDurationEvent.getDuration(owner, this, getTime(abilityInfo));;
                 NBTTagCompound compound = new NBTTagCompound();
                 NBTHelper.setEntity(compound, owner, "owner");
                 NBTHelper.setDouble(compound, "range", range);
                 NBTHelper.setDouble(compound, "dot", dot);
-                NBTHelper.setDouble(compound, "dotDuration", time);
+                NBTHelper.setInteger(compound, "dotDuration", time);
                 SkillData data = SkillData.of(this)
                         .by(owner)
                         .with(INDEFINITE)
                         .put(compound)
                         .overrides(SkillData.Overrides.EQUAL)
                         .create();
-                apply(owner, data);
-                sync(owner, data);
-                sync(owner);
+               super.apply(owner, data);
+                super.sync(owner, data);
+                super.sync(owner);
             }
         } else {
             SkillHelper.getActiveFrom(owner, this).ifPresent(data -> {
-                unapply(owner, data);
-                async(owner, data);
+               super.unapply(owner, data);
+                super.async(owner, data);
             });
         }
     }
@@ -123,8 +123,8 @@ public class BlazingAura extends BaseAbility {
                             PacketHelper.sendEnduranceSync((EntityPlayerMP) owner);
                         }
                     } else {
-                        unapply(owner, data);
-                        async(owner, data);
+                       super.unapply(owner, data);
+                        super.async(owner, data);
                     }
                 });
             }
@@ -148,7 +148,7 @@ public class BlazingAura extends BaseAbility {
     }
 
     public int getTopLevel() {
-        return this.config.top_level;
+        return this.config.limit_level;
     }
 
     public double getDoT(AbilityInfo info) {
@@ -231,7 +231,7 @@ public class BlazingAura extends BaseAbility {
 
     /*Config Section*/
     public static final String CONFIG_FILE = LibNames.FIRE_DEFENSE_CONFIG + LibNames.BLAZING_AURA;
-    public ConfigDSL.Config config = new ConfigDSL.Config();
+    public DSLConfig config = new DSLConfig();
 
     @Override
     public void initSyncConfig() {
@@ -253,7 +253,7 @@ public class BlazingAura extends BaseAbility {
 
     @Override
     public void sigmaDic() {
-        this.config = ConfigDSL.parse(Configuration.CONFIG_SYNC.dsl);
+        this.config = DSLParser.parse(Configuration.CONFIG_SYNC.dsl);
     }
 
     @Config(modid = LibMod.MOD_ID, name = CONFIG_FILE)

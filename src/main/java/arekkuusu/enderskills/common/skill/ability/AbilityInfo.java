@@ -1,9 +1,11 @@
 package arekkuusu.enderskills.common.skill.ability;
 
+import arekkuusu.enderskills.api.capability.data.InfoCooldown;
+import arekkuusu.enderskills.api.capability.data.InfoUpgradeable;
 import arekkuusu.enderskills.api.capability.data.SkillInfo;
 import net.minecraft.nbt.NBTTagCompound;
 
-public class AbilityInfo extends SkillInfo implements SkillInfo.IInfoUpgradeable, SkillInfo.IInfoCooldown {
+public class AbilityInfo extends SkillInfo implements InfoUpgradeable, InfoCooldown {
 
     private int level;
     private int cooldown;

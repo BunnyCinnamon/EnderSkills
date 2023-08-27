@@ -1,0 +1,79 @@
+example:
+File "Explode.skill"
+```yaml
+name {
+  default: "lang.explode"
+  en: "Explode"
+  es: "Explotar"
+}
+script {
+  # comment example
+  spawn (
+    # make the skill have a yellow trail particle
+    self:rendering:texture <- stop
+    self:rendering:particle <- BoundingBox(Yellow)
+    # spawn in front of caster offset by 1 block at a random angle
+    self:position <- caster:front + random(1 Block)
+    # specify the initial size, all skills are cuboids, radius extends all 6 sides
+    self:radius <- 1 Block
+    # aim at what the caster sees
+    self:aim <- caster:aim
+  )
+
+  # keep living until 100 blocks have been traveled or 1 minute has passed
+  loop[100 Blocks or 1 Minute]@spawn (
+    # increase the speed until it goes at 5 blocks per second over a 10 second period after spawning
+    self:movement[self:aim] <- 5 Block a Second in 10 Second
+  )
+
+  # if hits water it does nothing and dies
+  hit[Water]@loop@spawn (
+    self:kill <- true
+  )
+
+  # if hits anything other than water 
+  hit[Block or Entity or Nothing]@loop@spawn (
+    # make the skill change to a fire texture
+    self:rendering:texture <- Animate("textures/fire.png")
+    # stop moving
+    self:movement <- stop
+    self:speed <- stop
+    self:aim <- stop
+  )
+
+  # for another 30 seconds expand the area of effect, only when it hits a block
+  # it will expand more away from the block, giving it the illusion that it hit solid matter
+  loop[30 Seconds]@hit[Block] (
+    # increase the size for 25 blocks horizontal to the block after hitting
+    self:expand[hit::Horizontal::All] <- 25 Block in 10 Second
+    # increase the size for 50 blocks after hitting
+    self:expand[hit::Vertical::Positive] <- 50 Block in 10 Second
+    # increase the size for 5 blocks towards the block
+    self:expand[hit::Vertical::Negative] <- 5 Block in 13 Second
+  )
+
+  # for another 30 seconds expand the area of effect, only when it hits an entity or nothing
+  loop[30 Seconds]@hit[Entity or Nothing] (
+    # increase the size for 50 blocks on all sides after hitting
+    self:expand[hit::All] <- 50 Block in 10 Seconds
+  )
+
+  # as it loops in a hit situation, get all entities in the area of effect and damage them
+  scan@loop@hit (
+    AllEntities[Once](
+      1 Heart Damage 
+    )
+    AllEntities[Constant](
+      1 Heart Damage in 10 seconds
+    )
+  )
+
+  # when it is over slowly fade out and die
+  end[5 Second]@loop (
+    # make the skill change to a smoke texture
+    self:rendering:texture <- Animate("textures/smoke.png")
+    self:rendering:particle <- BoundingBox(Smoke)
+    self:rendering:transparency <- Fade in 4.9 Second
+  )
+}
+```

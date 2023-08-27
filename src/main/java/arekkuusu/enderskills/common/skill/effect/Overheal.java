@@ -42,7 +42,7 @@ public class Overheal extends BaseEffect {
                     .with(5 * 20)
                     .put(compound)
                     .create();
-            apply(entity, data);
+           super.apply(entity, data);
             sync(entity, data);
         }
     }

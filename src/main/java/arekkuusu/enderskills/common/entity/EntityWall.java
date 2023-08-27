@@ -198,6 +198,10 @@ public class EntityWall extends Entity {
         this.dataManager.register(SYNC_LAUNCH, 0F);
     }
 
+    public void spawnEntity() {
+        this.world.spawnEntity(this);
+    }
+
     @Override
     protected void readEntityFromNBT(NBTTagCompound compound) {
         ListUUIDExtendedData data = new ListUUIDExtendedData();

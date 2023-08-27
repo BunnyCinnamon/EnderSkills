@@ -3,10 +3,11 @@ package arekkuusu.enderskills.common.skill.ability.mobility.ender;
 import arekkuusu.enderskills.api.capability.Capabilities;
 import arekkuusu.enderskills.api.capability.data.SkillData;
 import arekkuusu.enderskills.api.capability.data.SkillInfo;
+import arekkuusu.enderskills.api.configuration.DSLConfig;
+import arekkuusu.enderskills.api.configuration.parser.DSLParser;
 import arekkuusu.enderskills.api.helper.NBTHelper;
 import arekkuusu.enderskills.api.registry.Skill;
-import arekkuusu.enderskills.api.util.ConfigDSL;
-import arekkuusu.enderskills.client.gui.data.ISkillAdvancement;
+import arekkuusu.enderskills.client.gui.data.SkillAdvancement;
 import arekkuusu.enderskills.client.sounds.HoverSound;
 import arekkuusu.enderskills.client.util.helper.TextHelper;
 import arekkuusu.enderskills.common.lib.LibMod;
@@ -34,17 +35,15 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 import java.util.List;
 
-public class Hover extends BaseAbility implements ISkillAdvancement {
+public class Hover extends BaseAbility {
 
     public Hover() {
-        super(LibNames.HOVER, new AbilityProperties() {
+        super(LibNames.HOVER, new Properties() {
             @Override
             public boolean isKeyBound() {
                 return false;
             }
         });
-        ((AbilityProperties) getProperties()).setCooldownGetter(this::getCooldown).setMaxLevelGetter(this::getMaxLevel);
-        ((AbilityProperties) getProperties()).setCooldownGetter(this::getCooldown).setTopLevelGetter(this::getTopLevel);
         MinecraftForge.EVENT_BUS.register(this);
     }
 
@@ -61,9 +60,9 @@ public class Hover extends BaseAbility implements ISkillAdvancement {
                     .put(compound)
                     .overrides(SkillData.Overrides.SAME)
                     .create();
-            apply(owner, data);
-            sync(owner, data);
-            sync(owner);
+           super.apply(owner, data);
+            super.sync(owner, data);
+            super.sync(owner);
         }
     }
 
@@ -175,7 +174,7 @@ public class Hover extends BaseAbility implements ISkillAdvancement {
     }
 
     public int getTopLevel() {
-        return this.config.top_level;
+        return this.config.limit_level;
     }
 
     public int getCooldown(AbilityInfo info) {
@@ -244,7 +243,7 @@ public class Hover extends BaseAbility implements ISkillAdvancement {
 
     /*Config Section*/
     public static final String CONFIG_FILE = LibNames.VOID_MOBILITY_CONFIG + LibNames.HOVER;
-    public ConfigDSL.Config config = new ConfigDSL.Config();
+    public DSLConfig config = new DSLConfig();
 
     @Override
     public void initSyncConfig() {
@@ -266,7 +265,7 @@ public class Hover extends BaseAbility implements ISkillAdvancement {
 
     @Override
     public void sigmaDic() {
-        this.config = ConfigDSL.parse(Configuration.CONFIG_SYNC.dsl);
+        this.config = DSLParser.parse(Configuration.CONFIG_SYNC.dsl);
     }
 
     @Config(modid = LibMod.MOD_ID, name = CONFIG_FILE)
