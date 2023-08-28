@@ -39,7 +39,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import javax.annotation.Nullable;
 import java.util.List;
 
-public class Updraft extends BaseAbility implements IScanEntities, IExpand, IFindEntity, SkillAdvancement {
+public class Updraft extends BaseAbility implements IScanEntities, IExpand, IFindEntity {
 
     public Updraft() {
         super(LibNames.UPDRAFT, new Properties());

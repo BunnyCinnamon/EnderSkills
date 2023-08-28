@@ -6,6 +6,9 @@ import arekkuusu.enderskills.common.CommonConfig;
 import arekkuusu.enderskills.common.lib.LibMod;
 import arekkuusu.enderskills.common.lib.LibNames;
 import arekkuusu.enderskills.common.skill.ability.defense.earth.*;
+import arekkuusu.enderskills.common.skill.ability.defense.electric.*;
+import arekkuusu.enderskills.common.skill.ability.defense.fire.*;
+import arekkuusu.enderskills.common.skill.ability.defense.light.*;
 import arekkuusu.enderskills.common.skill.attribute.mobility.Endurance;
 import arekkuusu.enderskills.common.skill.effect.Glowing;
 import net.minecraft.util.ResourceLocation;
@@ -32,7 +35,8 @@ public class ModConfigurations {
         // Global configuration
         registry.register(new FieldConfigSynchronizer(CommonConfig.Values.class, "skill", CommonConfig.getSyncValues(), CommonConfig.getConfig(), "skill"));
         registry.register(new FieldConfigSynchronizer(CommonConfig.Values.class, "advancement", CommonConfig.getSyncValues(), CommonConfig.getConfig(), "advancement"));
-        registry.register(new StaticFieldConfigSynchronizer(Endurance.Configuration.class, "LOCAL_VALUES", "CONFIG", LibNames.ENDURANCE + "_map"));
+        registry.register(new StaticFieldConfigSynchronizer(Endurance.Configuration.class, "LOCAL_VALUES", "LOCAL", LibNames.ENDURANCE + "_map"));
+        registry.register(new StaticFieldConfigSynchronizer(Overheat.Configuration.class, "LOCAL_VALUES", "LOCAL", LibNames.OVERHEAT + "_enum"));
         registry.register(new ConfigSynchronizerListener("listener") {
             @Override
             public void update() {
@@ -51,6 +55,24 @@ public class ModConfigurations {
         registry.register(new DSLConfigSynchronizer(Taunt.Configuration.CONFIG, LibNames.TAUNT));
         registry.register(new DSLConfigSynchronizer(Thorny.Configuration.CONFIG, LibNames.THORNY));
         registry.register(new DSLConfigSynchronizer(Wall.Configuration.CONFIG, LibNames.WALL));
+        registry.register(new DSLConfigSynchronizer(ElectricPulse.Configuration.CONFIG, LibNames.ELECTRIC_PULSE));
+        registry.register(new DSLConfigSynchronizer(Energize.Configuration.CONFIG, LibNames.ENERGIZE));
+        registry.register(new DSLConfigSynchronizer(MagneticPull.Configuration.CONFIG, LibNames.MAGNETIC_PULL));
+        registry.register(new DSLConfigSynchronizer(PowerDrain.Configuration.CONFIG, LibNames.POWER_DRAIN));
+        registry.register(new DSLConfigSynchronizer(ShockingAura.Configuration.CONFIG, LibNames.SHOCKING_AURA));
+        registry.register(new DSLConfigSynchronizer(VoltaicSentinel.Configuration.CONFIG, LibNames.VOLTAIC_SENTINEL));
+        registry.register(new DSLConfigSynchronizer(BlazingAura.Configuration.CONFIG, LibNames.BLAZING_AURA));
+        registry.register(new DSLConfigSynchronizer(Flares.Configuration.CONFIG, LibNames.FLARES));
+        registry.register(new DSLConfigSynchronizer(HomeStar.Configuration.CONFIG, LibNames.HOME_STAR));
+        registry.register(new DSLConfigSynchronizer(Overheat.Configuration.CONFIG, LibNames.OVERHEAT));
+        registry.register(new DSLConfigSynchronizer(RingOfFire.Configuration.CONFIG, LibNames.RING_OF_FIRE));
+        registry.register(new DSLConfigSynchronizer(WarmHeart.Configuration.CONFIG, LibNames.WARM_HEART));
+        registry.register(new DSLConfigSynchronizer(Charm.Configuration.CONFIG, LibNames.CHARM));
+        registry.register(new DSLConfigSynchronizer(HealAura.Configuration.CONFIG, LibNames.HEAL_AURA));
+        registry.register(new DSLConfigSynchronizer(HealOther.Configuration.CONFIG, LibNames.HEAL_OTHER));
+        registry.register(new DSLConfigSynchronizer(HealSelf.Configuration.CONFIG, LibNames.HEAL_SELF));
+        registry.register(new DSLConfigSynchronizer(NearbyInvincibility.Configuration.CONFIG, LibNames.NEARBY_INVINCIBILITY));
+        registry.register(new DSLConfigSynchronizer(PowerBoost.Configuration.CONFIG, LibNames.POWER_BOOST));
         //
         registry.register(new DSLConfigSynchronizer(Glowing.Configuration.CONFIG, LibNames.GLOWING));
         registry.register(new DSLConfigSynchronizer(Endurance.Configuration.CONFIG, LibNames.ENDURANCE));

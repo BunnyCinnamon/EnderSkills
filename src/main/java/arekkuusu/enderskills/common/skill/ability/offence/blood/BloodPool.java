@@ -47,7 +47,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import javax.annotation.Nullable;
 import java.util.List;
 
-public class BloodPool extends BaseAbility implements IImpact, ILoopSound, IExpand, IScanEntities, SkillAdvancement {
+public class BloodPool extends BaseAbility implements IImpact, ILoopSound, IExpand, IScanEntities {
 
     public BloodPool() {
         super(LibNames.BLOOD_POOL, new Properties());

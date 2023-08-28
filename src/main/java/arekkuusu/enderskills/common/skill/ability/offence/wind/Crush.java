@@ -41,7 +41,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import javax.annotation.Nullable;
 import java.util.List;
 
-public class Crush extends BaseAbility implements IImpact, SkillAdvancement {
+public class Crush extends BaseAbility implements IImpact {
 
     public Crush() {
         super(LibNames.CRUSH, new Properties());

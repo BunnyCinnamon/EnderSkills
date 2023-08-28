@@ -43,7 +43,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import javax.annotation.Nullable;
 import java.util.List;
 
-public class Gloom extends BaseAbility implements IImpact, SkillAdvancement {
+public class Gloom extends BaseAbility implements IImpact {
 
     public Gloom() {
         super(LibNames.GLOOM, new Properties());

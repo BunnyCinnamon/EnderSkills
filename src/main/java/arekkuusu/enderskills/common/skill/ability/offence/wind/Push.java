@@ -46,7 +46,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import javax.annotation.Nullable;
 import java.util.List;
 
-public class Push extends BaseAbility implements IImpact, IScanEntities, IExpand, IFindEntity, SkillAdvancement {
+public class Push extends BaseAbility implements IImpact, IScanEntities, IExpand, IFindEntity {
 
     public Push() {
         super(LibNames.PUSH, new Properties());

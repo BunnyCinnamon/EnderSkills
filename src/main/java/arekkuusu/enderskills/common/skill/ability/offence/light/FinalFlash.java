@@ -40,7 +40,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 import java.util.List;
 
-public class FinalFlash extends BaseAbility implements IScanEntities, IExpand, SkillAdvancement {
+public class FinalFlash extends BaseAbility implements IScanEntities, IExpand {
 
     public FinalFlash() {
         super(LibNames.FINAL_FLASH, new Properties());

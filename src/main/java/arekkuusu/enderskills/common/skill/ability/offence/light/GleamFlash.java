@@ -45,7 +45,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import javax.annotation.Nullable;
 import java.util.List;
 
-public class GleamFlash extends BaseAbility implements IImpact, IExpand, IFindEntity, SkillAdvancement {
+public class GleamFlash extends BaseAbility implements IImpact, IExpand, IFindEntity {
 
     public GleamFlash() {
         super(LibNames.GLEAM_FLASH, new Properties());

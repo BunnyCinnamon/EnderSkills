@@ -44,7 +44,7 @@ import javax.annotation.Nullable;
 import java.util.List;
 import java.util.UUID;
 
-public class BarrageWisp extends BaseAbility implements IImpact, SkillAdvancement {
+public class BarrageWisp extends BaseAbility implements IImpact {
 
     public BarrageWisp() {
         super(LibNames.BARRAGE_WISPS, new Properties());

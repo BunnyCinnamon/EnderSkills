@@ -42,7 +42,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import javax.annotation.Nullable;
 import java.util.List;
 
-public class Suffocate extends BaseAbility implements IImpact, ILoopSound, IScanEntities, IExpand, SkillAdvancement {
+public class Suffocate extends BaseAbility implements IImpact, ILoopSound, IScanEntities, IExpand {
 
     public Suffocate() {
         super(LibNames.SUFFOCATE, new Properties());

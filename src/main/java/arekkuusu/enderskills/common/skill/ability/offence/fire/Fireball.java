@@ -47,7 +47,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import javax.annotation.Nullable;
 import java.util.List;
 
-public class Fireball extends BaseAbility implements IImpact, IScanEntities, IExpand, IFindEntity, SkillAdvancement {
+public class Fireball extends BaseAbility implements IImpact, IScanEntities, IExpand, IFindEntity {
 
     public Fireball() {
         super(LibNames.FIREBALL, new Properties());

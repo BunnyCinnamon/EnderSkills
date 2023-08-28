@@ -41,7 +41,7 @@ import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Optional;
 
-public class Syphon extends BaseAbility implements IImpact, SkillAdvancement {
+public class Syphon extends BaseAbility implements IImpact {
 
     public Syphon() {
         super(LibNames.SYPHON, new Properties());

@@ -50,7 +50,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import javax.annotation.Nullable;
 import java.util.List;
 
-public class Smash extends BaseAbility implements IScanEntities, IExpand, IFindEntity, SkillAdvancement {
+public class Smash extends BaseAbility implements IScanEntities, IExpand, IFindEntity {
 
     public Smash() {
         super(LibNames.SMASH, new Properties() {

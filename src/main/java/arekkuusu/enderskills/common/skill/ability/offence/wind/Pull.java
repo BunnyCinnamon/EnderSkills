@@ -45,7 +45,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import javax.annotation.Nullable;
 import java.util.List;
 
-public class Pull extends BaseAbility implements IImpact, SkillAdvancement {
+public class Pull extends BaseAbility implements IImpact {
 
     public Pull() {
         super(LibNames.PULL, new Properties());

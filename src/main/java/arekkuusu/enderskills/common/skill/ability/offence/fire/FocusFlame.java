@@ -44,7 +44,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import javax.annotation.Nullable;
 import java.util.List;
 
-public class FocusFlame extends BaseAbility implements IImpact, ILoopSound, IScanEntities, IExpand, IFindEntity, SkillAdvancement {
+public class FocusFlame extends BaseAbility implements IImpact, ILoopSound, IScanEntities, IExpand, IFindEntity {
 
     public FocusFlame() {
         super(LibNames.FOCUS_FLAME, new Properties());

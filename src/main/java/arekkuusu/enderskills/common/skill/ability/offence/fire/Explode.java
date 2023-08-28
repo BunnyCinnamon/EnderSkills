@@ -44,7 +44,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import javax.annotation.Nullable;
 import java.util.List;
 
-public class Explode extends BaseAbility implements IScanEntities, IExpand, IFindEntity, SkillAdvancement {
+public class Explode extends BaseAbility implements IScanEntities, IExpand, IFindEntity {
 
     public Explode() {
         super(LibNames.EXPLODE, new Properties());

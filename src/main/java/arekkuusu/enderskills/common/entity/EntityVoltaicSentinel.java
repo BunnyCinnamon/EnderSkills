@@ -40,6 +40,8 @@ import javax.annotation.Nullable;
 import java.util.Objects;
 import java.util.UUID;
 
+import static arekkuusu.enderskills.common.skill.effect.BaseEffect.INSTANT;
+
 public class EntityVoltaicSentinel extends EntityGolem {
 
     public static final DataParameter<Optional<UUID>> OWNER_UNIQUE_ID = EntityDataManager.createKey(EntityVoltaicSentinel.class, DataSerializers.OPTIONAL_UNIQUE_ID);
@@ -137,7 +139,7 @@ public class EntityVoltaicSentinel extends EntityGolem {
             NBTHelper.setDouble(compound, "stun", 20);
             SkillData data = SkillData.of(ModAbilities.ZAP)
                     .by(this)
-                    .with(BaseAbility.INSTANT)
+                    .with(INSTANT)
                     .put(compound)
                     .overrides(SkillData.Overrides.SAME)
                     .create();
@@ -329,6 +331,10 @@ public class EntityVoltaicSentinel extends EntityGolem {
     public void setMaxHealth(float health) {
         this.dataManager.set(MAX_HEALTH, health);
         this.getEntityAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(health);
+    }
+
+    public void spawnEntity() {
+        this.world.spawnEntity(this);
     }
 
     public void readEntityFromNBT(NBTTagCompound compound) {

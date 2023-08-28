@@ -46,7 +46,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import javax.annotation.Nullable;
 import java.util.List;
 
-public class RadiantRay extends BaseAbility implements IScanEntities, IImpact, IExpand, IFindEntity, SkillAdvancement {
+public class RadiantRay extends BaseAbility implements IScanEntities, IImpact, IExpand, IFindEntity {
 
     public RadiantRay() {
         super(LibNames.RADIANT_RAY, new Properties());

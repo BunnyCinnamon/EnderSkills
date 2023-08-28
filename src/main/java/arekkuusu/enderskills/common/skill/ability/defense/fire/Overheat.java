@@ -1,32 +1,28 @@
 package arekkuusu.enderskills.common.skill.ability.defense.fire;
 
 import arekkuusu.enderskills.api.capability.Capabilities;
+import arekkuusu.enderskills.api.capability.data.InfoCooldown;
+import arekkuusu.enderskills.api.capability.data.InfoUpgradeable;
 import arekkuusu.enderskills.api.capability.data.SkillData;
 import arekkuusu.enderskills.api.capability.data.SkillInfo;
-import arekkuusu.enderskills.api.capability.data.InfoCooldown;
-import arekkuusu.enderskills.api.configuration.DSLConfig;
-import arekkuusu.enderskills.api.configuration.parser.DSLParser;
+import arekkuusu.enderskills.api.configuration.DSL;
+import arekkuusu.enderskills.api.configuration.DSLDefaults;
+import arekkuusu.enderskills.api.configuration.DSLFactory;
 import arekkuusu.enderskills.api.event.SkillDamageEvent;
 import arekkuusu.enderskills.api.helper.NBTHelper;
-import arekkuusu.enderskills.api.registry.Skill;
 import arekkuusu.enderskills.api.util.Vector;
-import arekkuusu.enderskills.client.gui.data.SkillAdvancement;
 import arekkuusu.enderskills.client.proxy.ClientProxy;
 import arekkuusu.enderskills.client.sounds.OverheatSound;
 import arekkuusu.enderskills.client.util.ResourceLibrary;
-import arekkuusu.enderskills.client.util.helper.TextHelper;
 import arekkuusu.enderskills.common.EnderSkills;
 import arekkuusu.enderskills.common.lib.LibMod;
 import arekkuusu.enderskills.common.lib.LibNames;
 import arekkuusu.enderskills.common.skill.ModAbilities;
-import arekkuusu.enderskills.common.skill.ModAttributes;
 import arekkuusu.enderskills.common.skill.ModEffects;
 import arekkuusu.enderskills.common.skill.ability.AbilityInfo;
 import arekkuusu.enderskills.common.skill.ability.BaseAbility;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.IStringSerializable;
@@ -38,7 +34,6 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-import java.util.List;
 import java.util.Locale;
 
 public class Overheat extends BaseAbility {
@@ -50,26 +45,29 @@ public class Overheat extends BaseAbility {
 
     @Override
     public void use(EntityLivingBase owner, SkillInfo skillInfo) {
-        if (((InfoCooldown) skillInfo).hasCooldown() || isClientWorld(owner)) return;
-        AbilityInfo abilityInfo = (AbilityInfo) skillInfo;
+        if (hasCooldown(skillInfo) || isClientWorld(owner)) return;
+        if (isNotActionable(owner) || canNotActivate(owner)) return;
 
-        if (isActionable(owner) && canActivate(owner)) {
-            if (!(owner instanceof EntityPlayer) || !((EntityPlayer) owner).capabilities.isCreativeMode) {
-                abilityInfo.setCooldown(getCooldown(abilityInfo));
-            }
-            int time = (int) arekkuusu.enderskills.api.event.SkillDurationEvent.getDuration(owner, this, getTime(abilityInfo));;
-            NBTTagCompound compound = new NBTTagCompound();
-            NBTHelper.setEntity(compound, owner, "owner");
-            SkillData data = SkillData.of(this)
-                    .by(owner)
-                    .with(time)
-                    .put(compound)
-                    .overrides(SkillData.Overrides.EQUAL)
-                    .create();
-           super.apply(owner, data);
-            super.sync(owner, data);
-            super.sync(owner);
+        InfoUpgradeable infoUpgradeable = (InfoUpgradeable) skillInfo;
+        InfoCooldown infoCooldown = (InfoCooldown) skillInfo;
+        int level = infoUpgradeable.getLevel();
+        if (infoCooldown.canSetCooldown(owner)) {
+            infoCooldown.setCooldown(DSLDefaults.getCooldown(this, level));
         }
+
+        //
+        int time = DSLDefaults.triggerDuration(owner, this, level).getAmount();
+        NBTTagCompound compound = new NBTTagCompound();
+        NBTHelper.setEntity(compound, owner, "owner");
+        SkillData data = SkillData.of(this)
+                .by(owner)
+                .with(time)
+                .put(compound)
+                .overrides(SkillData.Overrides.EQUAL)
+                .create();
+        super.apply(owner, data);
+        super.sync(owner, data);
+        super.sync(owner);
     }
 
     @Override
@@ -117,140 +115,29 @@ public class Overheat extends BaseAbility {
             if (capability.isOwned(this)) {
                 capability.getOwned(this).ifPresent(skillInfo -> {
                     AbilityInfo attributeInfo = (AbilityInfo) skillInfo;
-                    if (Configuration.CONFIG_SYNC.applyAs == Configuration.Damage.MULTIPLICATION) {
-                        event.setAmount(event.getAmount() + event.getAmount() * getModifier(attributeInfo));
+                    float damage = DSLDefaults.getDamage(ModAbilities.OVERHEAT, attributeInfo.getLevel());
+                    if (Configuration.LOCAL_VALUES.applyAs == Configuration.Damage.MULTIPLICATION) {
+                        event.setAmount(event.getAmount() + event.getAmount() * damage);
                     } else {
-                        event.setAmount(event.getAmount() + getModifier(attributeInfo));
+                        event.setAmount(event.getAmount() + damage);
                     }
                 });
             }
         });
     }
 
-    public int getMaxLevel() {
-        return this.config.max_level;
-    }
-
-    public int getTopLevel() {
-        return this.config.limit_level;
-    }
-
-    public float getModifier(AbilityInfo info) {
-        return (float) this.config.get(this, "DAMAGE", info.getLevel());
-    }
-
-    public int getCooldown(AbilityInfo info) {
-        return (int) this.config.get(this, "COOLDOWN", info.getLevel());
-    }
-
-    public int getTime(AbilityInfo info) {
-        return (int) this.config.get(this, "DURATION", info.getLevel());
-    }
-
-    /*Advancement Section*/
-    @Override
-    @SideOnly(Side.CLIENT)
-    public void addDescription(List<String> description) {
-        Capabilities.get(Minecraft.getMinecraft().player).ifPresent(c -> {
-            if (c.isOwned(this)) {
-                if (!GuiScreen.isShiftKeyDown()) {
-                    description.add("");
-                    description.add(TextHelper.translate("desc.stats.shift"));
-                } else {
-                    c.getOwned(this).ifPresent(skillInfo -> {
-                        AbilityInfo abilityInfo = (AbilityInfo) skillInfo;
-                        description.clear();
-                        description.add(TextHelper.translate("desc.stats.endurance", String.valueOf(ModAttributes.ENDURANCE.getEnduranceDrain(this, abilityInfo.getLevel()))));
-                        description.add("");
-                        if (abilityInfo.getLevel() >= getMaxLevel()) {
-                            description.add(TextHelper.translate("desc.stats.level_max", getMaxLevel()));
-                        } else {
-                            description.add(TextHelper.translate("desc.stats.level_current", abilityInfo.getLevel(), abilityInfo.getLevel() + 1));
-                        }
-                        description.add(TextHelper.translate("desc.stats.cooldown", TextHelper.format2FloatPoint(getCooldown(abilityInfo) / 20D), TextHelper.getTextComponent("desc.stats.suffix_time")));
-                        description.add(TextHelper.translate("desc.stats.duration", TextHelper.format2FloatPoint(getTime(abilityInfo) / 20D), TextHelper.getTextComponent("desc.stats.suffix_time")));
-                        if (Configuration.CONFIG_SYNC.applyAs == Configuration.Damage.MULTIPLICATION) {
-                            description.add(TextHelper.translate("desc.stats.ap", TextHelper.format2FloatPoint(getModifier(abilityInfo) * 100), TextHelper.getTextComponent("desc.stats.suffix_percentage")));
-                        } else {
-                            description.add(TextHelper.translate("desc.stats.ap", TextHelper.format2FloatPoint(getModifier(abilityInfo))));
-                        }
-                        if (abilityInfo.getLevel() < getMaxLevel()) {
-                            if (!GuiScreen.isCtrlKeyDown()) {
-                                description.add("");
-                                description.add(TextHelper.translate("desc.stats.ctrl"));
-                            } else { //Copy info and set a higher level...
-                                AbilityInfo infoNew = new AbilityInfo(abilityInfo.serializeNBT());
-                                infoNew.setLevel(infoNew.getLevel() + 1);
-                                description.add("");
-                                description.add(TextHelper.translate("desc.stats.level_next", abilityInfo.getLevel(), infoNew.getLevel()));
-                                description.add(TextHelper.translate("desc.stats.cooldown", TextHelper.format2FloatPoint(getCooldown(infoNew) / 20D), TextHelper.getTextComponent("desc.stats.suffix_time")));
-                                description.add(TextHelper.translate("desc.stats.duration", TextHelper.format2FloatPoint(getTime(infoNew) / 20D), TextHelper.getTextComponent("desc.stats.suffix_time")));
-                                if (Configuration.CONFIG_SYNC.applyAs == Configuration.Damage.MULTIPLICATION) {
-                                    description.add(TextHelper.translate("desc.stats.ap", TextHelper.format2FloatPoint(getModifier(infoNew) * 100), TextHelper.getTextComponent("desc.stats.suffix_percentage")));
-                                } else {
-                                    description.add(TextHelper.translate("desc.stats.ap", TextHelper.format2FloatPoint(getModifier(infoNew))));
-                                }
-                            }
-                        }
-                    });
-                }
-            }
-        });
-    }
-
-    @Override
-    public Skill getParentSkill() {
-        return ModAbilities.FLARES;
-    }
-
-    @Override
-    public double getExperience(int lvl) {
-        return this.config.get(this, "XP", lvl);
-    }
-
-    @Override
-    public int getEndurance(int lvl) {
-        return (int) this.config.get(this, "ENDURANCE", lvl);
-    }
-
-    /*Advancement Section*/
-
     /*Config Section*/
     public static final String CONFIG_FILE = LibNames.FIRE_DEFENSE_CONFIG + LibNames.OVERHEAT;
-    public DSLConfig config = new DSLConfig();
-
-    @Override
-    public void initSyncConfig() {
-        Configuration.CONFIG_SYNC.dsl = Configuration.CONFIG.dsl;
-        this.sigmaDic();
-    }
-
-    @Override
-    public void writeSyncConfig(NBTTagCompound compound) {
-        NBTHelper.setArray(compound, "config", Configuration.CONFIG.dsl);
-        initSyncConfig();
-        NBTHelper.setEnum(compound, "applyAs", Configuration.CONFIG.applyAs);
-    }
-
-    @Override
-    public void readSyncConfig(NBTTagCompound compound) {
-        Configuration.CONFIG_SYNC.dsl = NBTHelper.getArray(compound, "config");
-        sigmaDic();
-        Configuration.CONFIG_SYNC.applyAs = NBTHelper.getEnum(Configuration.Damage.class, compound, "applyAs");
-    }
-
-    @Override
-    public void sigmaDic() {
-        this.config = DSLParser.parse(Configuration.CONFIG_SYNC.dsl);
-    }
 
     @Config(modid = LibMod.MOD_ID, name = CONFIG_FILE)
     public static class Configuration {
 
+        public static DSL CONFIG = DSLFactory.create(CONFIG_FILE);
+
         @Config.Ignore
-        public static Configuration.Values CONFIG_SYNC = new Configuration.Values();
-        public static Configuration.Values CONFIG = new Configuration.Values();
-        
+        public static Configuration.Values LOCAL_VALUES = new Configuration.Values();
+        public static Configuration.Values VALUES = new Configuration.Values();
+
         public enum Damage implements IStringSerializable {
             MULTIPLICATION,
             ADDITION;
@@ -262,107 +149,8 @@ public class Overheat extends BaseAbility {
         }
 
         public static class Values {
-            
-            public Damage applyAs = Damage.MULTIPLICATION;
 
-            public String[] dsl = {
-                    "",
-                    "┌ v1.0",
-                    "│ ",
-                    "├ min_level: 0",
-                    "├ max_level: 50",
-                    "└ ",
-                    "",
-                    "┌ COOLDOWN (",
-                    "│     shape: flat",
-                    "│     min: 75s",
-                    "│     max: 25s",
-                    "│ ",
-                    "│     {0 to 25} [",
-                    "│         shape: ramp negative",
-                    "│         start: {min}",
-                    "│         end:   45s",
-                    "│     ]",
-                    "│ ",
-                    "│     {25 to 49} [",
-                    "│         shape: ramp positive",
-                    "│         start: {0 to 25}",
-                    "│         end:   30s",
-                    "│     ]",
-                    "│ ",
-                    "│     {50} [",
-                    "│         shape: none",
-                    "│         return: {max}",
-                    "│     ]",
-                    "└ )",
-                    "",
-                    "┌ DAMAGE (",
-                    "│     shape: flat",
-                    "│     min: 25%",
-                    "│     max: 75%",
-                    "│ ",
-                    "│     {0 to 25} [",
-                    "│         shape: ramp negative",
-                    "│         start: {min}",
-                    "│         end:   30%",
-                    "│     ]",
-                    "│ ",
-                    "│     {25 to 49} [",
-                    "│         shape: ramp positive",
-                    "│         start: {0 to 25}",
-                    "│         end:   65%",
-                    "│     ]",
-                    "│ ",
-                    "│     {50} [",
-                    "│         shape: none",
-                    "│         return: {max}",
-                    "│     ]",
-                    "└ )",
-                    "",
-                    "┌ DURATION (",
-                    "│     shape: flat",
-                    "│     min: 6s",
-                    "│     max: 24s",
-                    "│ ",
-                    "│     {0 to 25} [",
-                    "│         shape: ramp negative",
-                    "│         start: {min}",
-                    "│         end:   10s",
-                    "│     ]",
-                    "│ ",
-                    "│     {25 to 49} [",
-                    "│         shape: ramp positive",
-                    "│         start: {0 to 25}",
-                    "│         end:   12s",
-                    "│     ]",
-                    "│ ",
-                    "│     {50} [",
-                    "│         shape: none",
-                    "│         return: {max}",
-                    "│     ]",
-                    "└ )",
-                    "",
-                    "┌ ENDURANCE (",
-                    "│     shape: none",
-                    "│     value: 12",
-                    "└ )",
-                    "",
-                    "┌ XP (",
-                    "│     shape: flat",
-                    "│     min: 0",
-                    "│     max: infinite",
-                    "│ ",
-                    "│     {0} [",
-                    "│         shape: none",
-                    "│         return: 600",
-                    "│     ]",
-                    "│ ",
-                    "│     {1 to 50} [",
-                    "│         shape: multiply 8",
-                    "│     ]",
-                    "└ )",
-                    "",
-            };
+            public Damage applyAs = Damage.MULTIPLICATION;
         }
     }
     /*Config Section*/

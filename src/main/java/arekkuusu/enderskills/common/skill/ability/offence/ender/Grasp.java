@@ -48,7 +48,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import javax.annotation.Nullable;
 import java.util.List;
 
-public class Grasp extends BaseAbility implements IImpact, IExpand, ILoopSound, IScanEntities, SkillAdvancement {
+public class Grasp extends BaseAbility implements IImpact, IExpand, ILoopSound, IScanEntities {
 
     public Grasp() {
         super(LibNames.GRASP, new Properties());

@@ -4,6 +4,7 @@ import arekkuusu.enderskills.api.event.SkillDurationEvent;
 import arekkuusu.enderskills.api.event.SkillRangeEvent;
 import arekkuusu.enderskills.api.registry.Skill;
 import arekkuusu.enderskills.common.CommonConfig;
+import arekkuusu.enderskills.common.skill.ability.defense.electric.ElectricPulse;
 import net.minecraft.entity.EntityLivingBase;
 
 import javax.annotation.Nullable;
@@ -38,6 +39,10 @@ public final class DSLDefaults {
         return DSLEvaluator.evaluateFloat(skill, "DAMAGE_MIRROR", level, CommonConfig.CONFIG_SYNC.skill.globalNegativeEffect);
     }
 
+    public static float getDamageOverTime(Skill skill, int level) {
+        return DSLEvaluator.evaluateFloat(skill, "DOT", level, CommonConfig.CONFIG_SYNC.skill.globalNegativeEffect);
+    }
+
     public static float getHealth(Skill skill, int level) {
         return DSLEvaluator.evaluateFloat(skill, "HEALTH", level, CommonConfig.CONFIG_SYNC.skill.globalPositiveEffect);
     }
@@ -52,6 +57,14 @@ public final class DSLDefaults {
 
     public static int getDuration(Skill skill, int level) {
         return DSLEvaluator.evaluateInt(skill, "DURATION", level, 1D);
+    }
+
+    public static int getDamageDuration(Skill skill, int level) {
+        return DSLEvaluator.evaluateInt(skill, "DOT_DURATION", level, 1D);
+    }
+
+    public static int getIntervalDuration(Skill skill, int level) {
+        return DSLEvaluator.evaluateInt(skill, "INTERVAL", level, 1D);
     }
 
     public static float getForce(Skill skill, int level) {
@@ -74,8 +87,43 @@ public final class DSLDefaults {
         return DSLEvaluator.evaluateInt(skill, "RANGE_EXTRA", level, 1D);
     }
 
+    public static double getSlow(Skill skill, int level) {
+        return DSLEvaluator.evaluateDouble(skill, "SLOW", level, 1D);
+    }
+
+    public static double getPower(Skill skill, int level) {
+        return DSLEvaluator.evaluateDouble(skill, "POWER", level, CommonConfig.CONFIG_SYNC.skill.globalPositiveEffect);
+    }
+
+    public static double getSize(Skill skill, int level) {
+        return DSLEvaluator.evaluateDouble(skill, "SIZE", level, 1D);
+    }
+
+    public static double getHeal(Skill skill, int level) {
+        return DSLEvaluator.evaluateDouble(skill, "HEAL", level, CommonConfig.CONFIG_SYNC.skill.globalPositiveEffect);
+    }
+
+    public static int getHealDuration(Skill skill, int level) {
+        return DSLEvaluator.evaluateInt(skill, "HEAL_DURATION", level, 1D);
+    }
+
     public static SkillDurationEvent triggerDuration(@Nullable EntityLivingBase entity, Skill skill, int level) {
         int original = DSLDefaults.getDuration(skill, level);
+        return SkillDurationEvent.trigger(entity, skill, original);
+    }
+
+    public static SkillDurationEvent triggerDamageDuration(@Nullable EntityLivingBase entity, Skill skill, int level) {
+        int original = DSLDefaults.getDamageDuration(skill, level);
+        return SkillDurationEvent.trigger(entity, skill, original);
+    }
+
+    public static SkillDurationEvent triggerIntervalDuration(@Nullable EntityLivingBase entity, Skill skill, int level) {
+        int original = DSLDefaults.getIntervalDuration(skill, level);
+        return SkillDurationEvent.trigger(entity, skill, original);
+    }
+
+    public static SkillDurationEvent triggerHealDuration(@Nullable EntityLivingBase entity, Skill skill, int level) {
+        int original = DSLDefaults.getHealDuration(skill, level);
         return SkillDurationEvent.trigger(entity, skill, original);
     }
 
@@ -96,6 +144,11 @@ public final class DSLDefaults {
 
     public static SkillRangeEvent triggerWidth(@Nullable EntityLivingBase entity, Skill skill, int level) {
         int original = DSLDefaults.getWidth(skill, level);
+        return SkillRangeEvent.trigger(entity, skill, original);
+    }
+
+    public static SkillRangeEvent triggerSize(@Nullable EntityLivingBase entity, Skill skill, int level) {
+        double original = DSLDefaults.getSize(skill, level);
         return SkillRangeEvent.trigger(entity, skill, original);
     }
 }

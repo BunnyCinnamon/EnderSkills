@@ -42,7 +42,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import javax.annotation.Nullable;
 import java.util.List;
 
-public class BlackHole extends BaseAbility implements IImpact, SkillAdvancement {
+public class BlackHole extends BaseAbility implements IImpact {
 
     public BlackHole() {
         super(LibNames.BLACK_HOLE, new Properties());

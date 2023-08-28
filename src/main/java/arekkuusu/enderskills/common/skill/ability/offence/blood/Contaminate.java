@@ -43,7 +43,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import javax.annotation.Nullable;
 import java.util.List;
 
-public class Contaminate extends BaseAbility implements IImpact, SkillAdvancement {
+public class Contaminate extends BaseAbility implements IImpact {
 
     public Contaminate() {
         super(LibNames.CONTAMINATE, new Properties());

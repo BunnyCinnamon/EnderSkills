@@ -55,7 +55,6 @@ public class AnimatedStoneGolem extends BaseAbility implements IImpact {
                             .overrides(SkillData.Overrides.EQUAL)
                             .create();
 
-                    //
                     float health = DSLDefaults.getHealth(this, level);
                     float damageMirror = DSLDefaults.getDamageMimicry(this, level);
                     float damage = DSLDefaults.getDamage(this, level);
@@ -69,7 +68,6 @@ public class AnimatedStoneGolem extends BaseAbility implements IImpact {
                     golem.setDamage(damage);
                     golem.spawnEntity();
 
-                    //
                     int time = DSLDefaults.triggerDuration(owner, this, level).getAmount();
                     NBTTagCompound compound = new NBTTagCompound();
                     NBTHelper.setEntity(compound, owner, "owner");
@@ -83,7 +81,6 @@ public class AnimatedStoneGolem extends BaseAbility implements IImpact {
                     super.apply(owner, data);
                     super.sync(owner, data);
 
-                    //
                     SoundHelper.playSound(owner.world, owner.getPosition(), ModSounds.ANIMATED_STONE);
                     super.sync(owner);
                 });

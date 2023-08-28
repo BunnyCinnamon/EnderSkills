@@ -42,7 +42,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import javax.annotation.Nullable;
 import java.util.List;
 
-public class FlamingBreath extends BaseAbility implements IScanEntities, IExpand, IFindEntity, SkillAdvancement {
+public class FlamingBreath extends BaseAbility implements IScanEntities, IExpand, IFindEntity {
 
     public FlamingBreath() {
         super(LibNames.FLAMING_BREATH, new Properties());

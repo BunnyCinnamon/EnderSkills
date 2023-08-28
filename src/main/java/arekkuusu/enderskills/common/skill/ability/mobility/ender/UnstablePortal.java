@@ -42,7 +42,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import javax.annotation.Nullable;
 import java.util.List;
 
-public class UnstablePortal extends BaseAbility implements IImpact, IExpand, IScanEntities, ILoopSound, SkillAdvancement {
+public class UnstablePortal extends BaseAbility implements IImpact, IExpand, IScanEntities, ILoopSound {
 
     public UnstablePortal() {
         super(LibNames.UNSTABLE_PORTAL, new Properties());

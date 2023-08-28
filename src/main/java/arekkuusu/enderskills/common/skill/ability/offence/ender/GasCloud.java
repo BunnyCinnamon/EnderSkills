@@ -47,7 +47,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import javax.annotation.Nullable;
 import java.util.List;
 
-public class GasCloud extends BaseAbility implements IImpact, IExpand, IFindEntity, IScanEntities, SkillAdvancement {
+public class GasCloud extends BaseAbility implements IImpact, IExpand, IFindEntity, IScanEntities {
 
     public GasCloud() {
         super(LibNames.GAS_CLOUD, new Properties());

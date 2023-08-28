@@ -46,7 +46,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import javax.annotation.Nullable;
 import java.util.List;
 
-public class LumenWave extends BaseAbility implements IScanEntities, IExpand, IFindEntity, SkillAdvancement {
+public class LumenWave extends BaseAbility implements IScanEntities, IExpand, IFindEntity {
 
     public LumenWave() {
         super(LibNames.LUMEN_WAVE, new Properties());

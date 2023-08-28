@@ -42,7 +42,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import javax.annotation.Nullable;
 import java.util.List;
 
-public class Slash extends BaseAbility implements IScanEntities, IExpand, IFindEntity, SkillAdvancement {
+public class Slash extends BaseAbility implements IScanEntities, IExpand, IFindEntity {
 
     public Slash() {
         super(LibNames.SLASH, new Properties());

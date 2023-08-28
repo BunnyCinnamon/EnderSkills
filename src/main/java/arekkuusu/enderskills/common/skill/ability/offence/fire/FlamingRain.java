@@ -46,7 +46,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import javax.annotation.Nullable;
 import java.util.List;
 
-public class FlamingRain extends BaseAbility implements IImpact, ILoopSound, IExpand, IScanEntities, SkillAdvancement {
+public class FlamingRain extends BaseAbility implements IImpact, ILoopSound, IExpand, IScanEntities {
 
     public FlamingRain() {
         super(LibNames.FLAMING_RAIN, new Properties());
