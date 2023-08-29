@@ -5,6 +5,7 @@ import arekkuusu.enderskills.api.capability.Capabilities;
 import arekkuusu.enderskills.api.configuration.DSLDefaults;
 import arekkuusu.enderskills.api.registry.Skill;
 import arekkuusu.enderskills.client.gui.data.SkillAdvancement;
+import arekkuusu.enderskills.client.gui.data.SkillAdvancement.Requirement;
 import arekkuusu.enderskills.common.CommonConfig;
 import net.minecraft.entity.EntityLivingBase;
 
@@ -13,7 +14,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-public class BasicSkillAdvancement {
+public class BasicSkillAdvancement implements SkillAdvancement {
 
     private final BaseAbility baseAbility;
     private final BaseAbility parentAbility;
@@ -64,7 +65,7 @@ public class BasicSkillAdvancement {
             }
         }
         xpNeeded = getUpgradeCost(info);
-        return new DefaultRequirement(tokensNeeded, getCostIncrement(entity, xpNeeded));
+        return new SkillAdvancement.DefaultRequirement(tokensNeeded, getCostIncrement(entity, xpNeeded));
     }
 
     public int getCostIncrement(EntityLivingBase entity, int total) {

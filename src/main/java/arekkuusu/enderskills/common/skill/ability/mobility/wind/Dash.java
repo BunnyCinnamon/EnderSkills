@@ -1,14 +1,18 @@
 package arekkuusu.enderskills.common.skill.ability.mobility.wind;
 
 import arekkuusu.enderskills.api.capability.Capabilities;
+import arekkuusu.enderskills.api.capability.data.InfoCooldown;
+import arekkuusu.enderskills.api.capability.data.InfoUpgradeable;
 import arekkuusu.enderskills.api.capability.data.SkillData;
 import arekkuusu.enderskills.api.capability.data.SkillInfo;
-import arekkuusu.enderskills.api.capability.data.InfoCooldown;
+import arekkuusu.enderskills.api.configuration.DSL;
 import arekkuusu.enderskills.api.configuration.DSLConfig;
-import arekkuusu.enderskills.api.helper.NBTHelper;
-import arekkuusu.enderskills.api.registry.Skill;
+import arekkuusu.enderskills.api.configuration.DSLDefaults;
+import arekkuusu.enderskills.api.configuration.DSLFactory;
 import arekkuusu.enderskills.api.configuration.parser.DSLParser;
-import arekkuusu.enderskills.client.gui.data.SkillAdvancement;
+import arekkuusu.enderskills.api.helper.NBTHelper;
+import arekkuusu.enderskills.api.helper.SoundHelper;
+import arekkuusu.enderskills.api.registry.Skill;
 import arekkuusu.enderskills.client.keybind.KeyBounds;
 import arekkuusu.enderskills.client.util.helper.TextHelper;
 import arekkuusu.enderskills.common.lib.LibMod;
@@ -54,33 +58,35 @@ public class Dash extends BaseAbility {
     }
 
     public void use(EntityLivingBase owner, SkillInfo skillInfo, Vec3d vector) {
-        if (((InfoCooldown) skillInfo).hasCooldown() || isClientWorld(owner)) return;
-        AbilityInfo abilityInfo = (AbilityInfo) skillInfo;
-        if (isActionable(owner) && canActivate(owner)) {
-            if (!(owner instanceof EntityPlayer) || !((EntityPlayer) owner).capabilities.isCreativeMode) {
-                abilityInfo.setCooldown(getCooldown(abilityInfo));
-            }
-            double distance = arekkuusu.enderskills.api.event.SkillRangeEvent.getRange(owner, this, getRange(abilityInfo));;
-            NBTTagCompound compound = new NBTTagCompound();
-            NBTHelper.setVector(compound, "vector", vector);
-            NBTHelper.setDouble(compound, "distance", distance);
-            NBTHelper.setEntity(compound, owner, "owner");
-            SkillData data = SkillData.of(this)
-                    .with(10)
-                    .put(compound)
-                    .overrides(SkillData.Overrides.SAME)
-                    .create();
-           super.apply(owner, data);
-            super.sync(owner, data);
-            super.sync(owner);
+        if (hasCooldown(skillInfo) || isClientWorld(owner)) return;
+        if (isNotActionable(owner) || canNotActivate(owner)) return;
+
+        InfoUpgradeable infoUpgradeable = (InfoUpgradeable) skillInfo;
+        InfoCooldown infoCooldown = (InfoCooldown) skillInfo;
+        int level = infoUpgradeable.getLevel();
+        if (infoCooldown.canSetCooldown(owner)) {
+            infoCooldown.setCooldown(DSLDefaults.getCooldown(this, level));
         }
+
+        //
+        double distance = DSLDefaults.triggerRange(owner, this, level).getAmount();
+        NBTTagCompound compound = new NBTTagCompound();
+        NBTHelper.setVector(compound, "vector", vector);
+        NBTHelper.setDouble(compound, "distance", distance);
+        NBTHelper.setEntity(compound, owner, "owner");
+        SkillData data = SkillData.of(this)
+                .with(10)
+                .put(compound)
+                .overrides(SkillData.Overrides.SAME)
+                .create();
+        super.apply(owner, data);
+        super.sync(owner, data);
+        super.sync(owner);
     }
 
     @Override
     public void begin(EntityLivingBase owner, SkillData data) {
-        if (owner.world instanceof WorldServer) {
-            ((WorldServer) owner.world).playSound(null, owner.posX, owner.posY, owner.posZ, ModSounds.DASH, SoundCategory.PLAYERS, 1.0F, (1.0F + (owner.world.rand.nextFloat() - owner.world.rand.nextFloat()) * 0.2F) * 0.7F);
-        }
+        SoundHelper.playSound(owner.world, owner.getPosition(), ModSounds.DASH);
         if (isClientWorld(owner) && !(owner instanceof EntityPlayer)) return;
         if (!owner.onGround) {
             Vec3d vector = NBTHelper.getVector(data.nbt, "vector");
@@ -115,7 +121,7 @@ public class Dash extends BaseAbility {
             }
         }
         if (owner.isSneaking()) {
-           super.unapply(owner);
+            super.unapply(owner);
             super.async(owner);
         }
     }
@@ -142,7 +148,7 @@ public class Dash extends BaseAbility {
     public void onKeyPress(InputEvent.KeyInputEvent event) {
         EntityPlayerSP player = Minecraft.getMinecraft().player;
         if (!KeyBounds.dash.isKeyDown()) return;
-        Capabilities.get(player).flatMap(c -> c.getOwned(this)).ifPresent(skillInfo -> {
+        Capabilities.get(player).flatMap(c -> c.getOwned(ModAbilities.DASH)).ifPresent(skillInfo -> {
             AbilityInfo abilityInfo = (AbilityInfo) skillInfo;
             if (abilityInfo.hasCooldown()) return;
             boolean tapped = KeyBounds.dash.isKeyDown();
@@ -150,8 +156,8 @@ public class Dash extends BaseAbility {
                 //Pressed same combination within 7 ticks
                 if (ticksSinceLastTap <= 14 && !keyWasPressed) {
                     Capabilities.endurance(player).ifPresent(endurance -> {
-                        int level = Capabilities.get(player).flatMap(a -> a.getOwned(this)).map(a -> ((AbilityInfo) a).getLevel()).orElse(0);
-                        int amount = ModAttributes.ENDURANCE.getEnduranceDrain(this, level);
+                        int level = Capabilities.get(player).flatMap(a -> a.getOwned(ModAbilities.DASH)).map(a -> ((AbilityInfo) a).getLevel()).orElse(0);
+                        int amount = ModAttributes.ENDURANCE.getEnduranceDrain(ModAbilities.DASH, level);
                         if (endurance.getEndurance() - amount >= 0) {
                             Vec3d lookVec = getVectorForRotation(player);
                             double x = lookVec.x;
@@ -199,192 +205,13 @@ public class Dash extends BaseAbility {
         if (wasTapped && !tapped) wasTapped = false;
     }
 
-    public int getMaxLevel() {
-        return this.config.max_level;
-    }
-
-    public int getTopLevel() {
-        return this.config.limit_level;
-    }
-
-    public double getRange(AbilityInfo info) {
-        return this.config.get(this, "RANGE", info.getLevel());
-    }
-
-    public int getCooldown(AbilityInfo info) {
-        return (int) this.config.get(this, "COOLDOWN", info.getLevel());
-    }
-
-    /*Advancement Section*/
-    @Override
-    @SideOnly(Side.CLIENT)
-    public void addDescription(List<String> description) {
-        Capabilities.get(Minecraft.getMinecraft().player).ifPresent(c -> {
-            if (c.isOwned(this)) {
-                if (!GuiScreen.isShiftKeyDown()) {
-                    description.add("");
-                    description.add(TextHelper.translate("desc.stats.shift"));
-                } else {
-                    c.getOwned(this).ifPresent(skillInfo -> {
-                        AbilityInfo abilityInfo = (AbilityInfo) skillInfo;
-                        description.clear();
-                        description.add(TextHelper.translate("desc.stats.endurance", String.valueOf(ModAttributes.ENDURANCE.getEnduranceDrain(this, abilityInfo.getLevel()))));
-                        description.add("");
-                        if (abilityInfo.getLevel() >= getMaxLevel()) {
-                            description.add(TextHelper.translate("desc.stats.level_max", getMaxLevel()));
-                        } else {
-                            description.add(TextHelper.translate("desc.stats.level_current", abilityInfo.getLevel(), abilityInfo.getLevel() + 1));
-                        }
-                        description.add(TextHelper.translate("desc.stats.cooldown", TextHelper.format2FloatPoint(getCooldown(abilityInfo) / 20D), TextHelper.getTextComponent("desc.stats.suffix_time")));
-                        description.add(TextHelper.translate("desc.stats.distance", TextHelper.format2FloatPoint(getRange(abilityInfo)), TextHelper.getTextComponent("desc.stats.suffix_blocks")));
-                        if (abilityInfo.getLevel() < getMaxLevel()) {
-                            if (!GuiScreen.isCtrlKeyDown()) {
-                                description.add("");
-                                description.add(TextHelper.translate("desc.stats.ctrl"));
-                            } else { //Copy info and set a higher level...
-                                AbilityInfo infoNew = new AbilityInfo(abilityInfo.serializeNBT());
-                                infoNew.setLevel(infoNew.getLevel() + 1);
-                                description.add("");
-                                description.add(TextHelper.translate("desc.stats.level_next", abilityInfo.getLevel(), infoNew.getLevel()));
-                                description.add(TextHelper.translate("desc.stats.cooldown", TextHelper.format2FloatPoint(getCooldown(infoNew) / 20D), TextHelper.getTextComponent("desc.stats.suffix_time")));
-                                description.add(TextHelper.translate("desc.stats.distance", TextHelper.format2FloatPoint(getRange(infoNew)), TextHelper.getTextComponent("desc.stats.suffix_blocks")));
-                            }
-                        }
-                    });
-                }
-            }
-        });
-    }
-
-    @Override
-    public Skill getParentSkill() {
-        return ModAbilities.DASH;
-    }
-
-    @Override
-    public double getExperience(int lvl) {
-        return this.config.get(this, "XP", lvl);
-    }
-
-    @Override
-    public int getEndurance(int lvl) {
-        return (int) this.config.get(this, "ENDURANCE", lvl);
-    }
-
-    /*Advancement Section*/
-
     /*Config Section*/
     public static final String CONFIG_FILE = LibNames.WIND_MOBILITY_CONFIG + LibNames.DASH;
-    public DSLConfig config = new DSLConfig();
-
-    @Override
-    public void initSyncConfig() {
-        Configuration.CONFIG_SYNC.dsl = Configuration.CONFIG.dsl;
-        this.sigmaDic();
-    }
-
-    @Override
-    public void writeSyncConfig(NBTTagCompound compound) {
-        NBTHelper.setArray(compound, "config", Configuration.CONFIG.dsl);
-        initSyncConfig();
-    }
-
-    @Override
-    public void readSyncConfig(NBTTagCompound compound) {
-        Configuration.CONFIG_SYNC.dsl = NBTHelper.getArray(compound, "config");
-        sigmaDic();
-    }
-
-    @Override
-    public void sigmaDic() {
-        this.config = DSLParser.parse(Configuration.CONFIG_SYNC.dsl);
-    }
 
     @Config(modid = LibMod.MOD_ID, name = CONFIG_FILE)
     public static class Configuration {
 
-        @Config.Ignore
-        public static Configuration.Values CONFIG_SYNC = new Configuration.Values();
-        public static Configuration.Values CONFIG = new Configuration.Values();
-
-        public static class Values {
-
-            public String[] dsl = {
-                    "",
-                    "┌ v1.0",
-                    "│ ",
-                    "├ min_level: 0",
-                    "├ max_level: 50",
-                    "└ ",
-                    "",
-                    "┌ COOLDOWN (",
-                    "│     shape: flat",
-                    "│     min: 12s",
-                    "│     max: 2s",
-                    "│ ",
-                    "│     {0 to 25} [",
-                    "│         shape: ramp negative",
-                    "│         start: {min}",
-                    "│         end:   6s",
-                    "│     ]",
-                    "│ ",
-                    "│     {25 to 49} [",
-                    "│         shape: ramp positive",
-                    "│         start: {0 to 25}",
-                    "│         end:   4s",
-                    "│     ]",
-                    "│ ",
-                    "│     {50} [",
-                    "│         shape: none",
-                    "│         return: {max}",
-                    "│     ]",
-                    "└ )",
-                    "",
-                    "┌ RANGE (",
-                    "│     shape: flat",
-                    "│     min: 1.75b",
-                    "│     max: 3b",
-                    "│ ",
-                    "│     {0 to 25} [",
-                    "│         shape: ramp negative",
-                    "│         start: {min}",
-                    "│         end:   2b",
-                    "│     ]",
-                    "│ ",
-                    "│     {25 to 49} [",
-                    "│         shape: ramp positive",
-                    "│         start: {0 to 25}",
-                    "│         end:   2.5b",
-                    "│     ]",
-                    "│ ",
-                    "│     {50} [",
-                    "│         shape: none",
-                    "│         return: {max}",
-                    "│     ]",
-                    "└ )",
-                    "",
-                    "┌ ENDURANCE (",
-                    "│     shape: none",
-                    "│     value: 4",
-                    "└ )",
-                    "",
-                    "┌ XP (",
-                    "│     shape: flat",
-                    "│     min: 0",
-                    "│     max: infinite",
-                    "│ ",
-                    "│     {0} [",
-                    "│         shape: none",
-                    "│         return: 170",
-                    "│     ]",
-                    "│ ",
-                    "│     {1 to 50} [",
-                    "│         shape: multiply 4",
-                    "│     ]",
-                    "└ )",
-                    "",
-            };
-        }
+        public static DSL CONFIG = DSLFactory.create(CONFIG_FILE);
     }
     /*Config Section*/
 }

@@ -53,7 +53,8 @@ public class EntityVoltaicSentinel extends EntityGolem {
     public EntityVoltaicSentinel(World worldIn) {
         super(worldIn);
         this.moveHelper = new FlightMoveHelper(this);
-        setSize(1, 1);
+        this.setSize(1, 1);
+        this.noClip = true;
     }
 
     @Override

@@ -2,9 +2,10 @@ package arekkuusu.enderskills.common.network;
 
 import arekkuusu.enderskills.api.capability.Capabilities;
 import arekkuusu.enderskills.api.capability.SkilledEntityCapability;
+import arekkuusu.enderskills.api.capability.data.InfoUpgradeable;
 import arekkuusu.enderskills.api.capability.data.SkillData;
 import arekkuusu.enderskills.api.capability.data.SkillHolder;
-import arekkuusu.enderskills.api.capability.data.InfoUpgradeable;
+import arekkuusu.enderskills.api.configuration.DSLEvaluator;
 import arekkuusu.enderskills.api.configuration.network.ConfigSynchronizer;
 import arekkuusu.enderskills.api.event.SkillUpgradeSyncEvent;
 import arekkuusu.enderskills.api.helper.NBTHelper;
@@ -16,8 +17,6 @@ import arekkuusu.enderskills.client.sounds.BleedSound;
 import arekkuusu.enderskills.common.CommonConfig;
 import arekkuusu.enderskills.common.EnderSkills;
 import arekkuusu.enderskills.common.lib.LibMod;
-import arekkuusu.enderskills.common.skill.BaseSkill;
-import arekkuusu.enderskills.common.skill.IConfigSync;
 import arekkuusu.enderskills.common.skill.ModAbilities;
 import arekkuusu.enderskills.common.skill.ModEffects;
 import com.google.common.collect.Lists;
@@ -110,40 +109,40 @@ public final class PacketHandler {
     public static final IPacketHandler SKILL_USE_RESPONSE = (((compound, context) -> {
         Optional.ofNullable(NBTHelper.getWorld(compound, "world").getEntityByID(compound.getInteger("uuid")))
                 .flatMap(Capabilities::get).ifPresent(capability -> {
-            Optional.of(NBTHelper.getNBTTag(compound, "data")).ifPresent(nbt -> {
-                capability.activate(new SkillHolder(new SkillData(nbt)));
-            });
-        });
+                    Optional.of(NBTHelper.getNBTTag(compound, "data")).ifPresent(nbt -> {
+                        capability.activate(new SkillHolder(new SkillData(nbt)));
+                    });
+                });
     }));
 
     public static final IPacketHandler SKILL_HOLDER_USE_RESPONSE = (((compound, context) -> {
         Optional.ofNullable(NBTHelper.getWorld(compound, "world").getEntityByID(compound.getInteger("uuid")))
                 .flatMap(Capabilities::get).ifPresent(capability -> {
-            Optional.of(NBTHelper.getNBTTag(compound, "holder")).ifPresent(nbt -> {
-                capability.activate(new SkillHolder(nbt));
-            });
-        });
+                    Optional.of(NBTHelper.getNBTTag(compound, "holder")).ifPresent(nbt -> {
+                        capability.activate(new SkillHolder(nbt));
+                    });
+                });
     }));
 
     public static final IPacketHandler SKILL_REMOVE_RESPONSE = (((compound, context) -> {
         Optional.ofNullable(NBTHelper.getWorld(compound, "world").getEntityByID(compound.getInteger("uuid")))
                 .flatMap(Capabilities::get).ifPresent(capability -> {
-            IForgeRegistry<Skill> registry = GameRegistry.findRegistry(Skill.class);
-            Skill skill = registry.getValue(NBTHelper.getResourceLocation(compound, "location"));
-            assert skill != null;
-            capability.deactivate(skill);
-        });
+                    IForgeRegistry<Skill> registry = GameRegistry.findRegistry(Skill.class);
+                    Skill skill = registry.getValue(NBTHelper.getResourceLocation(compound, "location"));
+                    assert skill != null;
+                    capability.deactivate(skill);
+                });
     }));
 
     public static final IPacketHandler SKILL_DATA_REMOVE_RESPONSE = (((compound, context) -> {
         Optional.ofNullable(NBTHelper.getWorld(compound, "world").getEntityByID(compound.getInteger("uuid")))
                 .flatMap(Capabilities::get).ifPresent(capability -> {
-            IForgeRegistry<Skill> registry = GameRegistry.findRegistry(Skill.class);
-            Skill skill = registry.getValue(NBTHelper.getResourceLocation(compound, "location"));
-            assert skill != null;
-            SkillData data = new SkillData(NBTHelper.getNBTTag(compound, "data"));
-            capability.deactivate(skill, data);
-        });
+                    IForgeRegistry<Skill> registry = GameRegistry.findRegistry(Skill.class);
+                    Skill skill = registry.getValue(NBTHelper.getResourceLocation(compound, "location"));
+                    assert skill != null;
+                    SkillData data = new SkillData(NBTHelper.getNBTTag(compound, "data"));
+                    capability.deactivate(skill, data);
+                });
     }));
 
     public static final IPacketHandler SKILL_UPGRADE_REQUEST = (((compound, context) -> {
@@ -154,9 +153,9 @@ public final class PacketHandler {
             Capabilities.get(e).ifPresent(c -> {
                 if (c.isOwned(skill)) {
                     c.getOwned(skill).ifPresent(info -> {
-                        if (skill.getProperties() instanceof BaseSkill.BaseProperties && info instanceof InfoUpgradeable) {
+                        if (info instanceof InfoUpgradeable) {
                             int lvl = ((InfoUpgradeable) info).getLevel() + 1;
-                            if (lvl <= ((BaseSkill.BaseProperties) skill.getProperties()).getMaxLevel()) {
+                            if (lvl <= DSLEvaluator.evaluateMaxLevel(skill)) {
                                 if (skill instanceof SkillAdvancement) {
                                     SkillAdvancement advancement = (SkillAdvancement) skill;
                                     if (advancement.canUpgrade(e)) {

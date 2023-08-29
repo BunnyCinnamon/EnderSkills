@@ -65,49 +65,6 @@ public class TileAltarRenderer extends TileEntitySpecialRenderer<TileAltar> {
                 ShaderLibrary.ALPHA.end();
             }
         }
-        //Render Event
-        if (MinecraftForgeClient.getRenderPass() == 1 && tile.lastLevelAnimationTimer > 0) {
-            GlStateManager.pushMatrix();
-            GlStateManager.translate(x + 0.5F, y + 0.01F, z + 0.5F);
-            GlStateManager.enableBlend();
-            if (!ClientConfig.RENDER_CONFIG.rendering.vanilla || ClientConfig.RENDER_CONFIG.rendering.helpMyFramesAreDying) {
-                this.bindTexture(ResourceLibrary.DARK_BACKGROUND);
-            } else {
-                this.bindTexture(ResourceLibrary.PORTAL_BACKGROUND);
-            }
-            if (!ClientConfig.RENDER_CONFIG.rendering.helpMyFramesAreDying) {
-                if (!ClientConfig.RENDER_CONFIG.rendering.vanilla) {
-                    ShaderLibrary.UNIVERSE.begin();
-                    ShaderLibrary.UNIVERSE.set("dimensions", Minecraft.getMinecraft().displayWidth, Minecraft.getMinecraft().displayHeight);
-                    ShaderLibrary.UNIVERSE.set("yaw", (Minecraft.getMinecraft().player.rotationYaw * 2F * 3.141592653589793F / 360F));
-                    ShaderLibrary.UNIVERSE.set("pitch", -(Minecraft.getMinecraft().player.rotationPitch * 2F * 3.141592653589793F / 360.0F));
-                    ShaderLibrary.UNIVERSE.set("color", 0.36F, 0.12F, 0.4F);
-                    ShaderLibrary.UNIVERSE.set("ticks", RenderMisc.getRenderPlayerTime());
-                    ShaderLibrary.UNIVERSE.set("alpha", 0.9F * (tile.lastLevelAnimationTimer / 50F));
-                } else {
-                    ShaderLibrary.UNIVERSE_DEFAULT.begin();
-                    ShaderLibrary.UNIVERSE_DEFAULT.set("yaw", (Minecraft.getMinecraft().player.rotationYaw * 2F * 3.141592653589793F / 360F));
-                    ShaderLibrary.UNIVERSE_DEFAULT.set("pitch", -(Minecraft.getMinecraft().player.rotationPitch * 2F * 3.141592653589793F / 360.0F));
-                    ShaderLibrary.UNIVERSE_DEFAULT.set("time", RenderMisc.getRenderPlayerTime());
-                    ShaderLibrary.UNIVERSE_DEFAULT.set("alpha", 0.9F * (tile.lastLevelAnimationTimer / 50F));
-                }
-            }
-            GL11.glEnable(3042);
-            drawVoid();
-            float scale = 1 + (tile.lastLevelAnimationTimer / 50F) * 4F;
-            GlStateManager.scale(scale, scale, scale);
-            RenderMisc.drawObj(0xFFFFFF, tile.lastLevelAnimationTimer / 50F, RenderMisc::drawSphereRaw);
-            GL11.glDisable(3042);
-            if (!ClientConfig.RENDER_CONFIG.rendering.helpMyFramesAreDying) {
-                if (!ClientConfig.RENDER_CONFIG.rendering.vanilla) {
-                    ShaderLibrary.UNIVERSE.end();
-                } else {
-                    ShaderLibrary.UNIVERSE_DEFAULT.end();
-                }
-            }
-            GlStateManager.disableBlend();
-            GlStateManager.popMatrix();
-        }
         //Draw Name Plate
         if (!tile.isUltimate() && tile.getLevel() == 1F) {
             this.setLightmapDisabled(true);

@@ -7,8 +7,6 @@ import arekkuusu.enderskills.api.configuration.network.ConfigSynchronizer;
 import arekkuusu.enderskills.api.helper.NBTHelper;
 import arekkuusu.enderskills.api.registry.Skill;
 import arekkuusu.enderskills.api.util.Vector;
-import arekkuusu.enderskills.common.CommonConfig;
-import arekkuusu.enderskills.common.skill.IConfigSync;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;

@@ -8,7 +8,7 @@ import net.minecraft.entity.EntityLivingBase;
 
 import javax.annotation.Nullable;
 
-public class AttributeSkillAdvancement {
+public class AttributeSkillAdvancement implements SkillAdvancement {
 
     private final BaseAttribute baseAttribute;
 

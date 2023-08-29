@@ -28,7 +28,7 @@ public final class DSLDefaults {
     }
 
     public static float getExperience(Skill skill, int level) {
-        return DSLEvaluator.evaluateFloat(skill, "XP", level, CommonConfig.CONFIG_SYNC.skill.globalNegativeEffect);
+        return DSLEvaluator.evaluateFloat(skill, "XP", level, 1D);
     }
 
     public static float getDamage(Skill skill, int level) {
@@ -105,6 +105,18 @@ public final class DSLDefaults {
 
     public static int getHealDuration(Skill skill, int level) {
         return DSLEvaluator.evaluateInt(skill, "HEAL_DURATION", level, 1D);
+    }
+
+    public static int getDisplacement(Skill skill, int level) {
+        return DSLEvaluator.evaluateInt(skill, "DISPLACEMENT", level, 1D);
+    }
+
+    public static int getReduction(Skill skill, int level) {
+        return DSLEvaluator.evaluateInt(skill, "REDUCTION", level, 1D);
+    }
+
+    public static int getSpeed(Skill skill, int level) {
+        return DSLEvaluator.evaluateInt(skill, "SPEED", level, 1D);
     }
 
     public static SkillDurationEvent triggerDuration(@Nullable EntityLivingBase entity, Skill skill, int level) {

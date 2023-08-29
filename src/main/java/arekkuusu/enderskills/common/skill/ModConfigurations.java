@@ -9,6 +9,8 @@ import arekkuusu.enderskills.common.skill.ability.defense.earth.*;
 import arekkuusu.enderskills.common.skill.ability.defense.electric.*;
 import arekkuusu.enderskills.common.skill.ability.defense.fire.*;
 import arekkuusu.enderskills.common.skill.ability.defense.light.*;
+import arekkuusu.enderskills.common.skill.ability.mobility.ender.*;
+import arekkuusu.enderskills.common.skill.ability.mobility.wind.*;
 import arekkuusu.enderskills.common.skill.attribute.mobility.Endurance;
 import arekkuusu.enderskills.common.skill.effect.Glowing;
 import net.minecraft.util.ResourceLocation;
@@ -73,6 +75,18 @@ public class ModConfigurations {
         registry.register(new DSLConfigSynchronizer(HealSelf.Configuration.CONFIG, LibNames.HEAL_SELF));
         registry.register(new DSLConfigSynchronizer(NearbyInvincibility.Configuration.CONFIG, LibNames.NEARBY_INVINCIBILITY));
         registry.register(new DSLConfigSynchronizer(PowerBoost.Configuration.CONFIG, LibNames.POWER_BOOST));
+        registry.register(new DSLConfigSynchronizer(Hover.Configuration.CONFIG, LibNames.HOVER));
+        registry.register(new DSLConfigSynchronizer(Invisibility.Configuration.CONFIG, LibNames.INVISIBILITY));
+        registry.register(new DSLConfigSynchronizer(Portal.Configuration.CONFIG, LibNames.PORTAL));
+        registry.register(new DSLConfigSynchronizer(Teleport.Configuration.CONFIG, LibNames.TELEPORT));
+        registry.register(new DSLConfigSynchronizer(UnstablePortal.Configuration.CONFIG, LibNames.UNSTABLE_PORTAL));
+        registry.register(new DSLConfigSynchronizer(Warp.Configuration.CONFIG, LibNames.WARP));
+        registry.register(new DSLConfigSynchronizer(Dash.Configuration.CONFIG, LibNames.DASH));
+        registry.register(new DSLConfigSynchronizer(ExtraJump.Configuration.CONFIG, LibNames.EXTRA_JUMP));
+        registry.register(new DSLConfigSynchronizer(Fog.Configuration.CONFIG, LibNames.FOG));
+        registry.register(new DSLConfigSynchronizer(Hasten.Configuration.CONFIG, LibNames.HASTEN));
+        registry.register(new DSLConfigSynchronizer(Smash.Configuration.CONFIG, LibNames.SMASH));
+        registry.register(new DSLConfigSynchronizer(SpeedBoost.Configuration.CONFIG, LibNames.SPEED_BOOST));
         //
         registry.register(new DSLConfigSynchronizer(Glowing.Configuration.CONFIG, LibNames.GLOWING));
         registry.register(new DSLConfigSynchronizer(Endurance.Configuration.CONFIG, LibNames.ENDURANCE));
