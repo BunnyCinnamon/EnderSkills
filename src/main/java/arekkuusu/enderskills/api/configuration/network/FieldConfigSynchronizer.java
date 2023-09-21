@@ -10,13 +10,13 @@ import net.minecraftforge.fml.relauncher.ReflectionHelper;
 
 import java.lang.reflect.Field;
 
-public class FieldConfigSynchronizer extends ConfigSynchronizer {
+public class FieldConfigSynchronizer<T> extends ConfigSynchronizer {
 
     public final Field field;
     public final Object local;
     public final Object remote;
 
-    public FieldConfigSynchronizer(Class<?> clss, String field, Object local, Object remote, String name) {
+    public FieldConfigSynchronizer(Class<?> clss, String field, T local, T remote, String name) {
         this.local = local;
         this.remote = remote;
         ModConfigurations.setRegistry(this, name);
@@ -27,7 +27,7 @@ public class FieldConfigSynchronizer extends ConfigSynchronizer {
     public void initSyncConfig() {
         Gson gson = new GsonBuilder().enableComplexMapKeySerialization().create();
         try {
-            this.field.set(this.local, gson.fromJson(gson.toJson(this.field.get(remote)), field.getType()));
+            this.field.set(this.local, gson.fromJson(gson.toJson(this.field.get(this.remote)), this.field.getType()));
         } catch (IllegalAccessException e) {
             e.printStackTrace();
         }
@@ -38,7 +38,7 @@ public class FieldConfigSynchronizer extends ConfigSynchronizer {
     public void writeSyncConfig(NBTTagCompound compound) {
         Gson gson = new GsonBuilder().enableComplexMapKeySerialization().create();
         try {
-            NBTHelper.setString(compound, "config", gson.toJson(this.field.get(remote)));
+            NBTHelper.setString(compound, "config", gson.toJson(this.field.get(this.remote)));
         } catch (IllegalAccessException e) {
             e.printStackTrace();
         }
@@ -49,7 +49,7 @@ public class FieldConfigSynchronizer extends ConfigSynchronizer {
     public void readSyncConfig(NBTTagCompound compound) {
         Gson gson = new GsonBuilder().enableComplexMapKeySerialization().create();
         try {
-            this.field.set(this.local, gson.fromJson(NBTHelper.getString(compound, "config"), field.getType()));
+            this.field.set(this.local, gson.fromJson(NBTHelper.getString(compound, "config"), this.field.getType()));
         } catch (IllegalAccessException e) {
             e.printStackTrace();
         }

@@ -60,10 +60,10 @@ public class RadiantRay extends BaseAbility implements IScanEntities, IImpact, I
             if (!(owner instanceof EntityPlayer) || !((EntityPlayer) owner).capabilities.isCreativeMode) {
                 abilityInfo.setCooldown(getCooldown(abilityInfo));
             }
-            double distance = arekkuusu.enderskills.api.event.SkillRangeEvent.getRange(owner, this, getRange(abilityInfo));;
+            double distance = DSLDefaults.triggerRange(owner, this, level).getAmount();
             double range = arekkuusu.enderskills.api.event.SkillRangeEvent.getRange(owner, this, getLightRange(abilityInfo));;
             double time = arekkuusu.enderskills.api.event.SkillDurationEvent.getDuration(owner, this, getTime(abilityInfo));;
-            double damage = getDamage(abilityInfo);
+            double damage = DSLDefaults.getDamage(this, level);
             NBTTagCompound compound = new NBTTagCompound();
             NBTHelper.setEntity(compound, owner, "owner");
             NBTHelper.setDouble(compound, "damage", damage);

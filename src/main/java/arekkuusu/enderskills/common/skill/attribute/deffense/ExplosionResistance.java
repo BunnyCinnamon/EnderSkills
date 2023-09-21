@@ -28,7 +28,7 @@ import java.util.List;
 public class ExplosionResistance extends BaseAttribute {
 
     public ExplosionResistance() {
-        super(LibNames.EXPLOSION_RESISTANCE, new BaseProperties());
+        super(LibNames.EXPLOSION_RESISTANCE, new Properties());
         MinecraftForge.EVENT_BUS.register(this);
         ((BaseProperties) getProperties()).setMaxLevelGetter(this::getMaxLevel);
         ((BaseProperties) getProperties()).setTopLevelGetter(this::getTopLevel);

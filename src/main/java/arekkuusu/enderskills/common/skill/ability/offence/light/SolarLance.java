@@ -56,10 +56,10 @@ public class SolarLance extends BaseAbility {
                     if (!(owner instanceof EntityPlayer) || !((EntityPlayer) owner).capabilities.isCreativeMode) {
                         abilityInfo.setCooldown(getCooldown(abilityInfo));
                     }
-                    double distance = arekkuusu.enderskills.api.event.SkillRangeEvent.getRange(owner, this, getRange(abilityInfo));;
+                    double distance = DSLDefaults.triggerRange(owner, this, level).getAmount();
                     double range = arekkuusu.enderskills.api.event.SkillRangeEvent.getRange(owner, this, getLanceRange(abilityInfo));;
                     int piercing = getPenis(abilityInfo);
-                    double damage = getDamage(abilityInfo);
+                    double damage = DSLDefaults.getDamage(this, level);
                     NBTTagCompound compound = new NBTTagCompound();
                     NBTHelper.setEntity(compound, owner, "owner");
                     NBTHelper.setDouble(compound, "damage", damage);

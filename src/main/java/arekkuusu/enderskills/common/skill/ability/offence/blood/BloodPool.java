@@ -1,18 +1,19 @@
 package arekkuusu.enderskills.common.skill.ability.offence.blood;
 
-import arekkuusu.enderskills.api.capability.Capabilities;
+import arekkuusu.enderskills.api.capability.data.InfoCooldown;
+import arekkuusu.enderskills.api.capability.data.InfoUpgradeable;
 import arekkuusu.enderskills.api.capability.data.SkillData;
 import arekkuusu.enderskills.api.capability.data.SkillInfo;
-import arekkuusu.enderskills.api.capability.data.InfoCooldown;
-import arekkuusu.enderskills.api.configuration.DSLConfig;
+import arekkuusu.enderskills.api.configuration.DSL;
+import arekkuusu.enderskills.api.configuration.DSLDefaults;
+import arekkuusu.enderskills.api.configuration.DSLEvaluator;
+import arekkuusu.enderskills.api.configuration.DSLFactory;
+import arekkuusu.enderskills.api.event.SkillDurationEvent;
+import arekkuusu.enderskills.api.event.SkillRangeEvent;
 import arekkuusu.enderskills.api.helper.NBTHelper;
+import arekkuusu.enderskills.api.helper.SoundHelper;
 import arekkuusu.enderskills.api.helper.TeamHelper;
-import arekkuusu.enderskills.api.registry.Skill;
-import arekkuusu.enderskills.api.configuration.parser.DSLParser;
-import arekkuusu.enderskills.client.gui.data.SkillAdvancement;
 import arekkuusu.enderskills.client.sounds.BloodPoolSound;
-import arekkuusu.enderskills.client.util.helper.TextHelper;
-import arekkuusu.enderskills.common.CommonConfig;
 import arekkuusu.enderskills.common.entity.data.IExpand;
 import arekkuusu.enderskills.common.entity.data.IImpact;
 import arekkuusu.enderskills.common.entity.data.ILoopSound;
@@ -23,16 +24,12 @@ import arekkuusu.enderskills.common.entity.throwable.EntityThrowableData;
 import arekkuusu.enderskills.common.lib.LibMod;
 import arekkuusu.enderskills.common.lib.LibNames;
 import arekkuusu.enderskills.common.skill.ModAbilities;
-import arekkuusu.enderskills.common.skill.ModAttributes;
 import arekkuusu.enderskills.common.skill.ModEffects;
-import arekkuusu.enderskills.common.skill.ability.AbilityInfo;
 import arekkuusu.enderskills.common.skill.ability.BaseAbility;
 import arekkuusu.enderskills.common.sound.ModSounds;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -55,35 +52,35 @@ public class BloodPool extends BaseAbility implements IImpact, ILoopSound, IExpa
 
     @Override
     public void use(EntityLivingBase owner, SkillInfo skillInfo) {
-        if (((InfoCooldown) skillInfo).hasCooldown() || isClientWorld(owner)) return;
-        AbilityInfo abilityInfo = (AbilityInfo) skillInfo;
+        if (hasCooldown(skillInfo) || isClientWorld(owner)) return;
+        if (isNotActionable(owner) || canNotActivate(owner)) return;
 
-        if (isActionable(owner) && canActivate(owner)) {
-            if (!(owner instanceof EntityPlayer) || !((EntityPlayer) owner).capabilities.isCreativeMode) {
-                abilityInfo.setCooldown(getCooldown(abilityInfo));
-            }
-            double range = arekkuusu.enderskills.api.event.SkillRangeEvent.getRange(owner, this, getPoolRange(abilityInfo));;
-            int time = getPoolDuration(abilityInfo);
-            double dot = getDoT(abilityInfo);
-            int dotDuration = (int) arekkuusu.enderskills.api.event.SkillDurationEvent.getDuration(owner, this, getTime(abilityInfo));;
-            NBTTagCompound compound = new NBTTagCompound();
-            NBTHelper.setEntity(compound, owner, "owner");
-            NBTHelper.setDouble(compound, "range", range);
-            NBTHelper.setInteger(compound, "time", time);
-            NBTHelper.setDouble(compound, "dot", dot);
-            NBTHelper.setInteger(compound, "dotDuration", dotDuration);
-
-            SkillData data = SkillData.of(this)
-                    .by(owner)
-                    .put(compound)
-                    .create();
-            EntityThrowableData.throwFor(owner, Integer.MAX_VALUE, data, true);
-            super.sync(owner);
-
-            if (owner.world instanceof WorldServer) {
-                ((WorldServer) owner.world).playSound(null, owner.posX, owner.posY, owner.posZ, ModSounds.BLOODPOOL, SoundCategory.PLAYERS, 1.0F, (1.0F + (owner.world.rand.nextFloat() - owner.world.rand.nextFloat()) * 0.2F) * 0.7F);
-            }
+        InfoUpgradeable infoUpgradeable = (InfoUpgradeable) skillInfo;
+        InfoCooldown infoCooldown = (InfoCooldown) skillInfo;
+        int level = infoUpgradeable.getLevel();
+        if (infoCooldown.canSetCooldown(owner)) {
+            infoCooldown.setCooldown(DSLDefaults.getCooldown(this, level));
         }
+        //
+        double range = BloodPool.getPoolRange(owner, level).getAmount();
+        int time = BloodPool.getPoolDuration(owner, level).getAmount();
+        double dot = DSLDefaults.getDamageOverTime(this, level);
+        int dotDuration = DSLDefaults.triggerDamageDuration(owner, this, level).getAmount();
+        NBTTagCompound compound = new NBTTagCompound();
+        NBTHelper.setEntity(compound, owner, "owner");
+        NBTHelper.setDouble(compound, "range", range);
+        NBTHelper.setInteger(compound, "time", time);
+        NBTHelper.setDouble(compound, "dot", dot);
+        NBTHelper.setInteger(compound, "dotDuration", dotDuration);
+
+        SkillData data = SkillData.of(this)
+                .by(owner)
+                .put(compound)
+                .create();
+        EntityThrowableData.throwFor(owner, Integer.MAX_VALUE, data, true);
+        super.sync(owner);
+
+        SoundHelper.playSound(owner.world, owner.getPosition(), ModSounds.BLOODPOOL);
     }
 
     //* Entity *//
@@ -134,267 +131,29 @@ public class BloodPool extends BaseAbility implements IImpact, ILoopSound, IExpa
 
     @Override
     public void onScan(Entity source, @Nullable EntityLivingBase owner, EntityLivingBase target, SkillData skillData) {
-        if(!target.world.isRemote) {
+        if (!target.world.isRemote) {
             ModEffects.BLEEDING.set(target, skillData);
         }
     }
     //* Entity *//
 
-    public int getMaxLevel() {
-        return this.config.max_level;
-    }
-
-    public int getTopLevel() {
-        return this.config.limit_level;
-    }
-
-    public float getPoolRange(AbilityInfo info) {
-        return (float) this.config.get(this, "POOL_RANGE", info.getLevel());
-    }
-
-    public int getPoolDuration(AbilityInfo info) {
-        return (int) this.config.get(this, "POOL_DURATION", info.getLevel());
-    }
-
-        public double getDoT(AbilityInfo info) {
-        return this.config.get(this, "DOT", info.getLevel(), CommonConfig.CONFIG_SYNC.skill.globalNegativeEffect);
-    }
-
-    public int getCooldown(AbilityInfo info) {
-        return (int) this.config.get(this, "COOLDOWN", info.getLevel());
-    }
-
-    public int getTime(AbilityInfo info) {
-        return (int) this.config.get(this, "DOT_DURATION", info.getLevel());
-    }
-
-    /*Advancement Section*/
-    @Override
-    @SideOnly(Side.CLIENT)
-    public void addDescription(List<String> description) {
-        Capabilities.get(Minecraft.getMinecraft().player).ifPresent(c -> {
-            if (c.isOwned(this)) {
-                if (!GuiScreen.isShiftKeyDown()) {
-                    description.add("");
-                    description.add(TextHelper.translate("desc.stats.shift"));
-                } else {
-                    c.getOwned(this).ifPresent(skillInfo -> {
-                        AbilityInfo abilityInfo = (AbilityInfo) skillInfo;
-                        description.clear();
-                        description.add(TextHelper.translate("desc.stats.endurance", String.valueOf(ModAttributes.ENDURANCE.getEnduranceDrain(this, abilityInfo.getLevel()))));
-                        description.add("");
-                        if (abilityInfo.getLevel() >= getMaxLevel()) {
-                            description.add(TextHelper.translate("desc.stats.level_max", getMaxLevel()));
-                        } else {
-                            description.add(TextHelper.translate("desc.stats.level_current", abilityInfo.getLevel(), abilityInfo.getLevel() + 1));
-                        }
-                        description.add(TextHelper.translate("desc.stats.cooldown", TextHelper.format2FloatPoint(getCooldown(abilityInfo) / 20D), TextHelper.getTextComponent("desc.stats.suffix_time")));
-                        description.add(TextHelper.translate("desc.stats.bleed", TextHelper.format2FloatPoint(getTime(abilityInfo) / 20D), TextHelper.getTextComponent("desc.stats.suffix_time")));
-                        description.add(TextHelper.translate("desc.stats.pool_duration", TextHelper.format2FloatPoint(getPoolDuration(abilityInfo) / 20D), TextHelper.getTextComponent("desc.stats.suffix_time")));
-                        description.add(TextHelper.translate("desc.stats.pool_size", TextHelper.format2FloatPoint(getPoolRange(abilityInfo) / 20D), TextHelper.getTextComponent("desc.stats.suffix_blocks")));
-                        description.add(TextHelper.translate("desc.stats.dot", TextHelper.format2FloatPoint(getDoT(abilityInfo) / 2D), TextHelper.getTextComponent("desc.stats.suffix_hearts")));
-                        if (abilityInfo.getLevel() < getMaxLevel()) {
-                            if (!GuiScreen.isCtrlKeyDown()) {
-                                description.add("");
-                                description.add(TextHelper.translate("desc.stats.ctrl"));
-                            } else { //Copy info and set a higher level...
-                                AbilityInfo infoNew = new AbilityInfo(abilityInfo.serializeNBT());
-                                infoNew.setLevel(infoNew.getLevel() + 1);
-                                description.add("");
-                                description.add(TextHelper.translate("desc.stats.level_next", abilityInfo.getLevel(), infoNew.getLevel()));
-                                description.add(TextHelper.translate("desc.stats.cooldown", TextHelper.format2FloatPoint(getCooldown(infoNew) / 20D), TextHelper.getTextComponent("desc.stats.suffix_time")));
-                                description.add(TextHelper.translate("desc.stats.bleed", TextHelper.format2FloatPoint(getTime(infoNew) / 20D), TextHelper.getTextComponent("desc.stats.suffix_time")));
-                                description.add(TextHelper.translate("desc.stats.pool_duration", TextHelper.format2FloatPoint(getPoolDuration(infoNew) / 20D), TextHelper.getTextComponent("desc.stats.suffix_time")));
-                                description.add(TextHelper.translate("desc.stats.pool_size", TextHelper.format2FloatPoint(getPoolRange(infoNew) / 20D), TextHelper.getTextComponent("desc.stats.suffix_blocks")));
-                                description.add(TextHelper.translate("desc.stats.dot", TextHelper.format2FloatPoint(getDoT(infoNew) / 2D), TextHelper.getTextComponent("desc.stats.suffix_hearts")));
-                            }
-                        }
-                    });
-                }
-            }
-        });
-    }
-
-    @Override
-    public Skill getParentSkill() {
-        return ModAbilities.BLEED;
-    }
-
-    @Override
-    public double getExperience(int lvl) {
-        return this.config.get(this, "XP", lvl);
-    }
-
-    @Override
-    public int getEndurance(int lvl) {
-        return (int) this.config.get(this, "ENDURANCE", lvl);
-    }
-
-    /*Advancement Section*/
-
     /*Config Section*/
     public static final String CONFIG_FILE = LibNames.BLOOD_OFFENCE_CONFIG + LibNames.BLOOD_POOL;
-    public DSLConfig config = new DSLConfig();
-
-    @Override
-    public void initSyncConfig() {
-        Configuration.CONFIG_SYNC.dsl = Configuration.CONFIG.dsl;
-        this.sigmaDic();
-    }
-
-    @Override
-    public void writeSyncConfig(NBTTagCompound compound) {
-        NBTHelper.setArray(compound, "config", Configuration.CONFIG.dsl);
-        initSyncConfig();
-    }
-
-    @Override
-    public void readSyncConfig(NBTTagCompound compound) {
-        Configuration.CONFIG_SYNC.dsl = NBTHelper.getArray(compound, "config");
-        sigmaDic();
-    }
-
-    @Override
-    public void sigmaDic() {
-        this.config = DSLParser.parse(Configuration.CONFIG_SYNC.dsl);
-    }
 
     @Config(modid = LibMod.MOD_ID, name = CONFIG_FILE)
     public static class Configuration {
 
-        @Config.Ignore
-        public static Configuration.Values CONFIG_SYNC = new Configuration.Values();
-        public static Configuration.Values CONFIG = new Configuration.Values();
+        public static DSL CONFIG = DSLFactory.create(CONFIG_FILE);
+    }
 
-        public static class Values {
+    public static SkillRangeEvent getPoolRange(EntityLivingBase entityLivingBase, int level) {
+        double original = DSLEvaluator.evaluateDouble(ModAbilities.BLOOD_POOL, "POOL_RANGE", level, 1D);
+        return SkillRangeEvent.trigger(entityLivingBase, ModAbilities.BLOOD_POOL, original);
+    }
 
-            public String[] dsl = {
-                    "",
-                    "┌ v1.0",
-                    "│ ",
-                    "├ min_level: 0",
-                    "├ max_level: 50",
-                    "└ ",
-                    "",
-                    "┌ COOLDOWN (",
-                    "│     shape: flat",
-                    "│     min: 60s",
-                    "│     max: 24s",
-                    "│ ",
-                    "│     {0 to 25} [",
-                    "│         shape: ramp negative",
-                    "│         start: {min}",
-                    "│         end:   36s",
-                    "│     ]",
-                    "│ ",
-                    "│     {25 to 49} [",
-                    "│         shape: ramp positive",
-                    "│         start: {0 to 25}",
-                    "│         end:   28s",
-                    "│     ]",
-                    "│ ",
-                    "│     {50} [",
-                    "│         shape: none",
-                    "│         return: {max}",
-                    "│     ]",
-                    "└ )",
-                    "",
-                    "┌ DOT (",
-                    "│     shape: flat",
-                    "│     min: 2h",
-                    "│     max: 8h",
-                    "│ ",
-                    "│     {0 to 25} [",
-                    "│         shape: ramp negative",
-                    "│         start: {min}",
-                    "│         end:   3h",
-                    "│     ]",
-                    "│ ",
-                    "│     {25 to 49} [",
-                    "│         shape: ramp positive",
-                    "│         start: {0 to 25}",
-                    "│         end:   7h",
-                    "│     ]",
-                    "│ ",
-                    "│     {50} [",
-                    "│         shape: none",
-                    "│         return: {max}",
-                    "│     ]",
-                    "└ )",
-                    "",
-                    "┌ DOT_DURATION (",
-                    "│     shape: none",
-                    "│     value: 6s",
-                    "└ )",
-                    "",
-                    "│ POOL_RANGE (",
-                    "│     shape: flat",
-                    "│     min: 3b",
-                    "│     max: 6b",
-                    "│ ",
-                    "│     {0 to 25} [",
-                    "│         shape: ramp negative",
-                    "│         start: {min}",
-                    "│         end:   4b",
-                    "│     ]",
-                    "│ ",
-                    "│     {25 to 49} [",
-                    "│         shape: ramp positive",
-                    "│         start: {0 to 25}",
-                    "│         end:   5b",
-                    "│     ]",
-                    "│ ",
-                    "│     {50} [",
-                    "│         shape: none",
-                    "│         return: {max}",
-                    "│     ]",
-                    "└ )",
-                    "",
-                    "│ POOL_DURATION (",
-                    "│     shape: flat",
-                    "│     min: 6s",
-                    "│     max: 9s",
-                    "│ ",
-                    "│     {0 to 25} [",
-                    "│         shape: ramp negative",
-                    "│         start: {min}",
-                    "│         end:   7s",
-                    "│     ]",
-                    "│ ",
-                    "│     {25 to 49} [",
-                    "│         shape: ramp positive",
-                    "│         start: {0 to 25}",
-                    "│         end:   8s",
-                    "│     ]",
-                    "│ ",
-                    "│     {50} [",
-                    "│         shape: none",
-                    "│         return: {max}",
-                    "│     ]",
-                    "└ )",
-                    "",
-                    "┌ ENDURANCE (",
-                    "│     shape: none",
-                    "│     value: 6",
-                    "└ )",
-                    "",
-                    "┌ XP (",
-                    "│     shape: flat",
-                    "│     min: 0",
-                    "│     max: infinite",
-                    "│ ",
-                    "│     {0} [",
-                    "│         shape: none",
-                    "│         return: 300",
-                    "│     ]",
-                    "│ ",
-                    "│     {1 to 50} [",
-                    "│         shape: multiply 6",
-                    "│     ]",
-                    "└ )",
-                    "",
-            };
-        }
+    public static SkillDurationEvent getPoolDuration(EntityLivingBase entityLivingBase, int level) {
+        int original = DSLEvaluator.evaluateInt(ModAbilities.BLOOD_POOL, "POOL_DURATION", level, 1D);
+        return SkillDurationEvent.trigger(entityLivingBase, ModAbilities.BLOOD_POOL, original);
     }
     /*Config Section*/
 }

@@ -57,8 +57,8 @@ public class FinalFlash extends BaseAbility implements IScanEntities, IExpand {
                 abilityInfo.setCooldown(getCooldown(abilityInfo));
             }
             int duration = (int) arekkuusu.enderskills.api.event.SkillDurationEvent.getDuration(owner, this, getDuration(abilityInfo));;
-            double range = arekkuusu.enderskills.api.event.SkillRangeEvent.getRange(owner, this, getRange(abilityInfo));;
-            double dot = getDoT(abilityInfo);
+            double range = DSLDefaults.triggerRange(owner, this, level).getAmount();
+            double dot = DSLDefaults.getDamageOverTime(this, level);
             double delay = getDelay(abilityInfo);
             double size = getSize(abilityInfo);
             NBTTagCompound compound = new NBTTagCompound();

@@ -1,15 +1,19 @@
 package arekkuusu.enderskills.common.skill.ability.offence.blood;
 
 import arekkuusu.enderskills.api.capability.Capabilities;
+import arekkuusu.enderskills.api.capability.data.InfoCooldown;
+import arekkuusu.enderskills.api.capability.data.InfoUpgradeable;
 import arekkuusu.enderskills.api.capability.data.SkillData;
 import arekkuusu.enderskills.api.capability.data.SkillInfo;
-import arekkuusu.enderskills.api.capability.data.InfoCooldown;
+import arekkuusu.enderskills.api.configuration.DSL;
 import arekkuusu.enderskills.api.configuration.DSLConfig;
+import arekkuusu.enderskills.api.configuration.DSLDefaults;
+import arekkuusu.enderskills.api.configuration.DSLFactory;
 import arekkuusu.enderskills.api.configuration.parser.DSLParser;
 import arekkuusu.enderskills.api.helper.NBTHelper;
+import arekkuusu.enderskills.api.helper.SoundHelper;
 import arekkuusu.enderskills.api.helper.TeamHelper;
 import arekkuusu.enderskills.api.registry.Skill;
-import arekkuusu.enderskills.client.gui.data.SkillAdvancement;
 import arekkuusu.enderskills.client.util.helper.TextHelper;
 import arekkuusu.enderskills.common.CommonConfig;
 import arekkuusu.enderskills.common.lib.LibMod;
@@ -29,8 +33,6 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.DamageSource;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Config;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
@@ -40,6 +42,8 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 import java.util.List;
+
+import static arekkuusu.enderskills.common.skill.effect.BaseEffect.INDEFINITE;
 
 public class Bleed extends BaseAbility {
 
@@ -51,17 +55,23 @@ public class Bleed extends BaseAbility {
     @Override
     public void use(EntityLivingBase owner, SkillInfo skillInfo) {
         if (isClientWorld(owner) || !isActionable(owner)) return;
-        AbilityInfo abilityInfo = (AbilityInfo) skillInfo;
 
         if (!SkillHelper.isActiveFrom(owner, this)) {
-            if (!((InfoCooldown) skillInfo).hasCooldown() && canActivate(owner)) {
-                if (!(owner instanceof EntityPlayer) || !((EntityPlayer) owner).capabilities.isCreativeMode) {
-                    abilityInfo.setCooldown(getCooldown(abilityInfo));
+            if (hasNoCooldown(skillInfo) && canActivate(owner)) {
+                InfoUpgradeable infoUpgradeable = (InfoUpgradeable) skillInfo;
+                InfoCooldown infoCooldown = (InfoCooldown) skillInfo;
+                int level = infoUpgradeable.getLevel();
+                if (infoCooldown.canSetCooldown(owner)) {
+                    infoCooldown.setCooldown(DSLDefaults.getCooldown(this, level));
                 }
+
+                //
+                double doT = DSLDefaults.getDamageOverTime(this, level);
+                int time = DSLDefaults.triggerDamageDuration(owner, this, level).getAmount();
                 NBTTagCompound compound = new NBTTagCompound();
                 NBTHelper.setEntity(compound, owner, "owner");
-                NBTHelper.setDouble(compound, "dot", getDoT(abilityInfo));
-                NBTHelper.setInteger(compound, "dotDuration", getTime(abilityInfo));
+                NBTHelper.setDouble(compound, "dot", doT);
+                NBTHelper.setInteger(compound, "dotDuration", time);
                 SkillData data = SkillData.of(this)
                         .by(owner)
                         .with(INDEFINITE)
@@ -72,13 +82,11 @@ public class Bleed extends BaseAbility {
                 super.sync(owner, data);
                 super.sync(owner);
 
-                if (owner.world instanceof WorldServer) {
-                    ((WorldServer) owner.world).playSound(null, owner.posX, owner.posY, owner.posZ, ModSounds.BLEED, SoundCategory.PLAYERS, 1.0F, (1.0F + (owner.world.rand.nextFloat() - owner.world.rand.nextFloat()) * 0.2F) * 0.7F);
-                }
+                SoundHelper.playSound(owner.world, owner.getPosition(), ModSounds.BLEED);
             }
         } else {
             SkillHelper.getActiveFrom(owner, this).ifPresent(data -> {
-               super.unapply(owner, data);
+                super.unapply(owner, data);
                 super.async(owner, data);
             });
         }
@@ -98,7 +106,7 @@ public class Bleed extends BaseAbility {
                         PacketHelper.sendEnduranceSync((EntityPlayerMP) owner);
                     }
                 } else {
-                   super.unapply(owner, data);
+                    super.unapply(owner, data);
                     super.async(owner, data);
                 }
             });
@@ -113,191 +121,19 @@ public class Bleed extends BaseAbility {
         EntityLivingBase attacker = (EntityLivingBase) source.getTrueSource();
         EntityLivingBase target = event.getEntityLiving();
         if (TeamHelper.SELECTOR_ENEMY.apply(attacker).test(target)) {
-            SkillHelper.getActiveFrom(attacker, this).ifPresent(data -> {
+            SkillHelper.getActiveFrom(attacker, ModAbilities.BLEED).ifPresent(data -> {
                 ModEffects.BLEEDING.set(target, data);
             });
         }
     }
 
-    public int getMaxLevel() {
-        return this.config.max_level;
-    }
-
-    public int getTopLevel() {
-        return this.config.limit_level;
-    }
-
-    public double getDoT(AbilityInfo info) {
-        return this.config.get(this, "DOT", info.getLevel(), CommonConfig.CONFIG_SYNC.skill.globalNegativeEffect);
-    }
-
-    public int getCooldown(AbilityInfo info) {
-        return (int) this.config.get(this, "COOLDOWN", info.getLevel());
-    }
-
-    public int getTime(AbilityInfo info) {
-        return (int) this.config.get(this, "DOT_DURATION", info.getLevel());
-    }
-
-    /*Advancement Section*/
-    @Override
-    @SideOnly(Side.CLIENT)
-    public void addDescription(List<String> description) {
-        Capabilities.get(Minecraft.getMinecraft().player).ifPresent(c -> {
-            if (c.isOwned(this)) {
-                if (!GuiScreen.isShiftKeyDown()) {
-                    description.add("");
-                    description.add(TextHelper.translate("desc.stats.shift"));
-                } else {
-                    c.getOwned(this).ifPresent(skillInfo -> {
-                        AbilityInfo abilityInfo = (AbilityInfo) skillInfo;
-                        description.clear();
-                        description.add(TextHelper.translate("desc.stats.endurance", String.valueOf(ModAttributes.ENDURANCE.getEnduranceDrain(this, abilityInfo.getLevel()))));
-                        description.add("");
-                        if (abilityInfo.getLevel() >= getMaxLevel()) {
-                            description.add(TextHelper.translate("desc.stats.level_max", getMaxLevel()));
-                        } else {
-                            description.add(TextHelper.translate("desc.stats.level_current", abilityInfo.getLevel(), abilityInfo.getLevel() + 1));
-                        }
-                        description.add(TextHelper.translate("desc.stats.cooldown", TextHelper.format2FloatPoint(getCooldown(abilityInfo) / 20D), TextHelper.getTextComponent("desc.stats.suffix_time")));
-                        description.add(TextHelper.translate("desc.stats.duration", TextHelper.format2FloatPoint(getTime(abilityInfo) / 20D), TextHelper.getTextComponent("desc.stats.suffix_time")));
-                        description.add(TextHelper.translate("desc.stats.dot", TextHelper.format2FloatPoint(getDoT(abilityInfo) / 2D), TextHelper.getTextComponent("desc.stats.suffix_hearts")));
-                        if (abilityInfo.getLevel() < getMaxLevel()) {
-                            if (!GuiScreen.isCtrlKeyDown()) {
-                                description.add("");
-                                description.add(TextHelper.translate("desc.stats.ctrl"));
-                            } else { //Copy info and set a higher level...
-                                AbilityInfo infoNew = new AbilityInfo(abilityInfo.serializeNBT());
-                                infoNew.setLevel(infoNew.getLevel() + 1);
-                                description.add("");
-                                description.add(TextHelper.translate("desc.stats.level_next", abilityInfo.getLevel(), infoNew.getLevel()));
-                                description.add(TextHelper.translate("desc.stats.cooldown", TextHelper.format2FloatPoint(getCooldown(infoNew) / 20D), TextHelper.getTextComponent("desc.stats.suffix_time")));
-                                description.add(TextHelper.translate("desc.stats.duration", TextHelper.format2FloatPoint(getTime(infoNew) / 20D), TextHelper.getTextComponent("desc.stats.suffix_time")));
-                                description.add(TextHelper.translate("desc.stats.dot", TextHelper.format2FloatPoint(getDoT(infoNew) / 2D), TextHelper.getTextComponent("desc.stats.suffix_hearts")));
-                            }
-                        }
-                    });
-                }
-            }
-        });
-    }
-
-    @Override
-    public Skill getParentSkill() {
-        return ModAbilities.BLEED;
-    }
-
-    @Override
-    public double getExperience(int lvl) {
-        return this.config.get(this, "XP", lvl);
-    }
-
-    @Override
-    public int getEndurance(int lvl) {
-        return (int) this.config.get(this, "ENDURANCE", lvl);
-    }
-
-    /*Advancement Section*/
-
     /*Config Section*/
     public static final String CONFIG_FILE = LibNames.BLOOD_OFFENCE_CONFIG + LibNames.BLEED;
-    public DSLConfig config = new DSLConfig();
-
-    @Override
-    public void initSyncConfig() {
-        Configuration.CONFIG_SYNC.dsl = Configuration.CONFIG.dsl;
-        this.sigmaDic();
-    }
-
-    @Override
-    public void writeSyncConfig(NBTTagCompound compound) {
-        NBTHelper.setArray(compound, "config", Configuration.CONFIG.dsl);
-        initSyncConfig();
-    }
-
-    @Override
-    public void readSyncConfig(NBTTagCompound compound) {
-        Configuration.CONFIG_SYNC.dsl = NBTHelper.getArray(compound, "config");
-        sigmaDic();
-    }
-
-    @Override
-    public void sigmaDic() {
-        this.config = DSLParser.parse(Configuration.CONFIG_SYNC.dsl);
-    }
 
     @Config(modid = LibMod.MOD_ID, name = CONFIG_FILE)
     public static class Configuration {
 
-        @Config.Ignore
-        public static Configuration.Values CONFIG_SYNC = new Configuration.Values();
-        public static Configuration.Values CONFIG = new Configuration.Values();
-
-        public static class Values {
-
-            public String[] dsl = {
-                    "",
-                    "┌ v1.0",
-                    "│ ",
-                    "├ min_level: 0",
-                    "├ max_level: 50",
-                    "└ ",
-                    "",
-                    "┌ COOLDOWN (",
-                    "│     shape: none",
-                    "│     value: 8s",
-                    "└ )",
-                    "",
-                    "┌ DOT (",
-                    "│     shape: flat",
-                    "│     min: 2h",
-                    "│     max: 8h",
-                    "│ ",
-                    "│     {0 to 25} [",
-                    "│         shape: ramp negative",
-                    "│         start: {min}",
-                    "│         end:   3h",
-                    "│     ]",
-                    "│ ",
-                    "│     {25 to 49} [",
-                    "│         shape: ramp positive",
-                    "│         start: {0 to 25}",
-                    "│         end:   7h",
-                    "│     ]",
-                    "│ ",
-                    "│     {50} [",
-                    "│         shape: none",
-                    "│         return: {max}",
-                    "│     ]",
-                    "└ )",
-                    "",
-                    "┌ DOT_DURATION (",
-                    "│     shape: none",
-                    "│     value: 6s",
-                    "└ )",
-                    "",
-                    "┌ ENDURANCE (",
-                    "│     shape: none",
-                    "│     value: 1",
-                    "└ )",
-                    "",
-                    "┌ XP (",
-                    "│     shape: flat",
-                    "│     min: 0",
-                    "│     max: infinite",
-                    "│ ",
-                    "│     {0} [",
-                    "│         shape: none",
-                    "│         return: 170",
-                    "│     ]",
-                    "│ ",
-                    "│     {1 to 50} [",
-                    "│         shape: multiply 4",
-                    "│     ]",
-                    "└ )",
-                    "",
-            };
-        }
+        public static DSL CONFIG = DSLFactory.create(CONFIG_FILE);
     }
     /*Config Section*/
 }

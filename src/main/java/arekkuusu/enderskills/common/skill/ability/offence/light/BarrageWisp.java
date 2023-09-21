@@ -59,8 +59,8 @@ public class BarrageWisp extends BaseAbility implements IImpact {
             if (!(owner instanceof EntityPlayer) || !((EntityPlayer) owner).capabilities.isCreativeMode) {
                 abilityInfo.setCooldown(getCooldown(abilityInfo));
             }
-            double distance = arekkuusu.enderskills.api.event.SkillRangeEvent.getRange(owner, this, getRange(abilityInfo));;
-            double damage = getDamage(abilityInfo);
+            double distance = DSLDefaults.triggerRange(owner, this, level).getAmount();
+            double damage = DSLDefaults.getDamage(this, level);
             double amount = getAmount(abilityInfo);
             NBTTagCompound compound = new NBTTagCompound();
             NBTHelper.setEntity(compound, owner, "owner");

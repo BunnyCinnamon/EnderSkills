@@ -51,14 +51,14 @@ public class Crush extends BaseAbility implements IImpact {
     public void use(EntityLivingBase owner, SkillInfo skillInfo) {
         if (((InfoCooldown) skillInfo).hasCooldown() || isClientWorld(owner)) return;
         AbilityInfo abilityInfo = (AbilityInfo) skillInfo;
-        double distance = arekkuusu.enderskills.api.event.SkillRangeEvent.getRange(owner, this, getRange(abilityInfo));;
+        double distance = DSLDefaults.triggerRange(owner, this, level).getAmount();
 
         if (isActionable(owner) && canActivate(owner)) {
             if (!(owner instanceof EntityPlayer) || !((EntityPlayer) owner).capabilities.isCreativeMode) {
                 abilityInfo.setCooldown(getCooldown(abilityInfo));
             }
             double size = getSize(abilityInfo);
-            double damage = getDamage(abilityInfo);
+            double damage = DSLDefaults.getDamage(this, level);
             NBTTagCompound compound = new NBTTagCompound();
             NBTHelper.setEntity(compound, owner, "owner");
             NBTHelper.setDouble(compound, "size", size);

@@ -58,8 +58,8 @@ public class Slash extends BaseAbility implements IScanEntities, IExpand, IFindE
                 abilityInfo.setCooldown(getCooldown(abilityInfo));
             }
             double distance = getTravel(abilityInfo);
-            double range = arekkuusu.enderskills.api.event.SkillRangeEvent.getRange(owner, this, getRange(abilityInfo));;
-            double damage = getDamage(abilityInfo);
+            double range = DSLDefaults.triggerRange(owner, this, level).getAmount();
+            double damage = DSLDefaults.getDamage(this, level);
             NBTTagCompound compound = new NBTTagCompound();
             NBTHelper.setEntity(compound, owner, "owner");
             NBTHelper.setDouble(compound, "damage", damage);

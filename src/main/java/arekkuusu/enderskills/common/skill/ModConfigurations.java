@@ -11,6 +11,11 @@ import arekkuusu.enderskills.common.skill.ability.defense.fire.*;
 import arekkuusu.enderskills.common.skill.ability.defense.light.*;
 import arekkuusu.enderskills.common.skill.ability.mobility.ender.*;
 import arekkuusu.enderskills.common.skill.ability.mobility.wind.*;
+import arekkuusu.enderskills.common.skill.ability.offence.blood.*;
+import arekkuusu.enderskills.common.skill.ability.offence.ender.*;
+import arekkuusu.enderskills.common.skill.ability.offence.fire.*;
+import arekkuusu.enderskills.common.skill.ability.offence.light.*;
+import arekkuusu.enderskills.common.skill.ability.offence.wind.*;
 import arekkuusu.enderskills.common.skill.attribute.mobility.Endurance;
 import arekkuusu.enderskills.common.skill.effect.Glowing;
 import net.minecraft.util.ResourceLocation;
@@ -30,16 +35,13 @@ public class ModConfigurations {
         return null;
     }
 
-    public static final ConfigSynchronizer ANIMATED_STONE_GOLEM = empty();
-    public static final ConfigSynchronizer GLOWING = empty();
-
     public static void register(IForgeRegistry<ConfigSynchronizer> registry) {
         // Global configuration
-        registry.register(new FieldConfigSynchronizer(CommonConfig.Values.class, "skill", CommonConfig.getSyncValues(), CommonConfig.getConfig(), "skill"));
-        registry.register(new FieldConfigSynchronizer(CommonConfig.Values.class, "advancement", CommonConfig.getSyncValues(), CommonConfig.getConfig(), "advancement"));
+        registry.register(new FieldConfigSynchronizer<>(CommonConfig.Values.class, "skill", CommonConfig.getSyncValues(), CommonConfig.getConfig(), "skill"));
+        registry.register(new FieldConfigSynchronizer<>(CommonConfig.Values.class, "advancement", CommonConfig.getSyncValues(), CommonConfig.getConfig(), "advancement"));
         registry.register(new StaticFieldConfigSynchronizer(Endurance.Configuration.class, "LOCAL_VALUES", "LOCAL", LibNames.ENDURANCE + "_map"));
         registry.register(new StaticFieldConfigSynchronizer(Overheat.Configuration.class, "LOCAL_VALUES", "LOCAL", LibNames.OVERHEAT + "_enum"));
-        registry.register(new ConfigSynchronizerListener("listener") {
+        registry.register(new ConfigSynchronizerListener("skill_listener") {
             @Override
             public void update() {
                 EnderSkillsAPI.defaultHumanTeam = CommonConfig.getSyncValues().skill.defaultHumanTeam;
@@ -87,6 +89,36 @@ public class ModConfigurations {
         registry.register(new DSLConfigSynchronizer(Hasten.Configuration.CONFIG, LibNames.HASTEN));
         registry.register(new DSLConfigSynchronizer(Smash.Configuration.CONFIG, LibNames.SMASH));
         registry.register(new DSLConfigSynchronizer(SpeedBoost.Configuration.CONFIG, LibNames.SPEED_BOOST));
+        registry.register(new DSLConfigSynchronizer(Bleed.Configuration.CONFIG, LibNames.BLEED));
+        registry.register(new DSLConfigSynchronizer(BloodPool.Configuration.CONFIG, LibNames.BLOOD_POOL));
+        registry.register(new DSLConfigSynchronizer(Contaminate.Configuration.CONFIG, LibNames.CONTAMINATE));
+        registry.register(new DSLConfigSynchronizer(LifeSteal.Configuration.CONFIG, LibNames.LIFE_STEAL));
+        registry.register(new DSLConfigSynchronizer(Sacrifice.Configuration.CONFIG, LibNames.SACRIFICE));
+        registry.register(new DSLConfigSynchronizer(Syphon.Configuration.CONFIG, LibNames.SYPHON));
+        registry.register(new DSLConfigSynchronizer(BlackHole.Configuration.CONFIG, LibNames.BLACK_HOLE));
+        registry.register(new DSLConfigSynchronizer(GasCloud.Configuration.CONFIG, LibNames.GAS_CLOUD));
+        registry.register(new DSLConfigSynchronizer(Gloom.Configuration.CONFIG, LibNames.GLOOM));
+        registry.register(new DSLConfigSynchronizer(Grasp.Configuration.CONFIG, LibNames.GRASP));
+        registry.register(new DSLConfigSynchronizer(Shadow.Configuration.CONFIG, LibNames.SHADOW));
+        registry.register(new DSLConfigSynchronizer(ShadowJab.Configuration.CONFIG, LibNames.SHADOW_JAB));
+        registry.register(new DSLConfigSynchronizer(Explode.Configuration.CONFIG, LibNames.EXPLODE));
+        registry.register(new DSLConfigSynchronizer(Fireball.Configuration.CONFIG, LibNames.FIREBALL));
+        registry.register(new DSLConfigSynchronizer(FireSpirit.Configuration.CONFIG, LibNames.FIRE_SPIRIT));
+        registry.register(new DSLConfigSynchronizer(FlamingBreath.Configuration.CONFIG, LibNames.FLAMING_BREATH));
+        registry.register(new DSLConfigSynchronizer(FlamingRain.Configuration.CONFIG, LibNames.FLAMING_RAIN));
+        registry.register(new DSLConfigSynchronizer(FocusFlame.Configuration.CONFIG, LibNames.FOCUS_FLAME));
+        registry.register(new DSLConfigSynchronizer(BarrageWisp.Configuration.CONFIG, LibNames.BARRAGE_WISPS));
+        registry.register(new DSLConfigSynchronizer(FinalFlash.Configuration.CONFIG, LibNames.FINAL_FLASH));
+        registry.register(new DSLConfigSynchronizer(GleamFlash.Configuration.CONFIG, LibNames.GLEAM_FLASH));
+        registry.register(new DSLConfigSynchronizer(LumenWave.Configuration.CONFIG, LibNames.LUMEN_WAVE));
+        registry.register(new DSLConfigSynchronizer(RadiantRay.Configuration.CONFIG, LibNames.RADIANT_RAY));
+        registry.register(new DSLConfigSynchronizer(SolarLance.Configuration.CONFIG, LibNames.SOLAR_LANCE));
+        registry.register(new DSLConfigSynchronizer(Crush.Configuration.CONFIG, LibNames.CRUSH));
+        registry.register(new DSLConfigSynchronizer(Pull.Configuration.CONFIG, LibNames.PULL));
+        registry.register(new DSLConfigSynchronizer(Push.Configuration.CONFIG, LibNames.PUSH));
+        registry.register(new DSLConfigSynchronizer(Slash.Configuration.CONFIG, LibNames.SLASH));
+        registry.register(new DSLConfigSynchronizer(Suffocate.Configuration.CONFIG, LibNames.SUFFOCATE));
+        registry.register(new DSLConfigSynchronizer(Updraft.Configuration.CONFIG, LibNames.UPDRAFT));
         //
         registry.register(new DSLConfigSynchronizer(Glowing.Configuration.CONFIG, LibNames.GLOWING));
         registry.register(new DSLConfigSynchronizer(Endurance.Configuration.CONFIG, LibNames.ENDURANCE));

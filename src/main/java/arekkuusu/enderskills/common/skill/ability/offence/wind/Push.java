@@ -62,10 +62,10 @@ public class Push extends BaseAbility implements IImpact, IScanEntities, IExpand
             if (!(owner instanceof EntityPlayer) || !((EntityPlayer) owner).capabilities.isCreativeMode) {
                 abilityInfo.setCooldown(getCooldown(abilityInfo));
             }
-            double distance = arekkuusu.enderskills.api.event.SkillRangeEvent.getRange(owner, this, getRange(abilityInfo));;
+            double distance = DSLDefaults.triggerRange(owner, this, level).getAmount();
             double range = arekkuusu.enderskills.api.event.SkillRangeEvent.getRange(owner, this, getPushRange(abilityInfo));;
             double force = getPush(abilityInfo);
-            int time = (int) arekkuusu.enderskills.api.event.SkillDurationEvent.getDuration(owner, this, getTime(abilityInfo));;
+            int time = DSLDefaults.triggerDuration(owner, this, level).getAmount();
             NBTTagCompound compound = new NBTTagCompound();
             NBTHelper.setEntity(compound, owner, "owner");
             NBTHelper.setDouble(compound, "range", range);

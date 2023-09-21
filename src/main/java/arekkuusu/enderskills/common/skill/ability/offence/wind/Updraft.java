@@ -54,7 +54,7 @@ public class Updraft extends BaseAbility implements IScanEntities, IExpand, IFin
             if (!(owner instanceof EntityPlayer) || !((EntityPlayer) owner).capabilities.isCreativeMode) {
                 abilityInfo.setCooldown(getCooldown(abilityInfo));
             }
-            double distance = arekkuusu.enderskills.api.event.SkillRangeEvent.getRange(owner, this, getRange(abilityInfo));;
+            double distance = DSLDefaults.triggerRange(owner, this, level).getAmount();
             double range = arekkuusu.enderskills.api.event.SkillRangeEvent.getRange(owner, this, getLiftRange(abilityInfo));;
             double force = getLaunch(abilityInfo);
             NBTTagCompound compound = new NBTTagCompound();

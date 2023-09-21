@@ -4,6 +4,7 @@ import arekkuusu.enderskills.api.capability.data.SkillData;
 import arekkuusu.enderskills.api.event.SkillDamageEvent;
 import arekkuusu.enderskills.api.event.SkillDamageSource;
 import arekkuusu.enderskills.api.helper.NBTHelper;
+import arekkuusu.enderskills.api.helper.SoundHelper;
 import arekkuusu.enderskills.api.registry.Skill;
 import arekkuusu.enderskills.api.util.Vector;
 import arekkuusu.enderskills.common.EnderSkills;
@@ -57,9 +58,7 @@ public class Zap extends Skill {
                 entity.attackEntityFrom(event.getSource(), event.toFloat());
             }
 
-            if (entity.world instanceof WorldServer) {
-                ((WorldServer) entity.world).playSound(null, entity.posX, entity.posY, entity.posZ, ModSounds.ELECTRIC_HIT, SoundCategory.BLOCKS, 0.5F, (1.0F + (entity.world.rand.nextFloat() - entity.world.rand.nextFloat()) * 0.2F) * 0.7F);
-            }
+            SoundHelper.playSound(entity.world, entity.getPosition(), ModSounds.ELECTRIC_HIT);
         }
     }
 }

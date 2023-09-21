@@ -153,6 +153,10 @@ public class EntityShadow extends Entity {
         this.dataManager.set(MIRROR_DAMAGE, damage);
     }
 
+    public void spawn() {
+        world.spawnEntity(this);
+    }
+
     @Override
     public boolean shouldRenderInPass(int pass) {
         return pass == 1;

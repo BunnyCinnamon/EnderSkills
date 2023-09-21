@@ -62,8 +62,8 @@ public class GleamFlash extends BaseAbility implements IImpact, IExpand, IFindEn
                 abilityInfo.setCooldown(getCooldown(abilityInfo));
             }
             double distance = getTravel(abilityInfo);
-            double range = arekkuusu.enderskills.api.event.SkillRangeEvent.getRange(owner, this, getRange(abilityInfo));;
-            double damage = getDamage(abilityInfo);
+            double range = DSLDefaults.triggerRange(owner, this, level).getAmount();
+            double damage = DSLDefaults.getDamage(this, level);
             double time = arekkuusu.enderskills.api.event.SkillDurationEvent.getDuration(owner, this, getTime(abilityInfo));;
             double delay = getDelay(abilityInfo);
             NBTTagCompound compound = new NBTTagCompound();
