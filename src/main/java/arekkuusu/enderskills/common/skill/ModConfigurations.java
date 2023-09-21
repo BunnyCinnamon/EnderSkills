@@ -16,7 +16,9 @@ import arekkuusu.enderskills.common.skill.ability.offence.ender.*;
 import arekkuusu.enderskills.common.skill.ability.offence.fire.*;
 import arekkuusu.enderskills.common.skill.ability.offence.light.*;
 import arekkuusu.enderskills.common.skill.ability.offence.wind.*;
-import arekkuusu.enderskills.common.skill.attribute.mobility.Endurance;
+import arekkuusu.enderskills.common.skill.attribute.deffense.*;
+import arekkuusu.enderskills.common.skill.attribute.mobility.*;
+import arekkuusu.enderskills.common.skill.attribute.offense.*;
 import arekkuusu.enderskills.common.skill.effect.Glowing;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.registry.GameRegistry;
@@ -41,6 +43,10 @@ public class ModConfigurations {
         registry.register(new FieldConfigSynchronizer<>(CommonConfig.Values.class, "advancement", CommonConfig.getSyncValues(), CommonConfig.getConfig(), "advancement"));
         registry.register(new StaticFieldConfigSynchronizer(Endurance.Configuration.class, "LOCAL_VALUES", "LOCAL", LibNames.ENDURANCE + "_map"));
         registry.register(new StaticFieldConfigSynchronizer(Overheat.Configuration.class, "LOCAL_VALUES", "LOCAL", LibNames.OVERHEAT + "_enum"));
+        registry.register(new StaticFieldConfigSynchronizer(AbilityDuration.Configuration.class, "LOCAL_VALUES", "LOCAL", LibNames.ABILITY_DURATION + "_enum"));
+        registry.register(new StaticFieldConfigSynchronizer(AbilityPower.Configuration.class, "LOCAL_VALUES", "LOCAL", LibNames.ABILITY_POWER + "_enum"));
+        registry.register(new StaticFieldConfigSynchronizer(AbilityRange.Configuration.class, "LOCAL_VALUES", "LOCAL", LibNames.ABILITY_RANGE + "_enum"));
+        registry.register(new StaticFieldConfigSynchronizer(MeleeDamage.Configuration.class, "LOCAL_VALUES", "LOCAL", LibNames.DAMAGE + "_enum"));
         registry.register(new ConfigSynchronizerListener("skill_listener") {
             @Override
             public void update() {
@@ -121,7 +127,26 @@ public class ModConfigurations {
         registry.register(new DSLConfigSynchronizer(Updraft.Configuration.CONFIG, LibNames.UPDRAFT));
         //
         registry.register(new DSLConfigSynchronizer(Glowing.Configuration.CONFIG, LibNames.GLOWING));
+        registry.register(new DSLConfigSynchronizer(DamageResistance.Configuration.CONFIG, LibNames.DAMAGE_RESISTANCE));
+        registry.register(new DSLConfigSynchronizer(ExplosionResistance.Configuration.CONFIG, LibNames.EXPLOSION_RESISTANCE));
+        registry.register(new DSLConfigSynchronizer(FireResistance.Configuration.CONFIG, LibNames.FIRE_RESISTANCE));
+        registry.register(new DSLConfigSynchronizer(HeartBoost.Configuration.CONFIG, LibNames.HEART_BOOST));
+        registry.register(new DSLConfigSynchronizer(KnockbackResistance.Configuration.CONFIG, LibNames.KNOCKBACK_RESISTANCE));
+        registry.register(new DSLConfigSynchronizer(MagicResistance.Configuration.CONFIG, LibNames.MAGIC_RESISTANCE));
         registry.register(new DSLConfigSynchronizer(Endurance.Configuration.CONFIG, LibNames.ENDURANCE));
+        registry.register(new DSLConfigSynchronizer(FallResistance.Configuration.CONFIG, LibNames.FALL_RESISTANCE));
+        registry.register(new DSLConfigSynchronizer(JumpHeight.Configuration.CONFIG, LibNames.JUMP_HEIGHT));
+        registry.register(new DSLConfigSynchronizer(Speed.Configuration.CONFIG, LibNames.SPEED));
+        registry.register(new DSLConfigSynchronizer(StealthDamage.Configuration.CONFIG, LibNames.STEALTH_DAMAGE));
+        registry.register(new DSLConfigSynchronizer(SwimSpeed.Configuration.CONFIG, LibNames.SWIM_SPEED));
+        registry.register(new DSLConfigSynchronizer(AbilityDuration.Configuration.CONFIG, LibNames.ABILITY_DURATION));
+        registry.register(new DSLConfigSynchronizer(AbilityPower.Configuration.CONFIG, LibNames.ABILITY_POWER));
+        registry.register(new DSLConfigSynchronizer(AbilityRange.Configuration.CONFIG, LibNames.ABILITY_RANGE));
+        registry.register(new DSLConfigSynchronizer(ArmorPenetration.Configuration.CONFIG, LibNames.ARMOR_PENETRATION));
+        registry.register(new DSLConfigSynchronizer(AttackSpeed.Configuration.CONFIG, LibNames.ATTACK_SPEED));
+        registry.register(new DSLConfigSynchronizer(CriticalChance.Configuration.CONFIG, LibNames.CRITICAL_CHANCE));
+        registry.register(new DSLConfigSynchronizer(Knockback.Configuration.CONFIG, LibNames.KNOCKBACK));
+        registry.register(new DSLConfigSynchronizer(MeleeDamage.Configuration.CONFIG, LibNames.DAMAGE));
     }
 
     public static ConfigSynchronizer setRegistry(ConfigSynchronizer configSynchronizer, String id) {
