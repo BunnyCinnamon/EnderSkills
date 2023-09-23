@@ -190,10 +190,10 @@ public final class DSLParser {
                 double amount = DSLParser.parseDoubleFromString(property, values[0]);
                 return GradientsUtil.multiplesIncrement(amount);
             case "f(x,":
-                String function = string.split("->")[0];
+                String function = string.split("->")[1];
                 return GradientsUtil.functionIncrement(function);
             case "solve":
-                String impureFunction = string.split("for")[0];
+                String impureFunction = string.split("for")[1];
                 return GradientsUtil.functionIncrement(impureFunction);
             default:
                 return GradientsUtil.clampToMinMax();

@@ -41,12 +41,12 @@ public class ModConfigurations {
         // Global configuration
         registry.register(new FieldConfigSynchronizer<>(CommonConfig.Values.class, "skill", CommonConfig.getSyncValues(), CommonConfig.getConfig(), "skill"));
         registry.register(new FieldConfigSynchronizer<>(CommonConfig.Values.class, "advancement", CommonConfig.getSyncValues(), CommonConfig.getConfig(), "advancement"));
-        registry.register(new StaticFieldConfigSynchronizer(Endurance.Configuration.class, "LOCAL_VALUES", "LOCAL", LibNames.ENDURANCE + "_map"));
-        registry.register(new StaticFieldConfigSynchronizer(Overheat.Configuration.class, "LOCAL_VALUES", "LOCAL", LibNames.OVERHEAT + "_enum"));
-        registry.register(new StaticFieldConfigSynchronizer(AbilityDuration.Configuration.class, "LOCAL_VALUES", "LOCAL", LibNames.ABILITY_DURATION + "_enum"));
-        registry.register(new StaticFieldConfigSynchronizer(AbilityPower.Configuration.class, "LOCAL_VALUES", "LOCAL", LibNames.ABILITY_POWER + "_enum"));
-        registry.register(new StaticFieldConfigSynchronizer(AbilityRange.Configuration.class, "LOCAL_VALUES", "LOCAL", LibNames.ABILITY_RANGE + "_enum"));
-        registry.register(new StaticFieldConfigSynchronizer(MeleeDamage.Configuration.class, "LOCAL_VALUES", "LOCAL", LibNames.DAMAGE + "_enum"));
+        registry.register(new StaticFieldConfigSynchronizer(Endurance.Configuration.class, "LOCAL_VALUES", "VALUES", LibNames.ENDURANCE + "_map"));
+        registry.register(new StaticFieldConfigSynchronizer(Overheat.Configuration.class, "LOCAL_VALUES", "VALUES", LibNames.OVERHEAT + "_enum"));
+        registry.register(new StaticFieldConfigSynchronizer(AbilityDuration.Configuration.class, "LOCAL_VALUES", "VALUES", LibNames.ABILITY_DURATION + "_enum"));
+        registry.register(new StaticFieldConfigSynchronizer(AbilityPower.Configuration.class, "LOCAL_VALUES", "VALUES", LibNames.ABILITY_POWER + "_enum"));
+        registry.register(new StaticFieldConfigSynchronizer(AbilityRange.Configuration.class, "LOCAL_VALUES", "VALUES", LibNames.ABILITY_RANGE + "_enum"));
+        registry.register(new StaticFieldConfigSynchronizer(MeleeDamage.Configuration.class, "LOCAL_VALUES", "VALUES", LibNames.DAMAGE + "_enum"));
         registry.register(new ConfigSynchronizerListener("skill_listener") {
             @Override
             public void update() {

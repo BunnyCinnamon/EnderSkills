@@ -35,8 +35,8 @@ public final class ModAttributes {
     public static final Skill ATTACK_SPEED = empty();
     public static final Skill KNOCKBACK = empty();
     public static final AbilityPower ABILITY_POWER = empty();
-    public static final AbilityPower ABILITY_DURATION = empty();
-    public static final AbilityPower ABILITY_RANGE = empty();
+    public static final Skill ABILITY_DURATION = empty();
+    public static final Skill ABILITY_RANGE = empty();
     public static final CriticalChance CRITICAL_CHANCE = empty();
     public static final ArmorPenetration ARMOR_PENETRATION = empty();
 

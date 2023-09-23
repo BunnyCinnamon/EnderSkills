@@ -5,7 +5,6 @@ import arekkuusu.enderskills.api.capability.Capabilities;
 import arekkuusu.enderskills.api.configuration.DSLDefaults;
 import arekkuusu.enderskills.api.registry.Skill;
 import arekkuusu.enderskills.client.gui.data.SkillAdvancement;
-import arekkuusu.enderskills.client.gui.data.SkillAdvancement.Requirement;
 import arekkuusu.enderskills.common.CommonConfig;
 import net.minecraft.entity.EntityLivingBase;
 
@@ -16,10 +15,10 @@ import java.util.Optional;
 
 public class BasicSkillAdvancement implements SkillAdvancement {
 
-    private final BaseAbility baseAbility;
-    private final BaseAbility parentAbility;
+    private final Skill baseAbility;
+    private final Skill parentAbility;
 
-    public BasicSkillAdvancement(BaseAbility baseAbility, BaseAbility parentAbility) {
+    public BasicSkillAdvancement(Skill baseAbility, Skill parentAbility) {
         this.baseAbility = baseAbility;
         this.parentAbility = parentAbility;
     }

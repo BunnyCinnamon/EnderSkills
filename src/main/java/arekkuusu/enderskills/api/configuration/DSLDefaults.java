@@ -71,6 +71,10 @@ public final class DSLDefaults {
         return DSLEvaluator.evaluateFloat(skill, "FORCE", level, 1D);
     }
 
+    public static float getPull(Skill skill, int level) {
+        return DSLEvaluator.evaluateFloat(skill, "PULL", level, 1D);
+    }
+
     public static int getHeight(Skill skill, int level) {
         return DSLEvaluator.evaluateInt(skill, "HEIGHT", level, 1D);
     }

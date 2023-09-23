@@ -3,10 +3,7 @@ package arekkuusu.enderskills.common.skill.ability.mobility.wind;
 import arekkuusu.enderskills.api.capability.Capabilities;
 import arekkuusu.enderskills.api.capability.data.SkillData;
 import arekkuusu.enderskills.api.capability.data.SkillInfo;
-import arekkuusu.enderskills.api.configuration.DSL;
-import arekkuusu.enderskills.api.configuration.DSLConfig;
-import arekkuusu.enderskills.api.configuration.DSLDefaults;
-import arekkuusu.enderskills.api.configuration.DSLFactory;
+import arekkuusu.enderskills.api.configuration.*;
 import arekkuusu.enderskills.api.configuration.parser.DSLParser;
 import arekkuusu.enderskills.api.helper.NBTHelper;
 import arekkuusu.enderskills.api.helper.SoundHelper;
@@ -133,6 +130,10 @@ public class ExtraJump extends BaseAbility {
     public static class Configuration {
 
         public static DSL CONFIG = DSLFactory.create(CONFIG_FILE);
+    }
+
+    public static int getJumps(int level) {
+        return DSLEvaluator.evaluateInt(ModAbilities.EXTRA_JUMP, "JUMP", level, 1D);
     }
     /*Config Section*/
 }

@@ -1,5 +1,8 @@
 package arekkuusu.enderskills.common.handler;
 
+import arekkuusu.enderskills.api.configuration.DSLDefaults;
+import arekkuusu.enderskills.api.registry.Skill;
+import arekkuusu.enderskills.api.util.Pair;
 import arekkuusu.enderskills.client.gui.GuiPauseAll;
 import arekkuusu.enderskills.client.gui.GuiScreenSkillAdvancements;
 import arekkuusu.enderskills.client.gui.GuiSkillAdvancementPage;
@@ -11,10 +14,22 @@ import arekkuusu.enderskills.common.CommonConfig;
 import arekkuusu.enderskills.common.block.tile.TileAltar;
 import arekkuusu.enderskills.common.lib.LibGui;
 import arekkuusu.enderskills.common.lib.LibMod;
+import arekkuusu.enderskills.common.lib.LibNames;
 import arekkuusu.enderskills.common.skill.ModAbilities;
 import arekkuusu.enderskills.common.skill.ModAttributes;
+import arekkuusu.enderskills.common.skill.ability.BasicSkillAdvancement;
+import arekkuusu.enderskills.common.skill.ability.defense.fire.HomeStar;
+import arekkuusu.enderskills.common.skill.ability.defense.fire.RingOfFire;
+import arekkuusu.enderskills.common.skill.ability.mobility.wind.ExtraJump;
+import arekkuusu.enderskills.common.skill.ability.offence.blood.BloodPool;
+import arekkuusu.enderskills.common.skill.ability.offence.light.BarrageWisp;
+import arekkuusu.enderskills.common.skill.ability.offence.light.SolarLance;
+import arekkuusu.enderskills.common.skill.attribute.AttributeSkillAdvancement;
+import com.google.common.collect.Maps;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.Tuple;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
@@ -22,7 +37,40 @@ import net.minecraftforge.fml.common.network.IGuiHandler;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+import java.util.Map;
+import java.util.function.BiFunction;
+
 public final class GuiHandler implements IGuiHandler {
+
+    public static final Map<String, BiFunction<Skill, Integer, Number>> VALUES = Maps.newHashMap();
+    public static final Map<Pair<ResourceLocation, String>, BiFunction<Skill, Integer, Number>> SPECIFIC_VALUES = Maps.newHashMap();
+    public static final Map<String, String> SUFFIX = Maps.newHashMap();
+    public static final Map<Pair<ResourceLocation, String>, String> SPECIFIC_SUFFIX = Maps.newHashMap();
+    public static final Map<ResourceLocation, SkillAdvancement> ADVANCEMENTS = Maps.newHashMap();
+
+    public static void setValue(String name, BiFunction<Skill, Integer, Number> function) {
+        VALUES.put(name, function);
+    }
+
+    public static void setValue(String id, String name, BiFunction<Skill, Integer, Number> function) {
+        SPECIFIC_VALUES.put(new Pair<>(new ResourceLocation(LibMod.MOD_ID, id), name), function);
+    }
+
+    public static void setSuffix(String name, String suffix) {
+        SUFFIX.put(name, suffix);
+    }
+
+    public static void setSuffix(String id, String name, String suffix) {
+        SPECIFIC_SUFFIX.put(new Pair<>(new ResourceLocation(LibMod.MOD_ID, id), name), suffix);
+    }
+
+    public static void setAdvancement(String id, Skill original, Skill parent) {
+        ADVANCEMENTS.put(new ResourceLocation(LibMod.MOD_ID, id), new BasicSkillAdvancement(original, parent));
+    }
+
+    public static void setAdvancement(String id, Skill original) {
+        ADVANCEMENTS.put(new ResourceLocation(LibMod.MOD_ID, id), new AttributeSkillAdvancement(original));
+    }
 
     @Override
     public Object getServerGuiElement(int id, EntityPlayer player, World world, int x, int y, int z) {
@@ -43,7 +91,182 @@ public final class GuiHandler implements IGuiHandler {
                     SkillAdvancementConditionAltar.ALTAR_JUICE = 1;
                     SkillAdvancementConditionAltar.IS_ULTIMATE = true;
                 }
-
+                //
+                GuiHandler.setValue("MODIFIER", (skill, level) -> DSLDefaults.getModifier(skill, level) * 100);
+                GuiHandler.setValue(LibNames.HEART_BOOST, "MODIFIER", (skill, level) -> DSLDefaults.getModifier(skill, level));
+                GuiHandler.setValue(LibNames.ENDURANCE, "MODIFIER", (skill, level) -> DSLDefaults.getModifier(skill, level));
+                GuiHandler.setValue(LibNames.JUMP_HEIGHT, "MODIFIER", (skill, level) -> DSLDefaults.getModifier(skill, level));
+                GuiHandler.setValue(LibNames.KNOCKBACK, "MODIFIER", (skill, level) -> DSLDefaults.getModifier(skill, level));
+                GuiHandler.setValue(LibNames.GLOWING, "MODIFIER", (skill, level) -> DSLDefaults.getModifier(skill, level) / 2);
+                GuiHandler.setValue("COOLDOWN", (skill, level) -> DSLDefaults.getCooldown(skill, level) / 20);
+                GuiHandler.setValue("DURATION", (skill, level) -> DSLDefaults.triggerDuration(player, skill, level).getAmount() / 20);
+                GuiHandler.setValue("DAMAGE", (skill, level) -> DSLDefaults.getDamage(skill, level) / 2);
+                GuiHandler.setValue("DAMAGE_MIRROR", (skill, level) -> DSLDefaults.getDamageMimicry(skill, level) * 100);
+                GuiHandler.setValue("HEALTH", (skill, level) -> DSLDefaults.getHealth(skill, level) / 2);
+                GuiHandler.setValue("STUN", (skill, level) -> DSLDefaults.getStun(skill, level) / 20);
+                GuiHandler.setValue("RANGE", (skill, level) -> DSLDefaults.triggerRange(player, skill, level).getAmount());
+                GuiHandler.setValue("RANGE_EXTRA", (skill, level) -> DSLDefaults.triggerRangeExtension(player, skill, level).getAmount());
+                GuiHandler.setValue("HEIGHT", (skill, level) -> DSLDefaults.triggerHeight(player, skill, level).getAmount());
+                GuiHandler.setValue("WIDTH", (skill, level) -> DSLDefaults.triggerWidth(player, skill, level).getAmount());
+                GuiHandler.setValue("SIZE", (skill, level) -> DSLDefaults.triggerSize(player, skill, level).getAmount());
+                GuiHandler.setValue("FORCE", (skill, level) -> DSLDefaults.getForce(skill, level));
+                GuiHandler.setValue("SLOW", (skill, level) -> DSLDefaults.getSlow(skill, level) * 100);
+                GuiHandler.setValue("POWER", (skill, level) -> DSLDefaults.getPower(skill, level));
+                GuiHandler.setValue("DOT", (skill, level) -> DSLDefaults.getDamageOverTime(skill, level) / 2);
+                GuiHandler.setValue("DOT_DURATION", (skill, level) -> DSLDefaults.triggerDamageDuration(player, skill, level).getAmount() / 20);
+                GuiHandler.setValue("INTERVAL", (skill, level) -> DSLDefaults.triggerIntervalDuration(player, skill, level).getAmount() / 20);
+                GuiHandler.setValue("PULSE_RANGE", (skill, level) -> HomeStar.getPulseRange(player, level).getAmount());
+                GuiHandler.setValue("PULSE_INTERVAL", (skill, level) -> HomeStar.getPulseInterval(level) / 20);
+                GuiHandler.setValue("PULSE_DAMAGE", (skill, level) -> HomeStar.getPulseDamage(level) / 2);
+                GuiHandler.setValue("PULSE_DOT", (skill, level) -> HomeStar.getPulseDamageOverTime(level) / 2);
+                GuiHandler.setValue("PULSE_DOT_DURATION", (skill, level) -> HomeStar.getPulseDamageOverTimeDuration(player, level).getAmount() / 20);
+                GuiHandler.setValue("DELAY", (skill, level) -> DSLDefaults.getDelay(skill, level) / 20);
+                GuiHandler.setValue("REGEN", (skill, level) -> DSLDefaults.getRegen(skill, level) / 20);
+                GuiHandler.setValue("RING_DURATION", (skill, level) -> RingOfFire.getRingDuration(player, level).getAmount() / 20);
+                GuiHandler.setValue("RING_RANGE", (skill, level) -> RingOfFire.getRingRange(player, level).getAmount());
+                GuiHandler.setValue("HEAL", (skill, level) -> DSLDefaults.getHeal(skill, level));
+                GuiHandler.setValue("HEAL_DURATION", (skill, level) -> DSLDefaults.triggerHealDuration(player, skill, level).getAmount());
+                GuiHandler.setValue("DISPLACEMENT", (skill, level) -> DSLDefaults.getDisplacement(skill, level));
+                GuiHandler.setValue("JUMPS", (skill, level) -> ExtraJump.getJumps(level));
+                GuiHandler.setValue("REDUCTION", (skill, level) -> DSLDefaults.getReduction(skill, level));
+                GuiHandler.setValue("SPEED", (skill, level) -> DSLDefaults.getSpeed(skill, level));
+                GuiHandler.setValue("POOL_RANGE", (skill, level) -> BloodPool.getPoolRange(player, level).getAmount());
+                GuiHandler.setValue("POOL_DURATION", (skill, level) -> BloodPool.getPoolDuration(player, level).getAmount() / 20);
+                GuiHandler.setValue("AMOUNT", (skill, level) -> BarrageWisp.getAmount(level));
+                GuiHandler.setValue("DELAY", (skill, level) -> DSLDefaults.getDelay(skill, level) / 20);
+                GuiHandler.setValue("PIERCING", (skill, level) -> SolarLance.getPiercing(level));
+                //
+                GuiHandler.setSuffix("MODIFIER", "suffix_percentage");
+                GuiHandler.setSuffix(LibNames.HEART_BOOST, "MODIFIER", "suffix_hearts");
+                GuiHandler.setSuffix(LibNames.ENDURANCE, "MODIFIER", "suffix_percentage");
+                GuiHandler.setSuffix(LibNames.JUMP_HEIGHT, "MODIFIER", "suffix_blocks");
+                GuiHandler.setSuffix(LibNames.KNOCKBACK, "MODIFIER", "suffix_force");
+                GuiHandler.setSuffix(LibNames.GLOWING, "MODIFIER", "suffix_hearts");
+                GuiHandler.setSuffix(LibNames.SOLAR_LANCE, "AMOUNT", "suffix_enemies");
+                GuiHandler.setSuffix("COOLDOWN", "suffix_time");
+                GuiHandler.setSuffix("DURATION", "suffix_time");
+                GuiHandler.setSuffix("DAMAGE", "suffix_hearts");
+                GuiHandler.setSuffix("DAMAGE_MIRROR", "suffix_percentage");
+                GuiHandler.setSuffix("HEALTH", "suffix_hearts");
+                GuiHandler.setSuffix("STUN", "suffix_time");
+                GuiHandler.setSuffix("RANGE", "suffix_blocks");
+                GuiHandler.setSuffix("RANGE_EXTRA", "suffix_blocks");
+                GuiHandler.setSuffix("HEIGHT", "suffix_blocks");
+                GuiHandler.setSuffix("WIDTH", "suffix_blocks");
+                GuiHandler.setSuffix("SIZE", "suffix_blocks");
+                GuiHandler.setSuffix("FORCE", "suffix_force");
+                GuiHandler.setSuffix("SLOW", "suffix_percentage");
+                GuiHandler.setSuffix("POWER", "suffix_percentage");
+                GuiHandler.setSuffix("DOT", "suffix_time");
+                GuiHandler.setSuffix("DOT_DURATION", "suffix_time");
+                GuiHandler.setSuffix("INTERVAL", "suffix_time");
+                GuiHandler.setSuffix("PULSE_RANGE", "suffix_blocks");
+                GuiHandler.setSuffix("PULSE_INTERVAL", "suffix_time");
+                GuiHandler.setSuffix("PULSE_DAMAGE", "suffix_hearts");
+                GuiHandler.setSuffix("PULSE_DOT", "suffix_hearts");
+                GuiHandler.setSuffix("PULSE_DOT_DURATION", "suffix_time");
+                GuiHandler.setSuffix("RING_DURATION", "suffix_time");
+                GuiHandler.setSuffix("RING_RANGE", "suffix_blocks");
+                GuiHandler.setSuffix("HEAL", "suffix_hearts");
+                GuiHandler.setSuffix("HEAL_DURATION", "suffix_time");
+                GuiHandler.setSuffix("DISPLACEMENT", "suffix_blocks");
+                GuiHandler.setSuffix("JUMPS", "suffix_blocks");
+                GuiHandler.setSuffix("REDUCTION", "suffix_percentage");
+                GuiHandler.setSuffix("SPEED", "suffix_percentage");
+                GuiHandler.setSuffix("POOL_RANGE", "suffix_blocks");
+                GuiHandler.setSuffix("POOL_DURATION", "suffix_time");
+                GuiHandler.setSuffix("AMOUNT", "suffix_amount");
+                GuiHandler.setSuffix("DELAY", "suffix_time");
+                GuiHandler.setSuffix("PIERCING", "suffix_amount");
+                //
+                GuiHandler.setAdvancement(LibNames.DAMAGE_RESISTANCE, ModAttributes.DAMAGE_RESISTANCE);
+                GuiHandler.setAdvancement(LibNames.EXPLOSION_RESISTANCE, ModAttributes.EXPLOSION_RESISTANCE);
+                GuiHandler.setAdvancement(LibNames.FIRE_RESISTANCE, ModAttributes.FIRE_RESISTANCE);
+                GuiHandler.setAdvancement(LibNames.HEART_BOOST, ModAttributes.HEART_BOOST);
+                GuiHandler.setAdvancement(LibNames.KNOCKBACK_RESISTANCE, ModAttributes.KNOCKBACK_RESISTANCE);
+                GuiHandler.setAdvancement(LibNames.MAGIC_RESISTANCE, ModAttributes.MAGIC_RESISTANCE);
+                GuiHandler.setAdvancement(LibNames.ENDURANCE, ModAttributes.ENDURANCE);
+                GuiHandler.setAdvancement(LibNames.FALL_RESISTANCE, ModAttributes.FALL_RESISTANCE);
+                GuiHandler.setAdvancement(LibNames.JUMP_HEIGHT, ModAttributes.JUMP_HEIGHT);
+                GuiHandler.setAdvancement(LibNames.SPEED, ModAttributes.SPEED);
+                GuiHandler.setAdvancement(LibNames.STEALTH_DAMAGE, ModAttributes.STEALTH_DAMAGE);
+                GuiHandler.setAdvancement(LibNames.SWIM_SPEED, ModAttributes.SWIM_SPEED);
+                GuiHandler.setAdvancement(LibNames.ABILITY_DURATION, ModAttributes.ABILITY_DURATION);
+                GuiHandler.setAdvancement(LibNames.ABILITY_POWER, ModAttributes.ABILITY_POWER);
+                GuiHandler.setAdvancement(LibNames.ABILITY_RANGE, ModAttributes.ABILITY_RANGE);
+                GuiHandler.setAdvancement(LibNames.ARMOR_PENETRATION, ModAttributes.ARMOR_PENETRATION);
+                GuiHandler.setAdvancement(LibNames.ATTACK_SPEED, ModAttributes.ATTACK_SPEED);
+                GuiHandler.setAdvancement(LibNames.CRITICAL_CHANCE, ModAttributes.CRITICAL_CHANCE);
+                GuiHandler.setAdvancement(LibNames.KNOCKBACK, ModAttributes.KNOCKBACK);
+                GuiHandler.setAdvancement(LibNames.DAMAGE, ModAttributes.DAMAGE);
+                //
+                GuiHandler.setAdvancement(LibNames.ANIMATED_STONE_GOLEM, ModAbilities.ANIMATED_STONE_GOLEM, ModAbilities.TAUNT);
+                GuiHandler.setAdvancement(LibNames.DOME, ModAbilities.DOME, ModAbilities.TAUNT);
+                GuiHandler.setAdvancement(LibNames.SHOCKWAVE, ModAbilities.SHOCKWAVE, ModAbilities.TAUNT);
+                GuiHandler.setAdvancement(LibNames.TAUNT, ModAbilities.TAUNT, ModAbilities.TAUNT);
+                GuiHandler.setAdvancement(LibNames.THORNY, ModAbilities.THORNY, ModAbilities.TAUNT);
+                GuiHandler.setAdvancement(LibNames.WALL, ModAbilities.WALL, ModAbilities.TAUNT);
+                GuiHandler.setAdvancement(LibNames.ELECTRIC_PULSE, ModAbilities.ELECTRIC_PULSE, ModAbilities.SHOCKING_AURA);
+                GuiHandler.setAdvancement(LibNames.ENERGIZE, ModAbilities.ENERGIZE, ModAbilities.SHOCKING_AURA);
+                GuiHandler.setAdvancement(LibNames.MAGNETIC_PULL, ModAbilities.MAGNETIC_PULL, ModAbilities.SHOCKING_AURA);
+                GuiHandler.setAdvancement(LibNames.POWER_DRAIN, ModAbilities.POWER_DRAIN, ModAbilities.SHOCKING_AURA);
+                GuiHandler.setAdvancement(LibNames.SHOCKING_AURA, ModAbilities.SHOCKING_AURA, ModAbilities.SHOCKING_AURA);
+                GuiHandler.setAdvancement(LibNames.VOLTAIC_SENTINEL, ModAbilities.VOLTAIC_SENTINEL, ModAbilities.SHOCKING_AURA);
+                GuiHandler.setAdvancement(LibNames.BLAZING_AURA, ModAbilities.BLAZING_AURA, ModAbilities.FLARES);
+                GuiHandler.setAdvancement(LibNames.FLARES, ModAbilities.FLARES, ModAbilities.FLARES);
+                GuiHandler.setAdvancement(LibNames.HOME_STAR, ModAbilities.HOME_STAR, ModAbilities.FLARES);
+                GuiHandler.setAdvancement(LibNames.OVERHEAT, ModAbilities.OVERHEAT, ModAbilities.FLARES);
+                GuiHandler.setAdvancement(LibNames.RING_OF_FIRE, ModAbilities.RING_OF_FIRE, ModAbilities.FLARES);
+                GuiHandler.setAdvancement(LibNames.WARM_HEART, ModAbilities.WARM_HEART, ModAbilities.FLARES);
+                GuiHandler.setAdvancement(LibNames.CHARM, ModAbilities.CHARM, ModAbilities.CHARM);
+                GuiHandler.setAdvancement(LibNames.HEAL_AURA, ModAbilities.HEAL_AURA, ModAbilities.CHARM);
+                GuiHandler.setAdvancement(LibNames.HEAL_OTHER, ModAbilities.HEAL_OTHER, ModAbilities.CHARM);
+                GuiHandler.setAdvancement(LibNames.HEAL_SELF, ModAbilities.HEAL_SELF, ModAbilities.CHARM);
+                GuiHandler.setAdvancement(LibNames.NEARBY_INVINCIBILITY, ModAbilities.NEARBY_INVINCIBILITY, ModAbilities.CHARM);
+                GuiHandler.setAdvancement(LibNames.POWER_BOOST, ModAbilities.POWER_BOOST, ModAbilities.CHARM);
+                GuiHandler.setAdvancement(LibNames.HOVER, ModAbilities.HOVER, ModAbilities.WARP);
+                GuiHandler.setAdvancement(LibNames.INVISIBILITY, ModAbilities.INVISIBILITY, ModAbilities.WARP);
+                GuiHandler.setAdvancement(LibNames.PORTAL, ModAbilities.PORTAL, ModAbilities.WARP);
+                GuiHandler.setAdvancement(LibNames.TELEPORT, ModAbilities.TELEPORT, ModAbilities.WARP);
+                GuiHandler.setAdvancement(LibNames.UNSTABLE_PORTAL, ModAbilities.UNSTABLE_PORTAL, ModAbilities.WARP);
+                GuiHandler.setAdvancement(LibNames.WARP, ModAbilities.WARP, ModAbilities.WARP);
+                GuiHandler.setAdvancement(LibNames.DASH, ModAbilities.DASH, ModAbilities.DASH);
+                GuiHandler.setAdvancement(LibNames.EXTRA_JUMP, ModAbilities.EXTRA_JUMP, ModAbilities.DASH);
+                GuiHandler.setAdvancement(LibNames.FOG, ModAbilities.FOG, ModAbilities.DASH);
+                GuiHandler.setAdvancement(LibNames.HASTEN, ModAbilities.HASTEN, ModAbilities.DASH);
+                GuiHandler.setAdvancement(LibNames.SMASH, ModAbilities.SMASH, ModAbilities.DASH);
+                GuiHandler.setAdvancement(LibNames.SPEED_BOOST, ModAbilities.SPEED_BOOST, ModAbilities.DASH);
+                GuiHandler.setAdvancement(LibNames.BLEED, ModAbilities.BLEED, ModAbilities.BLEED);
+                GuiHandler.setAdvancement(LibNames.BLOOD_POOL, ModAbilities.BLOOD_POOL, ModAbilities.BLEED);
+                GuiHandler.setAdvancement(LibNames.CONTAMINATE, ModAbilities.CONTAMINATE, ModAbilities.BLEED);
+                GuiHandler.setAdvancement(LibNames.LIFE_STEAL, ModAbilities.LIFE_STEAL, ModAbilities.BLEED);
+                GuiHandler.setAdvancement(LibNames.SACRIFICE, ModAbilities.SACRIFICE, ModAbilities.BLEED);
+                GuiHandler.setAdvancement(LibNames.SYPHON, ModAbilities.SYPHON, ModAbilities.BLEED);
+                GuiHandler.setAdvancement(LibNames.BLACK_HOLE, ModAbilities.BLACK_HOLE, ModAbilities.SHADOW);
+                GuiHandler.setAdvancement(LibNames.GAS_CLOUD, ModAbilities.GAS_CLOUD, ModAbilities.SHADOW);
+                GuiHandler.setAdvancement(LibNames.GLOOM, ModAbilities.GLOOM, ModAbilities.SHADOW);
+                GuiHandler.setAdvancement(LibNames.GRASP, ModAbilities.GRASP, ModAbilities.SHADOW);
+                GuiHandler.setAdvancement(LibNames.SHADOW, ModAbilities.SHADOW, ModAbilities.SHADOW);
+                GuiHandler.setAdvancement(LibNames.SHADOW_JAB, ModAbilities.SHADOW_JAB, ModAbilities.SHADOW);
+                GuiHandler.setAdvancement(LibNames.EXPLODE, ModAbilities.EXPLODE, ModAbilities.FIRE_SPIRIT);
+                GuiHandler.setAdvancement(LibNames.FIREBALL, ModAbilities.FIREBALL, ModAbilities.FIRE_SPIRIT);
+                GuiHandler.setAdvancement(LibNames.FIRE_SPIRIT, ModAbilities.FIRE_SPIRIT, ModAbilities.FIRE_SPIRIT);
+                GuiHandler.setAdvancement(LibNames.FLAMING_BREATH, ModAbilities.FLAMING_BREATH, ModAbilities.FIRE_SPIRIT);
+                GuiHandler.setAdvancement(LibNames.FLAMING_RAIN, ModAbilities.FLAMING_RAIN, ModAbilities.FIRE_SPIRIT);
+                GuiHandler.setAdvancement(LibNames.FOCUS_FLAME, ModAbilities.FOCUS_FLAME, ModAbilities.FIRE_SPIRIT);
+                GuiHandler.setAdvancement(LibNames.BARRAGE_WISPS, ModAbilities.BARRAGE_WISPS, ModAbilities.RADIANT_RAY);
+                GuiHandler.setAdvancement(LibNames.FINAL_FLASH, ModAbilities.FINAL_FLASH, ModAbilities.RADIANT_RAY);
+                GuiHandler.setAdvancement(LibNames.GLEAM_FLASH, ModAbilities.GLEAM_FLASH, ModAbilities.RADIANT_RAY);
+                GuiHandler.setAdvancement(LibNames.LUMEN_WAVE, ModAbilities.LUMEN_WAVE, ModAbilities.RADIANT_RAY);
+                GuiHandler.setAdvancement(LibNames.RADIANT_RAY, ModAbilities.RADIANT_RAY, ModAbilities.RADIANT_RAY);
+                GuiHandler.setAdvancement(LibNames.SOLAR_LANCE, ModAbilities.SOLAR_LANCE, ModAbilities.RADIANT_RAY);
+                GuiHandler.setAdvancement(LibNames.CRUSH, ModAbilities.CRUSH, ModAbilities.SLASH);
+                GuiHandler.setAdvancement(LibNames.PULL, ModAbilities.PULL, ModAbilities.SLASH);
+                GuiHandler.setAdvancement(LibNames.PUSH, ModAbilities.PUSH, ModAbilities.SLASH);
+                GuiHandler.setAdvancement(LibNames.SLASH, ModAbilities.SLASH, ModAbilities.SLASH);
+                GuiHandler.setAdvancement(LibNames.SUFFOCATE, ModAbilities.SUFFOCATE, ModAbilities.SLASH);
+                GuiHandler.setAdvancement(LibNames.UPDRAFT, ModAbilities.UPDRAFT, ModAbilities.SLASH);
+                //
                 GuiScreenSkillAdvancements window = new GuiScreenSkillAdvancements();
                 GuiSkillAdvancementTab defense = window.addTab(new TextComponentTranslation(get("tab.defense.title")), SkillAdvancementTabType.BELOW, 0x65974B, 0);
                 if (defense != null) {

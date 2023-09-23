@@ -1,10 +1,13 @@
 package arekkuusu.enderskills.client.gui.widgets;
 
+import arekkuusu.enderskills.api.EnderSkillsAPI;
 import arekkuusu.enderskills.api.capability.Capabilities;
 import arekkuusu.enderskills.api.capability.SkilledEntityCapability;
 import arekkuusu.enderskills.api.capability.data.InfoUpgradeable;
 import arekkuusu.enderskills.api.capability.data.SkillInfo;
+import arekkuusu.enderskills.api.configuration.DSLConfig;
 import arekkuusu.enderskills.api.configuration.DSLEvaluator;
+import arekkuusu.enderskills.api.util.Pair;
 import arekkuusu.enderskills.client.gui.GuiScreenSkillAdvancements;
 import arekkuusu.enderskills.client.gui.GuiSkillAdvancementPage;
 import arekkuusu.enderskills.client.gui.data.SkillAdvancement;
@@ -13,15 +16,21 @@ import arekkuusu.enderskills.client.gui.data.SkillAdvancementInfo;
 import arekkuusu.enderskills.client.util.ResourceLibrary;
 import arekkuusu.enderskills.client.util.helper.RenderMisc;
 import arekkuusu.enderskills.client.util.helper.TextHelper;
+import arekkuusu.enderskills.common.handler.GuiHandler;
+import arekkuusu.enderskills.common.skill.ModAttributes;
 import com.google.common.collect.Lists;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.advancements.AdvancementState;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureMap;
+import net.minecraft.util.ResourceLocation;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 
 public final class GuiSkillAdvancementSimple extends GuiSkillAdvancement {
@@ -100,8 +109,8 @@ public final class GuiSkillAdvancementSimple extends GuiSkillAdvancement {
         Capabilities.get(mc.player).flatMap(c -> c.getOwned(advancement.info.skill)).ifPresent(skillInfo -> {
             if (skillInfo instanceof InfoUpgradeable) {
                 int skillTier = ((InfoUpgradeable) skillInfo).getLevel();
-                int topLevel = getLimitLevel();
-                if(skillTier > topLevel && topLevel > 0) {
+                int topLevel = getTopLevel();
+                if (skillTier > topLevel && topLevel > 0) {
                     String tier = String.valueOf(topLevel);
                     String plus = "+" + (skillTier - topLevel);
                     drawString(mc.fontRenderer, tier, this.xOffset + 18 + 10 - mc.fontRenderer.getStringWidth(tier) - mc.fontRenderer.getStringWidth(plus),
@@ -117,8 +126,8 @@ public final class GuiSkillAdvancementSimple extends GuiSkillAdvancement {
         });
     }
 
-    public int getLimitLevel() {
-        return DSLEvaluator.evaluateLimitLevel(advancement.info.skill);
+    public int getTopLevel() {
+        return DSLEvaluator.evaluateMaxLevel(advancement.info.skill);
     }
 
     public void drawSkillLock() {
@@ -146,14 +155,14 @@ public final class GuiSkillAdvancementSimple extends GuiSkillAdvancement {
 
     @SuppressWarnings("UnnecessaryLocalVariable")
     public void drawHover(int mouseX, int mouseY, float partialTicks) {
-        String title = this.advancement.info.title.getFormattedText();
-        int titleWidth = mc.fontRenderer.getStringWidth(title);
-        String description = this.advancement.info.description.getFormattedText();
-        List<String> descriptionLines = Lists.newArrayList(description.split("\n"));
-        if (this.advancement.info.skill instanceof SkillAdvancement) {
-            ((SkillAdvancement) this.advancement.info.skill).addDescription(descriptionLines);
-        }
+        final String title = this.advancement.info.title.getFormattedText();
+        final String description = this.advancement.info.description.getFormattedText();
+        final List<String> descriptionLines = Lists.newArrayList(description.split("\n"));
+
+        this.fillInDescription(descriptionLines);
+
         List<String> descriptionFormattedLines = new ArrayList<>();
+        int titleWidth = mc.fontRenderer.getStringWidth(title);
         for (String descriptionLine : descriptionLines) {
             int s;
             if (titleWidth < (s = this.mc.fontRenderer.getStringWidth(descriptionLine) - 25)) {
@@ -172,18 +181,17 @@ public final class GuiSkillAdvancementSimple extends GuiSkillAdvancement {
                 descriptionFormattedLines.add("");
             }
         }
-        descriptionLines = descriptionFormattedLines;
         if (recalculateWidth) {
             titleWidth = mc.fontRenderer.getStringWidth(title);
 
-            for (String descriptionLine : descriptionLines) {
+            for (String descriptionLine : descriptionFormattedLines) {
                 int s;
                 if (titleWidth < (s = this.mc.fontRenderer.getStringWidth(descriptionLine) - 25)) {
                     titleWidth = s;
                 }
             }
         }
-        int descriptionHeight = 32 + descriptionLines.size() * this.mc.fontRenderer.FONT_HEIGHT;
+        int descriptionHeight = 32 + descriptionFormattedLines.size() * this.mc.fontRenderer.FONT_HEIGHT;
         boolean fitsTitle = this.xOffset + titleWidth + 26 < this.gui.gui.width;
         boolean fitsDescription = this.yOffset + descriptionHeight + 26 < this.gui.gui.height;
         int textureWidth = titleWidth + 26 + 8;
@@ -229,15 +237,15 @@ public final class GuiSkillAdvancementSimple extends GuiSkillAdvancement {
         }
         //Render Description
         if (fitsDescription) {
-            for (int i = 0; i < descriptionLines.size(); ++i) {
+            for (int i = 0; i < descriptionFormattedLines.size(); ++i) {
                 GlStateManager.color(1F, 1F, 1F, 1F);
-                this.mc.fontRenderer.drawString(descriptionLines.get(i), (float) (fitXOffset + 5), (float) (this.yOffset + 9 + 17 + i * this.mc.fontRenderer.FONT_HEIGHT), -5592406, false);
+                this.mc.fontRenderer.drawString(descriptionFormattedLines.get(i), (float) (fitXOffset + 5), (float) (this.yOffset + 9 + 17 + i * this.mc.fontRenderer.FONT_HEIGHT), -5592406, false);
                 GlStateManager.color(1F, 1F, 1F, 1F);
             }
         } else {
-            for (int i = 0; i < descriptionLines.size(); ++i) {
+            for (int i = 0; i < descriptionFormattedLines.size(); ++i) {
                 GlStateManager.color(1F, 1F, 1F, 1F);
-                this.mc.fontRenderer.drawString(descriptionLines.get(i), (float) (fitXOffset + 5), (float) (this.yOffset + 26 - descriptionHeight + 7 + i * this.mc.fontRenderer.FONT_HEIGHT), -5592406, false);
+                this.mc.fontRenderer.drawString(descriptionFormattedLines.get(i), (float) (fitXOffset + 5), (float) (this.yOffset + 26 - descriptionHeight + 7 + i * this.mc.fontRenderer.FONT_HEIGHT), -5592406, false);
                 GlStateManager.color(1F, 1F, 1F, 1F);
             }
         }
@@ -255,13 +263,83 @@ public final class GuiSkillAdvancementSimple extends GuiSkillAdvancement {
         }
     }
 
+    private void fillInDescription(List<String> descriptionLines) {
+        Capabilities.get(Minecraft.getMinecraft().player).flatMap(skilledEntityCapability -> skilledEntityCapability.getOwned(this.advancement.info.skill)).ifPresent(skillInfo -> {
+            InfoUpgradeable infoUpgradeable = (InfoUpgradeable) skillInfo;
+            int level = infoUpgradeable.getLevel();
+            int maxLevel = DSLEvaluator.evaluateMaxLevel(this.advancement.info.skill);
+            if (!GuiScreen.isShiftKeyDown()) {
+                descriptionLines.add("");
+                descriptionLines.add(TextHelper.translate("desc.stats.shift"));
+            } else {
+                ResourceLocation registryName = this.advancement.info.skill.getRegistryName();
+                DSLConfig config = EnderSkillsAPI.SKILL_DSL_CONFIG_MAP.get(registryName);
+                descriptionLines.add(TextHelper.translate("desc.stats.endurance", String.valueOf(ModAttributes.ENDURANCE.getEnduranceDrain(this.advancement.info.skill, level))));
+                descriptionLines.add("");
+                //
+                //
+                if (level < maxLevel) {
+                    if (!GuiScreen.isCtrlKeyDown()) {
+                        descriptionLines.add(TextHelper.translate("desc.stats.level_current", level, level));
+                        fillStatsWithLevel(descriptionLines, level, registryName, config);
+                        descriptionLines.add("");
+                        descriptionLines.add(TextHelper.translate("desc.stats.ctrl"));
+                    } else {
+                        descriptionLines.add(TextHelper.translate("desc.stats.level_next", level, level + 1));
+                        fillStatsWithLevel(descriptionLines, level + 1, registryName, config);
+                    }
+                } else {
+                    descriptionLines.add(TextHelper.translate("desc.stats.level_max", maxLevel));
+                    fillStatsWithLevel(descriptionLines, level, registryName, config);
+                }
+            }
+        });
+    }
+
+    private void fillStatsWithLevel(List<String> descriptionLines, int level, ResourceLocation registryName, DSLConfig config) {
+        for (String entry : config.map.keySet()) {
+            if (entry.equalsIgnoreCase("xp")) continue;
+            if (entry.equalsIgnoreCase("endurance")) continue;
+            if (entry.equalsIgnoreCase("range_extra")) continue;
+            double value;
+            if (GuiHandler.SPECIFIC_VALUES.containsKey(new Pair<>(registryName, entry))) {
+                value = GuiHandler.SPECIFIC_VALUES.get(new Pair<>(registryName, entry)).apply(this.advancement.info.skill, level).doubleValue();
+            } else {
+                value = GuiHandler.VALUES.get(entry).apply(this.advancement.info.skill, level).doubleValue();
+            }
+            String suffix;
+            if (GuiHandler.SPECIFIC_SUFFIX.containsKey(new Pair<>(registryName, entry))) {
+                suffix = GuiHandler.SPECIFIC_SUFFIX.get(new Pair<>(registryName, entry));
+            } else {
+                suffix = GuiHandler.SUFFIX.get(entry).toLowerCase(Locale.ROOT);
+            }
+            String text = TextHelper.translate("desc.stats." + entry.toLowerCase(Locale.ROOT), TextHelper.format2FloatPoint(value), TextHelper.getTextComponent("desc.stats." + suffix));
+            if (config.map.containsKey("RANGE_EXTRA") && entry.equalsIgnoreCase("RANGE")) {
+                double value1;
+                if (GuiHandler.SPECIFIC_VALUES.containsKey(new Pair<>(registryName, "RANGE_EXTRA"))) {
+                    value1 = GuiHandler.SPECIFIC_VALUES.get(new Pair<>(registryName, "RANGE_EXTRA")).apply(this.advancement.info.skill, level).doubleValue();
+                } else {
+                    value1 = GuiHandler.VALUES.get("RANGE_EXTRA").apply(this.advancement.info.skill, level).doubleValue();
+                }
+                String suffix1;
+                if (GuiHandler.SPECIFIC_SUFFIX.containsKey(new Pair<>(registryName, "RANGE_EXTRA"))) {
+                    suffix1 = GuiHandler.SPECIFIC_SUFFIX.get(new Pair<>(registryName, "RANGE_EXTRA"));
+                } else {
+                    suffix1 = GuiHandler.SUFFIX.get("RANGE_EXTRA").toLowerCase(Locale.ROOT);
+                }
+                text += TextHelper.translate("desc.stats.range_extra", TextHelper.format2FloatPoint(value1), TextHelper.getTextComponent("desc.stats." + suffix1));
+            }
+            descriptionLines.add(text);
+        }
+    }
+
     public boolean canUpgrade() {
         boolean upgrade = true;
         SkilledEntityCapability c = Capabilities.get(this.mc.player).orElse(null);
         if (c != null && c.isOwned(advancement.info.skill)) {
             SkillInfo info = c.getOwned(advancement.info.skill).orElse(null);
             if (info instanceof InfoUpgradeable) {
-                if (((InfoUpgradeable) info).getLevel() >= getLimitLevel()) {
+                if (((InfoUpgradeable) info).getLevel() >= getTopLevel()) {
                     upgrade = false;
                 }
             }
@@ -279,8 +357,6 @@ public final class GuiSkillAdvancementSimple extends GuiSkillAdvancement {
         return visible;
     }
 
-
-
     @Override
     public void actionPerformed(GuiButton button) {
         if (button.id == 0 && this.isUnlockable()) {
@@ -290,8 +366,8 @@ public final class GuiSkillAdvancementSimple extends GuiSkillAdvancement {
                     String title = this.isUnlocked()
                             ? TextHelper.translate("gui.advancement.confirm_upgrade")
                             : TextHelper.translate("gui.advancement.confirm_unlock");
-                    if (advancement.info.skill instanceof SkillAdvancement) {
-                        SkillAdvancement.Requirement requirement = ((SkillAdvancement) advancement.info.skill).getRequirement(this.mc.player);
+                    if (GuiHandler.ADVANCEMENTS.containsKey(this.advancement.info.skill.getRegistryName())) {
+                        SkillAdvancement.Requirement requirement = GuiHandler.ADVANCEMENTS.get(this.advancement.info.skill.getRegistryName()).getRequirement(this.mc.player);
                         int levels = requirement.getLevels();
                         int xp = requirement.getXp();
                         Optional<SkillInfo> optional = c.getOwned(advancement.info.skill).filter(i -> i instanceof InfoUpgradeable);
@@ -305,7 +381,7 @@ public final class GuiSkillAdvancementSimple extends GuiSkillAdvancement {
                         if (levels > 0) {
                             description += TextHelper.translate("gui.advancement.requires_levels", levels);
                         }
-                        if(xp != 0) {
+                        if (xp != 0) {
                             description += TextHelper.translate("gui.advancement.requires_xp", TextHelper.format2FloatPoint(xp));
                         }
                     }

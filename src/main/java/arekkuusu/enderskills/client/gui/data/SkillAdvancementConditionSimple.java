@@ -2,8 +2,10 @@ package arekkuusu.enderskills.client.gui.data;
 
 import arekkuusu.enderskills.api.capability.AdvancementCapability;
 import arekkuusu.enderskills.api.capability.Capabilities;
+import arekkuusu.enderskills.api.capability.data.InfoUpgradeable;
 import arekkuusu.enderskills.client.gui.GuiScreenSkillAdvancements;
 import arekkuusu.enderskills.client.gui.widgets.GuiConfirmation;
+import arekkuusu.enderskills.common.handler.GuiHandler;
 import arekkuusu.enderskills.common.network.PacketHelper;
 import com.google.common.collect.Sets;
 import net.minecraft.client.Minecraft;
@@ -36,9 +38,9 @@ public class SkillAdvancementConditionSimple extends SkillAdvancementCondition {
     }
 
     public boolean upgrade() {
-        if (info.skill instanceof SkillAdvancement) {
+        if (GuiHandler.ADVANCEMENTS.containsKey(info.skill.getRegistryName())) {
             EntityPlayer player = Minecraft.getMinecraft().player;
-            SkillAdvancement.Requirement requirement = ((SkillAdvancement) info.skill).getRequirement(player);
+            SkillAdvancement.Requirement requirement = GuiHandler.ADVANCEMENTS.get(info.skill.getRegistryName()).getRequirement(player);
             Optional<AdvancementCapability> capability = Capabilities.advancement(player);
             if (capability.isPresent()) {
                 AdvancementCapability c = capability.get();

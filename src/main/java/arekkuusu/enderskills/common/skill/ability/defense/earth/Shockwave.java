@@ -46,7 +46,7 @@ public class Shockwave extends BaseAbility implements IScanEntities, IExpand, IF
 
     @Override
     public void use(EntityLivingBase owner, SkillInfo skillInfo) {
-        if (hasNoCooldown(skillInfo) || isClientWorld(owner)) return;
+        if (hasCooldown(skillInfo) || isClientWorld(owner)) return;
         if (isNotActionable(owner) || canNotActivate(owner)) return;
 
         if (owner.onGround) {

@@ -2,6 +2,7 @@ package arekkuusu.enderskills.common.skill.attribute;
 
 import arekkuusu.enderskills.api.capability.Capabilities;
 import arekkuusu.enderskills.api.configuration.DSLDefaults;
+import arekkuusu.enderskills.api.registry.Skill;
 import arekkuusu.enderskills.client.gui.data.SkillAdvancement;
 import arekkuusu.enderskills.common.CommonConfig;
 import net.minecraft.entity.EntityLivingBase;
@@ -10,9 +11,9 @@ import javax.annotation.Nullable;
 
 public class AttributeSkillAdvancement implements SkillAdvancement {
 
-    private final BaseAttribute baseAttribute;
+    private final Skill baseAttribute;
 
-    public AttributeSkillAdvancement(BaseAttribute baseAttribute) {
+    public AttributeSkillAdvancement(Skill baseAttribute) {
         this.baseAttribute = baseAttribute;
     }
 

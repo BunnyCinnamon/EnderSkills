@@ -16,6 +16,7 @@ import arekkuusu.enderskills.client.gui.data.SkillAdvancement;
 import arekkuusu.enderskills.client.sounds.BleedSound;
 import arekkuusu.enderskills.common.CommonConfig;
 import arekkuusu.enderskills.common.EnderSkills;
+import arekkuusu.enderskills.common.handler.GuiHandler;
 import arekkuusu.enderskills.common.lib.LibMod;
 import arekkuusu.enderskills.common.skill.ModAbilities;
 import arekkuusu.enderskills.common.skill.ModEffects;
@@ -156,8 +157,8 @@ public final class PacketHandler {
                         if (info instanceof InfoUpgradeable) {
                             int lvl = ((InfoUpgradeable) info).getLevel() + 1;
                             if (lvl <= DSLEvaluator.evaluateMaxLevel(skill)) {
-                                if (skill instanceof SkillAdvancement) {
-                                    SkillAdvancement advancement = (SkillAdvancement) skill;
+                                if (GuiHandler.ADVANCEMENTS.containsKey(skill.getRegistryName())) {
+                                    SkillAdvancement advancement = GuiHandler.ADVANCEMENTS.get(skill.getRegistryName());
                                     if (advancement.canUpgrade(e)) {
                                         advancement.onUpgrade(e);
                                         ((InfoUpgradeable) info).setLevel(lvl);
@@ -174,8 +175,8 @@ public final class PacketHandler {
                         }
                     });
                 } else {
-                    if (skill instanceof SkillAdvancement) {
-                        SkillAdvancement advancement = (SkillAdvancement) skill;
+                    if (GuiHandler.ADVANCEMENTS.containsKey(skill.getRegistryName())) {
+                        SkillAdvancement advancement = GuiHandler.ADVANCEMENTS.get(skill.getRegistryName());
                         if (advancement.canUpgrade(e)) {
                             advancement.onUpgrade(e);
                             c.addOwned(skill);
