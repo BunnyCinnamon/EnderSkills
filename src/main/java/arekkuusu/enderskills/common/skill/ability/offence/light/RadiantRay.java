@@ -66,7 +66,7 @@ public class RadiantRay extends BaseAbility implements IScanEntities, IImpact, I
         SkillData data = SkillData.of(this)
                 .put(compound)
                 .create();
-        EntityThrowableData.throwFor(owner, distance, data, false);
+        EntityThrowableData.throwFor(owner, distance, data, 3F, false);
         super.sync(owner);
 
         SoundHelper.playSound(owner.world, owner.getPosition(), ModSounds.RADIANT_RAY_CAST);
@@ -110,7 +110,7 @@ public class RadiantRay extends BaseAbility implements IScanEntities, IImpact, I
         SkillDamageEvent event = new SkillDamageEvent(owner, this, damageSource, damage);
         MinecraftForge.EVENT_BUS.post(event);
 
-        if (event.getAmount() > 0 && event.getAmount() < Double.MAX_VALUE) {
+        if (event.getAmount() > 0) {
             target.attackEntityFrom(event.getSource(), event.toFloat());
         }
 

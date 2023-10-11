@@ -77,7 +77,7 @@ public class Grasp extends BaseAbility implements IImpact, IExpand, ILoopSound, 
                 .put(compound)
                 .overrides(SkillData.Overrides.SAME)
                 .create();
-        EntityThrowableData.throwFor(owner, distance, data, false);
+        EntityThrowableData.throwFor(owner, distance, data, 3F, false);
         super.sync(owner);
 
         SoundHelper.playSound(owner.world, owner.getPosition(), ModSounds.GRASP);

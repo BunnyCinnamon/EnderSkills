@@ -9,6 +9,7 @@ import arekkuusu.enderskills.common.skill.ability.defense.fire.*;
 import arekkuusu.enderskills.common.skill.ability.defense.light.*;
 import arekkuusu.enderskills.common.skill.ability.mobility.ender.*;
 import arekkuusu.enderskills.common.skill.ability.mobility.wind.*;
+import arekkuusu.enderskills.common.skill.ability.offence.blackflame.*;
 import arekkuusu.enderskills.common.skill.ability.offence.blood.*;
 import arekkuusu.enderskills.common.skill.ability.offence.electric.Zap;
 import arekkuusu.enderskills.common.skill.ability.offence.ender.*;
@@ -108,6 +109,13 @@ public final class ModAbilities {
     public static final Skill SOLAR_LANCE = empty();
     public static final Skill BARRAGE_WISPS = empty();
     public static final Skill FINAL_FLASH = empty();
+    //Offense-Flame
+    public static final Skill BLACK_FLAME_BALL = empty();
+    public static final Skill BLACK_SCOURING_FLAME = empty();
+    public static final Skill BLACK_BLESSING_FLAME = empty();
+    public static final Skill BLACK_RAGING_FLAME_BALL = empty();
+    public static final Skill BLACK_VOLLEY_FLAME = empty();
+    public static final Skill BLACK_FLARE_FLAME = empty();
 
     public static void register(IForgeRegistry<Skill> registry) {
         //Defense-Light
@@ -189,6 +197,13 @@ public final class ModAbilities {
         registry.register(new SolarLance());
         registry.register(new BarrageWisp());
         registry.register(new FinalFlash());
+        //Offense-Flame
+        registry.register(new BlackFlameBall());
+        registry.register(new BlackScouringFlame());
+        registry.register(new BlackBlessingFlame());
+        registry.register(new BlackRagingFlameBall());
+        registry.register(new BlackVolleyFlame());
+        registry.register(new BlackFlareFlame());
     }
 
     @SuppressWarnings({"UnusedReturnValue", "WeakerAccess"}) //Shut up

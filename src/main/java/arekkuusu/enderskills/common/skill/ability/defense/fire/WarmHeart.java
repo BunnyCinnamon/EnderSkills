@@ -86,7 +86,7 @@ public class WarmHeart extends BaseAbility {
                     double posZ = vec.z + entity.world.rand.nextDouble() - 0.5D;
                     float particleScale = 0.25F + 2F * particleProgress;
                     Vector speedVec = Vector.Up.rotateRandom(entity.world.rand, 70F).multiply(0.15D * entity.world.rand.nextDouble());
-                    EnderSkills.getProxy().spawnParticleLuminescence(entity.world, new Vec3d(posX, posY, posZ), speedVec.toVec3d(), particleScale, 30, ResourceLibrary.GLOW);
+                    EnderSkills.getProxy().spawnParticleLuminescence(entity.world, new Vec3d(posX, posY, posZ), speedVec.toVec3d(), particleScale, 30, ResourceLibrary.GLOW, 0xFFE077);
                     if (ClientProxy.canParticleSpawn()) {
                         double motionX = (entity.world.rand.nextDouble() - 0.5D) * 0.25D;
                         double motionZ = (entity.world.rand.nextDouble() - 0.5D) * 0.25D;

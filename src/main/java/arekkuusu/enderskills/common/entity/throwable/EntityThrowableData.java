@@ -59,25 +59,27 @@ public class EntityThrowableData extends EntityThrowableCustom {
         compound.setTag("data", getData().serializeNBT());
     }
 
-    public void throwAndSpawn() {
+    public void throwAndSpawn(float velocity) {
         EntityLivingBase thrower = getEntityByUUID(getOwnerId());
         if (thrower != null) {
             shoot(thrower, thrower.rotationPitch, thrower.rotationYaw, 0F, 3F, 0F);
+            this.rotationPitch = thrower.rotationPitch;
+            this.rotationYaw = thrower.rotationYaw;
             thrower.world.spawnEntity(this);
         }
     }
 
-    public static void throwFor(EntityLivingBase owner, double distance, SkillData data, boolean gravity) {
+    public static void throwFor(EntityLivingBase owner, double distance, SkillData data, float velocity, boolean gravity) {
         EntityThrowableData throwable = new EntityThrowableData(owner.world, owner, distance, data, gravity);
         throwable.setOwnerId(owner.getUniqueID());
-        throwable.throwAndSpawn();
+        throwable.throwAndSpawn(velocity);
     }
 
     public static void throwFor(EntityLivingBase owner, EntityLivingBase target, double distance, SkillData data, boolean gravity) {
         EntityThrowableData throwable = new EntityThrowableData(owner.world, owner, distance, data, gravity);
         throwable.setOwnerId(owner.getUniqueID());
         throwable.setFollowId(target.getUniqueID());
-        throwable.throwAndSpawn();
+        throwable.throwAndSpawn(3F);
     }
 
     public static void throwForTarget(EntityLivingBase owner, double distance, SkillData data, boolean gravity) {
@@ -87,6 +89,6 @@ public class EntityThrowableData extends EntityThrowableCustom {
                 .filter(e -> e instanceof EntityLivingBase)
                 .map(e -> (EntityLivingBase) e)
                 .ifPresent(e -> throwable.setFollowId(e.getUniqueID()));
-        throwable.throwAndSpawn();
+        throwable.throwAndSpawn(3F);
     }
 }

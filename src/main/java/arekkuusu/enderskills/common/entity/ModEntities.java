@@ -2,6 +2,7 @@ package arekkuusu.enderskills.common.entity;
 
 import arekkuusu.enderskills.common.entity.placeable.*;
 import arekkuusu.enderskills.common.entity.throwable.EntityThrowableData;
+import arekkuusu.enderskills.common.entity.throwable.EntityThrowableFloatCustom;
 import arekkuusu.enderskills.common.lib.LibMod;
 import arekkuusu.enderskills.common.lib.LibNames;
 import net.minecraft.entity.Entity;
@@ -16,6 +17,7 @@ public final class ModEntities {
 
     public static void register(IForgeRegistry<EntityEntry> registry) {
         register(registry, EntityThrowableData.class, "throwable_data", true);
+        register(registry, EntityThrowableFloatCustom.class, "throwable_float_data", true);
         register(registry, EntityPlaceableData.class, "placeable_data", true);
         register(registry, EntityPlaceableFloor.class, "placeable_floor", false);
         //Earth

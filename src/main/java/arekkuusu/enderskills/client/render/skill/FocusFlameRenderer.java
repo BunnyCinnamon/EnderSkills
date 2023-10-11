@@ -42,7 +42,7 @@ public class FocusFlameRenderer extends SkillRenderer<FocusFlame> {
                     double posZ = vec.z + (entity.world.rand.nextDouble() - 0.5D) * entity.width;
                     double motionX = (entity.world.rand.nextDouble() - 0.5D) * 0.25;
                     double motionZ = (entity.world.rand.nextDouble() - 0.5D) * 0.25;
-                    EnderSkills.getProxy().spawnParticleLuminescence(entity.world, new Vec3d(posX, posY, posZ), new Vec3d(motionX, 0.4, motionZ), 12F, 25, ResourceLibrary.GLOW);
+                    EnderSkills.getProxy().spawnParticleLuminescence(entity.world, new Vec3d(posX, posY, posZ), new Vec3d(motionX, 0.4, motionZ), 12F, 25, ResourceLibrary.GLOW, 0xFFE077);
                 }
             }
         }

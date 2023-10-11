@@ -24,10 +24,8 @@ import arekkuusu.enderskills.common.sound.ModSounds;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Config;
 
@@ -70,7 +68,7 @@ public class BlackHole extends BaseAbility implements IImpact {
         SkillData data = SkillData.of(this)
                 .put(compound)
                 .create();
-        EntityThrowableData.throwFor(owner, distance, data, false);
+        EntityThrowableData.throwFor(owner, distance, data, 3F, false);
         super.sync(owner);
     }
 

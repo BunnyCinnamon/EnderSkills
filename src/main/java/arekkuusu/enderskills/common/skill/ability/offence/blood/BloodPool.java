@@ -31,12 +31,10 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.config.Config;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -77,7 +75,7 @@ public class BloodPool extends BaseAbility implements IImpact, ILoopSound, IExpa
                 .by(owner)
                 .put(compound)
                 .create();
-        EntityThrowableData.throwFor(owner, Integer.MAX_VALUE, data, true);
+        EntityThrowableData.throwFor(owner, Integer.MAX_VALUE, data, 3F, true);
         super.sync(owner);
 
         SoundHelper.playSound(owner.world, owner.getPosition(), ModSounds.BLOODPOOL);

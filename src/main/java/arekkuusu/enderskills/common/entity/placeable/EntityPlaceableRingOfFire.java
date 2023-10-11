@@ -55,7 +55,7 @@ public class EntityPlaceableRingOfFire extends EntityPlaceableFloor {
                         double motionX = (this.world.rand.nextDouble() - 0.5D) * 0.25D;
                         double motionZ = (this.world.rand.nextDouble() - 0.5D) * 0.25D;
                         if (isBorder) {
-                            EnderSkills.getProxy().spawnParticleLuminescence(this.world, new Vec3d(posX, posY, posZ), new Vec3d(motionX, 0.05D, motionZ), 4F, 25, ResourceLibrary.GLOW);
+                            EnderSkills.getProxy().spawnParticleLuminescence(this.world, new Vec3d(posX, posY, posZ), new Vec3d(motionX, 0.05D, motionZ), 4F, 25, ResourceLibrary.GLOW, 0xFFE077);
                         }
                         if(ClientProxy.canParticleSpawn()) {
                             this.world.spawnParticle(EnumParticleTypes.SMOKE_NORMAL, posX, posY, posZ, motionX, 0.01D, motionZ);

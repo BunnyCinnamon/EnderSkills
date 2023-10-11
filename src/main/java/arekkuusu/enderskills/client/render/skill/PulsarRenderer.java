@@ -44,7 +44,7 @@ public class PulsarRenderer extends SkillRenderer<Pulsar> {
                         Vec3d vec = entity.getPositionVector().add(motionVec);
                         motionVec = motionVec.normalize().scale(0.5);
                         float particleScale = 3F + 2F * (float) entity.world.rand.nextGaussian();
-                        EnderSkills.getProxy().spawnParticleLuminescence(entity.world, vec, motionVec, particleScale, 15, ResourceLibrary.GLOW);
+                        EnderSkills.getProxy().spawnParticleLuminescence(entity.world, vec, motionVec, particleScale, 15, ResourceLibrary.GLOW, 0xFFE077);
                     }
                 }
                 //Middle
@@ -54,7 +54,7 @@ public class PulsarRenderer extends SkillRenderer<Pulsar> {
                         Vec3d vec = entity.getPositionVector().add(motionVec);
                         motionVec = motionVec.normalize().scale(0.5);
                         float particleScale = 3F + 2F * (float) entity.world.rand.nextGaussian();
-                        EnderSkills.getProxy().spawnParticleLuminescence(entity.world, vec, motionVec, particleScale, 15, ResourceLibrary.GLOW);
+                        EnderSkills.getProxy().spawnParticleLuminescence(entity.world, vec, motionVec, particleScale, 15, ResourceLibrary.GLOW, 0xFFE077);
                     }
                 }
                 //Bottom
@@ -64,7 +64,7 @@ public class PulsarRenderer extends SkillRenderer<Pulsar> {
                         Vec3d vec = entity.getPositionVector().add(motionVec);
                         motionVec = motionVec.normalize().scale(0.5);
                         float particleScale = 3F + 2F * (float) entity.world.rand.nextGaussian();
-                        EnderSkills.getProxy().spawnParticleLuminescence(entity.world, vec, motionVec, particleScale, 15, ResourceLibrary.GLOW);
+                        EnderSkills.getProxy().spawnParticleLuminescence(entity.world, vec, motionVec, particleScale, 15, ResourceLibrary.GLOW, 0xFFE077);
                     }
                 }
                 //Smoke

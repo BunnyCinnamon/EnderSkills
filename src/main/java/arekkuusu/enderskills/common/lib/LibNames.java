@@ -98,6 +98,13 @@ public class LibNames {
     public static final String OVERHEAT = "overheat";
     public static final String WARM_HEART = "warm_heart";
     public static final String HOME_STAR = "home_star";
+    //Black Flame
+    public static final String BLACK_FLAME_BALL = "black_flame_ball";
+    public static final String BLACK_SCOURING_FLAME = "black_scouring_flame";
+    public static final String BLACK_BLESSING_FLAME = "black_blessing_flame";
+    public static final String BLACK_VOLLEY_FLAME = "black_volley_flame";
+    public static final String BLACK_RAGING_FLAME_BALL = "black_raging_flame_ball";
+    public static final String BLACK_FLARE_FLAME = "black_flare_flame";
     //Status
     public static final String OVERHEAL = "overheal";
     public static final String ELECTRIFIED = "electrified";
@@ -113,6 +120,7 @@ public class LibNames {
     public static final String PULSAR = "pulsar";
     public static final String DROWNED = "drowned";
     public static final String GLOWING = "glowing";
+    public static final String BLACK_FLAME = "black_flame";
     //Misc
     public static final String BOOK = "book";
     public static final String ALTAR = "altar";
@@ -134,6 +142,7 @@ public class LibNames {
     public static final String ENDURANCE_EFFECT = "endurance_effect";
     public static final String ENDURANCE_PERMANENT_EFFECT = "endurance_permanent_effect";
     public static final String ENDURANCE_REGEN_EFFECT = "endurance_regen_effect";
+    public static final String BLACK_FIRE_FLAME = "black_fire_flame";
     //* Config folder *//
     public static final String EARTH = "Earth/";
     public static final String ELECTRIC = "Electric/";
@@ -142,6 +151,7 @@ public class LibNames {
     public static final String VOID = "Void/";
     public static final String WIND = "Wind/";
     public static final String BLOOD = "Blood/";
+    public static final String BLACK_FLAME_ = "BlackFlame/";
     public static final String ABILITY_FOLDER = LibMod.MOD_ID + "/Ability/";
     public static final String ATTRIBUTE_FOLDER = LibMod.MOD_ID + "/Attribute/";
     public static final String ABILITY_DEFENSE_FOLDER = LibNames.ABILITY_FOLDER + "Defense/";
@@ -161,4 +171,5 @@ public class LibNames {
     public static final String VOID_OFFENCE_CONFIG = LibNames.ABILITY_OFFENCE_FOLDER + LibNames.VOID;
     public static final String WIND_OFFENCE_CONFIG = LibNames.ABILITY_OFFENCE_FOLDER + LibNames.WIND;
     public static final String BLOOD_OFFENCE_CONFIG = LibNames.ABILITY_OFFENCE_FOLDER + LibNames.BLOOD;
+    public static final String BLACK_FLAME_OFFENCE_CONFIG = LibNames.ABILITY_OFFENCE_FOLDER + LibNames.BLACK_FLAME_;
 }

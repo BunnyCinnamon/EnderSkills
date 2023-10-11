@@ -59,7 +59,7 @@ public class Crush extends BaseAbility implements IImpact {
         SkillData data = SkillData.of(this)
                 .put(compound)
                 .create();
-        EntityThrowableData.throwFor(owner, distance, data, false);
+        EntityThrowableData.throwFor(owner, distance, data, 3F, false);
         super.sync(owner);
 
         SoundHelper.playSound(owner.world, owner.getPosition(), ModSounds.CRUSH);
@@ -89,7 +89,7 @@ public class Crush extends BaseAbility implements IImpact {
         SkillDamageSource damageSource = new SkillDamageSource(DAMAGE_HIT_TYPE, owner);
         SkillDamageEvent event = new SkillDamageEvent(owner, ModAbilities.CRUSH, damageSource, damage);
         MinecraftForge.EVENT_BUS.post(event);
-        if (event.getAmount() > 0 && event.getAmount() < Double.MAX_VALUE) {
+        if (event.getAmount() > 0) {
             entity.attackEntityFrom(event.getSource(), event.toFloat());
         }
     }

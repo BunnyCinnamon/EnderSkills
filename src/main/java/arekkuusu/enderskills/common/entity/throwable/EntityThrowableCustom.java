@@ -40,7 +40,7 @@ public abstract class EntityThrowableCustom extends Entity implements IProjectil
 
     public EntityThrowableCustom(World worldIn, EntityLivingBase owner, int distance) {
         this(worldIn);
-        Vec3d posVec = new Vec3d(owner.posX, owner.posY + owner.getEyeHeight() - 0.10000000149011612D, owner.posZ);
+        Vec3d posVec = new Vec3d(owner.posX, owner.posY + owner.getEyeHeight() - 0.50000000149011612D, owner.posZ);
         Vec3d lookVec = owner.getLookVec().normalize();
         posVec = posVec.addVector(
                 lookVec.x * 0.5,

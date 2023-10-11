@@ -81,7 +81,7 @@ public class Glowing extends BaseEffect implements IFindEntity, IExpand {
         SkillDamageEvent event = new SkillDamageEvent(owner, this, skillSource, damage[0]);
         MinecraftForge.EVENT_BUS.post(event);
 
-        if (event.getAmount() > 0 && event.getAmount() < Double.MAX_VALUE) {
+        if (event.getAmount() > 0) {
             target.attackEntityFrom(event.getSource(), event.toFloat());
         }
 

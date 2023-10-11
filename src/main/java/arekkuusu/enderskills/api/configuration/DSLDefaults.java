@@ -39,8 +39,16 @@ public final class DSLDefaults {
         return DSLEvaluator.evaluateFloat(skill, "DAMAGE_MIRROR", level, CommonConfig.CONFIG_SYNC.skill.globalNegativeEffect);
     }
 
+    public static float getTrueDamage(Skill skill, int level) {
+        return DSLEvaluator.evaluateFloat(skill, "TRUE_DAMAGE", level, CommonConfig.CONFIG_SYNC.skill.globalNegativeEffect);
+    }
+
     public static float getDamageOverTime(Skill skill, int level) {
         return DSLEvaluator.evaluateFloat(skill, "DOT", level, CommonConfig.CONFIG_SYNC.skill.globalNegativeEffect);
+    }
+
+    public static float getTrueDamageOverTime(Skill skill, int level) {
+        return DSLEvaluator.evaluateFloat(skill, "TRUE_DOT", level, CommonConfig.CONFIG_SYNC.skill.globalNegativeEffect);
     }
 
     public static float getHealth(Skill skill, int level) {
@@ -121,6 +129,10 @@ public final class DSLDefaults {
 
     public static int getSpeed(Skill skill, int level) {
         return DSLEvaluator.evaluateInt(skill, "SPEED", level, 1D);
+    }
+
+    public static int getAmount(Skill skill, int level) {
+        return DSLEvaluator.evaluateInt(skill, "AMOUNT", level, 1D);
     }
 
     public static SkillDurationEvent triggerDuration(@Nullable EntityLivingBase entity, Skill skill, int level) {

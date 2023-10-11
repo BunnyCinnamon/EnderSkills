@@ -23,7 +23,7 @@ public class Voided extends BaseEffect {
         source.setMagicDamage();
         SkillDamageEvent event = new SkillDamageEvent(owner, this, source, damage);
         MinecraftForge.EVENT_BUS.post(event);
-        if(event.getAmount() > 0 && event.getAmount() < Double.MAX_VALUE) {
+        if(event.getAmount() > 0) {
             entity.attackEntityFrom(event.getSource(), event.toFloat() / data.time);
         }
     }

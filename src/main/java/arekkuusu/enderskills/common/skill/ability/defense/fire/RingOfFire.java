@@ -33,7 +33,6 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.config.Config;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -80,7 +79,7 @@ public class RingOfFire extends BaseAbility implements IScanEntities, IFindEntit
                 .put(compound)
                 .overrides(SkillData.Overrides.EQUAL)
                 .create();
-        EntityThrowableData.throwFor(owner, range, data, true);
+        EntityThrowableData.throwFor(owner, range, data, 3F, true);
         super.sync(owner);
 
         SoundHelper.playSound(owner.world, owner.getPosition(), ModSounds.FIRE_HIT);

@@ -72,7 +72,7 @@ public class MagneticPull extends BaseAbility implements IScanEntities, ILoopSou
         SkillData data = SkillData.of(this)
                 .put(compound)
                 .create();
-        EntityThrowableData.throwFor(owner, distance, data, false);
+        EntityThrowableData.throwFor(owner, distance, data, 3F, false);
         super.sync(owner);
 
         SoundHelper.playSound(owner.world, owner.getPosition(), ModSounds.ELECTRIC_HIT);

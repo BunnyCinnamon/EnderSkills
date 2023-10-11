@@ -32,7 +32,7 @@ public interface IProxy {
         //NO-OP
     }
 
-    default void spawnParticleLuminescence(World world, Vec3d pos, Vec3d speed, float scale, int age, ResourceLocation location) {
+    default void spawnParticleLuminescence(World world, Vec3d pos, Vec3d speed, float scale, int age, ResourceLocation location, int rgb) {
         //NO-OP
     }
 

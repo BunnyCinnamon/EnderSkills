@@ -31,6 +31,7 @@ public class ModEffects {
     public static final BaseEffect PULSAR = empty();
     public static final BaseEffect DROWNED = empty();
     public static final Glowing GLOWING = empty();
+    public static final BlackFlame BLACK_FLAME = empty();
 
     public static void register(IForgeRegistry<Skill> registry) {
         registry.register(new Overheal());
@@ -47,5 +48,6 @@ public class ModEffects {
         registry.register(new Pulsar());
         registry.register(new Drowning());
         registry.register(new Glowing());
+        registry.register(new BlackFlame());
     }
 }

@@ -25,6 +25,7 @@ public class ModBlocks {
     public static final Block ALTAR_ULTIMATE = PLACE_HOLDER;
     public static final Block CRYSTAL = PLACE_HOLDER;
     public static final Block ENDER_ORE = PLACE_HOLDER;
+    public static final Block BLACK_FIRE_FLAME = PLACE_HOLDER;
 
     public static void register(IForgeRegistry<Block> registry) {
         registry.register(new BlockAltar(LibNames.ALTAR_ULTIMATE, true));
@@ -36,6 +37,7 @@ public class ModBlocks {
         registry.register(new BlockAltar(LibNames.SPRUCE_BREAK_ALTAR, false));
         registry.register(new BlockCrystal());
         registry.register(new BlockEnderOre());
+        registry.register(new BlockBlackFireFlame(LibNames.BLACK_FIRE_FLAME));
         registerTiles();
     }
 
@@ -51,7 +53,8 @@ public class ModBlocks {
     public static Block setRegistry(Block block, String id) {
         block.setUnlocalizedName(id);
         block.setRegistryName(LibMod.MOD_ID, id);
-        block.setCreativeTab(CreativeTabHandler.MISC);
+        if (!id.equals(LibNames.BLACK_FIRE_FLAME))
+            block.setCreativeTab(CreativeTabHandler.MISC);
         return block;
     }
 }

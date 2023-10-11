@@ -100,6 +100,7 @@ public final class GuiHandler implements IGuiHandler {
                 GuiHandler.setValue(LibNames.GLOWING, "MODIFIER", (skill, level) -> DSLDefaults.getModifier(skill, level) / 2);
                 GuiHandler.setValue("COOLDOWN", (skill, level) -> DSLDefaults.getCooldown(skill, level) / 20);
                 GuiHandler.setValue("DURATION", (skill, level) -> DSLDefaults.triggerDuration(player, skill, level).getAmount() / 20);
+                GuiHandler.setValue("TRUE_DAMAGE", (skill, level) -> DSLDefaults.getTrueDamage(skill, level) / 2);
                 GuiHandler.setValue("DAMAGE", (skill, level) -> DSLDefaults.getDamage(skill, level) / 2);
                 GuiHandler.setValue("DAMAGE_MIRROR", (skill, level) -> DSLDefaults.getDamageMimicry(skill, level) * 100);
                 GuiHandler.setValue("HEALTH", (skill, level) -> DSLDefaults.getHealth(skill, level) / 2);
@@ -113,6 +114,7 @@ public final class GuiHandler implements IGuiHandler {
                 GuiHandler.setValue("SLOW", (skill, level) -> DSLDefaults.getSlow(skill, level) * 100);
                 GuiHandler.setValue("POWER", (skill, level) -> DSLDefaults.getPower(skill, level));
                 GuiHandler.setValue("DOT", (skill, level) -> DSLDefaults.getDamageOverTime(skill, level) / 2);
+                GuiHandler.setValue("TRUE_DOT", (skill, level) -> DSLDefaults.getTrueDamageOverTime(skill, level) / 2);
                 GuiHandler.setValue("DOT_DURATION", (skill, level) -> DSLDefaults.triggerDamageDuration(player, skill, level).getAmount() / 20);
                 GuiHandler.setValue("INTERVAL", (skill, level) -> DSLDefaults.triggerIntervalDuration(player, skill, level).getAmount() / 20);
                 GuiHandler.setValue("PULSE_RANGE", (skill, level) -> HomeStar.getPulseRange(player, level).getAmount());
@@ -146,6 +148,7 @@ public final class GuiHandler implements IGuiHandler {
                 GuiHandler.setSuffix("COOLDOWN", "suffix_time");
                 GuiHandler.setSuffix("DURATION", "suffix_time");
                 GuiHandler.setSuffix("DAMAGE", "suffix_hearts");
+                GuiHandler.setSuffix("TRUE_DAMAGE", "suffix_percentage_hearts");
                 GuiHandler.setSuffix("DAMAGE_MIRROR", "suffix_percentage");
                 GuiHandler.setSuffix("HEALTH", "suffix_hearts");
                 GuiHandler.setSuffix("STUN", "suffix_time");
@@ -157,7 +160,8 @@ public final class GuiHandler implements IGuiHandler {
                 GuiHandler.setSuffix("FORCE", "suffix_force");
                 GuiHandler.setSuffix("SLOW", "suffix_percentage");
                 GuiHandler.setSuffix("POWER", "suffix_percentage");
-                GuiHandler.setSuffix("DOT", "suffix_time");
+                GuiHandler.setSuffix("DOT", "suffix_hearts");
+                GuiHandler.setSuffix("TRUE_DOT", "suffix_percentage_hearts");
                 GuiHandler.setSuffix("DOT_DURATION", "suffix_time");
                 GuiHandler.setSuffix("INTERVAL", "suffix_time");
                 GuiHandler.setSuffix("PULSE_RANGE", "suffix_blocks");
@@ -178,6 +182,7 @@ public final class GuiHandler implements IGuiHandler {
                 GuiHandler.setSuffix("AMOUNT", "suffix_amount");
                 GuiHandler.setSuffix("DELAY", "suffix_time");
                 GuiHandler.setSuffix("PIERCING", "suffix_amount");
+                GuiHandler.setSuffix("AMOUNT", "suffix_amount");
                 //
                 GuiHandler.setAdvancement(LibNames.DAMAGE_RESISTANCE, ModAttributes.DAMAGE_RESISTANCE);
                 GuiHandler.setAdvancement(LibNames.EXPLOSION_RESISTANCE, ModAttributes.EXPLOSION_RESISTANCE);
@@ -266,6 +271,9 @@ public final class GuiHandler implements IGuiHandler {
                 GuiHandler.setAdvancement(LibNames.SLASH, ModAbilities.SLASH, ModAbilities.SLASH);
                 GuiHandler.setAdvancement(LibNames.SUFFOCATE, ModAbilities.SUFFOCATE, ModAbilities.SLASH);
                 GuiHandler.setAdvancement(LibNames.UPDRAFT, ModAbilities.UPDRAFT, ModAbilities.SLASH);
+                GuiHandler.setAdvancement(LibNames.BLACK_FLAME_BALL, ModAbilities.BLACK_FLAME_BALL, ModAbilities.BLACK_FLAME_BALL);
+                GuiHandler.setAdvancement(LibNames.BLACK_SCOURING_FLAME, ModAbilities.BLACK_SCOURING_FLAME, ModAbilities.BLACK_FLAME_BALL);
+                GuiHandler.setAdvancement(LibNames.BLACK_BLESSING_FLAME, ModAbilities.BLACK_BLESSING_FLAME, ModAbilities.BLACK_FLAME_BALL);
                 //
                 GuiScreenSkillAdvancements window = new GuiScreenSkillAdvancements();
                 GuiSkillAdvancementTab defense = window.addTab(new TextComponentTranslation(get("tab.defense.title")), SkillAdvancementTabType.BELOW, 0x65974B, 0);
@@ -2099,28 +2107,197 @@ public final class GuiHandler implements IGuiHandler {
                         light.addAdvancement(damage, attack_speed, knockback);
                         light.addAdvancement(ability_power, critical_chance, armor_penetration);
                     }
+                    GuiSkillAdvancementPage black_flame = offense.addPage(new TextComponentTranslation(get("page.black_flame.title")));
+                    SkillAdvancementConditionSimple black_flame_ball = new SkillAdvancementConditionSimple(
+                            new SkillAdvancementInfo(
+                                    new TextComponentTranslation(get("skill.black_flame_ball.title")),
+                                    new TextComponentTranslation(get("skill.black_flame_ball.description")),
+                                    SkillAdvancementInfo.Frame.NORMAL,
+                                    ModAbilities.BLACK_FLAME_BALL,
+                                    false
+                            ),
+                            0, 1
+                    );
+                    {
+                        //Attribute
+                        SkillAdvancementConditionAttribute damage = new SkillAdvancementConditionAttribute(
+                                new SkillAdvancementInfo(
+                                        new TextComponentTranslation(get("skill.damage.title")),
+                                        new TextComponentTranslation(get("skill.damage.description")),
+                                        SkillAdvancementInfo.Frame.NORMAL,
+                                        ModAttributes.DAMAGE,
+                                        false
+                                ),
+                                0, 5
+                        );
+                        SkillAdvancementConditionAttribute attack_speed = new SkillAdvancementConditionAttribute(
+                                new SkillAdvancementInfo(
+                                        new TextComponentTranslation(get("skill.attack_speed.title")),
+                                        new TextComponentTranslation(get("skill.attack_speed.description")),
+                                        SkillAdvancementInfo.Frame.NORMAL,
+                                        ModAttributes.ATTACK_SPEED,
+                                        false
+                                ),
+                                0, 6
+                        );
+                        SkillAdvancementConditionAttribute knockback = new SkillAdvancementConditionAttribute(
+                                new SkillAdvancementInfo(
+                                        new TextComponentTranslation(get("skill.knockback.title")),
+                                        new TextComponentTranslation(get("skill.knockback.description")),
+                                        SkillAdvancementInfo.Frame.NORMAL,
+                                        ModAttributes.KNOCKBACK,
+                                        false
+                                ),
+                                0, 7
+                        );
+                        SkillAdvancementConditionAttribute ability_power = new SkillAdvancementConditionAttribute(
+                                new SkillAdvancementInfo(
+                                        new TextComponentTranslation(get("skill.ability_power.title")),
+                                        new TextComponentTranslation(get("skill.ability_power.description")),
+                                        SkillAdvancementInfo.Frame.NORMAL,
+                                        ModAttributes.ABILITY_POWER,
+                                        false
+                                ),
+                                2, 5
+                        );
+                        SkillAdvancementConditionAttribute critical_chance = new SkillAdvancementConditionAttribute(
+                                new SkillAdvancementInfo(
+                                        new TextComponentTranslation(get("skill.critical_chance.title")),
+                                        new TextComponentTranslation(get("skill.critical_chance.description")),
+                                        SkillAdvancementInfo.Frame.NORMAL,
+                                        ModAttributes.CRITICAL_CHANCE,
+                                        false
+                                ),
+                                2, 6
+                        );
+                        SkillAdvancementConditionAttribute armor_penetration = new SkillAdvancementConditionAttribute(
+                                new SkillAdvancementInfo(
+                                        new TextComponentTranslation(get("skill.armor_penetration.title")),
+                                        new TextComponentTranslation(get("skill.armor_penetration.description")),
+                                        SkillAdvancementInfo.Frame.NORMAL,
+                                        ModAttributes.ARMOR_PENETRATION,
+                                        false
+                                ),
+                                2, 7
+                        );
+                        //Ability
+                        SkillAdvancementConditionSimple black_scouring_flame = new SkillAdvancementConditionSimple(
+                                new SkillAdvancementInfo(
+                                        new TextComponentTranslation(get("skill.black_scouring_flame.title")),
+                                        new TextComponentTranslation(get("skill.black_scouring_flame.description")),
+                                        SkillAdvancementInfo.Frame.ROUNDED,
+                                        ModAbilities.BLACK_SCOURING_FLAME,
+                                        false
+                                ),
+                                2, 0
+                        );
+                        SkillAdvancementConditionSimple black_blessing_flame = new SkillAdvancementConditionSimple(
+                                new SkillAdvancementInfo(
+                                        new TextComponentTranslation(get("skill.black_blessing_flame.title")),
+                                        new TextComponentTranslation(get("skill.black_blessing_flame.description")),
+                                        SkillAdvancementInfo.Frame.ROUNDED,
+                                        ModAbilities.BLACK_BLESSING_FLAME,
+                                        false
+                                ),
+                                2, 2
+                        );
+                        SkillAdvancementConditionSimple black_raging_flame_ball = new SkillAdvancementConditionSimple(
+                                new SkillAdvancementInfo(
+                                        new TextComponentTranslation(get("skill.black_raging_flame_ball.title")),
+                                        new TextComponentTranslation(get("skill.black_raging_flame_ball.description")),
+                                        SkillAdvancementInfo.Frame.ROUNDED,
+                                        ModAbilities.BLACK_RAGING_FLAME_BALL,
+                                        false
+                                ),
+                                4, 0
+                        );
+                        SkillAdvancementConditionSimple black_volley_flame = new SkillAdvancementConditionSimple(
+                                new SkillAdvancementInfo(
+                                        new TextComponentTranslation(get("skill.black_volley_flame.title")),
+                                        new TextComponentTranslation(get("skill.black_volley_flame.description")),
+                                        SkillAdvancementInfo.Frame.ROUNDED,
+                                        ModAbilities.BLACK_VOLLEY_FLAME,
+                                        false
+                                ),
+                                4, 2
+                        );
+                        SkillAdvancementConditionSimple black_flare_flame = new SkillAdvancementConditionSimple(
+                                new SkillAdvancementInfo(
+                                        new TextComponentTranslation(get("skill.black_flare_flame.title")),
+                                        new TextComponentTranslation(get("skill.black_flare_flame.description")),
+                                        SkillAdvancementInfo.Frame.ROUNDED,
+                                        ModAbilities.BLACK_FLARE_FLAME,
+                                        false
+                                ),
+                                6, 1
+                        );
+                        //Requirements
+                        black_scouring_flame.addCondition(black_flame_ball);
+                        black_scouring_flame.addCondition(new SkillAdvancementConditionNotOrOverride(black_blessing_flame, black_flare_flame));
+                        black_blessing_flame.addCondition(black_flame_ball);
+                        black_blessing_flame.addCondition(new SkillAdvancementConditionNotOrOverride(black_scouring_flame, black_flare_flame));
+                        black_raging_flame_ball.addCondition(new SkillAdvancementConditionOr(black_scouring_flame, black_blessing_flame));
+                        black_raging_flame_ball.addCondition(new SkillAdvancementConditionNotOrOverride(black_volley_flame, black_flare_flame));
+                        black_raging_flame_ball.addCondition(new SkillAdvancementConditionWhenOverrideOrUpgraded(black_raging_flame_ball, black_flare_flame, black_scouring_flame, black_blessing_flame));
+                        black_volley_flame.addCondition(new SkillAdvancementConditionOr(black_scouring_flame, black_blessing_flame));
+                        black_volley_flame.addCondition(new SkillAdvancementConditionNotOrOverride(black_raging_flame_ball, black_flare_flame));
+                        black_volley_flame.addCondition(new SkillAdvancementConditionWhenOverrideOrUpgraded(black_volley_flame, black_flare_flame, black_scouring_flame, black_blessing_flame));
+                        black_flare_flame.addCondition(new SkillAdvancementConditionOr(black_volley_flame, black_raging_flame_ball));
+
+                        damage.addCondition(black_flame_ball);
+                        attack_speed.addCondition(black_flame_ball);
+                        knockback.addCondition(black_flame_ball);
+                        ability_power.addCondition(new SkillAdvancementConditionOr(black_flame_ball, black_flame_ball));
+                        critical_chance.addCondition(new SkillAdvancementConditionOr(black_flame_ball, black_flame_ball));
+                        armor_penetration.addCondition(new SkillAdvancementConditionOr(black_flame_ball, black_flame_ball));
+                        //Altar Requirements
+                        ability_power.addCondition(new SkillAdvancementConditionAltar(SkillAdvancementConditionAltar.LEVEL_1));
+                        critical_chance.addCondition(new SkillAdvancementConditionAltar(SkillAdvancementConditionAltar.LEVEL_1));
+                        armor_penetration.addCondition(new SkillAdvancementConditionAltar(SkillAdvancementConditionAltar.LEVEL_1));
+                        black_flame_ball.addCondition(new SkillAdvancementConditionAltar(SkillAdvancementConditionAltar.LEVEL_0));
+                        //GUI
+                        GuiSkillAdvancement gui0 = black_flame.addAdvancement(black_flame_ball);
+                        GuiSkillAdvancement gui1 = black_flame.addAdvancement(black_scouring_flame, black_blessing_flame);
+                        GuiSkillAdvancement gui2 = black_flame.addAdvancement(black_raging_flame_ball, black_volley_flame);
+                        GuiSkillAdvancement gui3 = black_flame.addAdvancement(black_flare_flame);
+                        gui0.addChildren(gui1);
+                        gui1.addChildren(gui2);
+                        gui2.addChildren(gui3);
+                        black_flame.addAdvancement(damage, attack_speed, knockback);
+                        black_flame.addAdvancement(ability_power, critical_chance, armor_penetration);
+                    }
 
                     if (CommonConfig.getSyncValues().advancement.oneTreePerClass) {
                         shadow.addCondition(new SkillAdvancementConditionNot(bleed));
                         shadow.addCondition(new SkillAdvancementConditionNot(slash));
                         shadow.addCondition(new SkillAdvancementConditionNot(fire_spirit));
                         shadow.addCondition(new SkillAdvancementConditionNot(radiant_ray));
+                        shadow.addCondition(new SkillAdvancementConditionNot(black_flame_ball));
                         bleed.addCondition(new SkillAdvancementConditionNot(shadow));
                         bleed.addCondition(new SkillAdvancementConditionNot(slash));
                         bleed.addCondition(new SkillAdvancementConditionNot(fire_spirit));
                         bleed.addCondition(new SkillAdvancementConditionNot(radiant_ray));
+                        bleed.addCondition(new SkillAdvancementConditionNot(black_flame_ball));
                         slash.addCondition(new SkillAdvancementConditionNot(shadow));
                         slash.addCondition(new SkillAdvancementConditionNot(bleed));
                         slash.addCondition(new SkillAdvancementConditionNot(fire_spirit));
                         slash.addCondition(new SkillAdvancementConditionNot(radiant_ray));
+                        slash.addCondition(new SkillAdvancementConditionNot(black_flame_ball));
                         fire_spirit.addCondition(new SkillAdvancementConditionNot(shadow));
                         fire_spirit.addCondition(new SkillAdvancementConditionNot(bleed));
                         fire_spirit.addCondition(new SkillAdvancementConditionNot(slash));
                         fire_spirit.addCondition(new SkillAdvancementConditionNot(radiant_ray));
+                        fire_spirit.addCondition(new SkillAdvancementConditionNot(black_flame_ball));
                         radiant_ray.addCondition(new SkillAdvancementConditionNot(shadow));
                         radiant_ray.addCondition(new SkillAdvancementConditionNot(bleed));
                         radiant_ray.addCondition(new SkillAdvancementConditionNot(slash));
                         radiant_ray.addCondition(new SkillAdvancementConditionNot(fire_spirit));
+                        radiant_ray.addCondition(new SkillAdvancementConditionNot(black_flame_ball));
+                        black_flame_ball.addCondition(new SkillAdvancementConditionNot(shadow));
+                        black_flame_ball.addCondition(new SkillAdvancementConditionNot(bleed));
+                        black_flame_ball.addCondition(new SkillAdvancementConditionNot(slash));
+                        black_flame_ball.addCondition(new SkillAdvancementConditionNot(radiant_ray));
+                        black_flame_ball.addCondition(new SkillAdvancementConditionNot(fire_spirit));
                     }
                     return window;
                 }

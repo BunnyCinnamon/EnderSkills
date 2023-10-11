@@ -3,14 +3,13 @@ package arekkuusu.enderskills.common.skill.attribute.offense;
 import arekkuusu.enderskills.api.capability.Capabilities;
 import arekkuusu.enderskills.api.configuration.DSL;
 import arekkuusu.enderskills.api.configuration.DSLDefaults;
+import arekkuusu.enderskills.api.configuration.DSLEvaluator;
 import arekkuusu.enderskills.api.configuration.DSLFactory;
 import arekkuusu.enderskills.api.event.SkillDamageEvent;
 import arekkuusu.enderskills.api.helper.MathUtil;
 import arekkuusu.enderskills.common.lib.LibMod;
 import arekkuusu.enderskills.common.lib.LibNames;
-import arekkuusu.enderskills.common.skill.DynamicModifier;
-import arekkuusu.enderskills.common.skill.ModAttributes;
-import arekkuusu.enderskills.common.skill.SkillHelper;
+import arekkuusu.enderskills.common.skill.*;
 import arekkuusu.enderskills.common.skill.attribute.AttributeInfo;
 import arekkuusu.enderskills.common.skill.attribute.BaseAttribute;
 import net.minecraft.entity.Entity;
@@ -68,6 +67,12 @@ public class AbilityPower extends BaseAttribute {
         if (event.getAmount() <= 0) return;
         EntityLivingBase entity = event.getEntityLiving();
         double amount = entity.getEntityAttribute(AbilityPower.ABILITY_POWER).getAttributeValue();
+        if (event.getSkill() == ModAbilities.BLACK_FLAME_BALL ||
+                event.getSkill() == ModAbilities.BLACK_BLESSING_FLAME ||
+                event.getSkill() == ModAbilities.BLACK_SCOURING_FLAME ||
+                event.getSkill() == ModEffects.BLACK_FLAME) {
+            amount *= DSLDefaults.getModifier(ModEffects.BLACK_FLAME, 1);
+        }
         if (!MathUtil.fuzzyEqual(0, amount)) {
             if (Configuration.LOCAL_VALUES.applyAs == Configuration.Damage.MULTIPLICATION) {
                 event.setAmount(event.getAmount() + event.getAmount() * amount);

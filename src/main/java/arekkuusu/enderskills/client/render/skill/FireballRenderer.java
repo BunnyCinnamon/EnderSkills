@@ -45,7 +45,7 @@ public class FireballRenderer extends SkillRenderer<Fireball> {
                 double posX = vec.x + scale * (entity.world.rand.nextDouble() - 0.5);
                 double posY = vec.y + scale * (entity.world.rand.nextDouble() - 0.5);
                 double posZ = vec.z + scale * (entity.world.rand.nextDouble() - 0.5);
-                entity.world.spawnParticle(EnumParticleTypes.EXPLOSION_LARGE, posX, posY, posZ, 0.0D, 0.0D, 0.0D);
+                entity.world.spawnParticle(EnumParticleTypes.EXPLOSION_LARGE, posX, posY, posZ, (1D - 2D * entity.world.rand.nextDouble()) * 0.05, (1D - 2D * entity.world.rand.nextDouble()) * 0.05, (1D - 2D * entity.world.rand.nextDouble()) * 0.05);
             }
         }
 
@@ -71,7 +71,7 @@ public class FireballRenderer extends SkillRenderer<Fireball> {
                 if (ClientProxy.canParticleSpawn()) {
                     Vector posVec = RenderMisc.getPositionVectorWithPartialTicks(entity, partialTicks);
                     Vector speedVec = Vector.Right.rotateRandom(entity.world.rand, 360F).multiply(0.025D * entity.world.rand.nextDouble());
-                    EnderSkills.getProxy().spawnParticleLuminescence(entity.world, posVec.toVec3d(), speedVec.toVec3d(), particleScale, 10, ResourceLibrary.GLOW);
+                    EnderSkills.getProxy().spawnParticleLuminescence(entity.world, posVec.toVec3d(), speedVec.toVec3d(), particleScale, 10, ResourceLibrary.GLOW, 0xFFE077);
                 }
             }
 

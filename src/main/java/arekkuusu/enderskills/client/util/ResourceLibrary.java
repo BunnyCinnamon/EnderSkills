@@ -26,6 +26,7 @@ public class ResourceLibrary {
     public static final ResourceLocation CROSS = createAtlasTexture(LibMod.MOD_ID, "effect", "cross");
     public static final ResourceLocation ANGRY = createAtlasTexture(LibMod.MOD_ID, "effect", "angry");
     public static final ResourceLocation GLOW = createAtlasTexture(LibMod.MOD_ID, "effect", "glow_particle");
+    public static final ResourceLocation GLOW_NEGATIVE = createAtlasTexture(LibMod.MOD_ID, "effect", "glow_particle_negative");
     public static final ResourceLocation BLOOD = createAtlasTexture(LibMod.MOD_ID, "blocks", "blood");
     public static final ResourceLocation VOLT_PARTICLE = createAtlasTexture(LibMod.MOD_ID, "effect", "volt_particle");
     public static final ResourceLocation RAIN = createAtlasTexture(LibMod.MOD_ID, "effect", "rain");
@@ -43,6 +44,7 @@ public class ResourceLibrary {
         ATLAS_SET.add(BLOOD);
         ATLAS_SET.add(VOLT_PARTICLE);
         ATLAS_SET.add(RAIN);
+        ATLAS_SET.add(GLOW_NEGATIVE);
     }
     //* GUI textures *//
     public static final ResourceLocation POTION_TEXTURES = new ResourceLocation(LibMod.MOD_ID, "textures/gui/potions.png");

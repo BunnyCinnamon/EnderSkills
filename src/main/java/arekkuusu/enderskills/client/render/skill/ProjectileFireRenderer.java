@@ -24,7 +24,7 @@ public class ProjectileFireRenderer extends Render<EntityThrowableData> {
         if (entity.world.rand.nextDouble() < 0.3D && ClientProxy.canParticleSpawn()) {
             for (int i = 1; i <= 3; i++) {
                 Vector posVec = RenderMisc.getPerpendicularPositionVectorWithPartialTicks(entity, partialTicks, i);
-                EnderSkills.getProxy().spawnParticleLuminescence(entity.world, posVec.toVec3d(), new Vec3d(0, 0, 0), 3F, 25, ResourceLibrary.MOTE);
+                EnderSkills.getProxy().spawnParticleLuminescence(entity.world, posVec.toVec3d(), new Vec3d(0, 0, 0), 3F, 25, ResourceLibrary.MOTE, 0xFFE077);
             }
         }
     }

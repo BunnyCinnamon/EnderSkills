@@ -87,5 +87,6 @@ public class EnderSkills {
         event.registerServerCommand(new CommandCooldownReset());
         event.registerServerCommand(new CommandEnduranceReset());
         event.registerServerCommand(new CommandAdvancement());
+        event.registerServerCommand(new CommandBookExperienceReset());
     }
 }

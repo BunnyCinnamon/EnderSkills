@@ -71,7 +71,7 @@ public class UnstablePortal extends BaseAbility implements IImpact, IExpand, ISc
                 .put(compound)
                 .overrides(SkillData.Overrides.EQUAL)
                 .create();
-        EntityThrowableData.throwFor(owner, distance, data, false);
+        EntityThrowableData.throwFor(owner, distance, data, 3F, false);
         super.sync(owner);
     }
 

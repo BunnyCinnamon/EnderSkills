@@ -89,7 +89,7 @@ public class Contaminate extends BaseAbility implements IImpact {
         SkillDamageSource source = new SkillDamageSource(BaseAbility.DAMAGE_HIT_TYPE, owner);
         SkillDamageEvent event = new SkillDamageEvent(owner, this, source, damage);
         MinecraftForge.EVENT_BUS.post(event);
-        if (event.getAmount() > 0 && event.getAmount() < Double.MAX_VALUE) {
+        if (event.getAmount() > 0) {
             entity.attackEntityFrom(event.getSource(), event.toFloat());
         }
     }
@@ -103,7 +103,7 @@ public class Contaminate extends BaseAbility implements IImpact {
         source.setMagicDamage();
         SkillDamageEvent event = new SkillDamageEvent(owner, this, source, damage);
         MinecraftForge.EVENT_BUS.post(event);
-        if (event.getAmount() > 0 && event.getAmount() < Double.MAX_VALUE) {
+        if (event.getAmount() > 0) {
             entity.attackEntityFrom(event.getSource(), event.toFloat() / data.time);
         }
         EnderSkills.getProxy().addToQueue(() -> ModEffects.SLOWED.set(entity, data, 0.6D));

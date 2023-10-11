@@ -44,8 +44,8 @@ public class FlamingRainRenderer extends SkillRenderer<FlamingRain> {
                 //ParticleVanilla vanilla = new ParticleVanilla(entity.world, spawnVec, new Vec3d(0, -speed, 0), 5F, time, 0xFFFFFF, 48);
                 //vanilla.noFading = true;
                 //Minecraft.getMinecraft().effectRenderer.addEffect(vanilla);
-                EnderSkills.getProxy().spawnParticleLuminescence(entity.world, spawnVec, new Vec3d(0, -speed, 0), 15F, time + 5, ResourceLibrary.RAIN);
-                EnderSkills.getProxy().spawnParticleLuminescence(entity.world, spawnVec, new Vec3d(0, 0, 0), 12F, time, ResourceLibrary.MOTE);
+                EnderSkills.getProxy().spawnParticleLuminescence(entity.world, spawnVec, new Vec3d(0, -speed, 0), 15F, time + 5, ResourceLibrary.RAIN, 0xFFE077);
+                EnderSkills.getProxy().spawnParticleLuminescence(entity.world, spawnVec, new Vec3d(0, 0, 0), 12F, time, ResourceLibrary.MOTE, 0xFFE077);
             }
         }
 

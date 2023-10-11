@@ -2,6 +2,7 @@ package arekkuusu.enderskills.common.entity.placeable;
 
 import arekkuusu.enderskills.api.capability.data.SkillData;
 import arekkuusu.enderskills.api.helper.RayTraceHelper;
+import arekkuusu.enderskills.common.entity.data.IFlash;
 import arekkuusu.enderskills.common.skill.SkillHelper;
 import arekkuusu.enderskills.common.sound.ModSounds;
 import net.minecraft.entity.EntityLivingBase;
@@ -33,6 +34,11 @@ public class EntityPlaceableGleamFlash extends EntityPlaceableData {
         if (tickDelay > getData().nbt.getInteger("delay")) {
             if (tick == 0) {
                 world.playSound(posX, posY, posZ, ModSounds.GLEAM_BANG_RELEASE, SoundCategory.PLAYERS, 5F, 1.0F, true);
+                if (getData().skill instanceof IFlash) {
+                    SkillData data = getData();
+                    EntityLivingBase owner = SkillHelper.getOwner(data);
+                    ((IFlash) getData().skill).onFlash(this, owner, data);
+                }
             }
             super.onUpdate();
         } else {

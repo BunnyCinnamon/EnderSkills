@@ -74,7 +74,7 @@ public class Fireball extends BaseAbility implements IImpact, IScanEntities, IEx
                 .with(dotDuration)
                 .put(compound)
                 .create();
-        EntityThrowableData.throwFor(owner, distance, data, false);
+        EntityThrowableData.throwFor(owner, distance, data, 3F, false);
         super.sync(owner);
 
         SoundHelper.playSound(owner.world, owner.getPosition(), ModSounds.FIREBALL);
@@ -126,7 +126,7 @@ public class Fireball extends BaseAbility implements IImpact, IScanEntities, IEx
         source.setExplosion();
         SkillDamageEvent event = new SkillDamageEvent(owner, this, source, damage);
         MinecraftForge.EVENT_BUS.post(event);
-        if (event.getAmount() > 0 && event.getAmount() < Double.MAX_VALUE) {
+        if (event.getAmount() > 0) {
             entity.attackEntityFrom(event.getSource(), event.toFloat());
         }
     }

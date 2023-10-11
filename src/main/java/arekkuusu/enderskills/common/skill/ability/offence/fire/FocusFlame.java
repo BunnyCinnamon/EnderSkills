@@ -72,7 +72,7 @@ public class FocusFlame extends BaseAbility implements IImpact, ILoopSound, ISca
                 .put(compound)
                 .overrides(SkillData.Overrides.EQUAL)
                 .create();
-        EntityThrowableData.throwFor(owner, distance, data, false);
+        EntityThrowableData.throwFor(owner, distance, data, 3F, false);
         super.sync(owner);
 
         SoundHelper.playSound(owner.world, owner.getPosition(), ModSounds.FOCUS_FLAME);
@@ -119,7 +119,7 @@ public class FocusFlame extends BaseAbility implements IImpact, ILoopSound, ISca
         source.setExplosion();
         SkillDamageEvent event = new SkillDamageEvent(owner, this, source, damage);
         MinecraftForge.EVENT_BUS.post(event);
-        if (event.getAmount() > 0 && event.getAmount() < Double.MAX_VALUE) {
+        if (event.getAmount() > 0) {
             entity.attackEntityFrom(event.getSource(), event.toFloat());
         }
     }

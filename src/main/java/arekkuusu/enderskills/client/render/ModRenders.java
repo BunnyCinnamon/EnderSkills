@@ -17,6 +17,7 @@ import arekkuusu.enderskills.common.skill.ability.defense.fire.*;
 import arekkuusu.enderskills.common.skill.ability.defense.light.*;
 import arekkuusu.enderskills.common.skill.ability.mobility.ender.*;
 import arekkuusu.enderskills.common.skill.ability.mobility.wind.*;
+import arekkuusu.enderskills.common.skill.ability.offence.blackflame.*;
 import arekkuusu.enderskills.common.skill.ability.offence.blood.*;
 import arekkuusu.enderskills.common.skill.ability.offence.ender.*;
 import arekkuusu.enderskills.common.skill.ability.offence.fire.*;
@@ -128,6 +129,12 @@ public final class ModRenders {
         registerSkill(RadiantRay.class, new RadiantRayRenderer());
         registerSkill(LumenWave.class, new LumenWaveRenderer());
         registerSkill(GleamFlash.class, new GleamBangRenderer());
+        registerSkill(BlackFlameBall.class, new BlackFlameBallRenderer());
+        registerSkill(BlackScouringFlame.class, new BlackScouringFlameRenderer());
+        registerSkill(BlackBlessingFlame.class, new BlackBlessingFlameRenderer());
+        registerSkill(BlackRagingFlameBall.class, new BlackRagingFlameBallRenderer());
+        registerSkill(BlackVolleyFlame.class, new BlackVolleyFlameRenderer());
+        registerSkill(BlackFlareFlame.class, new BlackFlareFlameRenderer());
         //Effects
         registerSkill(Bleeding.class, new BleedingRenderer());
         registerSkill(Blinded.class, new BlindedRenderer());

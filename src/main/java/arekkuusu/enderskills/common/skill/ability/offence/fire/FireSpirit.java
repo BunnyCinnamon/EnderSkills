@@ -16,6 +16,7 @@ import arekkuusu.enderskills.client.sounds.FireSpiritSound2;
 import arekkuusu.enderskills.common.lib.LibMod;
 import arekkuusu.enderskills.common.lib.LibNames;
 import arekkuusu.enderskills.common.network.PacketHelper;
+import arekkuusu.enderskills.common.skill.ModAbilities;
 import arekkuusu.enderskills.common.skill.ModAttributes;
 import arekkuusu.enderskills.common.skill.ModEffects;
 import arekkuusu.enderskills.common.skill.SkillHelper;
@@ -125,7 +126,7 @@ public class FireSpirit extends BaseAbility {
         EntityLivingBase attacker = (EntityLivingBase) source.getTrueSource();
         EntityLivingBase target = event.getEntityLiving();
         if (TeamHelper.SELECTOR_ENEMY.apply(attacker).test(target)) {
-            SkillHelper.getActiveFrom(attacker, this).ifPresent(data -> {
+            SkillHelper.getActiveFrom(attacker, ModAbilities.FIRE_SPIRIT).ifPresent(data -> {
                 if (!SkillHelper.isActive(target, ModEffects.BURNING)) {
                     SoundHelper.playSound(target.world, target.getPosition(), ModSounds.FIRE_HIT);
                 }

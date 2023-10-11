@@ -24,7 +24,7 @@ public class Bleeding extends BaseEffect {
         source.setMagicDamage();
         SkillDamageEvent event = new SkillDamageEvent(owner, this, source, damage);
         MinecraftForge.EVENT_BUS.post(event);
-        if(event.getAmount() > 0 && event.getAmount() < Double.MAX_VALUE) {
+        if(event.getAmount() > 0) {
             entity.attackEntityFrom(event.getSource(), (float) (event.getAmount() / data.time));
         }
     }

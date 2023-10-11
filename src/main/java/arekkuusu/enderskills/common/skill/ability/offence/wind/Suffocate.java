@@ -69,7 +69,7 @@ public class Suffocate extends BaseAbility implements IImpact, ILoopSound, IScan
                 .put(compound)
                 .overrides(SkillData.Overrides.EQUAL)
                 .create();
-        EntityThrowableData.throwFor(owner, distance, data, false);
+        EntityThrowableData.throwFor(owner, distance, data, 3F, false);
         super.sync(owner);
 
         SoundHelper.playSound(owner.world, owner.getPosition(), ModSounds.SUFFOCATE);

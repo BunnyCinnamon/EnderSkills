@@ -7,5 +7,5 @@ import java.util.Map;
 
 public class DSLConfig {
     public int min_level, max_level, limit_level;
-    public Map<String, Property> map = Maps.newHashMap();
+    public Map<String, Property> map = Maps.newLinkedHashMap();
 }

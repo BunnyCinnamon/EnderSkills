@@ -10,7 +10,6 @@ import arekkuusu.enderskills.client.util.ResourceLibrary;
 import arekkuusu.enderskills.client.util.ShaderLibrary;
 import arekkuusu.enderskills.client.util.SpriteLibrary;
 import arekkuusu.enderskills.client.util.helper.ModelHelper;
-import arekkuusu.enderskills.client.util.helper.RenderMisc;
 import arekkuusu.enderskills.client.util.resource.ShaderManager;
 import arekkuusu.enderskills.common.lib.LibMod;
 import arekkuusu.enderskills.common.proxy.IProxy;
@@ -98,9 +97,9 @@ public class ClientProxy implements IProxy {
     }
 
     @Override
-    public void spawnParticleLuminescence(World world, Vec3d pos, Vec3d speed, float scale, int age, ResourceLocation location) {
+    public void spawnParticleLuminescence(World world, Vec3d pos, Vec3d speed, float scale, int age, ResourceLocation location, int rgb) {
         if (canParticleSpawn()) {
-            PARTICLE_RENDERER.add(new ParticleLuminescence(world, pos, speed, scale, age, location));
+            PARTICLE_RENDERER.add(new ParticleLuminescence(world, pos, speed, scale, age, rgb, location));
         }
     }
 

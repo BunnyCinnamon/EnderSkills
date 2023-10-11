@@ -69,7 +69,7 @@ public class GleamFlash extends BaseAbility implements IImpact, IExpand, IFindEn
                 .with(20)
                 .put(compound)
                 .create();
-        EntityThrowableData.throwFor(owner, distance, data, true);
+        EntityThrowableData.throwFor(owner, distance, data, 3F, true);
         super.sync(owner);
 
         SoundHelper.playSound(owner.world, owner.getPosition(), ModSounds.GLEAM_BANG_CAST);
@@ -106,7 +106,7 @@ public class GleamFlash extends BaseAbility implements IImpact, IExpand, IFindEn
         MinecraftForge.EVENT_BUS.post(event);
         apply(target, skillData);
 
-        if (event.getAmount() > 0 && event.getAmount() < Double.MAX_VALUE) {
+        if (event.getAmount() > 0) {
             target.attackEntityFrom(event.getSource(), event.toFloat());
         }
 

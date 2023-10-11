@@ -44,7 +44,7 @@ public class FlamingBreathRenderer extends SkillRenderer<FlamingBreath> {
                         Vector speedVec = vec.rotateRandom(entity.world.rand, 80F).multiply(distance * j / 3D);
                         Vector posVec = vec.rotateRandom(entity.world.rand, 80F).multiply(distance * entity.world.rand.nextDouble()).addVector(posX, posY, posZ);
                         speedVec = new Vector(speedVec.x / 10, speedVec.y / 10, speedVec.z / 10);
-                        EnderSkills.getProxy().spawnParticleLuminescence(entity.world, posVec.toVec3d(), speedVec.toVec3d(), 15F, 25, ResourceLibrary.GLOW);
+                        EnderSkills.getProxy().spawnParticleLuminescence(entity.world, posVec.toVec3d(), speedVec.toVec3d(), 15F, 25, ResourceLibrary.GLOW, 0xFFE077);
                     }
                 }
             }
