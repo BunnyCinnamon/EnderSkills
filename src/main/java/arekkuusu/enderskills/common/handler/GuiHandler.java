@@ -274,6 +274,9 @@ public final class GuiHandler implements IGuiHandler {
                 GuiHandler.setAdvancement(LibNames.BLACK_FLAME_BALL, ModAbilities.BLACK_FLAME_BALL, ModAbilities.BLACK_FLAME_BALL);
                 GuiHandler.setAdvancement(LibNames.BLACK_SCOURING_FLAME, ModAbilities.BLACK_SCOURING_FLAME, ModAbilities.BLACK_FLAME_BALL);
                 GuiHandler.setAdvancement(LibNames.BLACK_BLESSING_FLAME, ModAbilities.BLACK_BLESSING_FLAME, ModAbilities.BLACK_FLAME_BALL);
+                GuiHandler.setAdvancement(LibNames.BLACK_RAGING_FLAME_BALL, ModAbilities.BLACK_RAGING_FLAME_BALL, ModAbilities.BLACK_FLAME_BALL);
+                GuiHandler.setAdvancement(LibNames.BLACK_VOLLEY_FLAME, ModAbilities.BLACK_VOLLEY_FLAME, ModAbilities.BLACK_FLAME_BALL);
+                GuiHandler.setAdvancement(LibNames.BLACK_FLARE_FLAME, ModAbilities.BLACK_FLARE_FLAME, ModAbilities.BLACK_FLAME_BALL);
                 //
                 GuiScreenSkillAdvancements window = new GuiScreenSkillAdvancements();
                 GuiSkillAdvancementTab defense = window.addTab(new TextComponentTranslation(get("tab.defense.title")), SkillAdvancementTabType.BELOW, 0x65974B, 0);
