@@ -173,6 +173,7 @@ ui.enderskills.page.wind.title=Wind
 ui.enderskills.page.void.title=Void
 ui.enderskills.page.blood.title=Blood
 ui.enderskills.page.fire.title=Fire
+ui.enderskills.page.black_flame.title=Black Flame
 #----------------------------------------------------------------------------------------------------------------------#
 ui.enderskills.desc.stats.shift=§f§l§oSHIFT for info.
 ui.enderskills.desc.stats.ctrl=§f§l§oCTRL for next.

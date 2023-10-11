@@ -14,6 +14,7 @@ import arekkuusu.enderskills.common.lib.LibNames;
 import arekkuusu.enderskills.common.skill.SkillHelper;
 import arekkuusu.enderskills.common.skill.ability.BaseAbility;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.common.MinecraftForge;
@@ -54,20 +55,17 @@ public class BlackFlame extends BaseEffect {
         SkillDamageEvent event = new SkillDamageEvent(owner, skill, source, damage);
         MinecraftForge.EVENT_BUS.post(event);
         if(event.getAmount() > 0) {
-            entity.attackEntityFrom(event.getSource(), (float) (event.getAmount() / time));
+            entity.attackEntityFrom(DamageSource.OUT_OF_WORLD, (float) (event.getAmount() / time));
         }
     }
 
     public static void dealTrueDamage(Skill skill, EntityLivingBase entity, EntityLivingBase owner, double damage, int time) {
         SkillDamageSource source = new SkillDamageSource(BaseAbility.DAMAGE_DOT_TYPE, owner);
-        source.setDamageBypassesArmor();
-        source.setDamageAllowedInCreativeMode(); //AAAAAAHAHAHAHAHAHAHAHAHAHAHAHAHAHAHAHAHAHAHAHAHAHAHAHA >>:]]]]]]
-        source.setDamageIsAbsolute();
         source.setMagicDamage();
         SkillDamageEvent event = new SkillDamageEvent(owner, skill, source, entity.getMaxHealth() * damage);
         MinecraftForge.EVENT_BUS.post(event);
         if(event.getAmount() > 0) {
-            entity.attackEntityFrom(event.getSource(), (float) (event.getAmount() / time));
+            entity.attackEntityFrom(DamageSource.OUT_OF_WORLD, (float) (event.getAmount() / time));
         }
     }
 
@@ -83,14 +81,10 @@ public class BlackFlame extends BaseEffect {
 
     public static void dealTrueDamage(Skill skill, EntityLivingBase entity, EntityLivingBase owner, double damage) {
         SkillDamageSource source = new SkillDamageSource(BaseAbility.DAMAGE_HIT_TYPE, owner);
-        source.setDamageBypassesArmor();
-        source.setDamageAllowedInCreativeMode(); //AAAAAAHAHAHAHAHAHAHAHAHAHAHAHAHAHAHAHAHAHAHAHAHAHAHAHA >>:]]]]]]
-        source.setDamageIsAbsolute();
-        source.setMagicDamage();
-        SkillDamageEvent event = new SkillDamageEvent(owner, skill, source, entity.getMaxHealth() * damage);
+        SkillDamageEvent event = new SkillDamageEvent(owner, skill, source, damage);
         MinecraftForge.EVENT_BUS.post(event);
         if(event.getAmount() > 0) {
-            entity.attackEntityFrom(event.getSource(), event.toFloat());
+            entity.attackEntityFrom(DamageSource.OUT_OF_WORLD, event.toFloat());
         }
     }
 
