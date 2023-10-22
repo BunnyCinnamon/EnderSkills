@@ -40,12 +40,12 @@ public class BlackFlameBallRenderer extends SkillRenderer<BlackFlameBall> {
         @Override
         public void doRender(EntityPlaceableData entity, double x, double y, double z, float entityYaw, float partialTicks) {
             double scale = entity.getRadius() * 2 * MathHelper.clamp(entity.tick / 5D, 0D, 1D);
-            if (entity.tick % 3 == 0 && entity.world.rand.nextDouble() < 0.6D && ClientProxy.canParticleSpawn()) {
+            if (entity.tick % 3 == 0 && entity.world.rand.nextDouble() < 0.8D && ClientProxy.canParticleSpawn()) {
                 Vec3d vec = entity.getPositionVector();
                 double posX = vec.x + scale * (entity.world.rand.nextDouble() - 0.5);
                 double posY = vec.y + scale * (entity.world.rand.nextDouble() - 0.5);
                 double posZ = vec.z + scale * (entity.world.rand.nextDouble() - 0.5);
-                EnderSkills.getProxy().spawnParticle(entity.world, new Vec3d(posX, posY, posZ), new Vec3d((1D - 2D * entity.world.rand.nextDouble()) * 0.05, (1D - 2D * entity.world.rand.nextDouble()) * 0.05, (1D - 2D * entity.world.rand.nextDouble()) * 0.05), 2F, 10, 0xFFFFFF, ResourceLibrary.GLOW_NEGATIVE);
+                EnderSkills.getProxy().spawnParticleLuminescence(entity.world, new Vec3d(posX, posY, posZ), new Vec3d((1D - 2D * entity.world.rand.nextDouble()) * 0.05, (1D - 2D * entity.world.rand.nextDouble()) * 0.05, (1D - 2D * entity.world.rand.nextDouble()) * 0.05), 2F, 10, ResourceLibrary.GLOW_NEGATIVE, 0xFFFFFF);
             }
             if (entity.tick % 5 == 0 && entity.world.rand.nextDouble() < 0.4D && ClientProxy.canParticleSpawn()) {
                 Vec3d vec = entity.getPositionVector();

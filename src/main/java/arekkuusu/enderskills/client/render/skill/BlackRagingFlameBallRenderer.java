@@ -51,8 +51,8 @@ public class BlackRagingFlameBallRenderer extends SkillRenderer<BlackRagingFlame
                     double posZ = vec.z + (entity.world.rand.nextDouble() - 0.5D) * entity.width;
                     double motionX = (entity.world.rand.nextDouble() - 0.5D) * 0.25;
                     double motionZ = (entity.world.rand.nextDouble() - 0.5D) * 0.25;
-                    entity.world.spawnParticle(EnumParticleTypes.SMOKE_NORMAL, posX, posY, posZ, motionX, 0.5 + 0.4 * entity.world.rand.nextDouble(), motionZ);
-                    EnderSkills.getProxy().spawnParticle(entity.world, new Vec3d(posX, posY, posZ), new Vec3d(motionX, 0.5 + 0.4 * entity.world.rand.nextDouble(), motionZ), 4F, 25, 0xFFFFFF, ResourceLibrary.GLOW_NEGATIVE);
+                    entity.world.spawnParticle(EnumParticleTypes.SMOKE_LARGE, posX, posY, posZ, (1D - 2D * entity.world.rand.nextDouble()) * 0.05, 0.3 + 0.2 * entity.world.rand.nextDouble(), (1D - 2D * entity.world.rand.nextDouble()) * 0.05);
+                    EnderSkills.getProxy().spawnParticleLuminescence(entity.world, new Vec3d(posX, posY, posZ), new Vec3d(motionX, 0.8 + 0.4 * entity.world.rand.nextDouble(), motionZ), 4F, 25, ResourceLibrary.GLOW_NEGATIVE,  0xFFFFFF);
                 }
             }
 

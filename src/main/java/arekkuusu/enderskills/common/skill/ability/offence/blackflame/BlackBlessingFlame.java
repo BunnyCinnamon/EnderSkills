@@ -116,8 +116,8 @@ public class BlackBlessingFlame extends BaseAbility {
                 owner.world.spawnParticle(EnumParticleTypes.SMOKE_LARGE, posX, posY, posZ, 0.0D, 0.0D, 0.0D);
                 owner.world.spawnParticle(EnumParticleTypes.SMOKE_NORMAL, posX, posY, posZ, 0.0D, 0.0D, 0.0D);
                 owner.world.spawnParticle(EnumParticleTypes.SMOKE_NORMAL, posX, posY, posZ, 0.0D, 0.0D, 0.0D);
-                EnderSkills.getProxy().spawnParticle(owner.world, new Vec3d(posX, posY, posZ), new Vec3d((1D - 2D * owner.world.rand.nextDouble()) * 0.05, (1D - 2D * owner.world.rand.nextDouble()) * 0.05, (1D - 2D * owner.world.rand.nextDouble()) * 0.05), 2F, 10, 0xFFFFFF, ResourceLibrary.GLOW_NEGATIVE);
-                EnderSkills.getProxy().spawnParticle(owner.world, new Vec3d(posX, posY, posZ), new Vec3d((1D - 2D * owner.world.rand.nextDouble()) * 0.05, (1D - 2D * owner.world.rand.nextDouble()) * 0.05, (1D - 2D * owner.world.rand.nextDouble()) * 0.05), 2F, 10, 0xFFFFFF, ResourceLibrary.GLOW_NEGATIVE);
+                EnderSkills.getProxy().spawnParticleLuminescence(owner.world, new Vec3d(posX, posY, posZ), new Vec3d((1D - 2D * owner.world.rand.nextDouble()) * 0.05, (1D - 2D * owner.world.rand.nextDouble()) * 0.05, (1D - 2D * owner.world.rand.nextDouble()) * 0.05), 2F, 10, ResourceLibrary.GLOW_NEGATIVE, 0xFFFFFF);
+                EnderSkills.getProxy().spawnParticleLuminescence(owner.world, new Vec3d(posX, posY, posZ), new Vec3d((1D - 2D * owner.world.rand.nextDouble()) * 0.05, (1D - 2D * owner.world.rand.nextDouble()) * 0.05, (1D - 2D * owner.world.rand.nextDouble()) * 0.05), 2F, 10, ResourceLibrary.GLOW_NEGATIVE, 0xFFFFFF);
             }
         } else if (tick % 20 == 0 && (!(owner instanceof EntityPlayer) || !((EntityPlayer) owner).capabilities.isCreativeMode)) {
             Capabilities.endurance(owner).ifPresent(capability -> {

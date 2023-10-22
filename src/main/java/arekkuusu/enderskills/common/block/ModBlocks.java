@@ -1,6 +1,7 @@
 package arekkuusu.enderskills.common.block;
 
 import arekkuusu.enderskills.common.block.tile.TileAltar;
+import arekkuusu.enderskills.common.block.tile.TileFire;
 import arekkuusu.enderskills.common.handler.CreativeTabHandler;
 import arekkuusu.enderskills.common.lib.LibMod;
 import arekkuusu.enderskills.common.lib.LibNames;
@@ -25,7 +26,7 @@ public class ModBlocks {
     public static final Block ALTAR_ULTIMATE = PLACE_HOLDER;
     public static final Block CRYSTAL = PLACE_HOLDER;
     public static final Block ENDER_ORE = PLACE_HOLDER;
-    public static final Block BLACK_FIRE_FLAME = PLACE_HOLDER;
+    public static final BlockBlackFireFlame BLACK_FIRE_FLAME = null;
 
     public static void register(IForgeRegistry<Block> registry) {
         registry.register(new BlockAltar(LibNames.ALTAR_ULTIMATE, true));
@@ -43,6 +44,7 @@ public class ModBlocks {
 
     private static void registerTiles() {
         registerTile(TileAltar.class, LibNames.ALTAR);
+        registerTile(TileFire.class, LibNames.BLACK_FLAME);
     }
 
     private static <T extends TileEntity> void registerTile(Class<T> tile, String name) {

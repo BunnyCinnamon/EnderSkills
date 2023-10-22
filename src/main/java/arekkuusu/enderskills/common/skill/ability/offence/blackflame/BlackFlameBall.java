@@ -122,7 +122,7 @@ public class BlackFlameBall extends BaseAbility implements IImpact, IScanEntitie
         double damage = data.nbt.getDouble("damage");
         double true_damage = data.nbt.getDouble("true_damage");
         BlackFlame.dealDamage(this, entity, owner, damage);
-        BlackFlame.dealTrueDamage(this, entity, owner, true_damage);
+        BlackFlame.dealTrueDamageHAHAHA(this, entity, owner, true_damage);
     }
 
     /*Config Section*/

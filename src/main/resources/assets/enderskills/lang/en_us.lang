@@ -187,6 +187,7 @@ ui.enderskills.desc.stats.duration=§fDuration: §r%1$s%2$s
 ui.enderskills.desc.stats.delay=§fDelay: §r%1$s%2$s
 ui.enderskills.desc.stats.damage_mirror=§fMirror Damage: §r%1$s%2$s of player
 ui.enderskills.desc.stats.stun=§fStun: §r%1$s%2$s
+ui.enderskills.desc.stats.interval=§fInterval: §r%1$s%2$s
 ui.enderskills.desc.stats.size=§fSize: §r%1$s%2$s
 ui.enderskills.desc.stats.heal=§fHeal: §r%1$s%2$s
 ui.enderskills.desc.stats.health=§fHealth: §r%1$s%2$s

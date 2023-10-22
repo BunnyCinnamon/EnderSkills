@@ -37,7 +37,7 @@ public class EntityThrowableFloatCustom extends EntityThrowableData {
         if(distEffect > 0.6)
             distEffect = 0.6;
         double strength = (0.2D - 0.2D * distEffect);
-        double strengthY = (0.3D - 0.3D * distEffectY);
+        double strengthY = (0.2D - 0.2D * distEffectY);
         this.motionX += diffPos.x * strength;
         if (hasNoGravity())
             this.motionY += diffPos.y * strengthY;

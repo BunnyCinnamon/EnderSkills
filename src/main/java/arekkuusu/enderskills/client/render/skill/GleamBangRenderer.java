@@ -69,7 +69,7 @@ public class GleamBangRenderer extends SkillRenderer<GleamFlash> {
             GLHelper.BLEND_SRC_ALPHA$ONE.blend();
             if (!ClientConfig.RENDER_CONFIG.rendering.helpMyShadersAreDying) {
                 ShaderLibrary.ALPHA.begin();
-                ShaderLibrary.ALPHA.set("alpha", (1F - (float) tick / (float) entity.getLifeTime()));
+                ShaderLibrary.ALPHA.set("alpha", 0.4F * (1F - (float) tick / (float) entity.getLifeTime()));
             }
             GlStateManager.disableLighting();
             GlStateManager.enableBlend();

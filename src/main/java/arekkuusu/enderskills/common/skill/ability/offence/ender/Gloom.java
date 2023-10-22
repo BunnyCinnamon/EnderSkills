@@ -50,7 +50,7 @@ public class Gloom extends BaseAbility implements IImpact {
         }
 
         //
-        int time = DSLDefaults.triggerDuration(owner, this, level).getAmount();
+        int time = DSLDefaults.triggerDamageDuration(owner, this, level).getAmount();
         double dot = DSLDefaults.getDamageOverTime(this, level);
         double damage = DSLDefaults.getDamage(this, level);
         double distance = DSLDefaults.triggerRange(owner, this, level).getAmount();

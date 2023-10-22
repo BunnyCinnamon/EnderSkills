@@ -89,7 +89,7 @@ public class BlackScouringFlame extends BaseAbility implements IExpand, IImpact 
             double damage = skillData.nbt.getDouble("damage");
             double true_damage = skillData.nbt.getDouble("true_damage");
             BlackFlame.dealDamage(this, (EntityLivingBase) trace.entityHit, owner, damage);
-            BlackFlame.dealTrueDamage(this, (EntityLivingBase) trace.entityHit, owner, true_damage);
+            BlackFlame.dealTrueDamageHAHAHA(this, (EntityLivingBase) trace.entityHit, owner, true_damage);
 
             SoundHelper.playSound(source.world, trace.entityHit.getPosition(), ModSounds.FIRE_HIT);
         }

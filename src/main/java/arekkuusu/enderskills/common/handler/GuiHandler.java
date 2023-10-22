@@ -100,7 +100,7 @@ public final class GuiHandler implements IGuiHandler {
                 GuiHandler.setValue(LibNames.GLOWING, "MODIFIER", (skill, level) -> DSLDefaults.getModifier(skill, level) / 2);
                 GuiHandler.setValue("COOLDOWN", (skill, level) -> DSLDefaults.getCooldown(skill, level) / 20);
                 GuiHandler.setValue("DURATION", (skill, level) -> DSLDefaults.triggerDuration(player, skill, level).getAmount() / 20);
-                GuiHandler.setValue("TRUE_DAMAGE", (skill, level) -> DSLDefaults.getTrueDamage(skill, level) / 2);
+                GuiHandler.setValue("TRUE_DAMAGE", (skill, level) -> DSLDefaults.getTrueDamage(skill, level) * 100);
                 GuiHandler.setValue("DAMAGE", (skill, level) -> DSLDefaults.getDamage(skill, level) / 2);
                 GuiHandler.setValue("DAMAGE_MIRROR", (skill, level) -> DSLDefaults.getDamageMimicry(skill, level) * 100);
                 GuiHandler.setValue("HEALTH", (skill, level) -> DSLDefaults.getHealth(skill, level) / 2);
@@ -114,7 +114,7 @@ public final class GuiHandler implements IGuiHandler {
                 GuiHandler.setValue("SLOW", (skill, level) -> DSLDefaults.getSlow(skill, level) * 100);
                 GuiHandler.setValue("POWER", (skill, level) -> DSLDefaults.getPower(skill, level));
                 GuiHandler.setValue("DOT", (skill, level) -> DSLDefaults.getDamageOverTime(skill, level) / 2);
-                GuiHandler.setValue("TRUE_DOT", (skill, level) -> DSLDefaults.getTrueDamageOverTime(skill, level) / 2);
+                GuiHandler.setValue("TRUE_DOT", (skill, level) -> DSLDefaults.getTrueDamageOverTime(skill, level) * 100);
                 GuiHandler.setValue("DOT_DURATION", (skill, level) -> DSLDefaults.triggerDamageDuration(player, skill, level).getAmount() / 20);
                 GuiHandler.setValue("INTERVAL", (skill, level) -> DSLDefaults.triggerIntervalDuration(player, skill, level).getAmount() / 20);
                 GuiHandler.setValue("PULSE_RANGE", (skill, level) -> HomeStar.getPulseRange(player, level).getAmount());

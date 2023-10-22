@@ -88,6 +88,15 @@ public class BlackFlame extends BaseEffect {
         }
     }
 
+    public static void dealTrueDamageHAHAHA(Skill skill, EntityLivingBase entity, EntityLivingBase owner, double damage) {
+        SkillDamageSource source = new SkillDamageSource(BaseAbility.DAMAGE_HIT_TYPE, owner);
+        SkillDamageEvent event = new SkillDamageEvent(owner, skill, source, entity.getMaxHealth() * damage);
+        MinecraftForge.EVENT_BUS.post(event);
+        if(event.getAmount() > 0) {
+            entity.attackEntityFrom(DamageSource.OUT_OF_WORLD, event.toFloat());
+        }
+    }
+
     @Override
     public void set(EntityLivingBase entity, SkillData data) {
         SkillData status = SkillData.of(this)

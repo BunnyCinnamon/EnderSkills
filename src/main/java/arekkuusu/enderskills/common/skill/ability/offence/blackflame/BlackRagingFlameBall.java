@@ -107,7 +107,7 @@ public class BlackRagingFlameBall extends BaseAbility implements IImpact, IScanE
 
     @Override
     public AxisAlignedBB expand(Entity source, AxisAlignedBB bb, float amount) {
-        return bb.grow(amount * 0.15, amount, amount * 0.15);
+        return bb.grow(amount * 0.35, amount, amount * 0.35);
     }
 
     @Override
@@ -135,7 +135,7 @@ public class BlackRagingFlameBall extends BaseAbility implements IImpact, IScanE
         double damage = data.nbt.getDouble("damage");
         double true_damage = data.nbt.getDouble("true_damage");
         BlackFlame.dealDamage(this, entity, owner, damage);
-        BlackFlame.dealTrueDamage(this, entity, owner, true_damage);
+        BlackFlame.dealTrueDamageHAHAHA(this, entity, owner, true_damage);
     }
 
     /*Config Section*/

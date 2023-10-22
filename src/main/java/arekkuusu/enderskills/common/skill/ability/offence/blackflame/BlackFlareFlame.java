@@ -12,7 +12,9 @@ import arekkuusu.enderskills.api.helper.NBTHelper;
 import arekkuusu.enderskills.api.helper.SoundHelper;
 import arekkuusu.enderskills.api.helper.TeamHelper;
 import arekkuusu.enderskills.common.block.ModBlocks;
+import arekkuusu.enderskills.common.block.tile.TileFire;
 import arekkuusu.enderskills.common.entity.data.*;
+import arekkuusu.enderskills.common.entity.placeable.EntityPlaceableData;
 import arekkuusu.enderskills.common.entity.placeable.EntityPlaceableGleamFlash;
 import arekkuusu.enderskills.common.entity.throwable.EntityThrowableData;
 import arekkuusu.enderskills.common.lib.LibMod;
@@ -33,6 +35,7 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.*;
@@ -47,6 +50,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 public class BlackFlareFlame extends BaseAbility implements IImpact, IScanEntities, IExpand, IFindEntity, IFlash {
@@ -93,6 +97,7 @@ public class BlackFlareFlame extends BaseAbility implements IImpact, IScanEntiti
 
         SkillData data = SkillData.of(this)
                 .put(compound)
+                .with(time)
                 .overrides(SkillData.Overrides.EQUAL)
                 .create();
         EntityThrowableData.throwFor(owner, distance, data, 0.3F, true);
@@ -104,13 +109,12 @@ public class BlackFlareFlame extends BaseAbility implements IImpact, IScanEntiti
     //* Entity *//
     @Override
     public void onImpact(Entity source, @Nullable EntityLivingBase owner, SkillData skillData, RayTraceResult trace) {
-        int time = skillData.nbt.getInteger("time");
         double radius = skillData.nbt.getDouble("range");
         Vec3d hitVector = trace.hitVec;
         if (trace.typeOfHit == RayTraceResult.Type.ENTITY) {
             hitVector = new Vec3d(hitVector.x, hitVector.y + trace.entityHit.getEyeHeight(), hitVector.z);
         }
-        EntityPlaceableGleamFlash spawn = new EntityPlaceableGleamFlash(source.world, owner, skillData, time + 5);
+        EntityPlaceableGleamFlash spawn = new EntityPlaceableGleamFlash(source.world, owner, skillData, EntityPlaceableData.MIN_TIME);
         spawn.setPosition(hitVector.x, hitVector.y, hitVector.z);
         spawn.setRadius(radius);
         spawn.growTicks = 5;
@@ -120,10 +124,11 @@ public class BlackFlareFlame extends BaseAbility implements IImpact, IScanEntiti
     @Override
     public void onFlash(Entity source, @Nullable EntityLivingBase owner, SkillData skillData) {
         double radius = skillData.nbt.getDouble("range");
-        this.doExplosionA(source.world, (float) ((float) Math.max(radius, 10F) + (radius / 10F)), source.posX, source.posY, source.posZ, owner);
+        int time = skillData.nbt.getInteger("time");
+        this.doExplosionA(source.world, (float) ((float) Math.max(radius, 10F) + (radius / 10F)), source.posX, source.posY, source.posZ, owner, time);
     }
 
-    public void doExplosionA(World world, float size, double x, double y, double z, EntityLivingBase exploder) {
+    public void doExplosionA(World world, float size, double x, double y, double z, EntityLivingBase exploder, int time) {
         Explosion explosion = new Explosion(world, exploder, x, y, z, 1F, true, false);
         Set<BlockPos> set = Sets.<BlockPos>newHashSet();
         int i = 16;
@@ -179,6 +184,8 @@ public class BlackFlareFlame extends BaseAbility implements IImpact, IScanEntiti
         for (BlockPos blockpos1 : affectedBlockPositions) {
             if (world.getBlockState(blockpos1).getMaterial() == Material.AIR && world.getBlockState(blockpos1.down()).isFullBlock() && world.rand.nextInt(6) == 0) {
                 world.setBlockState(blockpos1, ModBlocks.BLACK_FIRE_FLAME.getDefaultState());
+                TileFire tileEntity = (TileFire) world.getTileEntity(blockpos1);
+                tileEntity.setOwnerTime(exploder.getUniqueID(), time);
             }
         }
     }
@@ -192,10 +199,6 @@ public class BlackFlareFlame extends BaseAbility implements IImpact, IScanEntiti
     public void onFound(Entity source, @Nullable EntityLivingBase owner, EntityLivingBase target, SkillData skillData) {
         if (!target.world.isRemote) {
             ModEffects.BLACK_FLAME.set(target, skillData);
-            if (owner != null) {
-                NBTHelper.setEntity(owner.getEntityData(), owner, "flare_owner");
-                NBTHelper.setEntity(target.getEntityData(), owner, "flare_owner");
-            }
             super.apply(target, skillData);
 
             SoundHelper.playSound(source.world, source.getPosition(), ModSounds.FIRE_HIT);
@@ -208,17 +211,27 @@ public class BlackFlareFlame extends BaseAbility implements IImpact, IScanEntiti
         if (isClientWorld(entity)) return;
         EntityLivingBase owner = SkillHelper.getOwner(data);
         double damage = data.nbt.getDouble("damage");
+        BlackFlame.dealTrueDamage(this, entity, owner, damage);
+    }
+
+    @Override
+    public void update(EntityLivingBase entity, SkillData data, int tick) {
+        if (isClientWorld(entity)) return;
+        EntityLivingBase owner = SkillHelper.getOwner(data);
         double true_damage = data.nbt.getDouble("true_damage");
-        BlackFlame.dealDamage(this, entity, owner, damage);
-        BlackFlame.dealTrueDamage(this, entity, owner, true_damage);
+        int time = data.nbt.getInteger("time");
+        BlackFlame.dealTrueDamage(this, entity, owner, true_damage, time);
     }
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public void onEntityUpdate(LivingEvent.LivingUpdateEvent event) {
         if (isClientWorld(event.getEntityLiving())) return;
         EntityLivingBase entityLiving = event.getEntityLiving();
-        if (isFlammableWithin(entityLiving.world, entityLiving.getEntityBoundingBox().shrink(0.001D))) {
-            EntityLivingBase owner = NBTHelper.getEntity(EntityLivingBase.class, entityLiving.getEntityData(), "flare_owner");
+        Optional<BlockPos> flammableWithin = getFlammableWithin(entityLiving.world, entityLiving.getEntityBoundingBox().shrink(0.001D));
+        if (flammableWithin.isPresent()) {
+            BlockPos pooledMutableBlockPos = flammableWithin.get();
+            TileFire tileEntity = (TileFire) entityLiving.world.getTileEntity(pooledMutableBlockPos);
+            EntityLivingBase owner = tileEntity.getEntityLivingBase();
 
             if (owner != null) {
                 if (owner == entityLiving) return;
@@ -249,7 +262,7 @@ public class BlackFlareFlame extends BaseAbility implements IImpact, IScanEntiti
         }
     }
 
-    public boolean isFlammableWithin(World world, AxisAlignedBB bb) {
+    public Optional<BlockPos> getFlammableWithin(World world, AxisAlignedBB bb) {
         int j2 = MathHelper.floor(bb.minX);
         int k2 = MathHelper.ceil(bb.maxX);
         int l2 = MathHelper.floor(bb.minY);
@@ -263,11 +276,13 @@ public class BlackFlareFlame extends BaseAbility implements IImpact, IScanEntiti
             for (int l3 = j2; l3 < k2; ++l3) {
                 for (int i4 = l2; i4 < i3; ++i4) {
                     for (int j4 = j3; j4 < k3; ++j4) {
-                        Block block = world.getBlockState(blockpos$pooledmutableblockpos.setPos(l3, i4, j4)).getBlock();
+                        BlockPos.PooledMutableBlockPos pos = blockpos$pooledmutableblockpos.setPos(l3, i4, j4);
+                        Block block = world.getBlockState(pos).getBlock();
 
                         if (block == ModBlocks.BLACK_FIRE_FLAME) {
+                            BlockPos value = pos.toImmutable();
                             blockpos$pooledmutableblockpos.release();
-                            return true;
+                            return Optional.of(value);
                         }
                     }
                 }
@@ -276,7 +291,7 @@ public class BlackFlareFlame extends BaseAbility implements IImpact, IScanEntiti
             blockpos$pooledmutableblockpos.release();
         }
 
-        return false;
+        return Optional.empty();
     }
 
     /*Config Section*/

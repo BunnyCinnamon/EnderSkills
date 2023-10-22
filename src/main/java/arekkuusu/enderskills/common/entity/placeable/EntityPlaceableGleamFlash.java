@@ -34,7 +34,7 @@ public class EntityPlaceableGleamFlash extends EntityPlaceableData {
         if (tickDelay > getData().nbt.getInteger("delay")) {
             if (tick == 0) {
                 world.playSound(posX, posY, posZ, ModSounds.GLEAM_BANG_RELEASE, SoundCategory.PLAYERS, 5F, 1.0F, true);
-                if (getData().skill instanceof IFlash) {
+                if (getData().skill instanceof IFlash && !world.isRemote) {
                     SkillData data = getData();
                     EntityLivingBase owner = SkillHelper.getOwner(data);
                     ((IFlash) getData().skill).onFlash(this, owner, data);
@@ -98,5 +98,15 @@ public class EntityPlaceableGleamFlash extends EntityPlaceableData {
         this.posZ = (axisalignedbb.minZ + axisalignedbb.maxZ) / 2.0D;
         if (this.isAddedToWorld() && !this.world.isRemote)
             this.world.updateEntityWithOptionalForce(this, false); // Forge - Process chunk registration after moving.
+    }
+
+    @Override
+    public boolean shouldRenderInPass(int pass) {
+        return pass == 0 || pass == 1;
+    }
+
+    @Override
+    public boolean canRenderOnFire() {
+        return false;
     }
 }
