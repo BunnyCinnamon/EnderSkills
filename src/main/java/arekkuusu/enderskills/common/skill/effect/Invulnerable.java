@@ -41,7 +41,7 @@ public class Invulnerable extends BaseEffect {
     }
 
     public boolean isWithinEffectiveDistance(EntityLivingBase entity, EntityLivingBase owner) {
-        SkillData data = SkillHelper.getActive(owner, ModAbilities.HOME_STAR, owner.getUniqueID().toString()).orElse(null);
+        SkillData data = SkillHelper.getActive(owner, ModEffects.INVULNERABLE, owner.getUniqueID().toString()).orElse(null);
         if(data == null) return false;
         double time = NBTHelper.getInteger(data.nbt, "time");
         double tick = NBTHelper.getInteger(data.nbt, "tick");
