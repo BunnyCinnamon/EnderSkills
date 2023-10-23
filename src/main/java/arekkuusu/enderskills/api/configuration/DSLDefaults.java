@@ -123,8 +123,8 @@ public final class DSLDefaults {
         return DSLEvaluator.evaluateInt(skill, "DISPLACEMENT", level, 1D);
     }
 
-    public static int getReduction(Skill skill, int level) {
-        return DSLEvaluator.evaluateInt(skill, "REDUCTION", level, 1D);
+    public static double getReduction(Skill skill, int level) {
+        return DSLEvaluator.evaluateDouble(skill, "REDUCTION", level, 1D);
     }
 
     public static int getSpeed(Skill skill, int level) {

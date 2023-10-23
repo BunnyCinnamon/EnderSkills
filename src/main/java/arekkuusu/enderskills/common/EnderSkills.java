@@ -1,6 +1,7 @@
 package arekkuusu.enderskills.common;
 
 import arekkuusu.enderskills.api.capability.*;
+import arekkuusu.enderskills.common.handler.Advancements;
 import arekkuusu.enderskills.common.network.command.*;
 import arekkuusu.enderskills.common.handler.GuiHandler;
 import arekkuusu.enderskills.common.handler.WorldGenOre;
@@ -77,6 +78,7 @@ public class EnderSkills {
     public void postInit(FMLPostInitializationEvent event) {
         proxy.postInit(event);
         ModConfigurations.init();
+        Advancements.initializeAdvancements();
     }
 
     @EventHandler

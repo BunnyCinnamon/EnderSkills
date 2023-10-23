@@ -213,6 +213,7 @@ ui.enderskills.desc.stats.crush_range=§f范围: §r%1$s%2$s
 ui.enderskills.desc.stats.thorns_damage=§f荆棘伤害: §r%1$s%2$s
 ui.enderskills.desc.stats.restore=§f恢复: §r%1$s%2$s
 ui.enderskills.desc.stats.cooldown_reduction=§f冷却缩减: §r%1$s%2$s
+ui.enderskills.desc.stats.reduction=§f冷却缩减: §r%1$s%2$s
 ui.enderskills.desc.stats.ring_range=§f范围: §r%1$s%2$s
 ui.enderskills.desc.stats.pulse_range=§f范围: §r%1$s%2$s
 ui.enderskills.desc.stats.pulse_interval=§f间隔时间: §r%1$s%2$s

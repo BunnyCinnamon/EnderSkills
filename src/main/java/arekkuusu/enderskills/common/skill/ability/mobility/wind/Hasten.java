@@ -127,10 +127,11 @@ public class Hasten extends BaseAbility {
                 SkillInfo info = entry.getValue();
                 Skill skill = entry.getKey();
                 ResourceLocation location = skill.getRegistryName();
-                if (!locations.contains(location) && info instanceof InfoCooldown && info instanceof InfoUpgradeable && location != null) {
+                if (!locations.contains(location) && info instanceof InfoCooldown && location != null) {
                     if (((InfoCooldown) info).hasCooldown()) {
+                        int level = info instanceof InfoUpgradeable ? ((InfoUpgradeable) info).getLevel() : 0;
                         ((InfoCooldown) info).setCooldown(
-                                Math.max(0, ((InfoCooldown) info).getCooldown() - (int) (DSLDefaults.getCooldown(ModAbilities.HASTEN, ((InfoUpgradeable) info).getLevel()) * crd))
+                                Math.max(0, ((InfoCooldown) info).getCooldown() - (int) (DSLDefaults.getCooldown(skill, level) * crd))
                         );
                         if (entity instanceof EntityPlayer) {
                             PacketHelper.sendSkillSync((EntityPlayerMP) entity, skill);

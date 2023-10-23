@@ -238,6 +238,7 @@ ui.enderskills.desc.stats.crush_range=§fCrush Range: §r%1$s%2$s
 ui.enderskills.desc.stats.thorns_damage=§fThorns Damage: §r%1$s%2$s
 ui.enderskills.desc.stats.restore=§fRestore: §r%1$s%2$s
 ui.enderskills.desc.stats.cooldown_reduction=§fCooldown Reduction: §r%1$s%2$s
+ui.enderskills.desc.stats.reduction=§fCooldown Reduction: §r%1$s%2$s
 ui.enderskills.desc.stats.ring_range=§fRing Range: §r%1$s%2$s
 ui.enderskills.desc.stats.pulse_range=§fPulse Range: §r%1$s%2$s
 ui.enderskills.desc.stats.pulse_interval=§fPulse Interval: §r%1$s%2$s
