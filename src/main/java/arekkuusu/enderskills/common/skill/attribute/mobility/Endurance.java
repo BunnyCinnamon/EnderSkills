@@ -121,7 +121,7 @@ public class Endurance extends BaseAttribute {
                     PacketHelper.sendEnduranceSync((EntityPlayerMP) event.getEntityLiving());
                 }
             });
-            ENDURANCE_DEFAULT_ATTRIBUTE.apply(event.getEntityLiving(), Configuration.LOCAL_VALUES.endurance);
+            ENDURANCE_DEFAULT_ATTRIBUTE.apply(event.getEntityLiving(), Configuration2.LOCAL_VALUES.endurance);
         }
     }
 
@@ -177,7 +177,7 @@ public class Endurance extends BaseAttribute {
             int endurance = DSLDefaults.getEndurance(skill, lvl);
             if (endurance == 0) {
                 String skillRegistryName = Objects.requireNonNull(skill.getRegistryName()).toString();
-                endurance = Configuration.LOCAL_VALUES.enduranceMap.getOrDefault(skillRegistryName, 0);
+                endurance = Configuration2.LOCAL_VALUES.enduranceMap.getOrDefault(skillRegistryName, 0);
             }
             return endurance;
         }
@@ -191,9 +191,15 @@ public class Endurance extends BaseAttribute {
     @Config(modid = LibMod.MOD_ID, name = Endurance.CONFIG_FILE)
     public static class Configuration {
 
+        public static DSL CONFIG = DSLFactory.create(Endurance.CONFIG_FILE);
+    }
+
+    @Config(modid = LibMod.MOD_ID, name = Endurance.CONFIG_FILE + "2")
+    public static class Configuration2 {
+
         @Config.Ignore
-        public static Configuration.Values LOCAL_VALUES = new Configuration.Values();
-        public static Configuration.Values VALUES = new Configuration.Values();
+        public static Configuration2.Values LOCAL_VALUES = new Configuration2.Values();
+        public static Configuration2.Values VALUES = new Configuration2.Values();
 
         public static class Values {
             @Config.Comment("Default start endurance")
@@ -281,8 +287,6 @@ public class Endurance extends BaseAttribute {
                     .build()
             );
         }
-
-        public static DSL CONFIG = DSLFactory.create(Endurance.CONFIG_FILE);
     }
     /*Config Section*/
 }

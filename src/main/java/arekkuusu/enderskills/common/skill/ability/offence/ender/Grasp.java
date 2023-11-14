@@ -62,7 +62,7 @@ public class Grasp extends BaseAbility implements IImpact, IExpand, ILoopSound, 
 
         //
         double distance = DSLDefaults.triggerRange(owner, this, level).getAmount();
-        double range = DSLDefaults.triggerRange(owner, this, level).getAmount();
+        double range = DSLDefaults.triggerSize(owner, this, level).getAmount();
         int time = DSLDefaults.triggerDuration(owner, this, level).getAmount();
         double dot = DSLDefaults.getDamageOverTime(this, level);
         int dotDuration = DSLDefaults.triggerDamageDuration(owner, this, level).getAmount();
