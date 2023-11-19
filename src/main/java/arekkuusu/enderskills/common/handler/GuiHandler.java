@@ -182,6 +182,7 @@ public final class GuiHandler implements IGuiHandler {
                 GuiHandler.setSuffix("DELAY", "suffix_time");
                 GuiHandler.setSuffix("PIERCING", "suffix_amount");
                 GuiHandler.setSuffix("AMOUNT", "suffix_amount");
+                GuiHandler.setSuffix("REGEN", "suffix_time");
                 //
                 GuiScreenSkillAdvancements window = new GuiScreenSkillAdvancements();
                 GuiSkillAdvancementTab defense = window.addTab(new TextComponentTranslation(get("tab.defense.title")), SkillAdvancementTabType.BELOW, 0x65974B, 0);
@@ -2163,6 +2164,11 @@ public final class GuiHandler implements IGuiHandler {
                         critical_chance.addCondition(new SkillAdvancementConditionAltar(SkillAdvancementConditionAltar.LEVEL_1));
                         armor_penetration.addCondition(new SkillAdvancementConditionAltar(SkillAdvancementConditionAltar.LEVEL_1));
                         black_flame_ball.addCondition(new SkillAdvancementConditionAltar(SkillAdvancementConditionAltar.LEVEL_0));
+                        black_scouring_flame.addCondition(new SkillAdvancementConditionAltar(SkillAdvancementConditionAltar.LEVEL_1));
+                        black_blessing_flame.addCondition(new SkillAdvancementConditionAltar(SkillAdvancementConditionAltar.LEVEL_1));
+                        black_raging_flame_ball.addCondition(new SkillAdvancementConditionAltar(SkillAdvancementConditionAltar.LEVEL_2));
+                        black_volley_flame.addCondition(new SkillAdvancementConditionAltar(SkillAdvancementConditionAltar.LEVEL_2));
+                        black_flare_flame.addCondition(new SkillAdvancementConditionAltarUltimate());
                         //GUI
                         GuiSkillAdvancement gui0 = black_flame.addAdvancement(black_flame_ball);
                         GuiSkillAdvancement gui1 = black_flame.addAdvancement(black_scouring_flame, black_blessing_flame);
