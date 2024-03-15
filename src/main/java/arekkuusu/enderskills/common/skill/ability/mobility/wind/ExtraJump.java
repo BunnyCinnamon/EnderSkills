@@ -97,7 +97,7 @@ public class ExtraJump extends BaseAbility {
         if (player.capabilities.isCreativeMode) return;
         Capabilities.get(player).flatMap(c -> c.getOwned(ModAbilities.EXTRA_JUMP)).ifPresent(skillInfo -> {
             AbilityInfo abilityInfo = (AbilityInfo) skillInfo;
-            if (abilityInfo.hasCooldown() || DSLDefaults.triggerRange(player, ModAbilities.EXTRA_JUMP, abilityInfo.getLevel()).getAmount() <= jumps) return;
+            if (abilityInfo.hasCooldown() || ExtraJump.getJumps(abilityInfo.getLevel()) <= jumps) return;
             boolean tapped = Minecraft.getMinecraft().gameSettings.keyBindJump.isKeyDown();
             if (tapped && !wasTapped && ticksForNextTap == 0 && !player.onGround) {
                 Capabilities.endurance(player).ifPresent(endurance -> {
