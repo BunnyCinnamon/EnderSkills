@@ -133,7 +133,7 @@ public class ExtraJump extends BaseAbility {
     }
 
     public static int getJumps(int level) {
-        return DSLEvaluator.evaluateInt(ModAbilities.EXTRA_JUMP, "JUMP", level, 1D);
+        return DSLEvaluator.evaluateInt(ModAbilities.EXTRA_JUMP, "JUMPS", level, 1D);
     }
     /*Config Section*/
 }

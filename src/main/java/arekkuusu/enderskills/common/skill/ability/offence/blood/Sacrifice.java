@@ -50,7 +50,7 @@ public class Sacrifice extends BaseAbility {
 
         //
         double power = DSLDefaults.getPower(this, level);
-        double heal = DSLDefaults.getHealth(this, level);
+        double heal = DSLDefaults.getHeal(this, level);
         int time = DSLDefaults.triggerDuration(owner, this, level).getAmount();
         NBTTagCompound compound = new NBTTagCompound();
         NBTHelper.setEntity(compound, owner, "owner");
